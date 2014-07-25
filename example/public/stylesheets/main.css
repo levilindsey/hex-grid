@@ -1,0 +1,76 @@
+
+html {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+body {
+  height: 1000px;
+  margin: 0; padding: 0;
+  background: #e8e8e8;
+  color: #343534;
+  font-size: 18px;
+  font-family: sans-serif;
+}
+
+h1 {
+  font-size: 32px;
+  text-align: center;
+  width: 100%;
+}
+
+h2 {
+  font-size: 26px;
+}
+
+h3 {
+  margin: 0 0 6px 0;
+  text-align: center;
+  font-size: 17px;
+  font-weight: normal;
+}
+
+a { color: #80c050; text-decoration: none; }
+a:hover { color: #a0ea70; text-decoration: underline; }
+a:active { color: #509020; }
+a:visited { color: #90c080; }
+
+#main-area {
+  width: 800px;
+  margin: 70px auto;
+}
+
+#buttons {
+  float: left;
+  width: 130px;
+  padding-right: 70px;
+}
+
+#recipe {
+  float: left;
+  width: 600px;
+}
+
+#buttons>button {
+  display: block;
+  margin: 0 0 6px;
+  width: 100%;
+  height: 20px;
+  padding: 1px 6px;
+  border-width: 1px 2px;
+  font-size: 14px;
+}
+
+.waiting-to-animate {
+  overflow: visible;
+  opacity: 0;
+}
+
+.is-animating {
+  overflow: visible;
+  opacity: 1;
+}
+
+.done-animating {
+  opacity: 1;
+}

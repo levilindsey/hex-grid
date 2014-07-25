@@ -1,0 +1,38 @@
+{
+  "name": "hex-grid",
+  "version": "0.0.0",
+  "description": "A dynamic, expandable, animated grid of hexagonal tiles",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/levisl176/hex-grid"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/levisl176/hex-grid/blob/master/LICENSE"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/levisl176/hex-grid/issues",
+    "email": "levisl176@gmail.com"
+  },
+  "author": {
+    "name": "Levi Lindsey",
+    "email": "levisl176@gmail.com",
+    "url": "http://jackieandlevi.com/levi"
+  },
+  "main": "dist/hex-grid.min.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "ignore": [
+    "src",
+    "example",
+    ".gitignore",
+    "bower.json",
+    "gulpfile.js",
+    "package.json",
+    "README.md"
+  ]
+}
