@@ -374,14 +374,14 @@
    * @type {Function}
    */
   var requestAnimationFrame =
-      window.requestAnimationFrame || // the standard
+      (window.requestAnimationFrame || // the standard
       window.webkitRequestAnimationFrame || // chrome/safari
       window.mozRequestAnimationFrame || // firefox
       window.oRequestAnimationFrame || // opera
       window.msRequestAnimationFrame || // ie
       function (callback) { // default
         window.setTimeout(callback, 16); // 60fps
-      };
+      }).bind(window);
 
   /**
    * Calculates the x and y coordinates represented by the given Bezier curve at the given
@@ -457,7 +457,8 @@
     inverseEasingFunctions: inverseEasingFunctions,
     requestAnimationFrame: requestAnimationFrame,
     getXYFromPercentWithBezier: getXYFromPercentWithBezier,
-    applyTransform: applyTransform
+    applyTransform: applyTransform,
+    svgNamespace: 'http://www.w3.org/2000/svg'
   };
 
   // Expose this module

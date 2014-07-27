@@ -18,7 +18,7 @@
 
     if (!animator.isPaused) {
       updateJobs(currentTime);
-      hg.util.requestAnimationFrame.call(window, animationLoop);
+      hg.util.requestAnimationFrame(animationLoop);
     } else {
       animator.isLooping = false;
     }

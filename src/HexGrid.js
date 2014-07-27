@@ -20,7 +20,17 @@
 
     grid = this;
 
-    // TODO:
+    grid.svg = document.createElementNS(hg.util.svgNamespace, 'svg');
+    grid.svg.style.position = 'relative';
+    grid.svg.style.width = '100%';
+    grid.svg.style.height = '100%';
+    grid.svg.style.zIndex = '2147483647';
+    grid.svg.style.backgroundColor =
+        'hsl(' + grid.hue + ',' + grid.saturation + '%,' + grid.lightness + '%)';
+    grid.parent.appendChild(grid.svg);
+
+    grid.svgDefs = document.createElementNS(hg.util.svgNamespace, 'defs');
+    grid.svg.appendChild(grid.svgDefs);
   }
 
   /**
@@ -31,7 +41,11 @@
 
     grid = this;
 
+    grid.tiles = [];
+
     // TODO:
+    grid.tiles[0] = new hg.HexTile(grid.svg, 100, 100, 60, true, 20, 60, 60, {});
+    grid.tiles[1] = new hg.HexTile(grid.svg, 300, 100, 60, false, 80, 60, 60, {});
   }
 
   /**
@@ -45,6 +59,19 @@
     // TODO:
     // hg.animator.createJob
     // hg.animator.startJob
+  }
+
+  /**
+   * Event listener for the window resize event.
+   *
+   * Computes spatial parameters of the tiles in the grid.
+   */
+  function onWindowResize() {
+    var grid;
+
+    grid = this;
+
+    // TODO: calculate tile dimensions, how many tiles to show, tile positions, ...
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -61,12 +88,19 @@
     grid.parent = parent;
     grid.tileData = tileData;
 
+    grid.hue = 50;
+    grid.saturation = 20;
+    grid.lightness = 20;
+
     grid.svg = null;
     grid.tiles = null;
 
     createSvg.call(grid);
     createTiles.call(grid);
     startAnimating.call(grid);
+
+    onWindowResize.call(grid);
+    window.addEventListener('resize', onWindowResize.bind(grid), false);
   }
 
   // ------------------------------------------------------------------------------------------- //
