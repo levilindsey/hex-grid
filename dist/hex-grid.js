@@ -137,12 +137,16 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
+  // TODO:
+  // - update the tile radius and the targetContentAreaWidth with the screen width
+  //   - we should always have the same number of content tiles in a given row
+
   var config = {};
 
   config.targetContentAreaWidth = 800;
-  config.backgroundHue = 80;
+  config.backgroundHue = 327;
   config.backgroundSaturation = 20;
-  config.backgroundLightness = 5;
+  config.backgroundLightness = 10;
   config.tileHue = 147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
@@ -150,6 +154,7 @@
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
   config.firstRowYOffset = config.tileOuterRadius * 0;
+  config.contentDensity = 0.65;
 
   config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
   config.twoOverSqrtThree = 2 / Math.sqrt(3);
@@ -173,7 +178,7 @@
    * - the horizontal positions of the first tiles in even and odd rows
    */
   function computeGridParameters() {
-    var grid, parentHalfWidth, parentHeight;
+    var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex;
 
     grid = this;
 
@@ -204,6 +209,69 @@
 
     grid.evenRowXOffset = grid.oddRowXOffset +
         (grid.evenRowTileCount > grid.oddRowTileCount ? -1 : 1) * grid.tileDeltaX * 0.5;
+
+    // --- Row inner content information --- //
+
+    grid.contentAreaLeft = parentHalfWidth - grid.actualContentAreaWidth * 0.5;
+    grid.contentAreaRight = grid.contentAreaLeft + grid.actualContentAreaWidth;
+
+    if (grid.isVertical) {
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileInnerRadius)) / config.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileInnerRadius)) / config.tileDeltaX);
+    } else {
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileOuterRadius)) / config.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileOuterRadius)) / config.tileDeltaX);
+    }
+
+    grid.oddRowContentTileCount = grid.oddRowTileCount - grid.oddRowContentStartIndex * 2;
+    grid.evenRowContentTileCount = grid.evenRowTileCount - grid.evenRowContentStartIndex * 2;
+
+    grid.oddRowContentEndIndex = grid.oddRowContentStartIndex + grid.oddRowContentTileCount - 1;
+    grid.evenRowContentEndIndex = grid.evenRowContentStartIndex + grid.evenRowContentTileCount - 1;
+
+    grid.innerIndexOfLastContentTile = grid.contentInnerIndices[grid.contentInnerIndices.length - 1];
+
+    innerContentCount = 0;
+    rowIndex = 0;
+    while (grid.innerIndexOfLastContentTile > innerContentCount) {
+      innerContentCount += rowIndex % 2 === 0 ?
+          grid.oddRowContentTileCount : grid.evenRowContentTileCount;
+      rowIndex += 1;
+    }
+    grid.rowCount = rowIndex > grid.rowCount ? rowIndex : grid.rowCount;
+  }
+
+  /**
+   * Calculates the tile indices within the content area column that will represent tiles with
+   * content.
+   */
+  function computeContentIndices() {
+    var grid, i, j, count, tilesRepresentation;
+
+    grid = this;
+
+    // Copy the original data
+    tilesRepresentation = [];
+    count = grid.tileData.length;
+    for (i = 0; i < count; i += 1) {
+      tilesRepresentation[i] = grid.tileData[i];
+    }
+
+    // Add empty elements
+    count = (1 / config.contentDensity) * grid.tileData.length;
+    for (i = grid.tileData.length; i < count; i += 1) {
+      tilesRepresentation[i] = null;
+    }
+
+    tilesRepresentation = hg.util.shuffle(tilesRepresentation);
+
+    // Record the resulting indices of the elements representing tile content
+    grid.contentInnerIndices = [];
+    for (i = 0, j = 0, count = tilesRepresentation.length; i < count; i += 1) {
+      if (tilesRepresentation[i]) {
+        grid.contentInnerIndices[j++] = tilesRepresentation[i];
+      }
+    }
   }
 
   /**
@@ -231,7 +299,8 @@
    * Creates the tile elements for the grid.
    */
   function createTiles() {
-    var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY;
+    var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
+        isMarginTile;
 
     grid = this;
 
@@ -251,11 +320,44 @@
 
       for (columnIndex = 0; columnIndex < columnCount;
            tileIndex += 1, columnIndex += 1, centerX += grid.tileDeltaX) {
+        isMarginTile = **;// TODO:
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex);
+            tileIndex, isMarginTile);
       }
     }
+
+    addContentToTiles.call(grid);
+    setNeighborTiles.call(grid);
+  }
+
+  /**
+   * Adds content to the appropriate tiles.
+   */
+  function addContentToTiles() {
+    var grid, i, count;
+
+    grid = this;
+
+    **;// TODO: don't forget that these indices are only representing the tiles WITHIN THE CONTENT COLUMN
+    // - use grid.contentInnerIndices
+
+    // // TODO: add actual tile content
+    // tile.setContent({});
+    // config.contentDensity
+  }
+
+  /**
+   * Connects each tile with references to its neighbors.
+   */
+  function setNeighborTiles() {
+    var grid, i, count, neighborTiles;
+
+    grid = this;
+
+    // TODO:
+
+    // tile.setNeighborTiles(neighborTiles)
   }
 
   /**
@@ -283,8 +385,6 @@
 
     config.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
         grid.parent.clientWidth : config.targetContentAreaWidth;
-    console.log('grid.parent.clientWidth=' + grid.parent.clientWidth);
-    console.log('config.actualContentAreaWidth=' + config.actualContentAreaWidth);
 
     clearSvg.call(grid);
 
@@ -321,26 +421,23 @@
    * This is useful for testing purposes.
    */
   function drawContentAreaGuideLines() {
-    var grid, line, contentAreaLeft, contentAreaRight;
+    var grid, line;
 
     grid = this;
 
-    contentAreaLeft = (grid.parent.clientWidth - grid.actualContentAreaWidth) / 2;
-    contentAreaRight = contentAreaLeft + grid.actualContentAreaWidth;
-
     line = document.createElementNS(hg.util.svgNamespace, 'line');
-    line.setAttribute('x1', contentAreaLeft);
+    line.setAttribute('x1', grid.contentAreaLeft);
     line.setAttribute('y1', 0);
-    line.setAttribute('x2', contentAreaLeft);
+    line.setAttribute('x2', grid.contentAreaLeft);
     line.setAttribute('y2', grid.parent.clientHeight);
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
     grid.svg.appendChild(line);
 
     line = document.createElementNS(hg.util.svgNamespace, 'line');
-    line.setAttribute('x1', contentAreaRight);
+    line.setAttribute('x1', grid.contentAreaRight);
     line.setAttribute('y1', 0);
-    line.setAttribute('x2', contentAreaRight);
+    line.setAttribute('x2', grid.contentAreaRight);
     line.setAttribute('y2', grid.parent.clientHeight);
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
@@ -459,7 +556,7 @@
   /**
    * @constructor
    * @param {HTMLElement} parent
-   * @param {Object} tileData
+   * @param {Array.<Object>} tileData
    * @param {boolean} isVertical
    */
   function HexGrid(parent, tileData, isVertical) {
@@ -476,8 +573,11 @@
 
     grid.svg = null;
     grid.tiles = null;
+    grid.contentInnerIndices = null;
+    grid.innerIndexOfLastContentTile = null;
 
     createSvg.call(grid);
+    computeContentIndices.call(grid);
     onWindowResize.call(grid);
     startAnimating.call(grid);
 
@@ -508,7 +608,7 @@
   /**
    * @global
    * @param {HTMLElement} parent
-   * @param {Object} tileData
+   * @param {Array.<Object>} tileData
    * @param {boolean} isVertical
    * @returns {HexGrid}
    */
@@ -640,7 +740,30 @@
   // Public dynamic functions
 
   /**
-   * Sets the given polygon element's points attribute according to the given vertex coordinates.
+   * Sets this tile's content.
+   *
+   * @param {?Object} tileData
+   */
+  function setContent(tileData) {
+    var tile = this;
+
+    tile.tileData = tileData;
+    tile.holdsContent = !!tileData;
+  }
+
+  /**
+   * Sets this tile's neighbor tiles.
+   *
+   * @param {Array.<HexTile>} neighborTiles
+   */
+  function setNeighborTiles(neighborTiles) {
+    var tile = this;
+
+    tile.neighborTiles = neighborTiles;
+  }
+
+  /**
+   * Sets this tile's vertex coordinates.
    *
    * @param {Array.<number>} vertices
    */
@@ -657,7 +780,7 @@
   }
 
   /**
-   * Sets the given polygon element's color attributes according to the given color values.
+   * Sets this tile's color values.
    *
    * @param {number} hue
    * @param {number} saturation
@@ -684,11 +807,12 @@
    * @param {number} hue
    * @param {number} saturation
    * @param {number} lightness
-   * @param {Object} tileData
+   * @param {?Object} tileData
    * @param {number} tileIndex
+   * @param {boolean} isMarginTile
    */
   function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
-                   tileData, tileIndex) {
+                   tileData, tileIndex, isMarginTile) {
     var tile = this;
 
     tile.svg = svg;
@@ -700,11 +824,15 @@
     tile.hue = hue;
     tile.saturation = saturation;
     tile.lightness = lightness;
-    tile.vertices = null;
     tile.tileData = tileData;
     tile.holdsContent = !!tileData;
     tile.index = tileIndex;
+    tile.isMarginTile = isMarginTile;
+    tile.neighborTiles = null;
+    tile.vertices = null;
 
+    tile.setContent = setContent;
+    tile.setNeighborTiles = setNeighborTiles;
     tile.setColor = setColor;
     tile.setVertices = setVertices;
 
@@ -1287,6 +1415,27 @@
     element.style.transform = transform;
   }
 
+  /**
+   * Returns a copy of the given array with its contents re-arranged in a random order.
+   *
+   * The original array is left in its original order.
+   *
+   * @param {Array} array
+   * @returns {Array}
+   */
+  function shuffle(array) {
+    var i, j, count, temp;
+
+    for (i = 0, count = array.length; i < count; i += 1) {
+      j = parseInt(Math.random() * count);
+      temp = array[j];
+      array[j] = array[i];
+      array[i] = temp;
+    }
+
+    return array;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -1318,6 +1467,7 @@
     requestAnimationFrame: requestAnimationFrame,
     getXYFromPercentWithBezier: getXYFromPercentWithBezier,
     applyTransform: applyTransform,
+    shuffle: shuffle,
     svgNamespace: 'http://www.w3.org/2000/svg'
   };
 
