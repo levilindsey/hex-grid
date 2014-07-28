@@ -50,15 +50,12 @@
    * - the horizontal positions of the first tiles in even and odd rows
    */
   function computeGridParameters() {
-    var grid, parentHalfWidth, parentHeight;
+    var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex;
 
     grid = this;
 
     parentHalfWidth = grid.parent.clientWidth * 0.5;
     parentHeight = grid.parent.clientHeight;
-
-    grid.contentAreaLeft = parentHalfWidth - grid.actualContentAreaWidth * 0.5;
-    grid.contentAreaRight = grid.contentAreaLeft + grid.actualContentAreaWidth;
 
     if (grid.isVertical) {
       grid.rowDeltaY = config.tileOuterRadius * 1.5 + config.tileGap * config.sqrtThreeOverTwo;
@@ -85,6 +82,11 @@
     grid.evenRowXOffset = grid.oddRowXOffset +
         (grid.evenRowTileCount > grid.oddRowTileCount ? -1 : 1) * grid.tileDeltaX * 0.5;
 
+    // --- Row inner content information --- //
+
+    grid.contentAreaLeft = parentHalfWidth - grid.actualContentAreaWidth * 0.5;
+    grid.contentAreaRight = grid.contentAreaLeft + grid.actualContentAreaWidth;
+
     if (grid.isVertical) {
       grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileInnerRadius)) / config.tileDeltaX);
       grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileInnerRadius)) / config.tileDeltaX);
@@ -99,7 +101,16 @@
     grid.oddRowContentEndIndex = grid.oddRowContentStartIndex + grid.oddRowContentTileCount - 1;
     grid.evenRowContentEndIndex = grid.evenRowContentStartIndex + grid.evenRowContentTileCount - 1;
 
-    **;// TODO: compute grid.innerIndexOfLastContentTile (don't forget that these indices are only representing the tiles WITHIN THE CONTENT COLUMN)
+    grid.innerIndexOfLastContentTile = grid.contentInnerIndices[grid.contentInnerIndices.length - 1];
+
+    innerContentCount = 0;
+    rowIndex = 0;
+    while (grid.innerIndexOfLastContentTile > innerContentCount) {
+      innerContentCount += rowIndex % 2 === 0 ?
+          grid.oddRowContentTileCount : grid.evenRowContentTileCount;
+      rowIndex += 1;
+    }
+    grid.rowCount = rowIndex > grid.rowCount ? rowIndex : grid.rowCount;
   }
 
   /**
@@ -202,7 +213,6 @@
 
     **;// TODO: don't forget that these indices are only representing the tiles WITHIN THE CONTENT COLUMN
     // - use grid.contentInnerIndices
-    // - also, be sure to set
 
     // // TODO: add actual tile content
     // tile.setContent({});
