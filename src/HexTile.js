@@ -115,7 +115,30 @@
   // Public dynamic functions
 
   /**
-   * Sets the given polygon element's points attribute according to the given vertex coordinates.
+   * Sets this tile's content.
+   *
+   * @param {?Object} tileData
+   */
+  function setContent(tileData) {
+    var tile = this;
+
+    tile.tileData = tileData;
+    tile.holdsContent = !!tileData;
+  }
+
+  /**
+   * Sets this tile's neighbor tiles.
+   *
+   * @param {Array.<HexTile>} neighborTiles
+   */
+  function setNeighborTiles(neighborTiles) {
+    var tile = this;
+
+    tile.neighborTiles = neighborTiles;
+  }
+
+  /**
+   * Sets this tile's vertex coordinates.
    *
    * @param {Array.<number>} vertices
    */
@@ -132,7 +155,7 @@
   }
 
   /**
-   * Sets the given polygon element's color attributes according to the given color values.
+   * Sets this tile's color values.
    *
    * @param {number} hue
    * @param {number} saturation
@@ -159,11 +182,12 @@
    * @param {number} hue
    * @param {number} saturation
    * @param {number} lightness
-   * @param {Object} tileData
+   * @param {?Object} tileData
    * @param {number} tileIndex
+   * @param {boolean} isMarginTile
    */
   function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
-                   tileData, tileIndex) {
+                   tileData, tileIndex, isMarginTile) {
     var tile = this;
 
     tile.svg = svg;
@@ -175,11 +199,15 @@
     tile.hue = hue;
     tile.saturation = saturation;
     tile.lightness = lightness;
-    tile.vertices = null;
     tile.tileData = tileData;
     tile.holdsContent = !!tileData;
     tile.index = tileIndex;
+    tile.isMarginTile = isMarginTile;
+    tile.neighborTiles = null;
+    tile.vertices = null;
 
+    tile.setContent = setContent;
+    tile.setNeighborTiles = setNeighborTiles;
     tile.setColor = setColor;
     tile.setVertices = setVertices;
 

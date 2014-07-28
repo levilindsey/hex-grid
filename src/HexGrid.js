@@ -9,12 +9,16 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
+  // TODO:
+  // - update the tile radius and the targetContentAreaWidth with the screen width
+  //   - we should always have the same number of content tiles in a given row
+
   var config = {};
 
   config.targetContentAreaWidth = 800;
-  config.backgroundHue = 80;
+  config.backgroundHue = 327;
   config.backgroundSaturation = 20;
-  config.backgroundLightness = 5;
+  config.backgroundLightness = 10;
   config.tileHue = 147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
@@ -22,6 +26,7 @@
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
   config.firstRowYOffset = config.tileOuterRadius * 0;
+  config.contentDensity = 0.65;
 
   config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
   config.twoOverSqrtThree = 2 / Math.sqrt(3);
@@ -76,6 +81,42 @@
 
     grid.evenRowXOffset = grid.oddRowXOffset +
         (grid.evenRowTileCount > grid.oddRowTileCount ? -1 : 1) * grid.tileDeltaX * 0.5;
+
+    **;// TODO: compute the start and end indices of tiles within the content column for even and odd rows
+    **;// TODO: compute grid.indexOfLastContentTile (don't forget that these indices are only representing the tiles WITHIN THE CONTENT COLUMN)
+  }
+
+  /**
+   * Calculates the tile indices within the content area column that will represent tiles with
+   * content.
+   */
+  function computeContentIndices() {
+    var grid, i, j, count, tilesRepresentation;
+
+    grid = this;
+
+    // Copy the original data
+    tilesRepresentation = [];
+    count = grid.tileData.length;
+    for (i = 0; i < count; i += 1) {
+      tilesRepresentation[i] = grid.tileData[i];
+    }
+
+    // Add empty elements
+    count = (1 / config.contentDensity) * grid.tileData.length;
+    for (i = grid.tileData.length; i < count; i += 1) {
+      tilesRepresentation[i] = null;
+    }
+
+    tilesRepresentation = hg.util.shuffle(tilesRepresentation);
+
+    // Record the resulting indices of the elements representing tile content
+    grid.contentIndices = [];
+    for (i = 0, j = 0, count = tilesRepresentation.length; i < count; i += 1) {
+      if (tilesRepresentation[i]) {
+        grid.contentIndices[j++] = tilesRepresentation[i];
+      }
+    }
   }
 
   /**
@@ -103,7 +144,8 @@
    * Creates the tile elements for the grid.
    */
   function createTiles() {
-    var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY;
+    var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
+        isMarginTile;
 
     grid = this;
 
@@ -123,11 +165,45 @@
 
       for (columnIndex = 0; columnIndex < columnCount;
            tileIndex += 1, columnIndex += 1, centerX += grid.tileDeltaX) {
+        isMarginTile = **;// TODO:
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex);
+            tileIndex, isMarginTile);
       }
     }
+
+    addContentToTiles.call(grid);
+    setNeighborTiles.call(grid);
+  }
+
+  /**
+   * Adds content to the appropriate tiles.
+   */
+  function addContentToTiles() {
+    var grid, i, count;
+
+    grid = this;
+
+    **;// TODO: don't forget that these indices are only representing the tiles WITHIN THE CONTENT COLUMN
+    // - use grid.contentIndices
+    // - also, be sure to set
+
+    // // TODO: add actual tile content
+    // tile.setContent({});
+    // config.contentDensity
+  }
+
+  /**
+   * Connects each tile with references to its neighbors.
+   */
+  function setNeighborTiles() {
+    var grid, i, count, neighborTiles;
+
+    grid = this;
+
+    // TODO:
+
+    // tile.setNeighborTiles(neighborTiles)
   }
 
   /**
@@ -331,7 +407,7 @@
   /**
    * @constructor
    * @param {HTMLElement} parent
-   * @param {Object} tileData
+   * @param {Array.<Object>} tileData
    * @param {boolean} isVertical
    */
   function HexGrid(parent, tileData, isVertical) {
@@ -348,8 +424,11 @@
 
     grid.svg = null;
     grid.tiles = null;
+    grid.contentIndices = null;
+    grid.indexOfLastContentTile = null;
 
     createSvg.call(grid);
+    computeContentIndices.call(grid);
     onWindowResize.call(grid);
     startAnimating.call(grid);
 
@@ -380,7 +459,7 @@
   /**
    * @global
    * @param {HTMLElement} parent
-   * @param {Object} tileData
+   * @param {Array.<Object>} tileData
    * @param {boolean} isVertical
    * @returns {HexGrid}
    */

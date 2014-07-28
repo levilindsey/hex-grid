@@ -17,7 +17,7 @@
 
     body = document.getElementsByTagName('body')[0];
 
-    tileData = {}; // TODO: fetch this from the server
+    tileData = [{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]; // TODO: fetch this from the server
 
     hg.createNewHexGrid(body, tileData, false);
 

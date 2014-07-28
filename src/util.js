@@ -427,6 +427,27 @@
     element.style.transform = transform;
   }
 
+  /**
+   * Returns a copy of the given array with its contents re-arranged in a random order.
+   *
+   * The original array is left in its original order.
+   *
+   * @param {Array} array
+   * @returns {Array}
+   */
+  function shuffle(array) {
+    var i, j, count, temp;
+
+    for (i = 0, count = array.length; i < count; i += 1) {
+      j = parseInt(Math.random() * count);
+      temp = array[j];
+      array[j] = array[i];
+      array[i] = temp;
+    }
+
+    return array;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -458,6 +479,7 @@
     requestAnimationFrame: requestAnimationFrame,
     getXYFromPercentWithBezier: getXYFromPercentWithBezier,
     applyTransform: applyTransform,
+    shuffle: shuffle,
     svgNamespace: 'http://www.w3.org/2000/svg'
   };
 
