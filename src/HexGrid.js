@@ -57,6 +57,9 @@
     parentHalfWidth = grid.parent.clientWidth * 0.5;
     parentHeight = grid.parent.clientHeight;
 
+    grid.contentAreaLeft = parentHalfWidth - grid.actualContentAreaWidth * 0.5;
+    grid.contentAreaRight = grid.contentAreaLeft + grid.actualContentAreaWidth;
+
     if (grid.isVertical) {
       grid.rowDeltaY = config.tileOuterRadius * 1.5 + config.tileGap * config.sqrtThreeOverTwo;
       grid.tileDeltaX = config.tileShortLengthWithGap;
@@ -82,8 +85,21 @@
     grid.evenRowXOffset = grid.oddRowXOffset +
         (grid.evenRowTileCount > grid.oddRowTileCount ? -1 : 1) * grid.tileDeltaX * 0.5;
 
-    **;// TODO: compute the start and end indices of tiles within the content column for even and odd rows
-    **;// TODO: compute grid.indexOfLastContentTile (don't forget that these indices are only representing the tiles WITHIN THE CONTENT COLUMN)
+    if (grid.isVertical) {
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileInnerRadius)) / config.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileInnerRadius)) / config.tileDeltaX);
+    } else {
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileOuterRadius)) / config.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileOuterRadius)) / config.tileDeltaX);
+    }
+
+    grid.oddRowContentTileCount = grid.oddRowTileCount - grid.oddRowContentStartIndex * 2;
+    grid.evenRowContentTileCount = grid.evenRowTileCount - grid.evenRowContentStartIndex * 2;
+
+    grid.oddRowContentEndIndex = grid.oddRowContentStartIndex + grid.oddRowContentTileCount - 1;
+    grid.evenRowContentEndIndex = grid.evenRowContentStartIndex + grid.evenRowContentTileCount - 1;
+
+    **;// TODO: compute grid.innerIndexOfLastContentTile (don't forget that these indices are only representing the tiles WITHIN THE CONTENT COLUMN)
   }
 
   /**
@@ -111,10 +127,10 @@
     tilesRepresentation = hg.util.shuffle(tilesRepresentation);
 
     // Record the resulting indices of the elements representing tile content
-    grid.contentIndices = [];
+    grid.contentInnerIndices = [];
     for (i = 0, j = 0, count = tilesRepresentation.length; i < count; i += 1) {
       if (tilesRepresentation[i]) {
-        grid.contentIndices[j++] = tilesRepresentation[i];
+        grid.contentInnerIndices[j++] = tilesRepresentation[i];
       }
     }
   }
@@ -185,7 +201,7 @@
     grid = this;
 
     **;// TODO: don't forget that these indices are only representing the tiles WITHIN THE CONTENT COLUMN
-    // - use grid.contentIndices
+    // - use grid.contentInnerIndices
     // - also, be sure to set
 
     // // TODO: add actual tile content
@@ -231,8 +247,6 @@
 
     config.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
         grid.parent.clientWidth : config.targetContentAreaWidth;
-    console.log('grid.parent.clientWidth=' + grid.parent.clientWidth);
-    console.log('config.actualContentAreaWidth=' + config.actualContentAreaWidth);
 
     clearSvg.call(grid);
 
@@ -269,26 +283,23 @@
    * This is useful for testing purposes.
    */
   function drawContentAreaGuideLines() {
-    var grid, line, contentAreaLeft, contentAreaRight;
+    var grid, line;
 
     grid = this;
 
-    contentAreaLeft = (grid.parent.clientWidth - grid.actualContentAreaWidth) / 2;
-    contentAreaRight = contentAreaLeft + grid.actualContentAreaWidth;
-
     line = document.createElementNS(hg.util.svgNamespace, 'line');
-    line.setAttribute('x1', contentAreaLeft);
+    line.setAttribute('x1', grid.contentAreaLeft);
     line.setAttribute('y1', 0);
-    line.setAttribute('x2', contentAreaLeft);
+    line.setAttribute('x2', grid.contentAreaLeft);
     line.setAttribute('y2', grid.parent.clientHeight);
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
     grid.svg.appendChild(line);
 
     line = document.createElementNS(hg.util.svgNamespace, 'line');
-    line.setAttribute('x1', contentAreaRight);
+    line.setAttribute('x1', grid.contentAreaRight);
     line.setAttribute('y1', 0);
-    line.setAttribute('x2', contentAreaRight);
+    line.setAttribute('x2', grid.contentAreaRight);
     line.setAttribute('y2', grid.parent.clientHeight);
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
@@ -424,8 +435,8 @@
 
     grid.svg = null;
     grid.tiles = null;
-    grid.contentIndices = null;
-    grid.indexOfLastContentTile = null;
+    grid.contentInnerIndices = null;
+    grid.innerIndexOfLastContentTile = null;
 
     createSvg.call(grid);
     computeContentIndices.call(grid);
