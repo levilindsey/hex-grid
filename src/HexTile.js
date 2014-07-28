@@ -23,15 +23,15 @@
 
     tile = this;
 
-    tile.vertexDeltas = computeVertexDeltas(tile.radius, tile.isVertical);
+    tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.vertices = computeVertices(tile.centerX, tile.centerY, tile.vertexDeltas);
 
     tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
 
-    setElementVertices(tile.element, tile.vertices);
+    setVertices.call(tile, tile.vertices);
 
-    setElementColor(tile.element, tile.hue, tile.saturation, tile.lightness);
+    setColor.call(tile, tile.hue, tile.saturation, tile.lightness);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -111,37 +111,39 @@
     return vertices;
   }
 
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
   /**
    * Sets the given polygon element's points attribute according to the given vertex coordinates.
    *
-   * @param {HTMLElement} element
    * @param {Array.<number>} vertices
    */
-  function setElementVertices(element, vertices) {
-    var i, pointsString;
+  function setVertices(vertices) {
+    var tile, i, pointsString;
+
+    tile = this;
 
     for (i = 0, pointsString = ''; i < 12;) {
       pointsString += vertices[i++] + ',' + vertices[i++] + ' ';
     }
 
-    element.setAttribute('points', pointsString);
+    tile.element.setAttribute('points', pointsString);
   }
 
   /**
    * Sets the given polygon element's color attributes according to the given color values.
    *
-   * @param {HTMLElement} element
    * @param {number} hue
    * @param {number} saturation
    * @param {number} lightness
    */
-  function setElementColor(element, hue, saturation, lightness) {
-    var colorString = 'hsl(' + hue + ',' + saturation + '%,' + lightness + '%)';
-    element.setAttribute('fill', colorString);
+  function setColor(hue, saturation, lightness) {
+    var tile, colorString;
+    tile = this;
+    colorString = 'hsl(' + hue + ',' + saturation + '%,' + lightness + '%)';
+    tile.element.setAttribute('fill', colorString);
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
 
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
@@ -152,27 +154,34 @@
    * @param {HTMLElement} svg
    * @param {number} centerX
    * @param {number} centerY
-   * @param {number} radius
+   * @param {number} outerRadius
    * @param {boolean} isVertical
    * @param {number} hue
    * @param {number} saturation
    * @param {number} lightness
    * @param {Object} tileData
+   * @param {number} tileIndex
    */
-  function HexTile(svg, centerX, centerY, radius, isVertical, hue, saturation, lightness, tileData) {
+  function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
+                   tileData, tileIndex) {
     var tile = this;
 
     tile.svg = svg;
     tile.element = null;
     tile.centerX = centerX;
     tile.centerY = centerY;
-    tile.radius = radius;
+    tile.outerRadius = outerRadius;
     tile.isVertical = isVertical;
     tile.hue = hue;
     tile.saturation = saturation;
     tile.lightness = lightness;
     tile.vertices = null;
     tile.tileData = tileData;
+    tile.holdsContent = !!tileData;
+    tile.index = tileIndex;
+
+    tile.setColor = setColor;
+    tile.setVertices = setVertices;
 
     createElement.call(tile);
   }

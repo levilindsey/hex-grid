@@ -19,7 +19,7 @@
 
     tileData = {}; // TODO: fetch this from the server
 
-    hg.createNewHexGrid(body, tileData);
+    hg.createNewHexGrid(body, tileData, false);
 
     window.removeEventListener('load', initHexGrid);
   }
