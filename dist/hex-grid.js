@@ -370,7 +370,7 @@
 
     // TODO:
 
-    // tile.setNeighborTiles(neighborTiles)
+    // tile.setNeighborTiles(neighbors)
   }
 
   /**
@@ -649,14 +649,21 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
-  var deltaTheta, verticalStartTheta, verticalSines, verticalCosines, horizontalSines,
+  var config, deltaTheta, verticalStartTheta, verticalSines, verticalCosines, horizontalSines,
       horizontalCosines;
+
+  config = {};
+
+  // TODO: play with these
+  config.coeffOfDrag = 0.1;
+  config.coeffOfSpring = 0.1;
+  config.coeffOfDamping = 0.1;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
   /**
-   * Creates the polygon element for the tile.
+   * Creates the polygon element for this tile.
    */
   function createElement() {
     var tile;
@@ -672,6 +679,26 @@
     setVertices.call(tile, tile.vertices);
 
     setColor.call(tile, tile.hue, tile.saturation, tile.lightness);
+  }
+
+  /**
+   * Creates the particle properties for this tile.
+   *
+   * @param {number} mass
+   */
+  function createParticle(mass) {
+    var tile;
+
+    tile = this;
+
+    tile.particle = {};
+    tile.particle.px = tile.centerX;
+    tile.particle.py = tile.centerY;
+    tile.particle.vx = 0;
+    tile.particle.vy = 0;
+    tile.particle.fx = 0;
+    tile.particle.fy = 0;
+    tile.particle.m = mass;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -772,9 +799,35 @@
    * @param {Array.<HexTile>} neighborTiles
    */
   function setNeighborTiles(neighborTiles) {
-    var tile = this;
+    var tile, i, iCount, j, jCount, neighborTile, deltaX, deltaY;
 
-    tile.neighborTiles = neighborTiles;
+    tile = this;
+
+    tile.neighbors = [];
+
+    for (i = 0, iCount = neighborTiles.length; i < iCount; i += 1) {
+      neighborTile = neighborTiles[i];
+      deltaX = tile.centerX - neighborTile.centerX;
+      deltaY = tile.centerY - neighborTile.centerY;
+
+      tile.neighbors[i] = {
+        tile: neighborTile,
+        restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+        neighborsRelationshipObj: null,
+        springForceX: 0,
+        springForceY: 0
+      };
+
+      // Give neighbor tiles references to each others' relationship object
+      if (neighborTile.neighbors) {
+        for (j = 0, jCount = neighborTile.neighbors.length; j < jCount; j += 1) {
+          if (neighborTile.neighbors[j].tile === tile) {
+            tile.neighbors[i].neighborsRelationshipObj = neighborTile.neighbors[j];
+            neighborTile.neighbors[j].neighborsRelationshipObj = tile.neighbors[i];
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -808,6 +861,64 @@
     tile.element.setAttribute('fill', colorString);
   }
 
+  /**
+   * Update the state of this tile particle for the current time step.
+   *
+   * @params {number} deltaT
+   */
+  function eulerStep(deltaT) {
+    var tile, i, count, lx, ly, ldotx, ldoty, dotProd, length, temp, springForceX, springForceY;
+
+    tile = this;
+
+    // --- Accumulate forces --- //
+
+    // Add drag force
+    tile.particle.fx += -config.coeffOfDrag * tile.particle.vx;
+    tile.particle.fy += -config.coeffOfDrag * tile.particle.vy;
+
+    // Add spring forces
+    for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
+      if (tile.neighbors[i].springForceX) {
+        tile.particle.fx += tile.neighbors[i].springForceX;
+        tile.particle.fy += tile.neighbors[i].springForceY;
+
+        tile.neighbors[i].springForceX = 0;
+        tile.neighbors[i].springForceY = 0;
+      } else {
+        lx = tile.neighbors[i].particle.px - tile.particle.px;
+        ly = tile.neighbors[i].particle.py - tile.particle.py;
+        ldotx = tile.neighbors[i].particle.vx - tile.particle.vx;
+        ldoty = tile.neighbors[i].particle.vy - tile.particle.vy;
+        dotProd = lx * ldotx + ly * ldoty;
+        length = Math.sqrt(lx * lx + ly * ly);
+
+        temp = (config.coeffOfSpring * (length - tile.neighbors[i].restLength) +
+            config.coeffOfDamping * dotProd / length) / length;
+        springForceX = lx * temp;
+        springForceY = ly * temp;
+
+        tile.particle.fx += springForceX;
+        tile.particle.fy += springForceY;
+
+        tile.neighbors[i].neighborsRelationshipObj.springForceX = -springForceX;
+        tile.neighbors[i].neighborsRelationshipObj.springForceY = -springForceY;
+      }
+    }
+
+    // --- Update particle state --- //
+
+    tile.particle.px += tile.particle.vx * deltaT;
+    tile.particle.py += tile.particle.vy * deltaT;
+    tile.particle.vx += tile.particle.fx / tile.particle.m * deltaT;
+    tile.particle.vy += tile.particle.fy / tile.particle.m * deltaT;
+
+    // --- Reset forces for next time step --- //
+
+    tile.particle.fx = 0;
+    tile.particle.fy = 0;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -825,9 +936,10 @@
    * @param {?Object} tileData
    * @param {number} tileIndex
    * @param {boolean} isMarginTile
+   * @param {number} mass
    */
   function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
-                   tileData, tileIndex, isMarginTile) {
+                   tileData, tileIndex, isMarginTile, mass) {
     var tile = this;
 
     tile.svg = svg;
@@ -843,15 +955,20 @@
     tile.holdsContent = !!tileData;
     tile.index = tileIndex;
     tile.isMarginTile = isMarginTile;
-    tile.neighborTiles = null;
+    tile.neighbors = null;
     tile.vertices = null;
+
+    tile.particle = null;
 
     tile.setContent = setContent;
     tile.setNeighborTiles = setNeighborTiles;
     tile.setColor = setColor;
     tile.setVertices = setVertices;
+    tile.eulerStep = eulerStep;
+    **;// TODO: call eulerStep, and also add and call a function for adding external forces to the system (from the mouse and from periodic, automatic animations)
 
     createElement.call(tile);
+    createParticle.call(tile, mass);
   }
 
   // Expose this module

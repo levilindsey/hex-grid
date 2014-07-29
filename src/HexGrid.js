@@ -242,7 +242,7 @@
 
     // TODO:
 
-    // tile.setNeighborTiles(neighborTiles)
+    // tile.setNeighborTiles(neighbors)
   }
 
   /**
