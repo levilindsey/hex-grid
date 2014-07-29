@@ -154,13 +154,11 @@
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
   config.firstRowYOffset = config.tileOuterRadius * 0;
-  config.contentDensity = 0.4;
+  config.contentDensity = 0.6;
   config.emptyInitialRowCount = 2;
 
   config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
   config.twoOverSqrtThree = 2 / Math.sqrt(3);
-
-  config.actualContentAreaWidth = config.targetContentAreaWidth;
 
   config.tileInnerRadius = config.tileOuterRadius * config.sqrtThreeOverTwo;
 
@@ -180,7 +178,7 @@
    */
   function computeGridParameters() {
     var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex, i, count,
-        emptyRowIndexOffset;
+        emptyRowsContentTileCount, minInnerTileCount;
 
     grid = this;
 
@@ -231,24 +229,29 @@
     grid.oddRowContentEndIndex = grid.oddRowContentStartIndex + grid.oddRowContentTileCount - 1;
     grid.evenRowContentEndIndex = grid.evenRowContentStartIndex + grid.evenRowContentTileCount - 1;
 
-    grid.innerIndexOfLastContentTile = grid.originalContentInnerIndices[grid.originalContentInnerIndices.length - 1];
-
     // Update the content inner indices to account for empty rows at the start of the grid
     grid.actualContentInnerIndices = [];
-    emptyRowIndexOffset = Math.ceil(config.emptyInitialRowCount / 2) * grid.oddRowContentTileCount +
+    emptyRowsContentTileCount = Math.ceil(config.emptyInitialRowCount / 2) * grid.oddRowContentTileCount +
         Math.floor(config.emptyInitialRowCount / 2) * grid.evenRowContentTileCount;
     for (i = 0, count = grid.originalContentInnerIndices.length; i < count; i += 1) {
-      grid.actualContentInnerIndices[i] = grid.originalContentInnerIndices[i] + emptyRowIndexOffset;
+      grid.actualContentInnerIndices[i] = grid.originalContentInnerIndices[i] + emptyRowsContentTileCount;
     }
 
+    grid.innerIndexOfLastContentTile = grid.actualContentInnerIndices[grid.actualContentInnerIndices.length - 1];
+
+    // Add empty rows at the end of the grid
+    minInnerTileCount = emptyRowsContentTileCount + grid.innerIndexOfLastContentTile + 1;
     innerContentCount = 0;
     rowIndex = 0;
-    while (grid.innerIndexOfLastContentTile > innerContentCount) {
+
+    while (minInnerTileCount > innerContentCount) {
       innerContentCount += rowIndex % 2 === 0 ?
           grid.oddRowContentTileCount : grid.evenRowContentTileCount;
       rowIndex += 1;
     }
     grid.rowCount = rowIndex > grid.rowCount ? rowIndex : grid.rowCount;
+
+    grid.height = (grid.rowCount - 1) * grid.rowDeltaY;
   }
 
   /**
@@ -293,9 +296,9 @@
     grid = this;
 
     grid.svg = document.createElementNS(hg.util.svgNamespace, 'svg');
+    grid.svg.style.display = 'block';
     grid.svg.style.position = 'relative';
     grid.svg.style.width = '100%';
-    grid.svg.style.height = '100%';
     grid.svg.style.zIndex = '2147483647';
     grid.svg.style.backgroundColor =
         'hsl(' + grid.hue + ',' + grid.saturation + '%,' + grid.lightness + '%)';
@@ -393,7 +396,7 @@
 
     grid = this;
 
-    config.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
+    grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
         grid.parent.clientWidth : config.targetContentAreaWidth;
 
     clearSvg.call(grid);
@@ -401,12 +404,14 @@
     computeGridParameters.call(grid);
     createTiles.call(grid);
 
+    grid.svg.style.height = grid.height + 'px';
+
     drawContentTiles.call(grid);
-    drawTileCenters.call(grid);
+//    drawTileCenters.call(grid);
 //    drawTileInnerRadii.call(grid);
 //    drawTileOuterRadii.call(grid);
-    drawTileIndices.call(grid);
-    drawContentAreaGuideLines.call(grid);
+//    drawTileIndices.call(grid);
+//    drawContentAreaGuideLines.call(grid);
 
     logGridInfo.call(grid);
   }
@@ -439,7 +444,7 @@
     line.setAttribute('x1', grid.contentAreaLeft);
     line.setAttribute('y1', 0);
     line.setAttribute('x2', grid.contentAreaLeft);
-    line.setAttribute('y2', grid.parent.clientHeight);
+    line.setAttribute('y2', grid.height);
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
     grid.svg.appendChild(line);
@@ -448,7 +453,7 @@
     line.setAttribute('x1', grid.contentAreaRight);
     line.setAttribute('y1', 0);
     line.setAttribute('x2', grid.contentAreaRight);
-    line.setAttribute('y2', grid.parent.clientHeight);
+    line.setAttribute('y2', grid.height);
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
     grid.svg.appendChild(line);

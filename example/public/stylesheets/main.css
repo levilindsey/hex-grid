@@ -1,18 +1,19 @@
 
-html {
-  width: 100%;
-  height: 100%;
-  margin: 0; padding: 0;
+html, body, #hex-grid-area {
+  width: 100%; height: 100%;
+  margin: 0; padding: 0; border: 0;
   overflow: hidden;
 }
 
 body {
-  width: 100%;
-  height: 100%;
-  margin: 0; padding: 0;
-  background: #e8e8e8;
-  color: #343534;
+  background-color: black;
   font-size: 18px;
   font-family: sans-serif;
-  overflow: hidden;
 }
+
+#hex-grid-area {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* TODO: somehow there is a 1px margin at the bottom of the SVG; it must die... */

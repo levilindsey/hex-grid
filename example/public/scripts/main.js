@@ -15,7 +15,7 @@
 
     console.log('onDocumentLoad');
 
-    body = document.getElementsByTagName('body')[0];
+    body = document.getElementById('hex-grid-area');
 
     tileData = [{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]; // TODO: fetch this from the server
 
