@@ -154,7 +154,8 @@
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
   config.firstRowYOffset = config.tileOuterRadius * 0;
-  config.contentDensity = 0.65;
+  config.contentDensity = 0.4;
+  config.emptyInitialRowCount = 2;
 
   config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
   config.twoOverSqrtThree = 2 / Math.sqrt(3);
@@ -178,7 +179,8 @@
    * - the horizontal positions of the first tiles in even and odd rows
    */
   function computeGridParameters() {
-    var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex;
+    var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex, i, count,
+        emptyRowIndexOffset;
 
     grid = this;
 
@@ -216,11 +218,11 @@
     grid.contentAreaRight = grid.contentAreaLeft + grid.actualContentAreaWidth;
 
     if (grid.isVertical) {
-      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileInnerRadius)) / config.tileDeltaX);
-      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileInnerRadius)) / config.tileDeltaX);
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileInnerRadius)) / grid.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileInnerRadius)) / grid.tileDeltaX);
     } else {
-      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileOuterRadius)) / config.tileDeltaX);
-      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileOuterRadius)) / config.tileDeltaX);
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileOuterRadius)) / grid.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileOuterRadius)) / grid.tileDeltaX);
     }
 
     grid.oddRowContentTileCount = grid.oddRowTileCount - grid.oddRowContentStartIndex * 2;
@@ -229,7 +231,15 @@
     grid.oddRowContentEndIndex = grid.oddRowContentStartIndex + grid.oddRowContentTileCount - 1;
     grid.evenRowContentEndIndex = grid.evenRowContentStartIndex + grid.evenRowContentTileCount - 1;
 
-    grid.innerIndexOfLastContentTile = grid.contentInnerIndices[grid.contentInnerIndices.length - 1];
+    grid.innerIndexOfLastContentTile = grid.originalContentInnerIndices[grid.originalContentInnerIndices.length - 1];
+
+    // Update the content inner indices to account for empty rows at the start of the grid
+    grid.actualContentInnerIndices = [];
+    emptyRowIndexOffset = Math.ceil(config.emptyInitialRowCount / 2) * grid.oddRowContentTileCount +
+        Math.floor(config.emptyInitialRowCount / 2) * grid.evenRowContentTileCount;
+    for (i = 0, count = grid.originalContentInnerIndices.length; i < count; i += 1) {
+      grid.actualContentInnerIndices[i] = grid.originalContentInnerIndices[i] + emptyRowIndexOffset;
+    }
 
     innerContentCount = 0;
     rowIndex = 0;
@@ -250,26 +260,26 @@
 
     grid = this;
 
-    // Copy the original data
+    // Use 1s to represent the tiles that hold data
     tilesRepresentation = [];
     count = grid.tileData.length;
     for (i = 0; i < count; i += 1) {
-      tilesRepresentation[i] = grid.tileData[i];
+      tilesRepresentation[i] = 1;
     }
 
-    // Add empty elements
+    // Use 0s to represent the empty tiles
     count = (1 / config.contentDensity) * grid.tileData.length;
     for (i = grid.tileData.length; i < count; i += 1) {
-      tilesRepresentation[i] = null;
+      tilesRepresentation[i] = 0;
     }
 
     tilesRepresentation = hg.util.shuffle(tilesRepresentation);
 
     // Record the resulting indices of the elements representing tile content
-    grid.contentInnerIndices = [];
+    grid.originalContentInnerIndices = [];
     for (i = 0, j = 0, count = tilesRepresentation.length; i < count; i += 1) {
       if (tilesRepresentation[i]) {
-        grid.contentInnerIndices[j++] = tilesRepresentation[i];
+        grid.originalContentInnerIndices[j++] = i;
       }
     }
   }
@@ -300,17 +310,21 @@
    */
   function createTiles() {
     var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
-        isMarginTile;
+        isMarginTile, isOddRow, contentAreaIndex, tileDataIndex;
 
     grid = this;
 
     grid.tiles = [];
     tileIndex = 0;
+    contentAreaIndex = 0;
+    tileDataIndex = 0;
     centerY = config.firstRowYOffset;
     rowCount = grid.rowCount;
 
     for (rowIndex = 0; rowIndex < rowCount; rowIndex += 1, centerY += grid.rowDeltaY) {
-      if (rowIndex % 2 === 0) {
+      isOddRow = rowIndex % 2 === 0;
+
+      if (isOddRow) {
         centerX = grid.oddRowXOffset;
         columnCount = grid.oddRowTileCount;
       } else {
@@ -320,31 +334,27 @@
 
       for (columnIndex = 0; columnIndex < columnCount;
            tileIndex += 1, columnIndex += 1, centerX += grid.tileDeltaX) {
-        isMarginTile = **;// TODO:
+        isMarginTile = isOddRow ?
+            columnIndex < grid.oddRowContentStartIndex ||
+                columnIndex > grid.oddRowContentEndIndex :
+            columnIndex < grid.evenRowContentStartIndex ||
+                columnIndex > grid.evenRowContentEndIndex;
+
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
             tileIndex, isMarginTile);
+
+        if (!isMarginTile) {
+          if (contentAreaIndex === grid.actualContentInnerIndices[tileDataIndex]) {
+            grid.tiles[tileIndex].setContent(grid.tileData[tileDataIndex]);
+            tileDataIndex += 1;
+          }
+          contentAreaIndex += 1;
+        }
       }
     }
 
-    addContentToTiles.call(grid);
     setNeighborTiles.call(grid);
-  }
-
-  /**
-   * Adds content to the appropriate tiles.
-   */
-  function addContentToTiles() {
-    var grid, i, count;
-
-    grid = this;
-
-    **;// TODO: don't forget that these indices are only representing the tiles WITHIN THE CONTENT COLUMN
-    // - use grid.contentInnerIndices
-
-    // // TODO: add actual tile content
-    // tile.setContent({});
-    // config.contentDensity
   }
 
   /**
@@ -573,7 +583,7 @@
 
     grid.svg = null;
     grid.tiles = null;
-    grid.contentInnerIndices = null;
+    grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
 
     createSvg.call(grid);
