@@ -18,6 +18,8 @@
   config.coeffOfDrag = 0.1;
   config.coeffOfSpring = 0.1;
   config.coeffOfDamping = 0.1;
+  config.forceSuppressionThreshold = 0.00001;
+  config.velocitySuppressionThreshold = 0.00001;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -59,6 +61,8 @@
     tile.particle.fx = 0;
     tile.particle.fy = 0;
     tile.particle.m = mass;
+    tile.particle.forceAccumulatorX = 0;
+    tile.particle.forceAccumulatorY = 0;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -234,14 +238,14 @@
     // --- Accumulate forces --- //
 
     // Add drag force
-    tile.particle.fx += -config.coeffOfDrag * tile.particle.vx;
-    tile.particle.fy += -config.coeffOfDrag * tile.particle.vy;
+    tile.particle.forceAccumulatorX += -config.coeffOfDrag * tile.particle.vx;
+    tile.particle.forceAccumulatorY += -config.coeffOfDrag * tile.particle.vy;
 
     // Add spring forces
     for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
       if (tile.neighbors[i].springForceX) {
-        tile.particle.fx += tile.neighbors[i].springForceX;
-        tile.particle.fy += tile.neighbors[i].springForceY;
+        tile.particle.forceAccumulatorX += tile.neighbors[i].springForceX;
+        tile.particle.forceAccumulatorY += tile.neighbors[i].springForceY;
 
         tile.neighbors[i].springForceX = 0;
         tile.neighbors[i].springForceY = 0;
@@ -258,8 +262,8 @@
         springForceX = lx * temp;
         springForceY = ly * temp;
 
-        tile.particle.fx += springForceX;
-        tile.particle.fy += springForceY;
+        tile.particle.forceAccumulatorX += springForceX;
+        tile.particle.forceAccumulatorY += springForceY;
 
         tile.neighbors[i].neighborsRelationshipObj.springForceX = -springForceX;
         tile.neighbors[i].neighborsRelationshipObj.springForceY = -springForceY;
@@ -268,15 +272,22 @@
 
     // --- Update particle state --- //
 
+    tile.particle.fx = tile.particle.forceAccumulatorX / tile.particle.m * deltaT; // TODO: should this include the deltaT value?
+    tile.particle.fy = tile.particle.forceAccumulatorY / tile.particle.m * deltaT;
     tile.particle.px += tile.particle.vx * deltaT;
     tile.particle.py += tile.particle.vy * deltaT;
-    tile.particle.vx += tile.particle.fx / tile.particle.m * deltaT;
-    tile.particle.vy += tile.particle.fy / tile.particle.m * deltaT;
+    tile.particle.vx += tile.particle.fx;
+    tile.particle.vy += tile.particle.fy;
 
-    // --- Reset forces for next time step --- //
+    // Kill all velocities and forces below a threshold
+    tile.particle.fx = tile.particle.fx < config.forceSuppressionThreshold ? 0 : tile.particle.fx;
+    tile.particle.fy = tile.particle.fy < config.forceSuppressionThreshold ? 0 : tile.particle.fy;
+    tile.particle.vx = tile.particle.vx < config.velocitySuppressionThreshold ? 0 : tile.particle.vx;
+    tile.particle.vy = tile.particle.vy < config.velocitySuppressionThreshold ? 0 : tile.particle.vy;
 
-    tile.particle.fx = 0;
-    tile.particle.fy = 0;
+    // Reset force accumulator for next time step
+    tile.particle.forceAccumulatorX = 0;
+    tile.particle.forceAccumulatorY = 0;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -295,11 +306,13 @@
    * @param {number} lightness
    * @param {?Object} tileData
    * @param {number} tileIndex
+   * @param {number} columnIndex
+   * @param {boolean} isOddRow
    * @param {boolean} isMarginTile
    * @param {number} mass
    */
   function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
-                   tileData, tileIndex, isMarginTile, mass) {
+                   tileData, tileIndex, columnIndex, isOddRow, isMarginTile, mass) {
     var tile = this;
 
     tile.svg = svg;
@@ -314,6 +327,8 @@
     tile.tileData = tileData;
     tile.holdsContent = !!tileData;
     tile.index = tileIndex;
+    tile.columnIndex = columnIndex;
+    tile.isOddRow = isOddRow;
     tile.isMarginTile = isMarginTile;
     tile.neighbors = null;
     tile.vertices = null;
@@ -325,7 +340,6 @@
     tile.setColor = setColor;
     tile.setVertices = setVertices;
     tile.eulerStep = eulerStep;
-    **;// TODO: call eulerStep, and also add and call a function for adding external forces to the system (from the mouse and from periodic, automatic animations)
 
     createElement.call(tile);
     createParticle.call(tile, mass);

@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO: remove this module after basing some other animation job implementations off of it
+
 /**
  * This module defines a constructor for AnimationJob objects.
  *
@@ -53,8 +55,6 @@
   function start() {
     var job = this;
 
-    console.log('AnimationJob starting');
-
     job.startTime = Date.now();
     job.isComplete = false;
 
@@ -79,8 +79,6 @@
    */
   function cancel() {
     var job = this;
-
-    console.log('AnimationJob cancelling');
 
     // TODO:
 

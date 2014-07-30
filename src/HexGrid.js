@@ -28,6 +28,7 @@
   config.firstRowYOffset = config.tileOuterRadius * 0;
   config.contentDensity = 0.6;
   config.emptyInitialRowCount = 2;
+  config.tileMass = 2;
 
   config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
   config.twoOverSqrtThree = 2 / Math.sqrt(3);
@@ -217,7 +218,7 @@
 
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex, isMarginTile);
+            tileIndex, isMarginTile, config.tileMass);
 
         if (!isMarginTile) {
           if (contentAreaIndex === grid.actualContentInnerIndices[tileDataIndex]) {
@@ -226,6 +227,8 @@
           }
           contentAreaIndex += 1;
         }
+
+        **;// TODO: move the
       }
     }
 
@@ -236,26 +239,54 @@
    * Connects each tile with references to its neighbors.
    */
   function setNeighborTiles() {
-    var grid, i, count, neighborTiles;
+    var grid, i, j, iCount, jCount, neighborDeltaIndices, neighbors, maxColumnCount;
 
     grid = this;
 
-    // TODO:
+    neighborDeltaIndices = [];
+    neighbors = [];
 
-    // tile.setNeighborTiles(neighbors)
-  }
+    **;// TODO:
+    // - move this function's logic to happen from within the looping of the above createTiles function
+    //   - calculate an array of deltaIndices to use for each tile
+    //     - store these arrays within a temporary array
+    //     - for neighbors that don't exist, add null to the array
+    //     - maybe use a helper function with a million params to help with this
+    //   - after looping through, creating each tile, and creating the neighbor deltaIndex arrays, then re-loop through each new tile and use the deltaIndex arrays to set references to neighbor tiles
+    // - need tests within the loop for whether the current tile is first or last in row
+    // - need tests within the loop for whether the current tile is in the first or last row
+    // - for isVertical, need tests within the loop for whether the current row is the smaller row and the current tile is the second-to-first or second-to-last in row
+    // - for !isVertical, need tests within the loop for whether the current row is the second-to-first or second-to-last row
 
-  /**
-   * Starts animating the tiles of the grid.
-   */
-  function startAnimating() {
-    var grid;
+    maxColumnCount = grid.oddRowTileCount > grid.evenRowTileCount ?
+        grid.oddRowTileCount : grid.evenRowTileCount;
 
-    grid = this;
+    // Neighbor delta indices are dependent on current screen dimensions
+    if (grid.isVertical) {
+      neighborDeltaIndices[0] = -maxColumnCount + 1; // top-right
+      neighborDeltaIndices[1] = 1; // right
+      neighborDeltaIndices[2] = maxColumnCount; // bottom-right
+      neighborDeltaIndices[3] = maxColumnCount - 1; // bottom-left
+      neighborDeltaIndices[4] = -1; // left
+      neighborDeltaIndices[5] = -maxColumnCount; // top-left
+    } else {
+      neighborDeltaIndices[0] = -maxColumnCount * 2 + 1; // top
+      neighborDeltaIndices[1] = -maxColumnCount + 1; // top-right
+      neighborDeltaIndices[2] = maxColumnCount; // bottom-right
+      neighborDeltaIndices[3] = maxColumnCount * 2 - 1; // bottom
+      neighborDeltaIndices[4] = maxColumnCount - 1; // bottom-left
+      neighborDeltaIndices[5] = -maxColumnCount; // top-left
+    }
 
-    // TODO:
-    // hg.animator.createJob
-    // hg.animator.startJob
+    // Give each tile references to each of its neighbors
+    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
+      // Get the neighbors around the current tile
+      for (j = 0, jCount = 6; j < jCount; j += 1) {
+        neighbors[j] = grid.tiles[i + neighborDeltaIndices[j]] || null;
+      }
+
+      grid.tiles[i].setNeighborTiles(neighbors);
+    }
   }
 
   /**
@@ -284,6 +315,8 @@
 //    drawTileOuterRadii.call(grid);
 //    drawTileIndices.call(grid);
 //    drawContentAreaGuideLines.call(grid);
+    drawTileForces.call(grid);
+    drawTileNeighborConnections.call(grid);
 
     logGridInfo.call(grid);
   }
@@ -399,6 +432,61 @@
   }
 
   /**
+   * Draws lines connecting each tile to each of its neighbors.
+   *
+   * This is useful for testing purposes.
+   */
+  function drawTileNeighborConnections() {
+    var grid, i, j, iCount, jCount, tile, line, neighbor;
+
+    grid = this;
+
+    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
+      tile = grid.tiles[i];
+
+      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
+        neighbor = tile.neighbors[j];
+
+        line = document.createElementNS(hg.util.svgNamespace, 'line');
+        line.setAttribute('x1', tile.particle.px);
+        line.setAttribute('y1', tile.particle.py);
+        line.setAttribute('x2', neighbor.particle.px);
+        line.setAttribute('y2', neighbor.particle.py);
+        line.setAttribute('stroke', 'purple');
+        line.setAttribute('stroke-width', '1');
+        grid.svg.appendChild(line);
+      }
+    }
+  }
+
+  /**
+   * Draws lines representing the cumulative force acting on each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function drawTileForces() {
+    var grid, i, count, tile, line, x2, y2;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      tile = grid.tiles[i];
+
+      x2 = tile.particle.px + tile.particle.fx;
+      y2 = tile.particle.py + tile.particle.fy;
+
+      line = document.createElementNS(hg.util.svgNamespace, 'line');
+      line.setAttribute('x1', tile.particle.px);
+      line.setAttribute('y1', tile.particle.py);
+      line.setAttribute('x2', x2);
+      line.setAttribute('y2', y2);
+      line.setAttribute('stroke', 'orange');
+      line.setAttribute('stroke-width', '2');
+      grid.svg.appendChild(line);
+    }
+  }
+
+  /**
    * Draws the index of each tile.
    *
    * This is useful for testing purposes.
@@ -458,15 +546,20 @@
     grid.saturation = config.backgroundSaturation;
     grid.lightness = config.backgroundLightness;
 
+    grid.isComplete = false;
+
     grid.svg = null;
     grid.tiles = null;
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
 
+    grid.start = start;
+    grid.update = update;
+    grid.cancel = cancel;
+
     createSvg.call(grid);
     computeContentIndices.call(grid);
     onWindowResize.call(grid);
-    startAnimating.call(grid);
 
     window.addEventListener('resize', onWindowResize.bind(grid), false);
   }
@@ -489,6 +582,42 @@
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
+  /**
+   * Sets this AnimationJob as started.
+   */
+  function start() {
+    var grid = this;
+
+    grid.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this AnimationJob to match the given time.
+   *
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tiles[i].eulerStep(deltaTime);
+    }
+  }
+
+  /**
+   * Stops this AnimationJob, and returns the element to its original form.
+   */
+  function cancel() {
+    var grid = this;
+
+    // TODO:
+
+    grid.isComplete = true;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's factory function
 
@@ -500,7 +629,9 @@
    * @returns {HexGrid}
    */
   function createNewHexGrid(parent, tileData, isVertical) {
-    return new HexGrid(parent, tileData, isVertical);
+    var grid = new HexGrid(parent, tileData, isVertical);
+    hg.animator.startJob(grid);
+    return grid;
   }
 
   // Expose this module

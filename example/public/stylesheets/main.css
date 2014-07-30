@@ -6,7 +6,7 @@ html, body, #hex-grid-area {
 }
 
 body {
-  background-color: black;
+  background-color: black;/* TODO: remove this after the bottom margin bug is fixed */
   font-size: 18px;
   font-family: sans-serif;
 }

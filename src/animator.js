@@ -6,6 +6,10 @@
  * @module animator
  */
 (function () {
+  /**
+   * @typedef {{start: Function, update: Function, cancel: Function, isComplete: boolean}} AnimationJob
+   */
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -13,11 +17,14 @@
    * This is the animation loop that drives all of the animation.
    */
   function animationLoop() {
-    var currentTime = Date.now();
+    var currentTime, deltaTime;
+
+    currentTime = Date.now();
+    deltaTime = currentTime - animator.previousTime;
     animator.isLooping = true;
 
     if (!animator.isPaused) {
-      updateJobs(currentTime);
+      updateJobs(currentTime, deltaTime);
       hg.util.requestAnimationFrame(animationLoop);
     } else {
       animator.isLooping = false;
@@ -30,12 +37,13 @@
    * Updates all of the active AnimationJobs.
    *
    * @param {number} currentTime
+   * @param {number} deltaTime
    */
-  function updateJobs(currentTime) {
+  function updateJobs(currentTime, deltaTime) {
     var i, count;
 
     for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].update(currentTime);
+      animator.jobs[i].update(currentTime, deltaTime);
 
       // Remove jobs from the list after they are complete
       if (animator.jobs[i].isComplete) {
@@ -72,26 +80,19 @@
     }
   }
 
+  /**
+   * Starts the animation loop if it is not already running
+   */
+  function startAnimationLoop() {
+    animator.isPaused = false;
+    if (!animator.isLooping) {
+      animator.previousTime = Date.now();
+      animationLoop();
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Public static functions
-
-  /**
-   * Creates a new AnimationJob.
-   *
-   * @param {HTMLElement} element
-   * @param {number} duration In milliseconds.
-   * @param {string} easingFunctionName
-   * @param {Function} animationFunction
-   * @param {Function} onComplete
-   * @returns {Window.hg.AnimationJob}
-   */
-  function createJob(element, duration, easingFunctionName, animationFunction, onComplete) {
-    // Just make sure that any state that should be completed from a previous animation is ready
-    animationLoop();
-
-    return new hg.AnimationJob(element, duration, easingFunctionName, animationFunction,
-        onComplete);
-  }
 
   /**
    * Starts the given AnimationJob.
@@ -99,14 +100,12 @@
    * @param {AnimationJob} job
    */
   function startJob(job) {
+    console.log('AnimationJob starting');
+
     job.start();
     animator.jobs.push(job);
 
-    // Start the animation loop if it were not already running
-    animator.isPaused = false;
-    if (!animator.isLooping) {
-      animationLoop();
-    }
+    startAnimationLoop();
   }
 
   /**
@@ -115,6 +114,8 @@
    * @param {AnimationJob} job
    */
   function cancelJob(job) {
+    console.log('AnimationJob cancelling');
+
     job.cancel();
     removeJob(job);
   }
@@ -124,10 +125,11 @@
 
   var animator = {};
   animator.jobs = [];
-  animator.createJob = createJob;
+  animator.previousTime = Date.now();
+  animator.isLooping = false;
+  animator.isPaused = true;
   animator.startJob = startJob;
   animator.cancelJob = cancelJob;
-  animator.isPaused = true;
 
   // Expose this module
   if (!window.hg) window.hg = {};
