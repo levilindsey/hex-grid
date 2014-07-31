@@ -186,7 +186,8 @@
    */
   function createTiles() {
     var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
-        isMarginTile, isOddRow, contentAreaIndex, tileDataIndex;
+        isMarginTile, isOddRow, contentAreaIndex, tileDataIndex, defaultNeighborDeltaIndices,
+        tilesNeighborIndices, neighborIndices, oddRowIsLarger, isLargerRow;
 
     grid = this;
 
@@ -196,6 +197,10 @@
     tileDataIndex = 0;
     centerY = config.firstRowYOffset;
     rowCount = grid.rowCount;
+    tilesNeighborIndices = [];
+
+    defaultNeighborDeltaIndices = getDefaultNeighborDeltaIndices.call(grid);
+    oddRowIsLarger = grid.oddRowTileCount > grid.evenRowTileCount;
 
     for (rowIndex = 0; rowIndex < rowCount; rowIndex += 1, centerY += grid.rowDeltaY) {
       isOddRow = rowIndex % 2 === 0;
@@ -220,7 +225,9 @@
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
             tileIndex, isMarginTile, config.tileMass);
 
+        // Is the current tile within the content column?
         if (!isMarginTile) {
+          // Does the current tile get to hold content?
           if (contentAreaIndex === grid.actualContentInnerIndices[tileDataIndex]) {
             grid.tiles[tileIndex].setContent(grid.tileData[tileDataIndex]);
             tileDataIndex += 1;
@@ -228,11 +235,64 @@
           contentAreaIndex += 1;
         }
 
+        // --- Determine the neighbor index offsets for the current tile --- //
+        // TODO: maybe use a helper function for the below code? (w/ a ton of parameters)
+
+        tilesNeighborIndices[tileIndex] = neighborIndices = defaultNeighborDeltaIndices.slice(0);
+        isLargerRow = oddRowIsLarger && isOddRow || !oddRowIsLarger && !isOddRow;
+
+        if (grid.isVertical) {
+          // Is this the row with more or fewer tiles?
+          if (isLargerRow) {
+            // Is this the first column?
+            if (columnIndex === 0) {
+              neighborIndices[3] = Number.NaN;
+              neighborIndices[4] = Number.NaN;
+              neighborIndices[5] = Number.NaN;
+            }
+
+            // Is this the last column?
+            if (columnIndex === columnCount - 1) {
+              neighborIndices[0] = Number.NaN;
+              neighborIndices[1] = Number.NaN;
+              neighborIndices[2] = Number.NaN;
+            }
+          } else {
+            // Is this the first column?
+            neighborIndices[4] = columnIndex === 0 ? Number.NaN : neighborIndices[4];
+
+            // Is this the last column?
+            neighborIndices[2] = columnIndex === columnCount - 1 ? Number.NaN : neighborIndices[2];
+          }
+
+          // Is this the first row?
+          if () {
+
+          } else {
+
+          }
+
+          // Is this the last row?
+          if () {
+
+          } else {
+
+          }
+        } else {
+          // Is this the first column?
+
+          // Is this the last column?
+
+          // Is this the first or second row?
+
+          // Is this the last or second-to-last row?
+
+        }
         **;// TODO: move the
       }
     }
 
-    setNeighborTiles.call(grid);
+    setNeighborTiles.call(grid, tilesNeighborIndices);
   }
 
   /**
@@ -258,6 +318,27 @@
     // - for isVertical, need tests within the loop for whether the current row is the smaller row and the current tile is the second-to-first or second-to-last in row
     // - for !isVertical, need tests within the loop for whether the current row is the second-to-first or second-to-last row
 
+    // Give each tile references to each of its neighbors
+    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
+      // Get the neighbors around the current tile
+      for (j = 0, jCount = 6; j < jCount; j += 1) {
+        neighbors[j] = grid.tiles[i + neighborDeltaIndices[j]] || null;
+      }
+
+      grid.tiles[i].setNeighborTiles(neighbors);
+    }
+  }
+
+  /**
+   * Calculates the index offsets of the neighbors of a tile.
+   *
+   * @returns {Array.<number>}
+   */
+  function getDefaultNeighborDeltaIndices() {
+    var grid, maxColumnCount, neighborDeltaIndices;
+
+    grid = this;
+    neighborDeltaIndices = [];
     maxColumnCount = grid.oddRowTileCount > grid.evenRowTileCount ?
         grid.oddRowTileCount : grid.evenRowTileCount;
 
@@ -278,15 +359,7 @@
       neighborDeltaIndices[5] = -maxColumnCount; // top-left
     }
 
-    // Give each tile references to each of its neighbors
-    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
-      // Get the neighbors around the current tile
-      for (j = 0, jCount = 6; j < jCount; j += 1) {
-        neighbors[j] = grid.tiles[i + neighborDeltaIndices[j]] || null;
-      }
-
-      grid.tiles[i].setNeighborTiles(neighbors);
-    }
+    return neighborDeltaIndices;
   }
 
   /**
