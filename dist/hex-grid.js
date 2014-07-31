@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO: remove this module after basing some other animation job implementations off of it
+
 /**
  * This module defines a constructor for AnimationJob objects.
  *
@@ -53,8 +55,6 @@
   function start() {
     var job = this;
 
-    console.log('AnimationJob starting');
-
     job.startTime = Date.now();
     job.isComplete = false;
 
@@ -79,8 +79,6 @@
    */
   function cancel() {
     var job = this;
-
-    console.log('AnimationJob cancelling');
 
     // TODO:
 
@@ -156,6 +154,7 @@
   config.firstRowYOffset = config.tileOuterRadius * 0;
   config.contentDensity = 0.6;
   config.emptyInitialRowCount = 2;
+  config.tileMass = 2;
 
   config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
   config.twoOverSqrtThree = 2 / Math.sqrt(3);
@@ -313,7 +312,8 @@
    */
   function createTiles() {
     var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
-        isMarginTile, isOddRow, contentAreaIndex, tileDataIndex;
+        isMarginTile, isOddRow, contentAreaIndex, tileDataIndex, defaultNeighborDeltaIndices,
+        tilesNeighborDeltaIndices, oddRowIsLarger, isLargerRow;
 
     grid = this;
 
@@ -323,6 +323,10 @@
     tileDataIndex = 0;
     centerY = config.firstRowYOffset;
     rowCount = grid.rowCount;
+    tilesNeighborDeltaIndices = [];
+
+    defaultNeighborDeltaIndices = getDefaultNeighborDeltaIndices.call(grid);
+    oddRowIsLarger = grid.oddRowTileCount > grid.evenRowTileCount;
 
     for (rowIndex = 0; rowIndex < rowCount; rowIndex += 1, centerY += grid.rowDeltaY) {
       isOddRow = rowIndex % 2 === 0;
@@ -345,45 +349,182 @@
 
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex, isMarginTile);
+            tileIndex, isMarginTile, config.tileMass);
 
+        // Is the current tile within the content column?
         if (!isMarginTile) {
+          // Does the current tile get to hold content?
           if (contentAreaIndex === grid.actualContentInnerIndices[tileDataIndex]) {
             grid.tiles[tileIndex].setContent(grid.tileData[tileDataIndex]);
             tileDataIndex += 1;
           }
           contentAreaIndex += 1;
         }
+
+        isLargerRow = oddRowIsLarger && isOddRow || !oddRowIsLarger && !isOddRow;
+
+        // Determine the neighbor index offsets for the current tile
+        tilesNeighborDeltaIndices[tileIndex] = getNeighborDeltaIndices.call(grid, rowIndex, rowCount,
+            columnIndex, columnCount, isLargerRow, defaultNeighborDeltaIndices);
       }
     }
 
-    setNeighborTiles.call(grid);
+    setNeighborTiles.call(grid, tilesNeighborDeltaIndices);
   }
 
   /**
    * Connects each tile with references to its neighbors.
+   *
+   * @param {Array.<Array.<number>>} tilesNeighborDeltaIndices
    */
-  function setNeighborTiles() {
-    var grid, i, count, neighborTiles;
+  function setNeighborTiles(tilesNeighborDeltaIndices) {
+    var grid, i, j, iCount, jCount, neighbors;
 
     grid = this;
 
-    // TODO:
+    neighbors = [];
 
-    // tile.setNeighborTiles(neighbors)
+    // Give each tile references to each of its neighbors
+    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
+      // Get the neighbors around the current tile
+      for (j = 0, jCount = 6; j < jCount; j += 1) {
+        neighbors[j] = !isNaN(tilesNeighborDeltaIndices[i][j]) ?
+            grid.tiles[i + tilesNeighborDeltaIndices[i][j]] : null;
+      }
+
+      grid.tiles[i].setNeighborTiles(neighbors);
+    }
   }
 
   /**
-   * Starts animating the tiles of the grid.
+   * Get the actual neighbor index offsets for the tile described by the given parameters.
+   *
+   * NaN is used to represent the tile not having a neighbor on that side.
+   *
+   * @param {number} rowIndex
+   * @param {number} rowCount
+   * @param {number} columnIndex
+   * @param {number} columnCount
+   * @param {boolean} isLargerRow
+   * @param {Array.<number>} defaultNeighborDeltaIndices
+   * @returns {Array.<number>}
    */
-  function startAnimating() {
-    var grid;
+  function getNeighborDeltaIndices(rowIndex, rowCount, columnIndex, columnCount, isLargerRow,
+                                   defaultNeighborDeltaIndices) {
+    var grid, neighborDeltaIndices;
 
     grid = this;
 
-    // TODO:
-    // hg.animator.createJob
-    // hg.animator.startJob
+    neighborDeltaIndices = defaultNeighborDeltaIndices.slice(0);
+
+    // Remove neighbor indices according to the tile's position in the grid
+    if (grid.isVertical) {
+      // Is this the row with more or fewer tiles?
+      if (isLargerRow) {
+        // Is this the first column?
+        if (columnIndex === 0) {
+          neighborDeltaIndices[3] = Number.NaN;
+          neighborDeltaIndices[4] = Number.NaN;
+          neighborDeltaIndices[5] = Number.NaN;
+        }
+
+        // Is this the last column?
+        if (columnIndex === columnCount - 1) {
+          neighborDeltaIndices[0] = Number.NaN;
+          neighborDeltaIndices[1] = Number.NaN;
+          neighborDeltaIndices[2] = Number.NaN;
+        }
+      } else {
+        // Is this the first column?
+        if (columnIndex === 0) {
+          neighborDeltaIndices[4] = Number.NaN;
+        }
+
+        // Is this the last column?
+        if (columnIndex === columnCount - 1) {
+          neighborDeltaIndices[2] = Number.NaN;
+        }
+      }
+
+      // Is this the first row?
+      if (rowIndex === 0) {
+        neighborDeltaIndices[0] = Number.NaN;
+        neighborDeltaIndices[5] = Number.NaN;
+      }
+
+      // Is this the last row?
+      if (rowIndex === rowCount - 1) {
+        neighborDeltaIndices[2] = Number.NaN;
+        neighborDeltaIndices[3] = Number.NaN;
+      }
+    } else {
+      if (isLargerRow) {
+        // Is this the first column?
+        if (columnIndex === 0) {
+          neighborDeltaIndices[4] = Number.NaN;
+          neighborDeltaIndices[5] = Number.NaN;
+        }
+
+        // Is this the last column?
+        if (columnIndex === columnCount - 1) {
+          neighborDeltaIndices[1] = Number.NaN;
+          neighborDeltaIndices[2] = Number.NaN;
+        }
+      }
+
+      // Is this the first or second row?
+      if (rowIndex ===0) {
+        neighborDeltaIndices[0] = Number.NaN;
+        neighborDeltaIndices[1] = Number.NaN;
+        neighborDeltaIndices[5] = Number.NaN;
+      } else if (rowIndex === 1) {
+        neighborDeltaIndices[0] = Number.NaN;
+      }
+
+      // Is this the last or second-to-last row?
+      if (rowIndex === rowCount - 1) {
+        neighborDeltaIndices[2] = Number.NaN;
+        neighborDeltaIndices[3] = Number.NaN;
+        neighborDeltaIndices[4] = Number.NaN;
+      } else if (rowIndex === rowCount - 2) {
+        neighborDeltaIndices[3] = Number.NaN;
+      }
+    }
+
+    return neighborDeltaIndices;
+  }
+
+  /**
+   * Calculates the index offsets of the neighbors of a tile.
+   *
+   * @returns {Array.<number>}
+   */
+  function getDefaultNeighborDeltaIndices() {
+    var grid, maxColumnCount, neighborDeltaIndices;
+
+    grid = this;
+    neighborDeltaIndices = [];
+    maxColumnCount = grid.oddRowTileCount > grid.evenRowTileCount ?
+        grid.oddRowTileCount : grid.evenRowTileCount;
+
+    // Neighbor delta indices are dependent on current screen dimensions
+    if (grid.isVertical) {
+      neighborDeltaIndices[0] = -maxColumnCount + 1; // top-right
+      neighborDeltaIndices[1] = 1; // right
+      neighborDeltaIndices[2] = maxColumnCount; // bottom-right
+      neighborDeltaIndices[3] = maxColumnCount - 1; // bottom-left
+      neighborDeltaIndices[4] = -1; // left
+      neighborDeltaIndices[5] = -maxColumnCount; // top-left
+    } else {
+      neighborDeltaIndices[0] = -maxColumnCount * 2 + 1; // top
+      neighborDeltaIndices[1] = -maxColumnCount + 1; // top-right
+      neighborDeltaIndices[2] = maxColumnCount; // bottom-right
+      neighborDeltaIndices[3] = maxColumnCount * 2 - 1; // bottom
+      neighborDeltaIndices[4] = maxColumnCount - 1; // bottom-left
+      neighborDeltaIndices[5] = -maxColumnCount; // top-left
+    }
+
+    return neighborDeltaIndices;
   }
 
   /**
@@ -412,6 +553,8 @@
 //    drawTileOuterRadii.call(grid);
 //    drawTileIndices.call(grid);
 //    drawContentAreaGuideLines.call(grid);
+    drawTileForces.call(grid);
+    drawTileNeighborConnections.call(grid);
 
     logGridInfo.call(grid);
   }
@@ -527,6 +670,63 @@
   }
 
   /**
+   * Draws lines connecting each tile to each of its neighbors.
+   *
+   * This is useful for testing purposes.
+   */
+  function drawTileNeighborConnections() {
+    var grid, i, j, iCount, jCount, tile, line, neighbor;
+
+    grid = this;
+
+    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
+      tile = grid.tiles[i];
+
+      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
+        neighbor = tile.neighbors[j];
+
+        if (neighbor) {
+          line = document.createElementNS(hg.util.svgNamespace, 'line');
+          line.setAttribute('x1', tile.particle.px);
+          line.setAttribute('y1', tile.particle.py);
+          line.setAttribute('x2', neighbor.tile.particle.px);
+          line.setAttribute('y2', neighbor.tile.particle.py);
+          line.setAttribute('stroke', 'purple');
+          line.setAttribute('stroke-width', '1');
+          grid.svg.appendChild(line);
+        }
+      }
+    }
+  }
+
+  /**
+   * Draws lines representing the cumulative force acting on each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function drawTileForces() {
+    var grid, i, count, tile, line, x2, y2;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      tile = grid.tiles[i];
+
+      x2 = tile.particle.px + tile.particle.fx;
+      y2 = tile.particle.py + tile.particle.fy;
+
+      line = document.createElementNS(hg.util.svgNamespace, 'line');
+      line.setAttribute('x1', tile.particle.px);
+      line.setAttribute('y1', tile.particle.py);
+      line.setAttribute('x2', x2);
+      line.setAttribute('y2', y2);
+      line.setAttribute('stroke', 'orange');
+      line.setAttribute('stroke-width', '2');
+      grid.svg.appendChild(line);
+    }
+  }
+
+  /**
    * Draws the index of each tile.
    *
    * This is useful for testing purposes.
@@ -586,15 +786,20 @@
     grid.saturation = config.backgroundSaturation;
     grid.lightness = config.backgroundLightness;
 
+    grid.isComplete = false;
+
     grid.svg = null;
     grid.tiles = null;
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
 
+    grid.start = start;
+    grid.update = update;
+    grid.cancel = cancel;
+
     createSvg.call(grid);
     computeContentIndices.call(grid);
     onWindowResize.call(grid);
-    startAnimating.call(grid);
 
     window.addEventListener('resize', onWindowResize.bind(grid), false);
   }
@@ -617,6 +822,42 @@
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
+  /**
+   * Sets this AnimationJob as started.
+   */
+  function start() {
+    var grid = this;
+
+    grid.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this AnimationJob to match the given time.
+   *
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tiles[i].eulerStep(deltaTime);
+    }
+  }
+
+  /**
+   * Stops this AnimationJob, and returns the element to its original form.
+   */
+  function cancel() {
+    var grid = this;
+
+    // TODO:
+
+    grid.isComplete = true;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's factory function
 
@@ -628,7 +869,9 @@
    * @returns {HexGrid}
    */
   function createNewHexGrid(parent, tileData, isVertical) {
-    return new HexGrid(parent, tileData, isVertical);
+    var grid = new HexGrid(parent, tileData, isVertical);
+    hg.animator.startJob(grid);
+    return grid;
   }
 
   // Expose this module
@@ -658,6 +901,8 @@
   config.coeffOfDrag = 0.1;
   config.coeffOfSpring = 0.1;
   config.coeffOfDamping = 0.1;
+  config.forceSuppressionThreshold = 0.00001;
+  config.velocitySuppressionThreshold = 0.00001;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -699,6 +944,8 @@
     tile.particle.fx = 0;
     tile.particle.fy = 0;
     tile.particle.m = mass;
+    tile.particle.forceAccumulatorX = 0;
+    tile.particle.forceAccumulatorY = 0;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -807,25 +1054,30 @@
 
     for (i = 0, iCount = neighborTiles.length; i < iCount; i += 1) {
       neighborTile = neighborTiles[i];
-      deltaX = tile.centerX - neighborTile.centerX;
-      deltaY = tile.centerY - neighborTile.centerY;
 
-      tile.neighbors[i] = {
-        tile: neighborTile,
-        restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-        neighborsRelationshipObj: null,
-        springForceX: 0,
-        springForceY: 0
-      };
+      if (neighborTile) {
+        deltaX = tile.centerX - neighborTile.centerX;
+        deltaY = tile.centerY - neighborTile.centerY;
 
-      // Give neighbor tiles references to each others' relationship object
-      if (neighborTile.neighbors) {
-        for (j = 0, jCount = neighborTile.neighbors.length; j < jCount; j += 1) {
-          if (neighborTile.neighbors[j].tile === tile) {
-            tile.neighbors[i].neighborsRelationshipObj = neighborTile.neighbors[j];
-            neighborTile.neighbors[j].neighborsRelationshipObj = tile.neighbors[i];
+        tile.neighbors[i] = {
+          tile: neighborTile,
+          restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+          neighborsRelationshipObj: null,
+          springForceX: 0,
+          springForceY: 0
+        };
+
+        // Give neighbor tiles references to each others' relationship object
+        if (neighborTile.neighbors) {
+          for (j = 0, jCount = neighborTile.neighbors.length; j < jCount; j += 1) {
+            if (neighborTile.neighbors[j] && neighborTile.neighbors[j].tile === tile) {
+              tile.neighbors[i].neighborsRelationshipObj = neighborTile.neighbors[j];
+              neighborTile.neighbors[j].neighborsRelationshipObj = tile.neighbors[i];
+            }
           }
         }
+      } else {
+        tile.neighbors[i] = null;
       }
     }
   }
@@ -867,56 +1119,68 @@
    * @params {number} deltaT
    */
   function eulerStep(deltaT) {
-    var tile, i, count, lx, ly, ldotx, ldoty, dotProd, length, temp, springForceX, springForceY;
+    var tile, i, count, neighbor, lx, ly, ldotx, ldoty, dotProd, length, temp, springForceX, springForceY;
 
     tile = this;
 
     // --- Accumulate forces --- //
 
     // Add drag force
-    tile.particle.fx += -config.coeffOfDrag * tile.particle.vx;
-    tile.particle.fy += -config.coeffOfDrag * tile.particle.vy;
+    tile.particle.forceAccumulatorX += -config.coeffOfDrag * tile.particle.vx;
+    tile.particle.forceAccumulatorY += -config.coeffOfDrag * tile.particle.vy;
 
     // Add spring forces
     for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
-      if (tile.neighbors[i].springForceX) {
-        tile.particle.fx += tile.neighbors[i].springForceX;
-        tile.particle.fy += tile.neighbors[i].springForceY;
+      neighbor = tile.neighbors[i];
 
-        tile.neighbors[i].springForceX = 0;
-        tile.neighbors[i].springForceY = 0;
-      } else {
-        lx = tile.neighbors[i].particle.px - tile.particle.px;
-        ly = tile.neighbors[i].particle.py - tile.particle.py;
-        ldotx = tile.neighbors[i].particle.vx - tile.particle.vx;
-        ldoty = tile.neighbors[i].particle.vy - tile.particle.vy;
-        dotProd = lx * ldotx + ly * ldoty;
-        length = Math.sqrt(lx * lx + ly * ly);
+      if (neighbor) {
+        if (neighbor.springForceX) {
+          tile.particle.forceAccumulatorX += neighbor.springForceX;
+          tile.particle.forceAccumulatorY += neighbor.springForceY;
 
-        temp = (config.coeffOfSpring * (length - tile.neighbors[i].restLength) +
-            config.coeffOfDamping * dotProd / length) / length;
-        springForceX = lx * temp;
-        springForceY = ly * temp;
+          neighbor.springForceX = 0;
+          neighbor.springForceY = 0;
+        } else {
+          lx = neighbor.tile.particle.px - tile.particle.px;
+          ly = neighbor.tile.particle.py - tile.particle.py;
+          ldotx = neighbor.tile.particle.vx - tile.particle.vx;
+          ldoty = neighbor.tile.particle.vy - tile.particle.vy;
+          dotProd = lx * ldotx + ly * ldoty;
+          length = Math.sqrt(lx * lx + ly * ly);
 
-        tile.particle.fx += springForceX;
-        tile.particle.fy += springForceY;
+          temp = (config.coeffOfSpring * (length - neighbor.restLength) +
+              config.coeffOfDamping * dotProd / length) / length;
+          springForceX = lx * temp;
+          springForceY = ly * temp;
 
-        tile.neighbors[i].neighborsRelationshipObj.springForceX = -springForceX;
-        tile.neighbors[i].neighborsRelationshipObj.springForceY = -springForceY;
+          tile.particle.forceAccumulatorX += springForceX;
+          tile.particle.forceAccumulatorY += springForceY;
+
+          neighbor.neighborsRelationshipObj.springForceX = -springForceX;
+          neighbor.neighborsRelationshipObj.springForceY = -springForceY;
+        }
       }
+      // TODO: should the border tiles have any outward-facing forces?
     }
 
     // --- Update particle state --- //
 
+    tile.particle.fx = tile.particle.forceAccumulatorX / tile.particle.m * deltaT; // TODO: should this include the deltaT value?
+    tile.particle.fy = tile.particle.forceAccumulatorY / tile.particle.m * deltaT;
     tile.particle.px += tile.particle.vx * deltaT;
     tile.particle.py += tile.particle.vy * deltaT;
-    tile.particle.vx += tile.particle.fx / tile.particle.m * deltaT;
-    tile.particle.vy += tile.particle.fy / tile.particle.m * deltaT;
+    tile.particle.vx += tile.particle.fx;
+    tile.particle.vy += tile.particle.fy;
 
-    // --- Reset forces for next time step --- //
+    // Kill all velocities and forces below a threshold
+    tile.particle.fx = tile.particle.fx < config.forceSuppressionThreshold ? 0 : tile.particle.fx;
+    tile.particle.fy = tile.particle.fy < config.forceSuppressionThreshold ? 0 : tile.particle.fy;
+    tile.particle.vx = tile.particle.vx < config.velocitySuppressionThreshold ? 0 : tile.particle.vx;
+    tile.particle.vy = tile.particle.vy < config.velocitySuppressionThreshold ? 0 : tile.particle.vy;
 
-    tile.particle.fx = 0;
-    tile.particle.fy = 0;
+    // Reset force accumulator for next time step
+    tile.particle.forceAccumulatorX = 0;
+    tile.particle.forceAccumulatorY = 0;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -935,11 +1199,13 @@
    * @param {number} lightness
    * @param {?Object} tileData
    * @param {number} tileIndex
+   * @param {number} columnIndex
+   * @param {boolean} isOddRow
    * @param {boolean} isMarginTile
    * @param {number} mass
    */
   function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
-                   tileData, tileIndex, isMarginTile, mass) {
+                   tileData, tileIndex, columnIndex, isOddRow, isMarginTile, mass) {
     var tile = this;
 
     tile.svg = svg;
@@ -954,6 +1220,8 @@
     tile.tileData = tileData;
     tile.holdsContent = !!tileData;
     tile.index = tileIndex;
+    tile.columnIndex = columnIndex;
+    tile.isOddRow = isOddRow;
     tile.isMarginTile = isMarginTile;
     tile.neighbors = null;
     tile.vertices = null;
@@ -965,7 +1233,6 @@
     tile.setColor = setColor;
     tile.setVertices = setVertices;
     tile.eulerStep = eulerStep;
-    **;// TODO: call eulerStep, and also add and call a function for adding external forces to the system (from the mouse and from periodic, automatic animations)
 
     createElement.call(tile);
     createParticle.call(tile, mass);
@@ -988,6 +1255,10 @@
  * @module animator
  */
 (function () {
+  /**
+   * @typedef {{start: Function, update: Function, cancel: Function, isComplete: boolean}} AnimationJob
+   */
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -995,11 +1266,14 @@
    * This is the animation loop that drives all of the animation.
    */
   function animationLoop() {
-    var currentTime = Date.now();
+    var currentTime, deltaTime;
+
+    currentTime = Date.now();
+    deltaTime = currentTime - animator.previousTime;
     animator.isLooping = true;
 
     if (!animator.isPaused) {
-      updateJobs(currentTime);
+      updateJobs(currentTime, deltaTime);
       hg.util.requestAnimationFrame(animationLoop);
     } else {
       animator.isLooping = false;
@@ -1012,12 +1286,13 @@
    * Updates all of the active AnimationJobs.
    *
    * @param {number} currentTime
+   * @param {number} deltaTime
    */
-  function updateJobs(currentTime) {
+  function updateJobs(currentTime, deltaTime) {
     var i, count;
 
     for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].update(currentTime);
+      animator.jobs[i].update(currentTime, deltaTime);
 
       // Remove jobs from the list after they are complete
       if (animator.jobs[i].isComplete) {
@@ -1054,26 +1329,19 @@
     }
   }
 
+  /**
+   * Starts the animation loop if it is not already running
+   */
+  function startAnimationLoop() {
+    animator.isPaused = false;
+    if (!animator.isLooping) {
+      animator.previousTime = Date.now();
+      animationLoop();
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Public static functions
-
-  /**
-   * Creates a new AnimationJob.
-   *
-   * @param {HTMLElement} element
-   * @param {number} duration In milliseconds.
-   * @param {string} easingFunctionName
-   * @param {Function} animationFunction
-   * @param {Function} onComplete
-   * @returns {Window.hg.AnimationJob}
-   */
-  function createJob(element, duration, easingFunctionName, animationFunction, onComplete) {
-    // Just make sure that any state that should be completed from a previous animation is ready
-    animationLoop();
-
-    return new hg.AnimationJob(element, duration, easingFunctionName, animationFunction,
-        onComplete);
-  }
 
   /**
    * Starts the given AnimationJob.
@@ -1081,14 +1349,12 @@
    * @param {AnimationJob} job
    */
   function startJob(job) {
+    console.log('AnimationJob starting');
+
     job.start();
     animator.jobs.push(job);
 
-    // Start the animation loop if it were not already running
-    animator.isPaused = false;
-    if (!animator.isLooping) {
-      animationLoop();
-    }
+    startAnimationLoop();
   }
 
   /**
@@ -1097,6 +1363,8 @@
    * @param {AnimationJob} job
    */
   function cancelJob(job) {
+    console.log('AnimationJob cancelling');
+
     job.cancel();
     removeJob(job);
   }
@@ -1106,10 +1374,11 @@
 
   var animator = {};
   animator.jobs = [];
-  animator.createJob = createJob;
+  animator.previousTime = Date.now();
+  animator.isLooping = false;
+  animator.isPaused = true;
   animator.startJob = startJob;
   animator.cancelJob = cancelJob;
-  animator.isPaused = true;
 
   // Expose this module
   if (!window.hg) window.hg = {};

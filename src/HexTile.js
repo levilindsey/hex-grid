@@ -171,25 +171,30 @@
 
     for (i = 0, iCount = neighborTiles.length; i < iCount; i += 1) {
       neighborTile = neighborTiles[i];
-      deltaX = tile.centerX - neighborTile.centerX;
-      deltaY = tile.centerY - neighborTile.centerY;
 
-      tile.neighbors[i] = {
-        tile: neighborTile,
-        restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-        neighborsRelationshipObj: null,
-        springForceX: 0,
-        springForceY: 0
-      };
+      if (neighborTile) {
+        deltaX = tile.centerX - neighborTile.centerX;
+        deltaY = tile.centerY - neighborTile.centerY;
 
-      // Give neighbor tiles references to each others' relationship object
-      if (neighborTile.neighbors) {
-        for (j = 0, jCount = neighborTile.neighbors.length; j < jCount; j += 1) {
-          if (neighborTile.neighbors[j].tile === tile) {
-            tile.neighbors[i].neighborsRelationshipObj = neighborTile.neighbors[j];
-            neighborTile.neighbors[j].neighborsRelationshipObj = tile.neighbors[i];
+        tile.neighbors[i] = {
+          tile: neighborTile,
+          restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+          neighborsRelationshipObj: null,
+          springForceX: 0,
+          springForceY: 0
+        };
+
+        // Give neighbor tiles references to each others' relationship object
+        if (neighborTile.neighbors) {
+          for (j = 0, jCount = neighborTile.neighbors.length; j < jCount; j += 1) {
+            if (neighborTile.neighbors[j] && neighborTile.neighbors[j].tile === tile) {
+              tile.neighbors[i].neighborsRelationshipObj = neighborTile.neighbors[j];
+              neighborTile.neighbors[j].neighborsRelationshipObj = tile.neighbors[i];
+            }
           }
         }
+      } else {
+        tile.neighbors[i] = null;
       }
     }
   }
@@ -231,7 +236,7 @@
    * @params {number} deltaT
    */
   function eulerStep(deltaT) {
-    var tile, i, count, lx, ly, ldotx, ldoty, dotProd, length, temp, springForceX, springForceY;
+    var tile, i, count, neighbor, lx, ly, ldotx, ldoty, dotProd, length, temp, springForceX, springForceY;
 
     tile = this;
 
@@ -243,31 +248,36 @@
 
     // Add spring forces
     for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
-      if (tile.neighbors[i].springForceX) {
-        tile.particle.forceAccumulatorX += tile.neighbors[i].springForceX;
-        tile.particle.forceAccumulatorY += tile.neighbors[i].springForceY;
+      neighbor = tile.neighbors[i];
 
-        tile.neighbors[i].springForceX = 0;
-        tile.neighbors[i].springForceY = 0;
-      } else {
-        lx = tile.neighbors[i].particle.px - tile.particle.px;
-        ly = tile.neighbors[i].particle.py - tile.particle.py;
-        ldotx = tile.neighbors[i].particle.vx - tile.particle.vx;
-        ldoty = tile.neighbors[i].particle.vy - tile.particle.vy;
-        dotProd = lx * ldotx + ly * ldoty;
-        length = Math.sqrt(lx * lx + ly * ly);
+      if (neighbor) {
+        if (neighbor.springForceX) {
+          tile.particle.forceAccumulatorX += neighbor.springForceX;
+          tile.particle.forceAccumulatorY += neighbor.springForceY;
 
-        temp = (config.coeffOfSpring * (length - tile.neighbors[i].restLength) +
-            config.coeffOfDamping * dotProd / length) / length;
-        springForceX = lx * temp;
-        springForceY = ly * temp;
+          neighbor.springForceX = 0;
+          neighbor.springForceY = 0;
+        } else {
+          lx = neighbor.tile.particle.px - tile.particle.px;
+          ly = neighbor.tile.particle.py - tile.particle.py;
+          ldotx = neighbor.tile.particle.vx - tile.particle.vx;
+          ldoty = neighbor.tile.particle.vy - tile.particle.vy;
+          dotProd = lx * ldotx + ly * ldoty;
+          length = Math.sqrt(lx * lx + ly * ly);
 
-        tile.particle.forceAccumulatorX += springForceX;
-        tile.particle.forceAccumulatorY += springForceY;
+          temp = (config.coeffOfSpring * (length - neighbor.restLength) +
+              config.coeffOfDamping * dotProd / length) / length;
+          springForceX = lx * temp;
+          springForceY = ly * temp;
 
-        tile.neighbors[i].neighborsRelationshipObj.springForceX = -springForceX;
-        tile.neighbors[i].neighborsRelationshipObj.springForceY = -springForceY;
+          tile.particle.forceAccumulatorX += springForceX;
+          tile.particle.forceAccumulatorY += springForceY;
+
+          neighbor.neighborsRelationshipObj.springForceX = -springForceX;
+          neighbor.neighborsRelationshipObj.springForceY = -springForceY;
+        }
       }
+      // TODO: should the border tiles have any outward-facing forces?
     }
 
     // --- Update particle state --- //
