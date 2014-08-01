@@ -15,12 +15,13 @@
   config = {};
 
   // TODO: play with these
-  config.coeffOfDrag = 0.00001;
-  config.coeffOfSpring = 0.00001;
-  config.coeffOfDamping = 0.00001;
+  config.coeffOfDrag = 0.0000001;
+  config.coeffOfSpring = 0.0000001;
+  config.coeffOfDamping = 0.0000001;
   config.forceSuppressionThreshold = 0.01;
   config.velocitySuppressionThreshold = 0.01;
   // TODO: add similar, upper thresholds
+  // TODO: add a threshold to ignore large deltaTime values
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -234,9 +235,10 @@
   /**
    * Update the state of this tile particle for the current time step.
    *
-   * @params {number} deltaT
+   * @param {number} currentTime
+   * @param {number} deltaTime
    */
-  function update(deltaT) {
+  function update(currentTime, deltaTime) {
     var tile, i, count, neighbor, lx, ly, ldotx, ldoty, dotProd, length, temp, springForceX, springForceY;
 
     tile = this;
@@ -283,10 +285,10 @@
 
     // --- Update particle state --- //
 
-    tile.particle.fx = tile.particle.forceAccumulatorX / tile.particle.m * deltaT; // TODO: should this include the deltaT value?
-    tile.particle.fy = tile.particle.forceAccumulatorY / tile.particle.m * deltaT;
-    tile.particle.px += tile.particle.vx * deltaT;
-    tile.particle.py += tile.particle.vy * deltaT;
+    tile.particle.fx = tile.particle.forceAccumulatorX / tile.particle.m * deltaTime; // TODO: should this include the deltaT value?
+    tile.particle.fy = tile.particle.forceAccumulatorY / tile.particle.m * deltaTime;
+    tile.particle.px += tile.particle.vx * deltaTime;
+    tile.particle.py += tile.particle.vy * deltaTime;
     tile.particle.vx += tile.particle.fx;
     tile.particle.vy += tile.particle.fy;
 

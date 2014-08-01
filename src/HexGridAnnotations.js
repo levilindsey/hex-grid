@@ -1,9 +1,9 @@
 'use strict';
-
+**;
 /**
- * This module defines a constructor for HexGrid objects.
+ * This module defines a constructor for HexGridAnnotations objects.
  *
- * @module HexGrid
+ * @module HexGridAnnotations
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -217,9 +217,9 @@
            tileIndex += 1, columnIndex += 1, centerX += grid.tileDeltaX) {
         isMarginTile = isOddRow ?
             columnIndex < grid.oddRowContentStartIndex ||
-                columnIndex > grid.oddRowContentEndIndex :
+            columnIndex > grid.oddRowContentEndIndex :
             columnIndex < grid.evenRowContentStartIndex ||
-                columnIndex > grid.evenRowContentEndIndex;
+            columnIndex > grid.evenRowContentEndIndex;
 
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
@@ -402,6 +402,302 @@
   }
 
   /**
+   * Removes all content from the SVG.
+   */
+  function clearSvg() {
+    var grid, svg;
+
+    grid = this;
+    svg = grid.svg;
+
+    while (svg.firstChild) {
+      svg.removeChild(svg.firstChild);
+    }
+  }
+
+  /**
+   * Draws content tiles with a different color.
+   *
+   * This is useful for testing purposes.
+   */
+  function fillContentTiles() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      if (grid.tiles[i].holdsContent) {
+        grid.tiles[i].setColor(config.tileHue + 80, config.tileSaturation, config.tileLightness);
+      }
+    }
+  }
+
+  /**
+   * Draws vertical guidelines along the left and right sides of the main content area.
+   *
+   * This is useful for testing purposes.
+   */
+  function drawContentAreaGuideLines() {
+    var grid, line;
+
+    grid = this;
+
+    line = document.createElementNS(hg.util.svgNamespace, 'line');
+    line.setAttribute('x1', grid.contentAreaLeft);
+    line.setAttribute('y1', 0);
+    line.setAttribute('x2', grid.contentAreaLeft);
+    line.setAttribute('y2', grid.height);
+    line.setAttribute('stroke', 'red');
+    line.setAttribute('stroke-width', '2');
+    grid.svg.appendChild(line);
+
+    line = document.createElementNS(hg.util.svgNamespace, 'line');
+    line.setAttribute('x1', grid.contentAreaRight);
+    line.setAttribute('y1', 0);
+    line.setAttribute('x2', grid.contentAreaRight);
+    line.setAttribute('y2', grid.height);
+    line.setAttribute('stroke', 'red');
+    line.setAttribute('stroke-width', '2');
+    grid.svg.appendChild(line);
+  }
+
+  /**
+   * Creates a dot at the center of each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function createTileCenters() {
+    var grid, i, count;
+
+    grid = this;
+    grid.tileCenters = [];
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tileCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      grid.tileCenters[i].setAttribute('r', '2');
+      grid.tileCenters[i].setAttribute('fill', 'gray');
+      grid.svg.appendChild(grid.tileCenters[i]);
+    }
+  }
+
+  /**
+   * Creates the inner radius of each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function createTileInnerRadii() {
+    var grid, i, count;
+
+    grid = this;
+    grid.tileInnerRadii = [];
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tileInnerRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      grid.tileInnerRadii[i].setAttribute('stroke', 'blue');
+      grid.tileInnerRadii[i].setAttribute('stroke-width', '1');
+      grid.tileInnerRadii[i].setAttribute('fill', 'transparent');
+      grid.svg.appendChild(grid.tileInnerRadii[i]);
+    }
+  }
+
+  /**
+   * Creates the outer radius of each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function createTileOuterRadii() {
+    var grid, i, count;
+
+    grid = this;
+    grid.tileOuterRadii = [];
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tileOuterRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      grid.tileOuterRadii[i].setAttribute('stroke', 'green');
+      grid.tileOuterRadii[i].setAttribute('stroke-width', '1');
+      grid.tileOuterRadii[i].setAttribute('fill', 'transparent');
+      grid.svg.appendChild(grid.tileOuterRadii[i]);
+    }
+  }
+
+  /**
+   * Creates lines connecting each tile to each of its neighbors.
+   *
+   * This is useful for testing purposes.
+   */
+  function createTileNeighborConnections() {
+    var grid, i, j, iCount, jCount, tile, neighbor;
+
+    grid = this;
+    grid.neighborLines = [];
+
+    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
+      tile = grid.tiles[i];
+      grid.neighborLines[i] = [];
+
+      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
+        neighbor = tile.neighbors[j];
+
+        if (neighbor) {
+          grid.neighborLines[i][j] = document.createElementNS(hg.util.svgNamespace, 'line');
+          grid.neighborLines[i][j].setAttribute('stroke', 'purple');
+          grid.neighborLines[i][j].setAttribute('stroke-width', '1');
+          grid.svg.appendChild(grid.neighborLines[i][j]);
+        }
+      }
+    }
+  }
+
+  /**
+   * Creates lines representing the cumulative force acting on each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function createTileForces() {
+    var grid, i, count;
+
+    grid = this;
+    grid.forceLines = [];
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.forceLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      grid.forceLines[i].setAttribute('stroke', 'orange');
+      grid.forceLines[i].setAttribute('stroke-width', '2');
+      grid.svg.appendChild(grid.forceLines[i]);
+    }
+  }
+
+  /**
+   * Creates the index of each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function createTileIndices() {
+    var grid, i, count;
+
+    grid = this;
+    grid.indexTexts = [];
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.indexTexts[i] = document.createElementNS(hg.util.svgNamespace, 'text');
+      grid.indexTexts[i].setAttribute('font-size', '16');
+      grid.indexTexts[i].setAttribute('fill', 'black');
+      grid.indexTexts[i].innerHTML = grid.tiles[i].index;
+      grid.svg.appendChild(grid.indexTexts[i]);
+    }
+  }
+
+  /**
+   * Updates a dot at the center of each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function updateTileCenters() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tileCenters[i].setAttribute('cx', grid.tiles[i].centerX);
+      grid.tileCenters[i].setAttribute('cy', grid.tiles[i].centerY);
+    }
+  }
+
+  /**
+   * Updates the inner radius of each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function updateTileInnerRadii() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tileInnerRadii[i].setAttribute('cx', grid.tiles[i].centerX);
+      grid.tileInnerRadii[i].setAttribute('cy', grid.tiles[i].centerY);
+      grid.tileInnerRadii[i].setAttribute('r', grid.tiles[i].outerRadius * config.sqrtThreeOverTwo);
+    }
+  }
+
+  /**
+   * Updates the outer radius of each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function updateTileOuterRadii() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tileOuterRadii[i].setAttribute('cx', grid.tiles[i].centerX);
+      grid.tileOuterRadii[i].setAttribute('cy', grid.tiles[i].centerY);
+      grid.tileOuterRadii[i].setAttribute('r', grid.tiles[i].outerRadius);
+    }
+  }
+
+  /**
+   * Updates lines connecting each tile to each of its neighbors.
+   *
+   * This is useful for testing purposes.
+   */
+  function updateTileNeighborConnections() {
+    var grid, i, j, iCount, jCount, tile, neighbor;
+
+    grid = this;
+
+    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
+      tile = grid.tiles[i];
+
+      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
+        neighbor = tile.neighbors[j];
+
+        if (neighbor) {
+          grid.neighborLines[i][j].setAttribute('x1', tile.particle.px);
+          grid.neighborLines[i][j].setAttribute('y1', tile.particle.py);
+          grid.neighborLines[i][j].setAttribute('x2', neighbor.tile.particle.px);
+          grid.neighborLines[i][j].setAttribute('y2', neighbor.tile.particle.py);
+        }
+      }
+    }
+  }
+
+  /**
+   * Updates lines representing the cumulative force acting on each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function updateTileForces() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.forceLines[i].setAttribute('x1', grid.tiles[i].particle.px);
+      grid.forceLines[i].setAttribute('y1', grid.tiles[i].particle.py);
+      grid.forceLines[i].setAttribute('x2', grid.tiles[i].particle.px + grid.tiles[i].particle.fx);
+      grid.forceLines[i].setAttribute('y2', grid.tiles[i].particle.py + grid.tiles[i].particle.fy);
+    }
+  }
+
+  /**
+   * Updates the index of each tile.
+   *
+   * This is useful for testing purposes.
+   */
+  function updateTileIndices() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.indexTexts[i].setAttribute('x', grid.tiles[i].centerX - 10);
+      grid.indexTexts[i].setAttribute('y', grid.tiles[i].centerY + 6);
+    }
+  }
+
+  /**
    * Event listener for the window resize event.
    *
    * Computes spatial parameters of the tiles in the grid.
@@ -421,23 +717,16 @@
 
     grid.svg.style.height = grid.height + 'px';
 
-    grid.annotations.onWindowResize();**;
+    fillContentTiles.call(grid);
+//    createTileCenters.call(grid);
+//    createTileInnerRadii.call(grid);
+//    createTileOuterRadii.call(grid);
+    createTileIndices.call(grid);
+    createTileForces.call(grid);
+    createTileNeighborConnections.call(grid);
+//    drawContentAreaGuideLines.call(grid);
 
     logGridInfo.call(grid);
-  }
-
-  /**
-   * Removes all content from the SVG.
-   */
-  function clearSvg() {
-    var grid, svg;
-
-    grid = this;
-    svg = grid.svg;
-
-    while (svg.firstChild) {
-      svg.removeChild(svg.firstChild);
-    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -449,7 +738,7 @@
    * @param {Array.<Object>} tileData
    * @param {boolean} isVertical
    */
-  function HexGrid(parent, tileData, isVertical) {
+  function HexGridAnnotations(parent, tileData, isVertical) {
     var grid = this;
 
     grid.parent = parent;
@@ -475,10 +764,6 @@
     createSvg.call(grid);
     computeContentIndices.call(grid);
     onWindowResize.call(grid);
-
-    grid.annototations = new hg.HexGridAnnotations(grid);
-
-    window.addEventListener('resize', onWindowResize.bind(grid), false);
   }
 
   /**
@@ -489,7 +774,7 @@
   function logGridInfo() {
     var grid = this;
 
-    console.log('--- HexGrid Info: --------');
+    console.log('--- HexGridAnnotations Info: --------');
     console.log('--- Tile count=' + grid.tiles.length);
     console.log('--- Row count=' + grid.rowCount);
     console.log('--- Odd row tile count=' + grid.oddRowTileCount);
@@ -524,7 +809,12 @@
       grid.tiles[i].draw();
     }
 
-    grid.annotations.update(currentTime, deltaTime);
+//    updateTileCenters.call(grid);
+//    updateTileInnerRadii.call(grid);
+//    updateTileOuterRadii.call(grid);
+    updateTileIndices.call(grid);
+    updateTileForces.call(grid);
+    updateTileNeighborConnections.call(grid);
   }
 
   /**
@@ -546,17 +836,17 @@
    * @param {HTMLElement} parent
    * @param {Array.<Object>} tileData
    * @param {boolean} isVertical
-   * @returns {HexGrid}
+   * @returns {HexGridAnnotations}
    */
-  function createNewHexGrid(parent, tileData, isVertical) {
-    var grid = new HexGrid(parent, tileData, isVertical);
+  function createNewHexGridAnnotations(parent, tileData, isVertical) {
+    var grid = new HexGridAnnotations(parent, tileData, isVertical);
     hg.animator.startJob(grid);
     return grid;
   }
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.createNewHexGrid = createNewHexGrid;
+  window.hg.createNewHexGridAnnotations = createNewHexGridAnnotations;
 
-  console.log('HexGrid module loaded');
+  console.log('HexGridAnnotations module loaded');
 })();

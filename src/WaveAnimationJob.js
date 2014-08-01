@@ -12,8 +12,8 @@
   var config = {};
 
   config.period = 1000;
-  config.fx = 0.01;
-  config.fy = 0.01;
+  config.fx = 0.0001;
+  config.fy = 0.0001;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -55,8 +55,11 @@
    * Updates the animation progress of this WaveAnimationJob to match the given time.
    *
    * This should be called from the overall animation loop.
+   *
+   * @param {number} currentTime
+   * @param {number} deltaTime
    */
-  function update(currentTime) {
+  function update(currentTime, deltaTime) {
     var job, fx, fy;
 
     job = this;
