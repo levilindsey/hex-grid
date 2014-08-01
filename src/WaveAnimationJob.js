@@ -12,8 +12,10 @@
   var config = {};
 
   config.period = 1000;
-  config.fx = 0.0001;
-  config.fy = 0.0001;
+  config.fx = 0.001;
+  config.fy = 0.001;
+
+  config.halfPeriod = config.period / 2;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -64,8 +66,7 @@
 
     job = this;
 
-    // TODO:
-    if (parseInt(currentTime / config.period) % 2 === 0) {
+    if (parseInt((deltaTime + config.halfPeriod) / config.period) % 2 === 0) {
       fx = config.fx;
       fy = config.fy;
     } else {

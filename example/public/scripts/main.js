@@ -27,7 +27,7 @@
       waveAnimationJob = new hg.WaveAnimationJob(grid);
 
       hg.animator.startJob(waveAnimationJob);
-    }, 4000);
+    }, 500);
   }
 
   if (!window.app) window.app = {};

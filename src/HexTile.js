@@ -16,10 +16,10 @@
 
   // TODO: play with these
   config.coeffOfDrag = 0.0000001;
-  config.coeffOfSpring = 0.0000001;
-  config.coeffOfDamping = 0.0000001;
-  config.forceSuppressionThreshold = 0.01;
-  config.velocitySuppressionThreshold = 0.01;
+  config.coeffOfSpring = 0.00001;
+  config.coeffOfDamping = 0.001;
+  config.forceSuppressionThreshold = 0.005;
+  config.velocitySuppressionThreshold = 0.005;
   // TODO: add similar, upper thresholds
   // TODO: add a threshold to ignore large deltaTime values
 
@@ -250,38 +250,38 @@
     tile.particle.forceAccumulatorY += -config.coeffOfDrag * tile.particle.vy;
 
     // Add spring forces
-//    for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
-//      neighbor = tile.neighbors[i];
-//
-//      if (neighbor) {
-//        if (neighbor.springForceX) {
-//          tile.particle.forceAccumulatorX += neighbor.springForceX;
-//          tile.particle.forceAccumulatorY += neighbor.springForceY;
-//
-//          neighbor.springForceX = 0;
-//          neighbor.springForceY = 0;
-//        } else {
-//          lx = neighbor.tile.particle.px - tile.particle.px;
-//          ly = neighbor.tile.particle.py - tile.particle.py;
-//          ldotx = neighbor.tile.particle.vx - tile.particle.vx;
-//          ldoty = neighbor.tile.particle.vy - tile.particle.vy;
-//          dotProd = lx * ldotx + ly * ldoty;
-//          length = Math.sqrt(lx * lx + ly * ly);
-//
-//          temp = (config.coeffOfSpring * (length - neighbor.restLength) +
-//              config.coeffOfDamping * dotProd / length) / length;
-//          springForceX = lx * temp;
-//          springForceY = ly * temp;
-//
-//          tile.particle.forceAccumulatorX += springForceX;
-//          tile.particle.forceAccumulatorY += springForceY;
-//
-//          neighbor.neighborsRelationshipObj.springForceX = -springForceX;
-//          neighbor.neighborsRelationshipObj.springForceY = -springForceY;
-//        }
-//      }
-//      // TODO: should the border tiles have any outward-facing forces?
-//    }
+    for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
+      neighbor = tile.neighbors[i];
+
+      if (neighbor) {
+        if (neighbor.springForceX) {
+          tile.particle.forceAccumulatorX += neighbor.springForceX;
+          tile.particle.forceAccumulatorY += neighbor.springForceY;
+
+          neighbor.springForceX = 0;
+          neighbor.springForceY = 0;
+        } else {
+          lx = neighbor.tile.particle.px - tile.particle.px;
+          ly = neighbor.tile.particle.py - tile.particle.py;
+          ldotx = neighbor.tile.particle.vx - tile.particle.vx;
+          ldoty = neighbor.tile.particle.vy - tile.particle.vy;
+          dotProd = lx * ldotx + ly * ldoty;
+          length = Math.sqrt(lx * lx + ly * ly);
+
+          temp = (config.coeffOfSpring * (length - neighbor.restLength) +
+              config.coeffOfDamping * dotProd / length) / length;
+          springForceX = lx * temp;
+          springForceY = ly * temp;
+
+          tile.particle.forceAccumulatorX += springForceX;
+          tile.particle.forceAccumulatorY += springForceY;
+
+          neighbor.neighborsRelationshipObj.springForceX = -springForceX;
+          neighbor.neighborsRelationshipObj.springForceY = -springForceY;
+        }
+      }
+      // TODO: should the border tiles have any outward-facing forces?
+    }
 
     // --- Update particle state --- //
 

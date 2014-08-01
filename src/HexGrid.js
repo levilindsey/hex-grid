@@ -13,6 +13,10 @@
   // - update the tile radius and the targetContentAreaWidth with the screen width
   //   - we should always have the same number of content tiles in a given row
 
+  // TODO:
+  // - give tiles references to their next DOM sibling
+  //   - this will be important for maintaining correct z-indices when removing/adding
+
   var config = {};
 
   config.targetContentAreaWidth = 800;
@@ -59,25 +63,25 @@
     parentHeight = grid.parent.clientHeight;
 
     if (grid.isVertical) {
-      grid.rowDeltaY = config.tileOuterRadius * 1.5 + config.tileGap * config.sqrtThreeOverTwo;
-      grid.tileDeltaX = config.tileShortLengthWithGap;
+      grid.rowDeltaY = hg.config.tileOuterRadius * 1.5 + hg.config.tileGap * hg.config.sqrtThreeOverTwo;
+      grid.tileDeltaX = hg.config.tileShortLengthWithGap;
 
-      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (config.tileInnerRadius + config.tileGap)) / config.tileShortLengthWithGap) * 2 + 1;
-      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (config.tileShortLengthWithGap + config.tileGap * 0.5)) / config.tileShortLengthWithGap) * 2 + 2;
+      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (hg.config.tileInnerRadius + hg.config.tileGap)) / hg.config.tileShortLengthWithGap) * 2 + 1;
+      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (hg.config.tileShortLengthWithGap + hg.config.tileGap * 0.5)) / hg.config.tileShortLengthWithGap) * 2 + 2;
 
-      grid.oddRowXOffset = parentHalfWidth - config.tileShortLengthWithGap * (grid.oddRowTileCount - 1) / 2;
+      grid.oddRowXOffset = parentHalfWidth - hg.config.tileShortLengthWithGap * (grid.oddRowTileCount - 1) / 2;
 
-      grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileOuterRadius * 2 + config.tileGap * Math.sqrt(3))) / grid.rowDeltaY) + 2;
+      grid.rowCount = Math.ceil((parentHeight - (hg.config.firstRowYOffset + hg.config.tileOuterRadius * 2 + hg.config.tileGap * Math.sqrt(3))) / grid.rowDeltaY) + 2;
     } else {
-      grid.rowDeltaY = config.tileInnerRadius + config.tileGap * 0.5;
-      grid.tileDeltaX = config.tileOuterRadius * 3 + config.tileGap * Math.sqrt(3);
+      grid.rowDeltaY = hg.config.tileInnerRadius + hg.config.tileGap * 0.5;
+      grid.tileDeltaX = hg.config.tileOuterRadius * 3 + hg.config.tileGap * Math.sqrt(3);
 
-      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX - config.tileOuterRadius)) / grid.tileDeltaX) * 2 + 1;
-      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX + (config.tileGap * config.sqrtThreeOverTwo) + config.tileOuterRadius * 0.5)) / grid.tileDeltaX) * 2 + 2;
+      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX - hg.config.tileOuterRadius)) / grid.tileDeltaX) * 2 + 1;
+      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX + (hg.config.tileGap * hg.config.sqrtThreeOverTwo) + hg.config.tileOuterRadius * 0.5)) / grid.tileDeltaX) * 2 + 2;
 
       grid.oddRowXOffset = parentHalfWidth - grid.tileDeltaX * (grid.oddRowTileCount - 1) / 2;
 
-      grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileInnerRadius * 3 + config.tileGap * 2)) / grid.rowDeltaY) + 4;
+      grid.rowCount = Math.ceil((parentHeight - (hg.config.firstRowYOffset + hg.config.tileInnerRadius * 3 + hg.config.tileGap * 2)) / grid.rowDeltaY) + 4;
     }
 
     grid.evenRowXOffset = grid.oddRowXOffset +
@@ -89,11 +93,11 @@
     grid.contentAreaRight = grid.contentAreaLeft + grid.actualContentAreaWidth;
 
     if (grid.isVertical) {
-      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileInnerRadius)) / grid.tileDeltaX);
-      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileInnerRadius)) / grid.tileDeltaX);
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - hg.config.tileInnerRadius)) / grid.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - hg.config.tileInnerRadius)) / grid.tileDeltaX);
     } else {
-      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileOuterRadius)) / grid.tileDeltaX);
-      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileOuterRadius)) / grid.tileDeltaX);
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - hg.config.tileOuterRadius)) / grid.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - hg.config.tileOuterRadius)) / grid.tileDeltaX);
     }
 
     grid.oddRowContentTileCount = grid.oddRowTileCount - grid.oddRowContentStartIndex * 2;
@@ -104,8 +108,8 @@
 
     // Update the content inner indices to account for empty rows at the start of the grid
     grid.actualContentInnerIndices = [];
-    emptyRowsContentTileCount = Math.ceil(config.emptyInitialRowCount / 2) * grid.oddRowContentTileCount +
-        Math.floor(config.emptyInitialRowCount / 2) * grid.evenRowContentTileCount;
+    emptyRowsContentTileCount = Math.ceil(hg.config.emptyInitialRowCount / 2) * grid.oddRowContentTileCount +
+        Math.floor(hg.config.emptyInitialRowCount / 2) * grid.evenRowContentTileCount;
     for (i = 0, count = grid.originalContentInnerIndices.length; i < count; i += 1) {
       grid.actualContentInnerIndices[i] = grid.originalContentInnerIndices[i] + emptyRowsContentTileCount;
     }
@@ -144,7 +148,7 @@
     }
 
     // Use 0s to represent the empty tiles
-    count = (1 / config.contentDensity) * grid.tileData.length;
+    count = (1 / hg.config.contentDensity) * grid.tileData.length;
     for (i = grid.tileData.length; i < count; i += 1) {
       tilesRepresentation[i] = 0;
     }
@@ -195,7 +199,7 @@
     tileIndex = 0;
     contentAreaIndex = 0;
     tileDataIndex = 0;
-    centerY = config.firstRowYOffset;
+    centerY = hg.config.firstRowYOffset;
     rowCount = grid.rowCount;
     tilesNeighborDeltaIndices = [];
 
@@ -221,9 +225,9 @@
             columnIndex < grid.evenRowContentStartIndex ||
                 columnIndex > grid.evenRowContentEndIndex;
 
-        grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
-            grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex, isMarginTile, config.tileMass);
+        grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, hg.config.tileOuterRadius,
+            grid.isVertical, hg.config.tileHue, hg.config.tileSaturation, hg.config.tileLightness, null,
+            tileIndex, isMarginTile, hg.config.tileMass);
 
         // Is the current tile within the content column?
         if (!isMarginTile) {
@@ -411,8 +415,8 @@
 
     grid = this;
 
-    grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
-        grid.parent.clientWidth : config.targetContentAreaWidth;
+    grid.actualContentAreaWidth = grid.parent.clientWidth < hg.config.targetContentAreaWidth ?
+        grid.parent.clientWidth : hg.config.targetContentAreaWidth;
 
     clearSvg.call(grid);
 
@@ -421,7 +425,7 @@
 
     grid.svg.style.height = grid.height + 'px';
 
-    grid.annotations.onWindowResize();**;
+    grid.annotations.resize();
 
     logGridInfo.call(grid);
   }
@@ -456,10 +460,10 @@
     grid.tileData = tileData;
     grid.isVertical = isVertical;
 
-    grid.actualContentAreaWidth = config.actualContentAreaWidth;
-    grid.hue = config.backgroundHue;
-    grid.saturation = config.backgroundSaturation;
-    grid.lightness = config.backgroundLightness;
+    grid.actualContentAreaWidth = hg.config.actualContentAreaWidth;
+    grid.hue = hg.config.backgroundHue;
+    grid.saturation = hg.config.backgroundSaturation;
+    grid.lightness = hg.config.backgroundLightness;
 
     grid.isComplete = false;
 
@@ -468,6 +472,8 @@
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
 
+    grid.annotations = new hg.HexGridAnnotations(grid);
+
     grid.start = start;
     grid.update = update;
     grid.cancel = cancel;
@@ -475,8 +481,6 @@
     createSvg.call(grid);
     computeContentIndices.call(grid);
     onWindowResize.call(grid);
-
-    grid.annototations = new hg.HexGridAnnotations(grid);
 
     window.addEventListener('resize', onWindowResize.bind(grid), false);
   }
@@ -557,6 +561,7 @@
   // Expose this module
   if (!window.hg) window.hg = {};
   window.hg.createNewHexGrid = createNewHexGrid;
+  window.hg.config = config;
 
   console.log('HexGrid module loaded');
 })();
