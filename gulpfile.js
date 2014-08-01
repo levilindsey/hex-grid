@@ -16,8 +16,8 @@ gulp.task('scripts', function () {
       .pipe(plugins.uglify())
       .pipe(gulp.dest(distPath))
       .pipe(plugins.filesize())
-      .pipe(plugins.notify({ message: 'scripts task complete' }))
-      .pipe(plugins.livereload());
+      .pipe(plugins.notify({ message: 'scripts task complete' }));
+//      .pipe(plugins.livereload());
 });
 
 gulp.task('clean', function () {
@@ -31,8 +31,14 @@ gulp.task('default', ['clean'], function () {
 
 gulp.task('watch', function () {
   gulp.watch(scriptsSrcPath, ['scripts']);
+
+  plugins.livereload.listen();
+  gulp.watch(scriptsSrcPath).on('change', plugins.livereload.changed);
 });
 
 gulp.task('server', function () {
+//  var tinyLRServer = require('tiny-lr')();
+//
+//  tinyLRServer.listen(35729);
   plugins.nodemon({script: 'example/main.js'});
 });

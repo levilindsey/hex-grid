@@ -11,17 +11,23 @@
    * within the body element.
    */
   function initHexGrid() {
-    var body, tileData;
+    var body, tileData, grid, waveAnimationJob;
 
     console.log('onDocumentLoad');
 
+    window.removeEventListener('load', initHexGrid);
+
     body = document.getElementById('hex-grid-area');
 
-    tileData = [{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]; // TODO: fetch this from the server
+    setTimeout(function () {
+      tileData = [{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]; // TODO: fetch this from the server
 
-    hg.createNewHexGrid(body, tileData, false);
+      grid = hg.createNewHexGrid(body, tileData, false);
 
-    window.removeEventListener('load', initHexGrid);
+      waveAnimationJob = new hg.WaveAnimationJob(grid);
+
+      hg.animator.startJob(waveAnimationJob);
+    }, 4000);
   }
 
   if (!window.app) window.app = {};

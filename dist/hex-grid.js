@@ -551,7 +551,7 @@
 //    drawTileCenters.call(grid);
 //    drawTileInnerRadii.call(grid);
 //    drawTileOuterRadii.call(grid);
-//    drawTileIndices.call(grid);
+    drawTileIndices.call(grid);
 //    drawContentAreaGuideLines.call(grid);
     drawTileForces.call(grid);
     drawTileNeighborConnections.call(grid);
@@ -843,7 +843,8 @@
     grid = this;
 
     for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].eulerStep(deltaTime);
+      grid.tiles[i].update(deltaTime);
+      grid.tiles[i].draw();
     }
   }
 
@@ -898,11 +899,12 @@
   config = {};
 
   // TODO: play with these
-  config.coeffOfDrag = 0.1;
-  config.coeffOfSpring = 0.1;
-  config.coeffOfDamping = 0.1;
-  config.forceSuppressionThreshold = 0.00001;
-  config.velocitySuppressionThreshold = 0.00001;
+  config.coeffOfDrag = 0.00001;
+  config.coeffOfSpring = 0.00001;
+  config.coeffOfDamping = 0.00001;
+  config.forceSuppressionThreshold = 0.01;
+  config.velocitySuppressionThreshold = 0.01;
+  // TODO: add similar, upper thresholds
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -1118,7 +1120,7 @@
    *
    * @params {number} deltaT
    */
-  function eulerStep(deltaT) {
+  function update(deltaT) {
     var tile, i, count, neighbor, lx, ly, ldotx, ldoty, dotProd, length, temp, springForceX, springForceY;
 
     tile = this;
@@ -1130,38 +1132,38 @@
     tile.particle.forceAccumulatorY += -config.coeffOfDrag * tile.particle.vy;
 
     // Add spring forces
-    for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
-      neighbor = tile.neighbors[i];
-
-      if (neighbor) {
-        if (neighbor.springForceX) {
-          tile.particle.forceAccumulatorX += neighbor.springForceX;
-          tile.particle.forceAccumulatorY += neighbor.springForceY;
-
-          neighbor.springForceX = 0;
-          neighbor.springForceY = 0;
-        } else {
-          lx = neighbor.tile.particle.px - tile.particle.px;
-          ly = neighbor.tile.particle.py - tile.particle.py;
-          ldotx = neighbor.tile.particle.vx - tile.particle.vx;
-          ldoty = neighbor.tile.particle.vy - tile.particle.vy;
-          dotProd = lx * ldotx + ly * ldoty;
-          length = Math.sqrt(lx * lx + ly * ly);
-
-          temp = (config.coeffOfSpring * (length - neighbor.restLength) +
-              config.coeffOfDamping * dotProd / length) / length;
-          springForceX = lx * temp;
-          springForceY = ly * temp;
-
-          tile.particle.forceAccumulatorX += springForceX;
-          tile.particle.forceAccumulatorY += springForceY;
-
-          neighbor.neighborsRelationshipObj.springForceX = -springForceX;
-          neighbor.neighborsRelationshipObj.springForceY = -springForceY;
-        }
-      }
-      // TODO: should the border tiles have any outward-facing forces?
-    }
+//    for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
+//      neighbor = tile.neighbors[i];
+//
+//      if (neighbor) {
+//        if (neighbor.springForceX) {
+//          tile.particle.forceAccumulatorX += neighbor.springForceX;
+//          tile.particle.forceAccumulatorY += neighbor.springForceY;
+//
+//          neighbor.springForceX = 0;
+//          neighbor.springForceY = 0;
+//        } else {
+//          lx = neighbor.tile.particle.px - tile.particle.px;
+//          ly = neighbor.tile.particle.py - tile.particle.py;
+//          ldotx = neighbor.tile.particle.vx - tile.particle.vx;
+//          ldoty = neighbor.tile.particle.vy - tile.particle.vy;
+//          dotProd = lx * ldotx + ly * ldoty;
+//          length = Math.sqrt(lx * lx + ly * ly);
+//
+//          temp = (config.coeffOfSpring * (length - neighbor.restLength) +
+//              config.coeffOfDamping * dotProd / length) / length;
+//          springForceX = lx * temp;
+//          springForceY = ly * temp;
+//
+//          tile.particle.forceAccumulatorX += springForceX;
+//          tile.particle.forceAccumulatorY += springForceY;
+//
+//          neighbor.neighborsRelationshipObj.springForceX = -springForceX;
+//          neighbor.neighborsRelationshipObj.springForceY = -springForceY;
+//        }
+//      }
+//      // TODO: should the border tiles have any outward-facing forces?
+//    }
 
     // --- Update particle state --- //
 
@@ -1172,6 +1174,41 @@
     tile.particle.vx += tile.particle.fx;
     tile.particle.vy += tile.particle.fy;
 
+    ////////////////////////////////////////////////////////////////////////////////////
+    // TODO: remove me!
+    var ap = tile.particle,
+        apx = ap.px,
+        apy = ap.py,
+        avx = ap.vx,
+        avy = ap.vy,
+        afx = ap.fx,
+        afy = ap.fy,
+        afAccx = ap.forceAccumulatorX,
+        afAccy = ap.forceAccumulatorY;
+    if (tile.index === 0) {
+      console.log('tile 0!');
+    }
+    if (isNaN(tile.particle.px)) {
+      console.log('tile.particle.px=' + tile.particle.px);
+    }
+    if (isNaN(tile.particle.py)) {
+      console.log('tile.particle.py=' + tile.particle.py);
+    }
+    if (isNaN(tile.particle.vx)) {
+      console.log('tile.particle.vx=' + tile.particle.vx);
+    }
+    if (isNaN(tile.particle.vy)) {
+      console.log('tile.particle.vy=' + tile.particle.vy);
+    }
+    if (isNaN(tile.particle.fx)) {
+      console.log('tile.particle.fx=' + tile.particle.fx);
+    }
+    if (isNaN(tile.particle.fy)) {
+      console.log('tile.particle.fy=' + tile.particle.fy);
+    }
+    // TODO: remove me!
+    ////////////////////////////////////////////////////////////////////////////////////
+
     // Kill all velocities and forces below a threshold
     tile.particle.fx = tile.particle.fx < config.forceSuppressionThreshold ? 0 : tile.particle.fx;
     tile.particle.fy = tile.particle.fy < config.forceSuppressionThreshold ? 0 : tile.particle.fy;
@@ -1181,6 +1218,33 @@
     // Reset force accumulator for next time step
     tile.particle.forceAccumulatorX = 0;
     tile.particle.forceAccumulatorY = 0;
+  }
+
+  /**
+   * Update the SVG attributes for this tile to match its current particle state.
+   */
+  function draw() {
+    var tile;
+
+    tile = this;
+
+    tile.vertices = computeVertices(tile.particle.px, tile.particle.py, tile.vertexDeltas);
+    setVertices.call(tile, tile.vertices);
+  }
+
+  /**
+   * Adds the given force, which will take effect during the next call to update.
+   *
+   * @param {number} fx
+   * @param {number} fy
+   */
+  function applyExternalForce(fx, fy) {
+    var tile;
+
+    tile = this;
+
+    tile.particle.forceAccumulatorX += fx;
+    tile.particle.forceAccumulatorY += fy;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -1199,13 +1263,11 @@
    * @param {number} lightness
    * @param {?Object} tileData
    * @param {number} tileIndex
-   * @param {number} columnIndex
-   * @param {boolean} isOddRow
    * @param {boolean} isMarginTile
    * @param {number} mass
    */
   function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
-                   tileData, tileIndex, columnIndex, isOddRow, isMarginTile, mass) {
+                   tileData, tileIndex, isMarginTile, mass) {
     var tile = this;
 
     tile.svg = svg;
@@ -1220,19 +1282,18 @@
     tile.tileData = tileData;
     tile.holdsContent = !!tileData;
     tile.index = tileIndex;
-    tile.columnIndex = columnIndex;
-    tile.isOddRow = isOddRow;
     tile.isMarginTile = isMarginTile;
     tile.neighbors = null;
     tile.vertices = null;
-
     tile.particle = null;
 
     tile.setContent = setContent;
     tile.setNeighborTiles = setNeighborTiles;
     tile.setColor = setColor;
     tile.setVertices = setVertices;
-    tile.eulerStep = eulerStep;
+    tile.update = update;
+    tile.draw = draw;
+    tile.applyExternalForce = applyExternalForce;
 
     createElement.call(tile);
     createParticle.call(tile, mass);
@@ -1245,6 +1306,125 @@
   initStaticFields();
 
   console.log('HexTile module loaded');
+})();
+
+'use strict';
+
+/**
+ * This module defines a constructor for WaveAnimationJob objects.
+ *
+ * @module WaveAnimationJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.period = 1000;
+  config.fx = 0.01;
+  config.fy = 0.01;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   */
+  function checkForComplete() {
+    var job = this;
+
+    // TODO:
+//    if (???) {
+//      console.log('WaveAnimationJob completed');
+//
+//      job.isComplete = true;
+//      job.onComplete(true);
+//    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this WaveAnimationJob as started.
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    // TODO:
+  }
+
+  /**
+   * Updates the animation progress of this WaveAnimationJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   */
+  function update(currentTime) {
+    var job, fx, fy;
+
+    job = this;
+
+    // TODO:
+    if (parseInt(currentTime / config.period) % 2 === 0) {
+      fx = config.fx;
+      fy = config.fy;
+    } else {
+      fx = -config.fx;
+      fy = -config.fy;
+    }
+
+    job.grid.tiles[0].applyExternalForce(fx, fy);
+
+    checkForComplete.call(job);
+  }
+
+  /**
+   * Stops this WaveAnimationJob, and returns the element its original form.
+   */
+  function cancel() {
+    var job = this;
+
+    // TODO:
+
+    job.onComplete(false);
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {HexGrid} grid
+   */
+  function WaveAnimationJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.cancel = cancel;
+
+    console.log('WaveAnimationJob created');
+  }
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.WaveAnimationJob = WaveAnimationJob;
+
+  console.log('WaveAnimationJob module loaded');
 })();
 
 'use strict';

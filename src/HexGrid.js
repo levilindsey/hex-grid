@@ -425,7 +425,7 @@
 //    drawTileCenters.call(grid);
 //    drawTileInnerRadii.call(grid);
 //    drawTileOuterRadii.call(grid);
-//    drawTileIndices.call(grid);
+    drawTileIndices.call(grid);
 //    drawContentAreaGuideLines.call(grid);
     drawTileForces.call(grid);
     drawTileNeighborConnections.call(grid);
@@ -717,7 +717,8 @@
     grid = this;
 
     for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].eulerStep(deltaTime);
+      grid.tiles[i].update(deltaTime);
+      grid.tiles[i].draw();
     }
   }
 

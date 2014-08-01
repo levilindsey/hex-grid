@@ -14,6 +14,7 @@ var config = require('../config/config');
 exports.init = function (server) {
   var morgan = require('morgan'), // For logging
       favicon = require('serve-favicon'), // For serving our favicon
+//      connectLivereload = require('connect-livereload')(),
       staticFiles = require('./static-files');
 
   // Set up the templating engine
@@ -22,6 +23,7 @@ exports.init = function (server) {
 
   server.use(morgan({ format: 'dev', immediate: true }));
   server.use(favicon(config.faviconPath));
+//  server.use(connectLivereload);
 
   staticFiles.init(server);
 };
