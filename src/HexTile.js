@@ -16,10 +16,18 @@
 
   // TODO: play with these
   config.coeffOfDrag = 0.0005;
-  config.coeffOfSpring = 0.00001;
-  config.coeffOfDamping = 0.001;
-  config.forceSuppressionThreshold = 0.001;
-  config.velocitySuppressionThreshold = 0.001;
+
+  config.neighborCoeffOfSpring = 0.00001;
+  config.neighborCoeffOfDamping = 0.0001;
+
+  config.innerAnchorCoeffOfSpring = 0.0000001;
+  config.innerAnchorCoeffOfDamping = 0.0001;
+
+  config.borderAnchorCoeffOfSpring = 0.0000005;
+  config.borderAnchorCoeffOfDamping = 0.0005;
+
+  config.forceSuppressionThreshold = 0.0005;
+  config.velocitySuppressionThreshold = 0.0005;
   // TODO: add similar, upper thresholds
   // TODO: add a threshold to ignore large deltaTime values
 
@@ -242,111 +250,139 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var tile, i, count, neighbor, lx, ly, ldotx, ldoty, dotProd, length, temp, springForceX, springForceY;
+    var tile, i, count, neighbor, lx, ly, lDotX, lDotY, dotProd, length, temp, springForceX,
+        springForceY;
 
     tile = this;
 
-    // --- Accumulate forces --- //
+    if (!tile.particle.isFixed) {
+      // --- Accumulate forces --- //
 
-    // Add drag force
-    tile.particle.forceAccumulatorX += -config.coeffOfDrag * tile.particle.vx;
-    tile.particle.forceAccumulatorY += -config.coeffOfDrag * tile.particle.vy;
+      // --- Drag force --- //
+      tile.particle.forceAccumulatorX += -config.coeffOfDrag * tile.particle.vx;
+      tile.particle.forceAccumulatorY += -config.coeffOfDrag * tile.particle.vy;
 
-    // Add spring forces
-    for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
-      neighbor = tile.neighbors[i];
+      // --- Spring forces from neighbor tiles --- //
+      for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
+        neighbor = tile.neighbors[i];
 
-      if (neighbor) {
-        if (neighbor.springForceX) {
-          tile.particle.forceAccumulatorX += neighbor.springForceX;
-          tile.particle.forceAccumulatorY += neighbor.springForceY;
+        if (neighbor) {
+          if (neighbor.springForceX) {
+            tile.particle.forceAccumulatorX += neighbor.springForceX;
+            tile.particle.forceAccumulatorY += neighbor.springForceY;
 
-          neighbor.springForceX = 0;
-          neighbor.springForceY = 0;
-        } else {
-          lx = neighbor.tile.particle.px - tile.particle.px;
-          ly = neighbor.tile.particle.py - tile.particle.py;
-          ldotx = neighbor.tile.particle.vx - tile.particle.vx;
-          ldoty = neighbor.tile.particle.vy - tile.particle.vy;
-          dotProd = lx * ldotx + ly * ldoty;
-          length = Math.sqrt(lx * lx + ly * ly);
+            neighbor.springForceX = 0;
+            neighbor.springForceY = 0;
+          } else {
+            lx = neighbor.tile.particle.px - tile.particle.px;
+            ly = neighbor.tile.particle.py - tile.particle.py;
+            lDotX = neighbor.tile.particle.vx - tile.particle.vx;
+            lDotY = neighbor.tile.particle.vy - tile.particle.vy;
+            dotProd = lx * lDotX + ly * lDotY;
+            length = Math.sqrt(lx * lx + ly * ly);
 
-          temp = (config.coeffOfSpring * (length - neighbor.restLength) +
-              config.coeffOfDamping * dotProd / length) / length;
-          springForceX = lx * temp;
-          springForceY = ly * temp;
+            temp = (config.neighborCoeffOfSpring * (length - neighbor.restLength) +
+                config.neighborCoeffOfDamping * dotProd / length) / length;
+            springForceX = lx * temp;
+            springForceY = ly * temp;
 
-          tile.particle.forceAccumulatorX += springForceX;
-          tile.particle.forceAccumulatorY += springForceY;
+            tile.particle.forceAccumulatorX += springForceX;
+            tile.particle.forceAccumulatorY += springForceY;
 
-          neighbor.neighborsRelationshipObj.springForceX = -springForceX;
-          neighbor.neighborsRelationshipObj.springForceY = -springForceY;
+            neighbor.neighborsRelationshipObj.springForceX = -springForceX;
+            neighbor.neighborsRelationshipObj.springForceY = -springForceY;
+          }
         }
       }
-      // TODO: should the border tiles have any outward-facing forces?
-    }
 
-    // --- Update particle state --- //
+      // --- Spring forces from anchor point --- //
 
-    tile.particle.fx = tile.particle.forceAccumulatorX / tile.particle.m * deltaTime; // TODO: should this include the deltaT value?
-    tile.particle.fy = tile.particle.forceAccumulatorY / tile.particle.m * deltaTime;
-    tile.particle.px += tile.particle.vx * deltaTime;
-    tile.particle.py += tile.particle.vy * deltaTime;
-    tile.particle.vx += tile.particle.fx;
-    tile.particle.vy += tile.particle.fy;
+      lx = tile.centerX - tile.particle.px;
+      ly = tile.centerY - tile.particle.py;
+      length = Math.sqrt(lx * lx + ly * ly);
 
-    ////////////////////////////////////////////////////////////////////////////////////
-    // TODO: remove me!
-    var ap = tile.particle,
-        apx = ap.px,
-        apy = ap.py,
-        avx = ap.vx,
-        avy = ap.vy,
-        afx = ap.fx,
-        afy = ap.fy,
-        afAccx = ap.forceAccumulatorX,
-        afAccy = ap.forceAccumulatorY;
-    if (tile.index === 0) {
-      console.log('tile 0!');
-    }
-    if (isNaN(tile.particle.px)) {
-      console.log('tile.particle.px=' + tile.particle.px);
-    }
-    if (isNaN(tile.particle.py)) {
-      console.log('tile.particle.py=' + tile.particle.py);
-    }
-    if (isNaN(tile.particle.vx)) {
-      console.log('tile.particle.vx=' + tile.particle.vx);
-    }
-    if (isNaN(tile.particle.vy)) {
-      console.log('tile.particle.vy=' + tile.particle.vy);
-    }
-    if (isNaN(tile.particle.fx)) {
-      console.log('tile.particle.fx=' + tile.particle.fx);
-    }
-    if (isNaN(tile.particle.fy)) {
-      console.log('tile.particle.fy=' + tile.particle.fy);
-    }
-    // TODO: remove me!
-    ////////////////////////////////////////////////////////////////////////////////////
+      if (length > 0) {
+        lDotX = -tile.particle.vx;
+        lDotY = -tile.particle.vy;
+        dotProd = lx * lDotX + ly * lDotY;
 
-    // Kill all velocities and forces below a threshold
-    tile.particle.fx = tile.particle.fx < config.forceSuppressionThreshold &&
+        if (tile.isBorderTile) {
+          temp = (config.borderAnchorCoeffOfSpring * length + config.borderAnchorCoeffOfDamping *
+              dotProd / length) / length;
+        } else {
+          temp = (config.innerAnchorCoeffOfSpring * length + config.innerAnchorCoeffOfDamping *
+              dotProd / length) / length;
+        }
+
+        springForceX = lx * temp;
+        springForceY = ly * temp;
+
+        tile.particle.forceAccumulatorX += springForceX;
+        tile.particle.forceAccumulatorY += springForceY;
+      }
+
+      // --- Update particle state --- //
+
+      tile.particle.fx = tile.particle.forceAccumulatorX / tile.particle.m * deltaTime;
+      tile.particle.fy = tile.particle.forceAccumulatorY / tile.particle.m * deltaTime;
+      tile.particle.px += tile.particle.vx * deltaTime;
+      tile.particle.py += tile.particle.vy * deltaTime;
+      tile.particle.vx += tile.particle.fx;
+      tile.particle.vy += tile.particle.fy;
+
+      ////////////////////////////////////////////////////////////////////////////////////
+      // TODO: remove me!
+      var ap = tile.particle,
+          apx = ap.px,
+          apy = ap.py,
+          avx = ap.vx,
+          avy = ap.vy,
+          afx = ap.fx,
+          afy = ap.fy,
+          afAccx = ap.forceAccumulatorX,
+          afAccy = ap.forceAccumulatorY;
+      if (tile.index === 0) {
+        console.log('tile 0!');
+      }
+      if (isNaN(tile.particle.px)) {
+        console.log('tile.particle.px=' + tile.particle.px);
+      }
+      if (isNaN(tile.particle.py)) {
+        console.log('tile.particle.py=' + tile.particle.py);
+      }
+      if (isNaN(tile.particle.vx)) {
+        console.log('tile.particle.vx=' + tile.particle.vx);
+      }
+      if (isNaN(tile.particle.vy)) {
+        console.log('tile.particle.vy=' + tile.particle.vy);
+      }
+      if (isNaN(tile.particle.fx)) {
+        console.log('tile.particle.fx=' + tile.particle.fx);
+      }
+      if (isNaN(tile.particle.fy)) {
+        console.log('tile.particle.fy=' + tile.particle.fy);
+      }
+      // TODO: remove me!
+      ////////////////////////////////////////////////////////////////////////////////////
+
+      // Kill all velocities and forces below a threshold
+      tile.particle.fx = tile.particle.fx < config.forceSuppressionThreshold &&
           tile.particle.fx > config.forceSuppressionThresholdNegative ?
-        0 : tile.particle.fx;
-    tile.particle.fy = tile.particle.fy < config.forceSuppressionThreshold &&
+          0 : tile.particle.fx;
+      tile.particle.fy = tile.particle.fy < config.forceSuppressionThreshold &&
           tile.particle.fy > config.forceSuppressionThresholdNegative ?
-        0 : tile.particle.fy;
-    tile.particle.vx = tile.particle.vx < config.velocitySuppressionThreshold &&
+          0 : tile.particle.fy;
+      tile.particle.vx = tile.particle.vx < config.velocitySuppressionThreshold &&
           tile.particle.vx > config.velocitySuppressionThresholdNegative ?
-        0 : tile.particle.vx;
-    tile.particle.vy = tile.particle.vy < config.velocitySuppressionThreshold &&
+          0 : tile.particle.vx;
+      tile.particle.vy = tile.particle.vy < config.velocitySuppressionThreshold &&
           tile.particle.vy > config.velocitySuppressionThresholdNegative ?
-        0 : tile.particle.vy;
+          0 : tile.particle.vy;
 
-    // Reset force accumulator for next time step
-    tile.particle.forceAccumulatorX = 0;
-    tile.particle.forceAccumulatorY = 0;
+      // Reset force accumulator for next time step
+      tile.particle.forceAccumulatorX = 0;
+      tile.particle.forceAccumulatorY = 0;
+    }
   }
 
   /**
@@ -376,6 +412,22 @@
     tile.particle.forceAccumulatorY += fy;
   }
 
+  /**
+   * Fixes the position of this tile to the given coordinates.
+   *
+   * @param {number} px
+   * @param {number} py
+   */
+  function fixPosition(px, py) {
+    var tile;
+
+    tile = this;
+
+    tile.particle.isFixed = true;
+    tile.particle.px = px;
+    tile.particle.py = py;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -393,10 +445,11 @@
    * @param {?Object} tileData
    * @param {number} tileIndex
    * @param {boolean} isMarginTile
+   * @param {boolean} isBorderTile
    * @param {number} mass
    */
   function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
-                   tileData, tileIndex, isMarginTile, mass) {
+                   tileData, tileIndex, isMarginTile, isBorderTile, mass) {
     var tile = this;
 
     tile.svg = svg;
@@ -412,6 +465,7 @@
     tile.holdsContent = !!tileData;
     tile.index = tileIndex;
     tile.isMarginTile = isMarginTile;
+    tile.isBorderTile = isBorderTile;
     tile.neighbors = null;
     tile.vertices = null;
     tile.particle = null;
@@ -423,6 +477,7 @@
     tile.update = update;
     tile.draw = draw;
     tile.applyExternalForce = applyExternalForce;
+    tile.fixPosition = fixPosition;
 
     createElement.call(tile);
     createParticle.call(tile, mass);

@@ -12,9 +12,10 @@
   var config = {};
 
   config.period = 1000;
-  config.fx = 0.001;
-  config.fy = 0.001;
+  config.maxDeltaX = 130;
+  config.maxDeltaY = 100;
 
+  config.twoPeriod = config.period * 2;
   config.halfPeriod = config.period / 2;
 
   // ------------------------------------------------------------------------------------------- //
@@ -62,19 +63,17 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, fx, fy;
+    var job, progress, px, py;
 
     job = this;
 
-    if (parseInt((currentTime + config.halfPeriod) / config.period) % 2 === 0) {
-      fx = config.fx;
-      fy = config.fy;
-    } else {
-      fx = -config.fx;
-      fy = -config.fy;
-    }
+//    if (parseInt((currentTime + config.halfPeriod) / config.period) % 2 === 0) {
+    progress =
+        Math.sin(((currentTime % config.twoPeriod - config.period) / config.period) * Math.PI);
+    px = progress * config.maxDeltaX + job.grid.tiles[0].centerX;
+    py = progress * config.maxDeltaY + job.grid.tiles[0].centerY;
 
-    job.grid.tiles[0].applyExternalForce(fx, fy);
+    job.grid.tiles[0].fixPosition(px, py);
 
     checkForComplete.call(job);
   }

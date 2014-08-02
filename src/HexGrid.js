@@ -190,8 +190,8 @@
    */
   function createTiles() {
     var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
-        isMarginTile, isOddRow, contentAreaIndex, tileDataIndex, defaultNeighborDeltaIndices,
-        tilesNeighborDeltaIndices, oddRowIsLarger, isLargerRow;
+        isMarginTile, isBorderTile, isOddRow, contentAreaIndex, tileDataIndex,
+        defaultNeighborDeltaIndices, tilesNeighborDeltaIndices, oddRowIsLarger, isLargerRow;
 
     grid = this;
 
@@ -225,9 +225,12 @@
             columnIndex < grid.evenRowContentStartIndex ||
                 columnIndex > grid.evenRowContentEndIndex;
 
+        isBorderTile = columnIndex === 0 || columnIndex === columnCount - 1 ||
+            rowIndex === 0 || rowIndex === rowCount - 1;
+
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, hg.config.tileOuterRadius,
             grid.isVertical, hg.config.tileHue, hg.config.tileSaturation, hg.config.tileLightness, null,
-            tileIndex, isMarginTile, hg.config.tileMass);
+            tileIndex, isMarginTile, isBorderTile, hg.config.tileMass);
 
         // Is the current tile within the content column?
         if (!isMarginTile) {
