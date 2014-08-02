@@ -66,7 +66,7 @@
 
     job = this;
 
-    if (parseInt((deltaTime + config.halfPeriod) / config.period) % 2 === 0) {
+    if (parseInt((currentTime + config.halfPeriod) / config.period) % 2 === 0) {
       fx = config.fx;
       fy = config.fy;
     } else {

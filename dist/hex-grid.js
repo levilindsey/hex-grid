@@ -1115,13 +1115,16 @@
   config = {};
 
   // TODO: play with these
-  config.coeffOfDrag = 0.0000001;
+  config.coeffOfDrag = 0.0005;
   config.coeffOfSpring = 0.00001;
   config.coeffOfDamping = 0.001;
-  config.forceSuppressionThreshold = 0.005;
-  config.velocitySuppressionThreshold = 0.005;
+  config.forceSuppressionThreshold = 0.001;
+  config.velocitySuppressionThreshold = 0.001;
   // TODO: add similar, upper thresholds
   // TODO: add a threshold to ignore large deltaTime values
+
+  config.forceSuppressionThresholdNegative = -config.forceSuppressionThreshold;
+  config.velocitySuppressionThresholdNegative = -config.velocitySuppressionThreshold;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -1428,10 +1431,18 @@
     ////////////////////////////////////////////////////////////////////////////////////
 
     // Kill all velocities and forces below a threshold
-    tile.particle.fx = tile.particle.fx < config.forceSuppressionThreshold ? 0 : tile.particle.fx;
-    tile.particle.fy = tile.particle.fy < config.forceSuppressionThreshold ? 0 : tile.particle.fy;
-    tile.particle.vx = tile.particle.vx < config.velocitySuppressionThreshold ? 0 : tile.particle.vx;
-    tile.particle.vy = tile.particle.vy < config.velocitySuppressionThreshold ? 0 : tile.particle.vy;
+    tile.particle.fx = tile.particle.fx < config.forceSuppressionThreshold &&
+          tile.particle.fx > config.forceSuppressionThresholdNegative ?
+        0 : tile.particle.fx;
+    tile.particle.fy = tile.particle.fy < config.forceSuppressionThreshold &&
+          tile.particle.fy > config.forceSuppressionThresholdNegative ?
+        0 : tile.particle.fy;
+    tile.particle.vx = tile.particle.vx < config.velocitySuppressionThreshold &&
+          tile.particle.vx > config.velocitySuppressionThresholdNegative ?
+        0 : tile.particle.vx;
+    tile.particle.vy = tile.particle.vy < config.velocitySuppressionThreshold &&
+          tile.particle.vy > config.velocitySuppressionThresholdNegative ?
+        0 : tile.particle.vy;
 
     // Reset force accumulator for next time step
     tile.particle.forceAccumulatorX = 0;
@@ -1594,7 +1605,7 @@
 
     job = this;
 
-    if (parseInt((deltaTime + config.halfPeriod) / config.period) % 2 === 0) {
+    if (parseInt((currentTime + config.halfPeriod) / config.period) % 2 === 0) {
       fx = config.fx;
       fy = config.fy;
     } else {
