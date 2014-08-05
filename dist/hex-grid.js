@@ -1118,7 +1118,7 @@
   config = {};
 
   // TODO: play with these
-  config.coeffOfDrag = 0.0005;
+  config.coeffOfDrag = 0.001;
 
   config.neighborCoeffOfSpring = 0.00001;
   config.neighborCoeffOfDamping = 0.0001;
