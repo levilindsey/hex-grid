@@ -761,21 +761,40 @@
   }
 
   /**
-   * Creates a dot at the center of each tile.
+   * Creates a dot at the center of each tile at its current position.
    *
    * This is useful for testing purposes.
    */
-  function createTileCenters() {
+  function createTileParticleCenters() {
     var annotations, i, count;
 
     annotations = this;
-    annotations.tileCenters = [];
+    annotations.tileParticleCenters = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
-      annotations.tileCenters[i].setAttribute('r', '2');
-      annotations.tileCenters[i].setAttribute('fill', 'gray');
-      annotations.grid.svg.appendChild(annotations.tileCenters[i]);
+      annotations.tileParticleCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileParticleCenters[i].setAttribute('r', '2');
+      annotations.tileParticleCenters[i].setAttribute('fill', 'gray');
+      annotations.grid.svg.appendChild(annotations.tileParticleCenters[i]);
+    }
+  }
+
+  /**
+   * Creates a dot at the center of each tile at its anchor position.
+   *
+   * This is useful for testing purposes.
+   */
+  function createTileAnchorCenters() {
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.tileAnchorCenters = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileAnchorCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileAnchorCenters[i].setAttribute('r', '4');
+      annotations.tileAnchorCenters[i].setAttribute('fill', 'white');
+      annotations.grid.svg.appendChild(annotations.tileAnchorCenters[i]);
     }
   }
 
@@ -906,18 +925,34 @@
   }
 
   /**
-   * Updates a dot at the center of each tile.
+   * Updates a dot at the center of each tile at its current position.
    *
    * This is useful for testing purposes.
    */
-  function updateTileCenters() {
+  function updateTileParticleCenters() {
     var annotations, i, count;
 
     annotations = this;
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileCenters[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
-      annotations.tileCenters[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
+      annotations.tileParticleCenters[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
+      annotations.tileParticleCenters[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
+    }
+  }
+
+  /**
+   * Updates a dot at the center of each tile at its anchor position.
+   *
+   * This is useful for testing purposes.
+   */
+  function updateTileAnchorCenters() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].centerX);
+      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].centerY);
     }
   }
 
@@ -1045,7 +1080,8 @@
     annotations = this;
 
     fillContentTiles.call(annotations);
-//    createTileCenters.call(annotations);
+    createTileAnchorCenters.call(annotations);
+//    createTileParticleCenters.call(annotations);
 //    createTileInnerRadii.call(annotations);
 //    createTileOuterRadii.call(annotations);
     createTileIndices.call(annotations);
@@ -1066,7 +1102,8 @@
 
     annotations = this;
 
-//    updateTileCenters.call(annotations);
+    updateTileAnchorCenters.call(annotations);
+//    updateTileParticleCenters.call(annotations);
 //    updateTileInnerRadii.call(annotations);
 //    updateTileOuterRadii.call(annotations);
     updateTileIndices.call(annotations);
@@ -1118,15 +1155,15 @@
   config = {};
 
   // TODO: play with these
-  config.coeffOfDrag = 0.001;
+  config.coeffOfDrag = 0.01;
 
-  config.neighborCoeffOfSpring = 0.00001;
+  config.neighborCoeffOfSpring = 0.00000001;
   config.neighborCoeffOfDamping = 0.0001;
 
-  config.innerAnchorCoeffOfSpring = 0.0000001;
+  config.innerAnchorCoeffOfSpring = 0.00001;
   config.innerAnchorCoeffOfDamping = 0.0001;
 
-  config.borderAnchorCoeffOfSpring = 0.0000005;
+  config.borderAnchorCoeffOfSpring = 0.00005;
   config.borderAnchorCoeffOfDamping = 0.0005;
 
   config.forceSuppressionThreshold = 0.0005;
@@ -1559,6 +1596,8 @@
     tile.element = null;
     tile.centerX = centerX;
     tile.centerY = centerY;
+    tile.originalCenterX = centerX;
+    tile.originalCenterY = centerY;
     tile.outerRadius = outerRadius;
     tile.isVertical = isVertical;
     tile.hue = hue;
@@ -1609,14 +1648,42 @@
   var config = {};
 
   config.period = 1000;
-  config.maxDeltaX = 130;
-  config.maxDeltaY = 100;
+  config.displacementWavelengthX = 100;
+  config.displacementWavelengthY = 100;
+  config.waveProgressWavelengthX = 100;
+  config.waveProgressWavelengthY = 100;
 
   config.twoPeriod = config.period * 2;
   config.halfPeriod = config.period / 2;
 
+  config.twoWaveProgressWavelengthX = config.waveProgressWavelengthX * 2;
+  config.twoWaveProgressWavelengthY = config.waveProgressWavelengthY * 2;
+  config.halfWaveProgressWavelengthX = config.waveProgressWavelengthX / 2;
+  config.halfWaveProgressWavelengthY = config.waveProgressWavelengthY / 2;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
+
+  /**
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile;
+
+    job = this;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      tile = job.grid.tiles[i];
+      tile.waveProgressOffsetX = Math.sin(((Math.abs(tile.originalCenterX) %
+          config.twoWaveProgressWavelengthX - config.waveProgressWavelengthX) /
+          config.waveProgressWavelengthX) * Math.PI);
+      tile.waveProgressOffsetY = Math.sin(((Math.abs(tile.originalCenterY) %
+          config.twoWaveProgressWavelengthY - config.waveProgressWavelengthY) /
+          config.waveProgressWavelengthY) * Math.PI);
+      // TODO: make sure that this curve is continuous across zero
+      **;
+    }
+  }
 
   /**
    * Checks whether this job is complete. If so, a flag is set and a callback is called.
@@ -1631,6 +1698,24 @@
 //      job.isComplete = true;
 //      job.onComplete(true);
 //    }
+  }
+
+  /**
+   * Updates the animation progress of the given tile.
+   *
+   * @param {number} progress
+   * @param {HexTile} tile
+   */
+  function updateTile(progress, tile) {
+    var job, tileProgressX, tileProgressY;
+
+    job = this;
+
+    tileProgressX = (progress + tile.waveProgressOffsetX) % 1;
+    tileProgressY = (progress + tile.waveProgressOffsetY) % 1;
+
+    tile.centerX = tile.originalCenterX + config.displacementWavelengthX * tileProgressX;
+    tile.centerY = tile.originalCenterY + config.displacementWavelengthY * tileProgressY;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -1660,17 +1745,24 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, progress, px, py;
+    var job, progress, i, count;
 
     job = this;
 
-//    if (parseInt((currentTime + config.halfPeriod) / config.period) % 2 === 0) {
+    //progress = (currentTime + config.halfPeriod) / config.period % 1;
     progress =
         Math.sin(((currentTime % config.twoPeriod - config.period) / config.period) * Math.PI);
-    px = progress * config.maxDeltaX + job.grid.tiles[0].centerX;
-    py = progress * config.maxDeltaY + job.grid.tiles[0].centerY;
 
-    job.grid.tiles[0].fixPosition(px, py);
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      updateTile.call(job, progress, job.grid.tiles[i]);
+    }
+
+//    progress =
+//        Math.sin(((currentTime % config.twoPeriod - config.period) / config.period) * Math.PI);
+//    px = progress * config.maxDeltaX + job.grid.tiles[0].centerX;
+//    py = progress * config.maxDeltaY + job.grid.tiles[0].centerY;
+//
+//    job.grid.tiles[0].fixPosition(px, py);
 
     checkForComplete.call(job);
   }
@@ -1706,6 +1798,8 @@
     job.start = start;
     job.update = update;
     job.cancel = cancel;
+
+    initTileProgressOffsets.call(job);
 
     console.log('WaveAnimationJob created');
   }

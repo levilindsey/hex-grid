@@ -15,15 +15,15 @@
   config = {};
 
   // TODO: play with these
-  config.coeffOfDrag = 0.001;
+  config.coeffOfDrag = 0.01;
 
-  config.neighborCoeffOfSpring = 0.00001;
+  config.neighborCoeffOfSpring = 0.00000001;
   config.neighborCoeffOfDamping = 0.0001;
 
-  config.innerAnchorCoeffOfSpring = 0.0000001;
+  config.innerAnchorCoeffOfSpring = 0.00001;
   config.innerAnchorCoeffOfDamping = 0.0001;
 
-  config.borderAnchorCoeffOfSpring = 0.0000005;
+  config.borderAnchorCoeffOfSpring = 0.00005;
   config.borderAnchorCoeffOfDamping = 0.0005;
 
   config.forceSuppressionThreshold = 0.0005;
@@ -456,6 +456,8 @@
     tile.element = null;
     tile.centerX = centerX;
     tile.centerY = centerY;
+    tile.originalCenterX = centerX;
+    tile.originalCenterY = centerY;
     tile.outerRadius = outerRadius;
     tile.isVertical = isVertical;
     tile.hue = hue;

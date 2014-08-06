@@ -12,14 +12,42 @@
   var config = {};
 
   config.period = 1000;
-  config.maxDeltaX = 130;
-  config.maxDeltaY = 100;
+  config.displacementWavelengthX = 100;
+  config.displacementWavelengthY = 100;
+  config.waveProgressWavelengthX = 100;
+  config.waveProgressWavelengthY = 100;
 
   config.twoPeriod = config.period * 2;
   config.halfPeriod = config.period / 2;
 
+  config.twoWaveProgressWavelengthX = config.waveProgressWavelengthX * 2;
+  config.twoWaveProgressWavelengthY = config.waveProgressWavelengthY * 2;
+  config.halfWaveProgressWavelengthX = config.waveProgressWavelengthX / 2;
+  config.halfWaveProgressWavelengthY = config.waveProgressWavelengthY / 2;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
+
+  /**
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile;
+
+    job = this;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      tile = job.grid.tiles[i];
+      tile.waveProgressOffsetX = Math.sin(((Math.abs(tile.originalCenterX) %
+          config.twoWaveProgressWavelengthX - config.waveProgressWavelengthX) /
+          config.waveProgressWavelengthX) * Math.PI);
+      tile.waveProgressOffsetY = Math.sin(((Math.abs(tile.originalCenterY) %
+          config.twoWaveProgressWavelengthY - config.waveProgressWavelengthY) /
+          config.waveProgressWavelengthY) * Math.PI);
+      // TODO: make sure that this curve is continuous across zero
+      **;
+    }
+  }
 
   /**
    * Checks whether this job is complete. If so, a flag is set and a callback is called.
@@ -34,6 +62,24 @@
 //      job.isComplete = true;
 //      job.onComplete(true);
 //    }
+  }
+
+  /**
+   * Updates the animation progress of the given tile.
+   *
+   * @param {number} progress
+   * @param {HexTile} tile
+   */
+  function updateTile(progress, tile) {
+    var job, tileProgressX, tileProgressY;
+
+    job = this;
+
+    tileProgressX = (progress + tile.waveProgressOffsetX) % 1;
+    tileProgressY = (progress + tile.waveProgressOffsetY) % 1;
+
+    tile.centerX = tile.originalCenterX + config.displacementWavelengthX * tileProgressX;
+    tile.centerY = tile.originalCenterY + config.displacementWavelengthY * tileProgressY;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -63,17 +109,24 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, progress, px, py;
+    var job, progress, i, count;
 
     job = this;
 
-//    if (parseInt((currentTime + config.halfPeriod) / config.period) % 2 === 0) {
+    //progress = (currentTime + config.halfPeriod) / config.period % 1;
     progress =
         Math.sin(((currentTime % config.twoPeriod - config.period) / config.period) * Math.PI);
-    px = progress * config.maxDeltaX + job.grid.tiles[0].centerX;
-    py = progress * config.maxDeltaY + job.grid.tiles[0].centerY;
 
-    job.grid.tiles[0].fixPosition(px, py);
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      updateTile.call(job, progress, job.grid.tiles[i]);
+    }
+
+//    progress =
+//        Math.sin(((currentTime % config.twoPeriod - config.period) / config.period) * Math.PI);
+//    px = progress * config.maxDeltaX + job.grid.tiles[0].centerX;
+//    py = progress * config.maxDeltaY + job.grid.tiles[0].centerY;
+//
+//    job.grid.tiles[0].fixPosition(px, py);
 
     checkForComplete.call(job);
   }
@@ -109,6 +162,8 @@
     job.start = start;
     job.update = update;
     job.cancel = cancel;
+
+    initTileProgressOffsets.call(job);
 
     console.log('WaveAnimationJob created');
   }
