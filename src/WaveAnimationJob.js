@@ -45,7 +45,7 @@
           config.twoWaveProgressWavelengthY - config.waveProgressWavelengthY) /
           config.waveProgressWavelengthY) * Math.PI);
       // TODO: make sure that this curve is continuous across zero
-      **;
+//      **;
     }
   }
 
@@ -75,8 +75,20 @@
 
     job = this;
 
-    tileProgressX = (progress + tile.waveProgressOffsetX) % 1;
-    tileProgressY = (progress + tile.waveProgressOffsetY) % 1;
+    tileProgressX = (((progress + 1 + tile.waveProgressOffsetX) % 2) + 2) % 2 - 1;
+    tileProgressY = (((progress + 1 + tile.waveProgressOffsetY) % 2) + 2) % 2 - 1;
+//    tileProgressX = (progress + tile.waveProgressOffsetX) % 1;
+//    tileProgressY = (progress + tile.waveProgressOffsetY) % 1;
+//    if (tile.index === 0) {
+//      console.log('****************************************************');
+//      console.log('progress=' + progress);
+//      console.log('tileProgressX=' + tileProgressX);
+//      console.log('tileProgressY=' + tileProgressY);
+//      console.log('tile.waveProgressOffsetX=' + tile.waveProgressOffsetX);
+//      console.log('tile.waveProgressOffsetY=' + tile.waveProgressOffsetY);
+//    }
+    tileProgressX = Math.sin(tileProgressX * Math.PI);
+    tileProgressY = Math.sin(tileProgressY * Math.PI);
 
     tile.centerX = tile.originalCenterX + config.displacementWavelengthX * tileProgressX;
     tile.centerY = tile.originalCenterY + config.displacementWavelengthY * tileProgressY;
@@ -113,9 +125,9 @@
 
     job = this;
 
-    //progress = (currentTime + config.halfPeriod) / config.period % 1;
-    progress =
-        Math.sin(((currentTime % config.twoPeriod - config.period) / config.period) * Math.PI);
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+//    progress =
+//        Math.sin(((currentTime % config.twoPeriod - config.period) / config.period) * Math.PI);
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       updateTile.call(job, progress, job.grid.tiles[i]);
