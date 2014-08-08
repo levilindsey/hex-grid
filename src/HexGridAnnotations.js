@@ -91,9 +91,14 @@
     var annotations, i, count;
 
     annotations = this;
+    annotations.tileAnchorLines = [];
     annotations.tileAnchorCenters = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileAnchorLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.tileAnchorLines[i].setAttribute('stroke', '#bbbbbb');
+      annotations.tileAnchorLines[i].setAttribute('stroke-width', '2');
+      annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
       annotations.tileAnchorCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
       annotations.tileAnchorCenters[i].setAttribute('r', '4');
       annotations.tileAnchorCenters[i].setAttribute('fill', 'white');
@@ -254,6 +259,10 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileAnchorLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
+      annotations.tileAnchorLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
+      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].centerX);
+      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].centerY);
       annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].centerX);
       annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].centerY);
     }

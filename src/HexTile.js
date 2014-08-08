@@ -17,14 +17,14 @@
   // TODO: play with these
   config.coeffOfDrag = 0.01;
 
-  config.neighborCoeffOfSpring = 0.00000001;
-  config.neighborCoeffOfDamping = 0.0001;
+  config.neighborCoeffOfSpring = 0.00001;
+  config.neighborCoeffOfDamping = 0.001;
 
-  config.innerAnchorCoeffOfSpring = 0.00001;
-  config.innerAnchorCoeffOfDamping = 0.0001;
+  config.innerAnchorCoeffOfSpring = 0.00004;
+  config.innerAnchorCoeffOfDamping = 0.001;
 
-  config.borderAnchorCoeffOfSpring = 0.00005;
-  config.borderAnchorCoeffOfDamping = 0.0005;
+  config.borderAnchorCoeffOfSpring = 0.00004;
+  config.borderAnchorCoeffOfDamping = 0.001;
 
   config.forceSuppressionThreshold = 0.0005;
   config.velocitySuppressionThreshold = 0.0005;
@@ -342,7 +342,7 @@
           afAccx = ap.forceAccumulatorX,
           afAccy = ap.forceAccumulatorY;
       if (tile.index === 0) {
-        console.log('tile 0!');
+        //console.log('tile 0!');
       }
       if (isNaN(tile.particle.px)) {
         console.log('tile.particle.px=' + tile.particle.px);
