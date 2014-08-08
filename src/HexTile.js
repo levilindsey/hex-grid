@@ -26,13 +26,12 @@
   config.borderAnchorCoeffOfSpring = 0.00004;
   config.borderAnchorCoeffOfDamping = 0.001;
 
-  config.forceSuppressionThreshold = 0.0005;
-  config.velocitySuppressionThreshold = 0.0005;
+  config.forceSuppressionLowerThreshold = 0.0005;
+  config.velocitySuppressionLowerThreshold = 0.0005;
   // TODO: add similar, upper thresholds
-  // TODO: add a threshold to ignore large deltaTime values
 
-  config.forceSuppressionThresholdNegative = -config.forceSuppressionThreshold;
-  config.velocitySuppressionThresholdNegative = -config.velocitySuppressionThreshold;
+  config.forceSuppressionThresholdNegative = -config.forceSuppressionLowerThreshold;
+  config.velocitySuppressionThresholdNegative = -config.velocitySuppressionLowerThreshold;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -366,16 +365,16 @@
       ////////////////////////////////////////////////////////////////////////////////////
 
       // Kill all velocities and forces below a threshold
-      tile.particle.fx = tile.particle.fx < config.forceSuppressionThreshold &&
+      tile.particle.fx = tile.particle.fx < config.forceSuppressionLowerThreshold &&
           tile.particle.fx > config.forceSuppressionThresholdNegative ?
           0 : tile.particle.fx;
-      tile.particle.fy = tile.particle.fy < config.forceSuppressionThreshold &&
+      tile.particle.fy = tile.particle.fy < config.forceSuppressionLowerThreshold &&
           tile.particle.fy > config.forceSuppressionThresholdNegative ?
           0 : tile.particle.fy;
-      tile.particle.vx = tile.particle.vx < config.velocitySuppressionThreshold &&
+      tile.particle.vx = tile.particle.vx < config.velocitySuppressionLowerThreshold &&
           tile.particle.vx > config.velocitySuppressionThresholdNegative ?
           0 : tile.particle.vx;
-      tile.particle.vy = tile.particle.vy < config.velocitySuppressionThreshold &&
+      tile.particle.vy = tile.particle.vy < config.velocitySuppressionLowerThreshold &&
           tile.particle.vy > config.velocitySuppressionThresholdNegative ?
           0 : tile.particle.vy;
 

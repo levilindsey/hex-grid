@@ -123,7 +123,7 @@
    */
   function update(currentTime, deltaTime) {
     var job, progress, i, count;
-
+console.log(deltaTime);
     job = this;
 
     progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;

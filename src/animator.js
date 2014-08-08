@@ -10,6 +10,11 @@
    * @typedef {{start: Function, update: Function, cancel: Function, isComplete: boolean}} AnimationJob
    */
 
+  var animator = {};
+  var config = {};
+
+  config.deltaTimeUpperThreshold = 160;
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -21,6 +26,8 @@
 
     currentTime = Date.now();
     deltaTime = currentTime - animator.previousTime;
+    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
+        config.deltaTimeUpperThreshold : deltaTime;
     animator.isLooping = true;
 
     if (!animator.isPaused) {
@@ -123,7 +130,6 @@
   // ------------------------------------------------------------------------------------------- //
   // Expose this singleton
 
-  var animator = {};
   animator.jobs = [];
   animator.previousTime = Date.now();
   animator.isLooping = false;
