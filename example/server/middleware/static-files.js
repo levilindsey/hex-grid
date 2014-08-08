@@ -26,7 +26,7 @@ function setUpStaticFiles(server) {
   serveStatic = require('serve-static'); // For serving static files
 
   // Set up the sample's public files
-  mountPath = '/';
+  mountPath = '/example';
   staticPath = config.publicPath;
   server.use(mountPath, serveStatic(staticPath));
   console.log('Serving static files: staticPath=' + staticPath + ', mountPath=' + mountPath);

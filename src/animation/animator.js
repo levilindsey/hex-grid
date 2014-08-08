@@ -3,11 +3,14 @@
 /**
  * This module defines a singleton for animating things.
  *
+ * The animator singleton handles the animation loop for the application and updates all
+ * registered AnimationJobs during each animation frame.
+ *
  * @module animator
  */
 (function () {
   /**
-   * @typedef {{start: Function, update: Function, cancel: Function, isComplete: boolean}} AnimationJob
+   * @typedef {{start: Function, update: Function(number, number), cancel: Function, isComplete: boolean}} AnimationJob
    */
 
   var animator = {};

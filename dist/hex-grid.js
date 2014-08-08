@@ -1,133 +1,10 @@
 'use strict';
 
-// TODO: remove this module after basing some other animation job implementations off of it
-
-/**
- * This module defines a constructor for AnimationJob objects.
- *
- * @module AnimationJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
-   */
-  function checkForComplete() {
-    var job = this;
-
-    // TODO:
-//    if (???) {
-//      console.log('AnimationJob completed');
-//
-//      job.isComplete = true;
-//      job.onComplete(true);
-//    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Sets the given class on the given element. The class describes an animation state:
-   * waiting-to-animate, is-animating, done-animating
-   *
-   * @param {HTMLElement} element
-   * @param {'waiting-to-animate'|'is-animating'|'done-animating'} animatingClass
-   */
-  function setAnimatingClassOnElement(element, animatingClass) {
-    hg.util.removeClass(element, 'waiting-to-animate');
-    hg.util.removeClass(element, 'is-animating');
-    hg.util.removeClass(element, 'done-animating');
-    hg.util.addClass(element, animatingClass);
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this AnimationJob as started.
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-
-    // TODO:
-  }
-
-  /**
-   * Updates the animation progress of this AnimationJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   */
-  function update(currentTime) {
-    var job = this;
-
-    // TODO:
-
-    checkForComplete.call(job);
-  }
-
-  /**
-   * Stops this AnimationJob, and returns the element its original form.
-   */
-  function cancel() {
-    var job = this;
-
-    // TODO:
-
-    job.onComplete(false);
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {HTMLElement} element
-   * @param {number} duration In milliseconds.
-   * @param {string} easingFunctionName
-   * @param {Function} animationFunction
-   * @param {Function} onComplete
-   */
-  function AnimationJob(element, duration, easingFunctionName, animationFunction, onComplete) {
-    var job = this;
-
-    job.element = element;
-    job.duration = duration;
-    job.animationFunction = animationFunction;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.easingFunction = hg.util.easingFunctions[easingFunctionName];
-    job.start = start;
-    job.update = update;
-    job.cancel = cancel;
-    job.onComplete = onComplete;
-
-    console.log('AnimationJob created');
-  }
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.AnimationJob = AnimationJob;
-
-  console.log('AnimationJob module loaded');
-})();
-
-'use strict';
-
 /**
  * This module defines a constructor for HexGrid objects.
+ *
+ * HexGrid objects define a collection of hexagonal tiles which animate and display dynamic,
+ * textual content.
  *
  * @module HexGrid
  */
@@ -178,6 +55,8 @@
    * - number of tiles in even and odd rows
    * - the vertical and horizontal displacement between neighbor tiles
    * - the horizontal positions of the first tiles in even and odd rows
+   *
+   * @this HexGrid
    */
   function computeGridParameters() {
     var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex, i, count,
@@ -260,6 +139,8 @@
   /**
    * Calculates the tile indices within the content area column that will represent tiles with
    * content.
+   *
+   * @this HexGrid
    */
   function computeContentIndices() {
     var grid, i, j, count, tilesRepresentation;
@@ -292,6 +173,8 @@
 
   /**
    * Creates the SVG element for the grid.
+   *
+   * @this HexGrid
    */
   function createSvg() {
     var grid;
@@ -313,6 +196,8 @@
 
   /**
    * Creates the tile elements for the grid.
+   *
+   * @this HexGrid
    */
   function createTiles() {
     var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
@@ -382,6 +267,7 @@
   /**
    * Connects each tile with references to its neighbors.
    *
+   * @this HexGrid
    * @param {Array.<Array.<number>>} tilesNeighborDeltaIndices
    */
   function setNeighborTiles(tilesNeighborDeltaIndices) {
@@ -408,6 +294,7 @@
    *
    * NaN is used to represent the tile not having a neighbor on that side.
    *
+   * @this HexGrid
    * @param {number} rowIndex
    * @param {number} rowCount
    * @param {number} columnIndex
@@ -504,6 +391,7 @@
   /**
    * Calculates the index offsets of the neighbors of a tile.
    *
+   * @this HexGrid
    * @returns {Array.<number>}
    */
   function getDefaultNeighborDeltaIndices() {
@@ -538,6 +426,8 @@
    * Event listener for the window resize event.
    *
    * Computes spatial parameters of the tiles in the grid.
+   *
+   * @this HexGrid
    */
   function onWindowResize() {
     var grid;
@@ -561,6 +451,8 @@
 
   /**
    * Removes all content from the SVG.
+   *
+   * @this HexGrid
    */
   function clearSvg() {
     var grid, svg;
@@ -634,6 +526,8 @@
 
   /**
    * Sets this AnimationJob as started.
+   *
+   * @this HexGrid
    */
   function start() {
     var grid = this;
@@ -644,6 +538,7 @@
   /**
    * Updates the animation progress of this AnimationJob to match the given time.
    *
+   * @this HexGrid
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -662,6 +557,8 @@
 
   /**
    * Stops this AnimationJob, and returns the element to its original form.
+   *
+   * @this HexGrid
    */
   function cancel() {
     var grid = this;
@@ -700,6 +597,9 @@
 /**
  * This module defines a constructor for HexGridAnnotations objects.
  *
+ * HexGridAnnotations objects creates and modifies visual representations of various aspects of a
+ * HexGrid. This can be very useful for testing purposes.
+ *
  * @module HexGridAnnotations
  */
 (function () {
@@ -716,8 +616,8 @@
 
   /**
    * Draws content tiles with a different color.
-   *
-   * This is useful for testing purposes.
+   * 
+   * @this HexGridAnnotations
    */
   function fillContentTiles() {
     var annotations, i, count;
@@ -734,7 +634,7 @@
   /**
    * Draws all of the tiles as transparent.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function makeTilesTransparent() {
     var annotations, i, count;
@@ -749,7 +649,7 @@
   /**
    * Draws vertical guidelines along the left and right sides of the main content area.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function drawContentAreaGuideLines() {
     var annotations, line;
@@ -778,7 +678,7 @@
   /**
    * Creates a dot at the center of each tile at its current position.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileParticleCenters() {
     var annotations, i, count;
@@ -797,7 +697,7 @@
   /**
    * Creates a dot at the center of each tile at its anchor position.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileAnchorCenters() {
     var annotations, i, count;
@@ -821,7 +721,7 @@
   /**
    * Creates the inner radius of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileInnerRadii() {
     var annotations, i, count;
@@ -841,7 +741,7 @@
   /**
    * Creates the outer radius of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileOuterRadii() {
     var annotations, i, count;
@@ -861,7 +761,7 @@
   /**
    * Creates lines connecting each tile to each of its neighbors.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileNeighborConnections() {
     var annotations, i, j, iCount, jCount, tile, neighbor;
@@ -889,7 +789,7 @@
   /**
    * Creates lines representing the cumulative force acting on each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileForces() {
     var annotations, i, count;
@@ -908,7 +808,7 @@
   /**
    * Creates lines representing the velocity of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileVelocities() {
     var annotations, i, count;
@@ -927,7 +827,7 @@
   /**
    * Creates the index of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileIndices() {
     var annotations, i, count;
@@ -947,7 +847,7 @@
   /**
    * Updates a dot at the center of each tile at its current position.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileParticleCenters() {
     var annotations, i, count;
@@ -963,7 +863,7 @@
   /**
    * Updates a dot at the center of each tile at its anchor position.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileAnchorCenters() {
     var annotations, i, count;
@@ -984,7 +884,7 @@
    * Updates the color of a dot at the center of each tile at its anchor position according to its
    * displacement from its original position.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileAnchorCenterColorsWithDisplacement() {
     var annotations, i, count, deltaX, deltaY, angle, distance, colorString;
@@ -1009,7 +909,7 @@
   /**
    * Updates the inner radius of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileInnerRadii() {
     var annotations, i, count;
@@ -1026,7 +926,7 @@
   /**
    * Updates the outer radius of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileOuterRadii() {
     var annotations, i, count;
@@ -1043,7 +943,7 @@
   /**
    * Updates lines connecting each tile to each of its neighbors.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileNeighborConnections() {
     var annotations, i, j, iCount, jCount, tile, neighbor;
@@ -1069,7 +969,7 @@
   /**
    * Updates lines representing the cumulative force acting on each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileForces() {
     var annotations, i, count;
@@ -1087,7 +987,7 @@
   /**
    * Updates lines representing the velocity of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileVelocities() {
     var annotations, i, count;
@@ -1105,7 +1005,7 @@
   /**
    * Updates the index of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileIndices() {
     var annotations, i, count;
@@ -1123,6 +1023,8 @@
 
   /**
    * Computes spatial parameters of the tile annotations.
+   *
+   * @this HexGridAnnotations
    */
   function resize() {
     var annotations;
@@ -1145,6 +1047,7 @@
   /**
    * Updates the animation progress of this AnimationJob to match the given time.
    *
+   * @this HexGridAnnotations
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -1195,7 +1098,152 @@
 'use strict';
 
 /**
+ * This module defines a constructor for HexInput objects.
+ *
+ * HexInput objects handle the user-input logic for a HexGrid.
+ *
+ * @module HexInput
+ */
+(function () {
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Adds event listeners for mouse and touch events for the grid.
+   *
+   * @this HexInput
+   */
+  function addPointerEventListeners() {
+    var input;
+
+    input = this;
+
+    document.addEventListener('mouseout', handlePointerOut, false);
+    document.addEventListener('mousemove', handlePointerMove, false);
+    document.addEventListener('mousedown', handlePointerDown, false);
+    document.addEventListener('mouseup', handlePointerUp, false);
+    // TODO: add touch support
+
+    function handlePointerOut(event) {
+      if (!event.toElement && !event.relatedTarget) {
+        // TODO: handle the mouse out event
+      }
+    }
+
+    function handlePointerMove(event) {
+      // TODO:
+    }
+
+    function handlePointerDown(event) {
+      // TODO:
+    }
+
+    function handlePointerUp(event) {
+      // TODO:
+    }
+
+    // TODO:
+  }
+
+  /**
+   * Checks whether the given point intersects with the same tile that was intersected during the
+   * last movement event.
+   *
+   * @this HexInput
+   * @param {number} x
+   * @param {number} y
+   */
+  function checkOldTileIntersection(x, y) {
+    var input;
+
+    input = this;
+
+    // TODO:
+  }
+
+  /**
+   * Checks whether the given point intersects with any tile in the grid.
+   *
+   * @this HexInput
+   * @param {number} x
+   * @param {number} y
+   */
+  function checkNewTileIntersection(x, y) {
+    var input;
+
+    input = this;
+
+    // TODO:
+    // - pre-compute the start and end x and y coordinates of each column and row
+    // - this function then simply loops over these until finding the one or two rows and columns that the point intersects
+    // - then there are at most four tiles to actually check for intersection within
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * Checks whether the given point intersects with the given tile.
+   *
+   * @param {HexTile} tile
+   * @param {number} x
+   * @param {number} y
+   */
+  function checkTileIntersection(tile, x, y) {
+    // TODO:
+  }
+
+  /**
+   * Checks whether the given point intersects with the bounding box of the given tile.
+   *
+   * @param {HexTile} tile
+   * @param {number} x
+   * @param {number} y
+   */
+  function checkTileBoundingBoxIntersection(tile, x, y) {
+    // TODO:
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {HexInput} grid
+   */
+  function HexInput(grid) {
+    var input = this;
+
+    input.grid = grid;
+
+    addPointerEventListeners.call(input);
+  }
+
+  HexInput.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.HexInput = HexInput;
+
+  console.log('HexInput module loaded');
+})();
+
+'use strict';
+
+/**
  * This module defines a constructor for HexTile objects.
+ *
+ * HexTile objects handle the particle logic and the hexagon SVG-shape logic for a single
+ * hexagonal tile within a HexGrid.
  *
  * @module HexTile
  */
@@ -1232,6 +1280,8 @@
 
   /**
    * Creates the polygon element for this tile.
+   *
+   * @this HexTile
    */
   function createElement() {
     var tile;
@@ -1252,6 +1302,7 @@
   /**
    * Creates the particle properties for this tile.
    *
+   * @this HexTile
    * @param {number} mass
    */
   function createParticle(mass) {
@@ -1354,6 +1405,7 @@
   /**
    * Sets this tile's content.
    *
+   * @this HexTile
    * @param {?Object} tileData
    */
   function setContent(tileData) {
@@ -1366,6 +1418,7 @@
   /**
    * Sets this tile's neighbor tiles.
    *
+   * @this HexTile
    * @param {Array.<HexTile>} neighborTiles
    */
   function setNeighborTiles(neighborTiles) {
@@ -1408,6 +1461,7 @@
   /**
    * Sets this tile's vertex coordinates.
    *
+   * @this HexTile
    * @param {Array.<number>} vertices
    */
   function setVertices(vertices) {
@@ -1425,6 +1479,7 @@
   /**
    * Sets this tile's color values.
    *
+   * @this HexTile
    * @param {number} hue
    * @param {number} saturation
    * @param {number} lightness
@@ -1439,6 +1494,7 @@
   /**
    * Update the state of this tile particle for the current time step.
    *
+   * @this HexTile
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -1580,6 +1636,8 @@
 
   /**
    * Update the SVG attributes for this tile to match its current particle state.
+   *
+   * @this HexTile
    */
   function draw() {
     var tile;
@@ -1593,6 +1651,7 @@
   /**
    * Adds the given force, which will take effect during the next call to update.
    *
+   * @this HexTile
    * @param {number} fx
    * @param {number} fy
    */
@@ -1608,6 +1667,7 @@
   /**
    * Fixes the position of this tile to the given coordinates.
    *
+   * @this HexTile
    * @param {number} px
    * @param {number} py
    */
@@ -1692,323 +1752,6 @@
 'use strict';
 
 /**
- * This module defines a constructor for WaveAnimationJob objects.
- *
- * @module WaveAnimationJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  config.period = 2200;
-  config.displacementWavelengthX = -15;
-  config.displacementWavelengthY = -config.displacementWavelengthX * Math.sqrt(3);
-  config.waveProgressWavelength = 900;
-
-  config.displacementWavelength =
-      Math.sqrt(config.displacementWavelengthX * config.displacementWavelengthX +
-          config.displacementWavelengthY * config.displacementWavelengthY);
-
-  config.twoPeriod = config.period * 2;
-  config.halfPeriod = config.period / 2;
-
-  config.twoWaveProgressWavelength = config.waveProgressWavelength * 2;
-  config.halfWaveProgressWavelength = config.waveProgressWavelength / 2;
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Calculates a wave offset value for each tile according to their positions in the grid.
-   */
-  function initTileProgressOffsets() {
-    var job, i, count, tile, length;
-
-    job = this;
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      tile = job.grid.tiles[i];
-
-      length = Math.sqrt(tile.originalCenterX * tile.originalCenterX +
-          tile.originalCenterY * tile.originalCenterY) + config.twoWaveProgressWavelength;
-
-      tile.waveProgressOffset = -(length % config.twoWaveProgressWavelength -
-          config.waveProgressWavelength) / config.waveProgressWavelength;
-    }
-  }
-
-  /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
-   */
-  function checkForComplete() {
-    var job = this;
-
-    // TODO:
-//    if (???) {
-//      console.log('WaveAnimationJob completed');
-//
-//      job.isComplete = true;
-//      job.onComplete(true);
-//    }
-  }
-
-  /**
-   * Updates the animation progress of the given tile.
-   *
-   * @param {number} progress
-   * @param {HexTile} tile
-   */
-  function updateTile(progress, tile) {
-    var job, tileProgress;
-
-    job = this;
-
-    tileProgress =
-        Math.sin(((((progress + 1 + tile.waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
-
-    tile.centerX = tile.originalCenterX + config.displacementWavelengthX * tileProgress;
-    tile.centerY = tile.originalCenterY + config.displacementWavelengthY * tileProgress;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this WaveAnimationJob as started.
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-
-    // TODO:
-  }
-
-  /**
-   * Updates the animation progress of this WaveAnimationJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, progress, i, count;
-
-    job = this;
-
-    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      updateTile.call(job, progress, job.grid.tiles[i]);
-    }
-
-    checkForComplete.call(job);
-  }
-
-  /**
-   * Stops this WaveAnimationJob, and returns the element its original form.
-   */
-  function cancel() {
-    var job = this;
-
-    // TODO:
-
-    job.onComplete(false);
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {HexGrid} grid
-   */
-  function WaveAnimationJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.cancel = cancel;
-
-    initTileProgressOffsets.call(job);
-
-    console.log('WaveAnimationJob created');
-  }
-
-  WaveAnimationJob.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.WaveAnimationJob = WaveAnimationJob;
-
-  console.log('WaveAnimationJob module loaded');
-})();
-
-'use strict';
-
-/**
- * This module defines a singleton for animating things.
- *
- * @module animator
- */
-(function () {
-  /**
-   * @typedef {{start: Function, update: Function, cancel: Function, isComplete: boolean}} AnimationJob
-   */
-
-  var animator = {};
-  var config = {};
-
-  config.deltaTimeUpperThreshold = 200;
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * This is the animation loop that drives all of the animation.
-   */
-  function animationLoop() {
-    var currentTime, deltaTime;
-
-    currentTime = Date.now();
-    deltaTime = currentTime - animator.previousTime;
-    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
-        config.deltaTimeUpperThreshold : deltaTime;
-    animator.isLooping = true;
-
-    if (!animator.isPaused) {
-      updateJobs(currentTime, deltaTime);
-      hg.util.requestAnimationFrame(animationLoop);
-    } else {
-      animator.isLooping = false;
-    }
-
-    animator.previousTime = currentTime;
-  }
-
-  /**
-   * Updates all of the active AnimationJobs.
-   *
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function updateJobs(currentTime, deltaTime) {
-    var i, count;
-
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].update(currentTime, deltaTime);
-
-      // Remove jobs from the list after they are complete
-      if (animator.jobs[i].isComplete) {
-        removeJob(animator.jobs[i], i);
-        i--;
-        count--;
-      }
-    }
-  }
-
-  /**
-   * Removes the given job from the collection of active, animating jobs.
-   *
-   * @param {AnimationJob} job
-   * @param {number} [index]
-   */
-  function removeJob(job, index) {
-    var count;
-
-    if (typeof index === 'number') {
-      animator.jobs.splice(index, 1);
-    } else {
-      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
-        if (animator.jobs[index] === job) {
-          animator.jobs.splice(index, 1);
-          break;
-        }
-      }
-    }
-
-    // Stop the animation loop when there are no more jobs to animate
-    if (animator.jobs.length === 0) {
-      animator.isPaused = true;
-    }
-  }
-
-  /**
-   * Starts the animation loop if it is not already running
-   */
-  function startAnimationLoop() {
-    animator.isPaused = false;
-    if (!animator.isLooping) {
-      animator.previousTime = Date.now();
-      animationLoop();
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public static functions
-
-  /**
-   * Starts the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function startJob(job) {
-    console.log('AnimationJob starting');
-
-    job.start();
-    animator.jobs.push(job);
-
-    startAnimationLoop();
-  }
-
-  /**
-   * Cancels the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function cancelJob(job) {
-    console.log('AnimationJob cancelling');
-
-    job.cancel();
-    removeJob(job);
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this singleton
-
-  animator.jobs = [];
-  animator.previousTime = Date.now();
-  animator.isLooping = false;
-  animator.isPaused = true;
-  animator.startJob = startJob;
-  animator.cancelJob = cancelJob;
-
-  animator.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.animator = animator;
-
-  console.log('animator module loaded');
-})();
-
-'use strict';
-
-/**
  * This module defines a collection of static general utility functions.
  *
  * @module util
@@ -2016,7 +1759,7 @@
 (function () {
   /**
    * Adds an event listener for each of the given events to each of the given elements.
-   * @function util.listenToMultipleForMultiple
+   *
    * @param {Array.<HTMLElement>} elements The elements to add event listeners to.
    * @param {Array.<String>} events The event listeners to add to the elements.
    * @param {Function} callback The single callback for handling the events.
@@ -2032,7 +1775,7 @@
   /**
    * Creates a DOM element with the given tag name, appends it to the given parent element, and
    * gives it the given id and classes.
-   * @function util.createElement
+   *
    * @param {String} tagName The tag name to give the new element.
    * @param {HTMLElement} [parent] The parent element to append the new element to.
    * @param {String} [id] The id to give the new element.
@@ -2057,7 +1800,7 @@
 
   /**
    * Determines whether the given element contains the given class.
-   * @function util~containsClass
+   *
    * @param {HTMLElement} element The element to check.
    * @param {String} className The class to check for.
    * @returns {Boolean} True if the element does contain the class.
@@ -2082,7 +1825,7 @@
    * the inclusion of the class will be forced. That is, if enabled=true, then this will ensure the
    * element has the class; if enabled=false, then this will ensure the element does NOT have the
    * class; if enabled=undefined, then this will simply toggle whether the element has the class.
-   * @function util.toggleClass
+   *
    * @param {HTMLElement} element The element to add the class to or remove the class from.
    * @param {String} className The class to add or remove.
    * @param {Boolean} [enabled] If given, then the inclusion of the class will be forced.
@@ -2103,7 +1846,7 @@
 
   /**
    * Gets the coordinates of the element relative to the top-left corner of the page.
-   * @function util.getPageOffset
+   *
    * @param {HTMLElement} element The element to get the coordinates of.
    * @returns {{x: Number, y: Number}} The coordinates of the element relative to the top-left
    * corner of the page.
@@ -2122,7 +1865,7 @@
 
   /**
    * Gets the dimensions of the viewport.
-   * @function util.getViewportSize
+   *
    * @returns {{w: Number, h: Number}} The dimensions of the viewport.
    */
   function getViewportSize() {
@@ -2148,7 +1891,7 @@
   /**
    * Removes the given child element from the given parent element if the child does indeed belong
    * to the parent.
-   * @function util.removeChildIfPresent
+   *
    * @param {HTMLElement} parent The parent to remove the child from.
    * @param {HTMLElement} child The child to remove.
    * @returns {Boolean} True if the child did indeed belong to the parent.
@@ -2163,7 +1906,7 @@
 
   /**
    * Adds the given class to the given element.
-   * @function util.addClass
+   *
    * @param {HTMLElement} element The element to add the class to.
    * @param {String} className The class to add.
    */
@@ -2173,7 +1916,7 @@
 
   /**
    * Removes the given class from the given element.
-   * @function util.removeClass
+   *
    * @param {HTMLElement} element The element to remove the class from.
    * @param {String} className The class to remove.
    */
@@ -2185,7 +1928,7 @@
 
   /**
    * Removes all classes from the given element.
-   * @function util.clearClasses
+   *
    * @param {HTMLElement} element The element to remove all classes from.
    */
   function clearClasses(element) {
@@ -2195,7 +1938,7 @@
   /**
    * Calculates the width that the DOM would give to a div with the given text. The given tag
    * name, parent, id, and classes allow the width to be affected by various CSS rules.
-   * @function util.getTextWidth
+   *
    * @param {String} text The text to determine the width of.
    * @param {String} tagName The tag name this text would supposedly have.
    * @param {HTMLElement} [parent] The parent this text would supposedly be a child of; defaults
@@ -2220,7 +1963,7 @@
 
   /**
    * Encodes and concatenates the given URL parameters into a single query string.
-   * @function util.encodeQueryString
+   *
    * @param {Object} rawParams An object whose properties represent the URL query string
    * parameters.
    * @return {String} The query string.
@@ -2239,8 +1982,9 @@
 
   /**
    * Retrieves the value corresponding to the given name from the given query string.
+   *
    * (borrowed from http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript)
-   * @function util.getQueryStringParameterValue
+   *
    * @param {String} queryString The query string containing the parameter.
    * @param {String} name The (non-encoded) name of the parameter value to retrieve.
    * @returns {string} The query string parameter value, or null if the parameter was not found.
@@ -2256,7 +2000,7 @@
 
   /**
    * Sets the CSS transition duration style of the given element.
-   * @function util.setTransitionDurationSeconds
+   *
    * @param {HTMLElement} element The element.
    * @param {Number} value The duration.
    */
@@ -2270,7 +2014,7 @@
 
   /**
    * Sets the CSS transition delay style of the given element.
-   * @function util.setTransitionDelaySeconds
+   *
    * @param {HTMLElement} element The element.
    * @param {Number} value The delay.
    */
@@ -2284,7 +2028,7 @@
 
   /**
    * Removes any children elements from the given parent that have the given class.
-   * @function util.removeChildrenWithClass
+   *
    * @param {HTMLElement} parent The parent to remove children from.
    * @param {String} className The class to match.
    */
@@ -2496,4 +2240,780 @@
   window.hg.util = util;
 
   console.log('util module loaded');
+})();
+
+'use strict';
+
+// TODO: remove this module after basing some other animation job implementations off of it
+
+/**
+ * This module defines a constructor for AnimationJob objects.
+ *
+ * @module AnimationJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   */
+  function checkForComplete() {
+    var job = this;
+
+    // TODO:
+//    if (???) {
+//      console.log('AnimationJob completed');
+//
+//      job.isComplete = true;
+//      job.onComplete(true);
+//    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this AnimationJob as started.
+   *
+   * @this AnimationJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    // TODO:
+  }
+
+  /**
+   * Updates the animation progress of this AnimationJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this AnimationJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job = this;
+
+    // TODO:
+
+    checkForComplete.call(job);
+  }
+
+  /**
+   * Stops this AnimationJob, and returns the element its original form.
+   *
+   * @this AnimationJob
+   */
+  function cancel() {
+    var job = this;
+
+    // TODO:
+
+    job.onComplete(false);
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {HexGrid} grid
+   * @param {Function} onComplete
+   */
+  function AnimationJob(grid, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+
+    console.log('AnimationJob created');
+  }
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.AnimationJob = AnimationJob;
+
+  console.log('AnimationJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * This module defines a constructor for LinesRadiateAnimationJob objects.
+ *
+ * @module LinesRadiateAnimationJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   */
+  function checkForComplete() {
+    var job = this;
+
+    // TODO:
+//    if (???) {
+//      console.log('LinesRadiateAnimationJob completed');
+//
+//      job.isComplete = true;
+//      job.onComplete(true);
+//    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this LinesRadiateAnimationJob as started.
+   *
+   * @this LinesRadiateAnimationJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    // TODO:
+  }
+
+  /**
+   * Updates the animation progress of this LinesRadiateAnimationJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LinesRadiateAnimationJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job = this;
+
+    // TODO:
+
+    checkForComplete.call(job);
+  }
+
+  /**
+   * Stops this LinesRadiateAnimationJob, and returns the element its original form.
+   *
+   * @this LinesRadiateAnimationJob
+   */
+  function cancel() {
+    var job = this;
+
+    // TODO:
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {HexGrid} grid
+   */
+  function LinesRadiateAnimationJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.cancel = cancel;
+
+    console.log('LinesRadiateAnimationJob created');
+  }
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.LinesRadiateAnimationJob = LinesRadiateAnimationJob;
+
+  console.log('LinesRadiateAnimationJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * This module defines a constructor for RandomLineAnimationJob objects.
+ *
+ * @module RandomLineAnimationJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   */
+  function checkForComplete() {
+    var job = this;
+
+    // TODO:
+//    if (???) {
+//      console.log('RandomLineAnimationJob completed');
+//
+//      job.isComplete = true;
+//      job.onComplete(true);
+//    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this RandomLineAnimationJob as started.
+   *
+   * @this RandomLineAnimationJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    // TODO:
+  }
+
+  /**
+   * Updates the animation progress of this RandomLineAnimationJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this RandomLineAnimationJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job = this;
+
+    // TODO:
+
+    checkForComplete.call(job);
+  }
+
+  /**
+   * Stops this RandomLineAnimationJob, and returns the element its original form.
+   *
+   * @this RandomLineAnimationJob
+   */
+  function cancel() {
+    var job = this;
+
+    // TODO:
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {HexGrid} grid
+   */
+  function RandomLineAnimationJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.cancel = cancel;
+
+    console.log('RandomLineAnimationJob created');
+  }
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.RandomLineAnimationJob = RandomLineAnimationJob;
+
+  console.log('RandomLineAnimationJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * This module defines a constructor for ShimmerRadiateAnimationJob objects.
+ *
+ * @module ShimmerRadiateAnimationJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   */
+  function checkForComplete() {
+    var job = this;
+
+    // TODO:
+//    if (???) {
+//      console.log('ShimmerRadiateAnimationJob completed');
+//
+//      job.isComplete = true;
+//      job.onComplete(true);
+//    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this ShimmerRadiateAnimationJob as started.
+   *
+   * @this ShimmerRadiateAnimationJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    // TODO:
+  }
+
+  /**
+   * Updates the animation progress of this ShimmerRadiateAnimationJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ShimmerRadiateAnimationJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job = this;
+
+    // TODO:
+
+    checkForComplete.call(job);
+  }
+
+  /**
+   * Stops this ShimmerRadiateAnimationJob, and returns the element its original form.
+   *
+   * @this ShimmerRadiateAnimationJob
+   */
+  function cancel() {
+    var job = this;
+
+    // TODO:
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {HexGrid} grid
+   */
+  function ShimmerRadiateAnimationJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.cancel = cancel;
+
+    console.log('ShimmerRadiateAnimationJob created');
+  }
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.ShimmerRadiateAnimationJob = ShimmerRadiateAnimationJob;
+
+  console.log('ShimmerRadiateAnimationJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * This module defines a constructor for WaveAnimationJob objects.
+ *
+ * WaveAnimationJob objects animate the tiles of a HexGrid in order to create a wave motion.
+ *
+ * @module WaveAnimationJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.period = 2200;
+  config.displacementWavelengthX = -15;
+  config.displacementWavelengthY = -config.displacementWavelengthX * Math.sqrt(3);
+  config.waveProgressWavelength = 900;
+
+  config.displacementWavelength =
+      Math.sqrt(config.displacementWavelengthX * config.displacementWavelengthX +
+          config.displacementWavelengthY * config.displacementWavelengthY);
+
+  config.twoPeriod = config.period * 2;
+  config.halfPeriod = config.period / 2;
+
+  config.twoWaveProgressWavelength = config.waveProgressWavelength * 2;
+  config.halfWaveProgressWavelength = config.waveProgressWavelength / 2;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this WaveAnimationJob
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile, length;
+
+    job = this;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      tile = job.grid.tiles[i];
+
+      length = Math.sqrt(tile.originalCenterX * tile.originalCenterX +
+          tile.originalCenterY * tile.originalCenterY) + config.twoWaveProgressWavelength;
+
+      tile.waveProgressOffset = -(length % config.twoWaveProgressWavelength -
+          config.waveProgressWavelength) / config.waveProgressWavelength;
+    }
+  }
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   *
+   * @this WaveAnimationJob
+   */
+  function checkForComplete() {
+    var job = this;
+
+    // TODO:
+//    if (???) {
+//      console.log('WaveAnimationJob completed');
+//
+//      job.isComplete = true;
+//      job.onComplete(true);
+//    }
+  }
+
+  /**
+   * Updates the animation progress of the given tile.
+   *
+   * @this WaveAnimationJob
+   * @param {number} progress
+   * @param {HexTile} tile
+   */
+  function updateTile(progress, tile) {
+    var job, tileProgress;
+
+    job = this;
+
+    tileProgress =
+        Math.sin(((((progress + 1 + tile.waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+
+    tile.centerX = tile.originalCenterX + config.displacementWavelengthX * tileProgress;
+    tile.centerY = tile.originalCenterY + config.displacementWavelengthY * tileProgress;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this WaveAnimationJob as started.
+   *
+   * @this WaveAnimationJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    // TODO:
+  }
+
+  /**
+   * Updates the animation progress of this WaveAnimationJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this WaveAnimationJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, progress, i, count;
+
+    job = this;
+
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      updateTile.call(job, progress, job.grid.tiles[i]);
+    }
+
+    checkForComplete.call(job);
+  }
+
+  /**
+   * Stops this WaveAnimationJob, and returns the element its original form.
+   *
+   * @this WaveAnimationJob
+   */
+  function cancel() {
+    var job = this;
+
+    // TODO:
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {HexGrid} grid
+   */
+  function WaveAnimationJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.cancel = cancel;
+
+    initTileProgressOffsets.call(job);
+
+    console.log('WaveAnimationJob created');
+  }
+
+  WaveAnimationJob.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.WaveAnimationJob = WaveAnimationJob;
+
+  console.log('WaveAnimationJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * This module defines a singleton for animating things.
+ *
+ * The animator singleton handles the animation loop for the application and updates all
+ * registered AnimationJobs during each animation frame.
+ *
+ * @module animator
+ */
+(function () {
+  /**
+   * @typedef {{start: Function, update: Function(number, number), cancel: Function, isComplete: boolean}} AnimationJob
+   */
+
+  var animator = {};
+  var config = {};
+
+  config.deltaTimeUpperThreshold = 200;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * This is the animation loop that drives all of the animation.
+   */
+  function animationLoop() {
+    var currentTime, deltaTime;
+
+    currentTime = Date.now();
+    deltaTime = currentTime - animator.previousTime;
+    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
+        config.deltaTimeUpperThreshold : deltaTime;
+    animator.isLooping = true;
+
+    if (!animator.isPaused) {
+      updateJobs(currentTime, deltaTime);
+      hg.util.requestAnimationFrame(animationLoop);
+    } else {
+      animator.isLooping = false;
+    }
+
+    animator.previousTime = currentTime;
+  }
+
+  /**
+   * Updates all of the active AnimationJobs.
+   *
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function updateJobs(currentTime, deltaTime) {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].update(currentTime, deltaTime);
+
+      // Remove jobs from the list after they are complete
+      if (animator.jobs[i].isComplete) {
+        removeJob(animator.jobs[i], i);
+        i--;
+        count--;
+      }
+    }
+  }
+
+  /**
+   * Removes the given job from the collection of active, animating jobs.
+   *
+   * @param {AnimationJob} job
+   * @param {number} [index]
+   */
+  function removeJob(job, index) {
+    var count;
+
+    if (typeof index === 'number') {
+      animator.jobs.splice(index, 1);
+    } else {
+      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
+        if (animator.jobs[index] === job) {
+          animator.jobs.splice(index, 1);
+          break;
+        }
+      }
+    }
+
+    // Stop the animation loop when there are no more jobs to animate
+    if (animator.jobs.length === 0) {
+      animator.isPaused = true;
+    }
+  }
+
+  /**
+   * Starts the animation loop if it is not already running
+   */
+  function startAnimationLoop() {
+    animator.isPaused = false;
+    if (!animator.isLooping) {
+      animator.previousTime = Date.now();
+      animationLoop();
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Starts the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function startJob(job) {
+    console.log('AnimationJob starting');
+
+    job.start();
+    animator.jobs.push(job);
+
+    startAnimationLoop();
+  }
+
+  /**
+   * Cancels the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function cancelJob(job) {
+    console.log('AnimationJob cancelling');
+
+    job.cancel();
+    removeJob(job);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  animator.jobs = [];
+  animator.previousTime = Date.now();
+  animator.isLooping = false;
+  animator.isPaused = true;
+  animator.startJob = startJob;
+  animator.cancelJob = cancelJob;
+
+  animator.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.animator = animator;
+
+  console.log('animator module loaded');
 })();

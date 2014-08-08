@@ -8,7 +8,7 @@
 (function () {
   /**
    * Adds an event listener for each of the given events to each of the given elements.
-   * @function util.listenToMultipleForMultiple
+   *
    * @param {Array.<HTMLElement>} elements The elements to add event listeners to.
    * @param {Array.<String>} events The event listeners to add to the elements.
    * @param {Function} callback The single callback for handling the events.
@@ -24,7 +24,7 @@
   /**
    * Creates a DOM element with the given tag name, appends it to the given parent element, and
    * gives it the given id and classes.
-   * @function util.createElement
+   *
    * @param {String} tagName The tag name to give the new element.
    * @param {HTMLElement} [parent] The parent element to append the new element to.
    * @param {String} [id] The id to give the new element.
@@ -49,7 +49,7 @@
 
   /**
    * Determines whether the given element contains the given class.
-   * @function util~containsClass
+   *
    * @param {HTMLElement} element The element to check.
    * @param {String} className The class to check for.
    * @returns {Boolean} True if the element does contain the class.
@@ -74,7 +74,7 @@
    * the inclusion of the class will be forced. That is, if enabled=true, then this will ensure the
    * element has the class; if enabled=false, then this will ensure the element does NOT have the
    * class; if enabled=undefined, then this will simply toggle whether the element has the class.
-   * @function util.toggleClass
+   *
    * @param {HTMLElement} element The element to add the class to or remove the class from.
    * @param {String} className The class to add or remove.
    * @param {Boolean} [enabled] If given, then the inclusion of the class will be forced.
@@ -95,7 +95,7 @@
 
   /**
    * Gets the coordinates of the element relative to the top-left corner of the page.
-   * @function util.getPageOffset
+   *
    * @param {HTMLElement} element The element to get the coordinates of.
    * @returns {{x: Number, y: Number}} The coordinates of the element relative to the top-left
    * corner of the page.
@@ -114,7 +114,7 @@
 
   /**
    * Gets the dimensions of the viewport.
-   * @function util.getViewportSize
+   *
    * @returns {{w: Number, h: Number}} The dimensions of the viewport.
    */
   function getViewportSize() {
@@ -140,7 +140,7 @@
   /**
    * Removes the given child element from the given parent element if the child does indeed belong
    * to the parent.
-   * @function util.removeChildIfPresent
+   *
    * @param {HTMLElement} parent The parent to remove the child from.
    * @param {HTMLElement} child The child to remove.
    * @returns {Boolean} True if the child did indeed belong to the parent.
@@ -155,7 +155,7 @@
 
   /**
    * Adds the given class to the given element.
-   * @function util.addClass
+   *
    * @param {HTMLElement} element The element to add the class to.
    * @param {String} className The class to add.
    */
@@ -165,7 +165,7 @@
 
   /**
    * Removes the given class from the given element.
-   * @function util.removeClass
+   *
    * @param {HTMLElement} element The element to remove the class from.
    * @param {String} className The class to remove.
    */
@@ -177,7 +177,7 @@
 
   /**
    * Removes all classes from the given element.
-   * @function util.clearClasses
+   *
    * @param {HTMLElement} element The element to remove all classes from.
    */
   function clearClasses(element) {
@@ -187,7 +187,7 @@
   /**
    * Calculates the width that the DOM would give to a div with the given text. The given tag
    * name, parent, id, and classes allow the width to be affected by various CSS rules.
-   * @function util.getTextWidth
+   *
    * @param {String} text The text to determine the width of.
    * @param {String} tagName The tag name this text would supposedly have.
    * @param {HTMLElement} [parent] The parent this text would supposedly be a child of; defaults
@@ -212,7 +212,7 @@
 
   /**
    * Encodes and concatenates the given URL parameters into a single query string.
-   * @function util.encodeQueryString
+   *
    * @param {Object} rawParams An object whose properties represent the URL query string
    * parameters.
    * @return {String} The query string.
@@ -231,8 +231,9 @@
 
   /**
    * Retrieves the value corresponding to the given name from the given query string.
+   *
    * (borrowed from http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript)
-   * @function util.getQueryStringParameterValue
+   *
    * @param {String} queryString The query string containing the parameter.
    * @param {String} name The (non-encoded) name of the parameter value to retrieve.
    * @returns {string} The query string parameter value, or null if the parameter was not found.
@@ -248,7 +249,7 @@
 
   /**
    * Sets the CSS transition duration style of the given element.
-   * @function util.setTransitionDurationSeconds
+   *
    * @param {HTMLElement} element The element.
    * @param {Number} value The duration.
    */
@@ -262,7 +263,7 @@
 
   /**
    * Sets the CSS transition delay style of the given element.
-   * @function util.setTransitionDelaySeconds
+   *
    * @param {HTMLElement} element The element.
    * @param {Number} value The delay.
    */
@@ -276,7 +277,7 @@
 
   /**
    * Removes any children elements from the given parent that have the given class.
-   * @function util.removeChildrenWithClass
+   *
    * @param {HTMLElement} parent The parent to remove children from.
    * @param {String} className The class to match.
    */

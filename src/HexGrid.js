@@ -3,6 +3,9 @@
 /**
  * This module defines a constructor for HexGrid objects.
  *
+ * HexGrid objects define a collection of hexagonal tiles which animate and display dynamic,
+ * textual content.
+ *
  * @module HexGrid
  */
 (function () {
@@ -52,6 +55,8 @@
    * - number of tiles in even and odd rows
    * - the vertical and horizontal displacement between neighbor tiles
    * - the horizontal positions of the first tiles in even and odd rows
+   *
+   * @this HexGrid
    */
   function computeGridParameters() {
     var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex, i, count,
@@ -134,6 +139,8 @@
   /**
    * Calculates the tile indices within the content area column that will represent tiles with
    * content.
+   *
+   * @this HexGrid
    */
   function computeContentIndices() {
     var grid, i, j, count, tilesRepresentation;
@@ -166,6 +173,8 @@
 
   /**
    * Creates the SVG element for the grid.
+   *
+   * @this HexGrid
    */
   function createSvg() {
     var grid;
@@ -187,6 +196,8 @@
 
   /**
    * Creates the tile elements for the grid.
+   *
+   * @this HexGrid
    */
   function createTiles() {
     var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
@@ -256,6 +267,7 @@
   /**
    * Connects each tile with references to its neighbors.
    *
+   * @this HexGrid
    * @param {Array.<Array.<number>>} tilesNeighborDeltaIndices
    */
   function setNeighborTiles(tilesNeighborDeltaIndices) {
@@ -282,6 +294,7 @@
    *
    * NaN is used to represent the tile not having a neighbor on that side.
    *
+   * @this HexGrid
    * @param {number} rowIndex
    * @param {number} rowCount
    * @param {number} columnIndex
@@ -378,6 +391,7 @@
   /**
    * Calculates the index offsets of the neighbors of a tile.
    *
+   * @this HexGrid
    * @returns {Array.<number>}
    */
   function getDefaultNeighborDeltaIndices() {
@@ -412,6 +426,8 @@
    * Event listener for the window resize event.
    *
    * Computes spatial parameters of the tiles in the grid.
+   *
+   * @this HexGrid
    */
   function onWindowResize() {
     var grid;
@@ -435,6 +451,8 @@
 
   /**
    * Removes all content from the SVG.
+   *
+   * @this HexGrid
    */
   function clearSvg() {
     var grid, svg;
@@ -508,6 +526,8 @@
 
   /**
    * Sets this AnimationJob as started.
+   *
+   * @this HexGrid
    */
   function start() {
     var grid = this;
@@ -518,6 +538,7 @@
   /**
    * Updates the animation progress of this AnimationJob to match the given time.
    *
+   * @this HexGrid
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -536,6 +557,8 @@
 
   /**
    * Stops this AnimationJob, and returns the element to its original form.
+   *
+   * @this HexGrid
    */
   function cancel() {
     var grid = this;

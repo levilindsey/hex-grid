@@ -3,6 +3,9 @@
 /**
  * This module defines a constructor for HexGridAnnotations objects.
  *
+ * HexGridAnnotations objects creates and modifies visual representations of various aspects of a
+ * HexGrid. This can be very useful for testing purposes.
+ *
  * @module HexGridAnnotations
  */
 (function () {
@@ -19,8 +22,8 @@
 
   /**
    * Draws content tiles with a different color.
-   *
-   * This is useful for testing purposes.
+   * 
+   * @this HexGridAnnotations
    */
   function fillContentTiles() {
     var annotations, i, count;
@@ -37,7 +40,7 @@
   /**
    * Draws all of the tiles as transparent.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function makeTilesTransparent() {
     var annotations, i, count;
@@ -52,7 +55,7 @@
   /**
    * Draws vertical guidelines along the left and right sides of the main content area.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function drawContentAreaGuideLines() {
     var annotations, line;
@@ -81,7 +84,7 @@
   /**
    * Creates a dot at the center of each tile at its current position.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileParticleCenters() {
     var annotations, i, count;
@@ -100,7 +103,7 @@
   /**
    * Creates a dot at the center of each tile at its anchor position.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileAnchorCenters() {
     var annotations, i, count;
@@ -124,7 +127,7 @@
   /**
    * Creates the inner radius of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileInnerRadii() {
     var annotations, i, count;
@@ -144,7 +147,7 @@
   /**
    * Creates the outer radius of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileOuterRadii() {
     var annotations, i, count;
@@ -164,7 +167,7 @@
   /**
    * Creates lines connecting each tile to each of its neighbors.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileNeighborConnections() {
     var annotations, i, j, iCount, jCount, tile, neighbor;
@@ -192,7 +195,7 @@
   /**
    * Creates lines representing the cumulative force acting on each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileForces() {
     var annotations, i, count;
@@ -211,7 +214,7 @@
   /**
    * Creates lines representing the velocity of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileVelocities() {
     var annotations, i, count;
@@ -230,7 +233,7 @@
   /**
    * Creates the index of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function createTileIndices() {
     var annotations, i, count;
@@ -250,7 +253,7 @@
   /**
    * Updates a dot at the center of each tile at its current position.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileParticleCenters() {
     var annotations, i, count;
@@ -266,7 +269,7 @@
   /**
    * Updates a dot at the center of each tile at its anchor position.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileAnchorCenters() {
     var annotations, i, count;
@@ -287,7 +290,7 @@
    * Updates the color of a dot at the center of each tile at its anchor position according to its
    * displacement from its original position.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileAnchorCenterColorsWithDisplacement() {
     var annotations, i, count, deltaX, deltaY, angle, distance, colorString;
@@ -312,7 +315,7 @@
   /**
    * Updates the inner radius of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileInnerRadii() {
     var annotations, i, count;
@@ -329,7 +332,7 @@
   /**
    * Updates the outer radius of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileOuterRadii() {
     var annotations, i, count;
@@ -346,7 +349,7 @@
   /**
    * Updates lines connecting each tile to each of its neighbors.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileNeighborConnections() {
     var annotations, i, j, iCount, jCount, tile, neighbor;
@@ -372,7 +375,7 @@
   /**
    * Updates lines representing the cumulative force acting on each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileForces() {
     var annotations, i, count;
@@ -390,7 +393,7 @@
   /**
    * Updates lines representing the velocity of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileVelocities() {
     var annotations, i, count;
@@ -408,7 +411,7 @@
   /**
    * Updates the index of each tile.
    *
-   * This is useful for testing purposes.
+   * @this HexGridAnnotations
    */
   function updateTileIndices() {
     var annotations, i, count;
@@ -426,6 +429,8 @@
 
   /**
    * Computes spatial parameters of the tile annotations.
+   *
+   * @this HexGridAnnotations
    */
   function resize() {
     var annotations;
@@ -448,6 +453,7 @@
   /**
    * Updates the animation progress of this AnimationJob to match the given time.
    *
+   * @this HexGridAnnotations
    * @param {number} currentTime
    * @param {number} deltaTime
    */

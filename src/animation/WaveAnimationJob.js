@@ -3,6 +3,8 @@
 /**
  * This module defines a constructor for WaveAnimationJob objects.
  *
+ * WaveAnimationJob objects animate the tiles of a HexGrid in order to create a wave motion.
+ *
  * @module WaveAnimationJob
  */
 (function () {
@@ -31,6 +33,8 @@
 
   /**
    * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this WaveAnimationJob
    */
   function initTileProgressOffsets() {
     var job, i, count, tile, length;
@@ -50,6 +54,8 @@
 
   /**
    * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   *
+   * @this WaveAnimationJob
    */
   function checkForComplete() {
     var job = this;
@@ -66,6 +72,7 @@
   /**
    * Updates the animation progress of the given tile.
    *
+   * @this WaveAnimationJob
    * @param {number} progress
    * @param {HexTile} tile
    */
@@ -89,6 +96,8 @@
 
   /**
    * Sets this WaveAnimationJob as started.
+   *
+   * @this WaveAnimationJob
    */
   function start() {
     var job = this;
@@ -104,6 +113,7 @@
    *
    * This should be called from the overall animation loop.
    *
+   * @this WaveAnimationJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -123,13 +133,13 @@
 
   /**
    * Stops this WaveAnimationJob, and returns the element its original form.
+   *
+   * @this WaveAnimationJob
    */
   function cancel() {
     var job = this;
 
     // TODO:
-
-    job.onComplete(false);
 
     job.isComplete = true;
   }

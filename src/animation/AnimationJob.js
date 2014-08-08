@@ -11,6 +11,8 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
+  var config = {};
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -32,25 +34,13 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
-  /**
-   * Sets the given class on the given element. The class describes an animation state:
-   * waiting-to-animate, is-animating, done-animating
-   *
-   * @param {HTMLElement} element
-   * @param {'waiting-to-animate'|'is-animating'|'done-animating'} animatingClass
-   */
-  function setAnimatingClassOnElement(element, animatingClass) {
-    hg.util.removeClass(element, 'waiting-to-animate');
-    hg.util.removeClass(element, 'is-animating');
-    hg.util.removeClass(element, 'done-animating');
-    hg.util.addClass(element, animatingClass);
-  }
-
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
   /**
    * Sets this AnimationJob as started.
+   *
+   * @this AnimationJob
    */
   function start() {
     var job = this;
@@ -65,8 +55,12 @@
    * Updates the animation progress of this AnimationJob to match the given time.
    *
    * This should be called from the overall animation loop.
+   *
+   * @this AnimationJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
    */
-  function update(currentTime) {
+  function update(currentTime, deltaTime) {
     var job = this;
 
     // TODO:
@@ -76,6 +70,8 @@
 
   /**
    * Stops this AnimationJob, and returns the element its original form.
+   *
+   * @this AnimationJob
    */
   function cancel() {
     var job = this;
@@ -93,22 +89,16 @@
   /**
    * @constructor
    * @global
-   * @param {HTMLElement} element
-   * @param {number} duration In milliseconds.
-   * @param {string} easingFunctionName
-   * @param {Function} animationFunction
+   * @param {HexGrid} grid
    * @param {Function} onComplete
    */
-  function AnimationJob(element, duration, easingFunctionName, animationFunction, onComplete) {
+  function AnimationJob(grid, onComplete) {
     var job = this;
 
-    job.element = element;
-    job.duration = duration;
-    job.animationFunction = animationFunction;
+    job.grid = grid;
     job.startTime = 0;
     job.isComplete = false;
 
-    job.easingFunction = hg.util.easingFunctions[easingFunctionName];
     job.start = start;
     job.update = update;
     job.cancel = cancel;

@@ -3,6 +3,9 @@
 /**
  * This module defines a constructor for HexTile objects.
  *
+ * HexTile objects handle the particle logic and the hexagon SVG-shape logic for a single
+ * hexagonal tile within a HexGrid.
+ *
  * @module HexTile
  */
 (function () {
@@ -38,6 +41,8 @@
 
   /**
    * Creates the polygon element for this tile.
+   *
+   * @this HexTile
    */
   function createElement() {
     var tile;
@@ -58,6 +63,7 @@
   /**
    * Creates the particle properties for this tile.
    *
+   * @this HexTile
    * @param {number} mass
    */
   function createParticle(mass) {
@@ -160,6 +166,7 @@
   /**
    * Sets this tile's content.
    *
+   * @this HexTile
    * @param {?Object} tileData
    */
   function setContent(tileData) {
@@ -172,6 +179,7 @@
   /**
    * Sets this tile's neighbor tiles.
    *
+   * @this HexTile
    * @param {Array.<HexTile>} neighborTiles
    */
   function setNeighborTiles(neighborTiles) {
@@ -214,6 +222,7 @@
   /**
    * Sets this tile's vertex coordinates.
    *
+   * @this HexTile
    * @param {Array.<number>} vertices
    */
   function setVertices(vertices) {
@@ -231,6 +240,7 @@
   /**
    * Sets this tile's color values.
    *
+   * @this HexTile
    * @param {number} hue
    * @param {number} saturation
    * @param {number} lightness
@@ -245,6 +255,7 @@
   /**
    * Update the state of this tile particle for the current time step.
    *
+   * @this HexTile
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -386,6 +397,8 @@
 
   /**
    * Update the SVG attributes for this tile to match its current particle state.
+   *
+   * @this HexTile
    */
   function draw() {
     var tile;
@@ -399,6 +412,7 @@
   /**
    * Adds the given force, which will take effect during the next call to update.
    *
+   * @this HexTile
    * @param {number} fx
    * @param {number} fy
    */
@@ -414,6 +428,7 @@
   /**
    * Fixes the position of this tile to the given coordinates.
    *
+   * @this HexTile
    * @param {number} px
    * @param {number} py
    */

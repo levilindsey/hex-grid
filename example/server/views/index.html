@@ -3,21 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <title>Hex Grid</title>
-  <link id="stylesheet" rel="stylesheet" type="text/css" href="/stylesheets/main.css" />
+  <link id="stylesheet" rel="stylesheet" type="text/css" href="/example/stylesheets/main.css" />
 </head>
 <body>
   <div id="hex-grid-area"></div>
 
   <!-- TODO: replace these script includes with the single minified script -->
   <!--<script type="text/javascript" src="/dist/hex-grid.min.js"></script>-->
+
   <script type="text/javascript" src="/src/util.js"></script>
-  <script type="text/javascript" src="/src/WaveAnimationJob.js"></script>
-  <script type="text/javascript" src="/src/animator.js"></script>
+
+  <script type="text/javascript" src="/src/HexInput.js"></script>
+  <script type="text/javascript" src="/src/HexGridAnnotations.js"></script>
   <script type="text/javascript" src="/src/HexTile.js"></script>
   <script type="text/javascript" src="/src/HexGrid.js"></script>
-  <script type="text/javascript" src="/src/HexGridAnnotations.js"></script>
 
-  <script type="text/javascript" src="/scripts/config.js"></script>
-  <script type="text/javascript" src="/scripts/main.js"></script>
+  <script type="text/javascript" src="/src/animation/animator.js"></script>
+  <script type="text/javascript" src="/src/animation/LinesRadiateAnimationJob.js"></script>
+  <script type="text/javascript" src="/src/animation/RandomLineAnimationJob.js"></script>
+  <script type="text/javascript" src="/src/animation/ShimmerRadiateAnimationJob.js"></script>
+  <script type="text/javascript" src="/src/animation/WaveAnimationJob.js"></script>
+
+  <script type="text/javascript" src="/example/scripts/main.js"></script>
 </body>
 </html>
