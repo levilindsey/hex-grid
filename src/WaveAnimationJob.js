@@ -11,10 +11,14 @@
 
   var config = {};
 
-  config.period = 1800;
-  config.displacementWavelengthX = 30;
-  config.displacementWavelengthY = 30;
-  config.waveProgressWavelength = 1000;
+  config.period = 2200;
+  config.displacementWavelengthX = -15;
+  config.displacementWavelengthY = -config.displacementWavelengthX * Math.sqrt(3);
+  config.waveProgressWavelength = 900;
+
+  config.displacementWavelength =
+      Math.sqrt(config.displacementWavelengthX * config.displacementWavelengthX +
+          config.displacementWavelengthY * config.displacementWavelengthY);
 
   config.twoPeriod = config.period * 2;
   config.halfPeriod = config.period / 2;
@@ -36,11 +40,11 @@
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
-      length = -Math.sqrt(tile.originalCenterX * tile.originalCenterX +
-          tile.originalCenterY * tile.originalCenterY);
+      length = Math.sqrt(tile.originalCenterX * tile.originalCenterX +
+          tile.originalCenterY * tile.originalCenterY) + config.twoWaveProgressWavelength;
 
-      tile.waveProgressOffset = Math.sin(((length % config.twoWaveProgressWavelength -
-          config.waveProgressWavelength) / config.waveProgressWavelength) * Math.PI);
+      tile.waveProgressOffset = -(length % config.twoWaveProgressWavelength -
+          config.waveProgressWavelength) / config.waveProgressWavelength;
     }
   }
 
@@ -73,26 +77,8 @@
     tileProgress =
         Math.sin(((((progress + 1 + tile.waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-//    tileProgressX = (((progress + 1 + tile.waveProgressOffsetX) % 2) + 2) % 2 - 1;
-//    tileProgressY = (((progress + 1 + tile.waveProgressOffsetY) % 2) + 2) % 2 - 1;
-//    tileProgressX = Math.sin(tileProgressX * Math.PI);
-//    tileProgressY = Math.sin(tileProgressY * Math.PI);
-
-//    tileProgressX = (progress + tile.waveProgressOffsetX) % 1;
-//    tileProgressY = (progress + tile.waveProgressOffsetY) % 1;
-//    if (tile.index === 0) {
-//      console.log('****************************************************');
-//      console.log('progress=' + progress);
-//      console.log('tileProgressX=' + tileProgressX);
-//      console.log('tileProgressY=' + tileProgressY);
-//      console.log('tile.waveProgressOffsetX=' + tile.waveProgressOffsetX);
-//      console.log('tile.waveProgressOffsetY=' + tile.waveProgressOffsetY);
-//    }
-
     tile.centerX = tile.originalCenterX + config.displacementWavelengthX * tileProgress;
     tile.centerY = tile.originalCenterY + config.displacementWavelengthY * tileProgress;
-//    tile.centerX = tile.originalCenterX + config.displacementWavelengthX * tileProgressX;
-//    tile.centerY = tile.originalCenterY + config.displacementWavelengthY * tileProgressY;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -123,12 +109,10 @@
    */
   function update(currentTime, deltaTime) {
     var job, progress, i, count;
-console.log(deltaTime);
+
     job = this;
 
     progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
-//    progress =
-//        Math.sin(((currentTime % config.twoPeriod - config.period) / config.period) * Math.PI);
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       updateTile.call(job, progress, job.grid.tiles[i]);
@@ -173,6 +157,8 @@ console.log(deltaTime);
 
     console.log('WaveAnimationJob created');
   }
+
+  WaveAnimationJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};

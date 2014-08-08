@@ -13,7 +13,7 @@
   var animator = {};
   var config = {};
 
-  config.deltaTimeUpperThreshold = 160;
+  config.deltaTimeUpperThreshold = 200;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -136,6 +136,8 @@
   animator.isPaused = true;
   animator.startJob = startJob;
   animator.cancelJob = cancelJob;
+
+  animator.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};

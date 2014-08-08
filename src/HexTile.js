@@ -484,6 +484,8 @@
     createParticle.call(tile, mass);
   }
 
+  HexTile.config = config;
+
   // Expose this module
   if (!window.hg) window.hg = {};
   window.hg.HexTile = HexTile;

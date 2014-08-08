@@ -35,6 +35,21 @@
   }
 
   /**
+   * Draws all of the tiles as transparent.
+   *
+   * This is useful for testing purposes.
+   */
+  function makeTilesTransparent() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.grid.tiles[i].element.setAttribute('fill', 'transparent');
+    }
+  }
+
+  /**
    * Draws vertical guidelines along the left and right sides of the main content area.
    *
    * This is useful for testing purposes.
@@ -269,6 +284,32 @@
   }
 
   /**
+   * Updates the color of a dot at the center of each tile at its anchor position according to its
+   * displacement from its original position.
+   *
+   * This is useful for testing purposes.
+   */
+  function updateTileAnchorCenterColorsWithDisplacement() {
+    var annotations, i, count, deltaX, deltaY, angle, distance, colorString;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      deltaX = annotations.grid.tiles[i].centerX - annotations.grid.tiles[i].originalCenterX;
+      deltaY = annotations.grid.tiles[i].centerY - annotations.grid.tiles[i].originalCenterY;
+      angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
+      distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      colorString = 'hsl(' + angle + ',' +
+          distance / hg.WaveAnimationJob.config.displacementWavelength * 100 + '%,80%)';
+
+      annotations.tileAnchorCenters[i].setAttribute('fill', colorString);
+
+      annotations.tileAnchorCenters[i].setAttribute('r', '80');
+      annotations.tileAnchorCenters[i].setAttribute('opacity', '0.4');
+    }
+  }
+
+  /**
    * Updates the inner radius of each tile.
    *
    * This is useful for testing purposes.
@@ -392,14 +433,15 @@
     annotations = this;
 
     fillContentTiles.call(annotations);
+//    makeTilesTransparent.call(annotations);
     createTileAnchorCenters.call(annotations);
 //    createTileParticleCenters.call(annotations);
 //    createTileInnerRadii.call(annotations);
 //    createTileOuterRadii.call(annotations);
-    createTileIndices.call(annotations);
+//    createTileIndices.call(annotations);
     createTileVelocities.call(annotations);
     createTileForces.call(annotations);
-    createTileNeighborConnections.call(annotations);
+//    createTileNeighborConnections.call(annotations);
 //    drawContentAreaGuideLines.call(annotations);
   }
 
@@ -415,13 +457,14 @@
     annotations = this;
 
     updateTileAnchorCenters.call(annotations);
+//    updateTileAnchorCenterColorsWithDisplacement.call(annotations);
 //    updateTileParticleCenters.call(annotations);
 //    updateTileInnerRadii.call(annotations);
 //    updateTileOuterRadii.call(annotations);
-    updateTileIndices.call(annotations);
+//    updateTileIndices.call(annotations);
     updateTileForces.call(annotations);
     updateTileVelocities.call(annotations);
-    updateTileNeighborConnections.call(annotations);
+//    updateTileNeighborConnections.call(annotations);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -442,6 +485,8 @@
     annotations.update = update;
     annotations.resize = resize;
   }
+
+  HexGridAnnotations.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
