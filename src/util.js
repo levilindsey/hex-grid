@@ -449,6 +449,71 @@
     return array;
   }
 
+  /**
+   * Return true if the given point would be located within the given polyline if its two ends
+   * were connected.
+   *
+   * If the given boolean is true, then the given polyline is interpreted as being a polygon--i.e.
+   * the first and last points are equivalent.
+   *
+   * This is an implementation of the even-odd rule algorithm.
+   *
+   * @param {number} pointX
+   * @param {number} pointY
+   * @param {Array.<number>} coordinates
+   * @param {boolean} isClosed
+   */
+  function isPointInsidePolyline(pointX, pointY, coordinates, isClosed) {
+    var pointIsInside, i, count, p1X, p1Y, p2X, p2Y, previousX, previousY, currentX, currentY;
+
+    pointIsInside = false;
+
+    if (isClosed) {
+      // There is no area within a straight line
+      if (coordinates.length < 6) {
+        return pointIsInside;
+      }
+
+      previousX = coordinates[coordinates.length - 4];
+      previousY = coordinates[coordinates.length - 3];
+    } else {
+      // There is no area within a straight line
+      if (coordinates.length < 4) {
+        return pointIsInside;
+      }
+
+      previousX = coordinates[coordinates.length - 2];
+      previousY = coordinates[coordinates.length - 1];
+    }
+
+    for (i = 0, count = coordinates.length - 2; i < count; i += 2) {
+      currentX = coordinates[i];
+      currentY = coordinates[i + 1];
+
+      if (currentX > previousX) {
+        p1X = previousX;
+        p1Y = previousY;
+        p2X = currentX;
+        p2Y = currentY;
+      } else {
+        p1X = currentX;
+        p1Y = currentY;
+        p2X = previousX;
+        p2Y = previousY;
+      }
+
+      if ((currentX < pointX) === (pointX <= previousX) &&
+          (pointY - p1Y) * (p2X - p1X) < (p2Y - p1Y) * (pointX - p1X)) {
+        pointIsInside = !pointIsInside;
+      }
+
+      previousX = currentX;
+      previousY = currentY;
+    }
+
+    return pointIsInside;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -481,6 +546,7 @@
     getXYFromPercentWithBezier: getXYFromPercentWithBezier,
     applyTransform: applyTransform,
     shuffle: shuffle,
+    isPointInsidePolyline: isPointInsidePolyline,
     svgNamespace: 'http://www.w3.org/2000/svg'
   };
 

@@ -98,7 +98,8 @@
    * @param {number} y
    */
   function checkTileIntersection(tile, x, y) {
-    // TODO:
+    return checkTileBoundingBoxIntersection(tile, x, y) &&
+        util.isPointInsidePolyline(x, y, tile.vertices, false);
   }
 
   /**
