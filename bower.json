@@ -23,9 +23,9 @@
   },
   "main": "dist/hex-grid.min.js",
   "dependencies": {
+    "dat.gui": "*"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "ignore": [
     "src",
     "example",

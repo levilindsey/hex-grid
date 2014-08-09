@@ -68,25 +68,25 @@
     parentHeight = grid.parent.clientHeight;
 
     if (grid.isVertical) {
-      grid.rowDeltaY = hg.config.tileOuterRadius * 1.5 + hg.config.tileGap * hg.config.sqrtThreeOverTwo;
-      grid.tileDeltaX = hg.config.tileShortLengthWithGap;
+      grid.rowDeltaY = hg.HexGrid.config.tileOuterRadius * 1.5 + hg.HexGrid.config.tileGap * hg.HexGrid.config.sqrtThreeOverTwo;
+      grid.tileDeltaX = hg.HexGrid.config.tileShortLengthWithGap;
 
-      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (hg.config.tileInnerRadius + hg.config.tileGap)) / hg.config.tileShortLengthWithGap) * 2 + 1;
-      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (hg.config.tileShortLengthWithGap + hg.config.tileGap * 0.5)) / hg.config.tileShortLengthWithGap) * 2 + 2;
+      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (hg.HexGrid.config.tileInnerRadius + hg.HexGrid.config.tileGap)) / hg.HexGrid.config.tileShortLengthWithGap) * 2 + 1;
+      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (hg.HexGrid.config.tileShortLengthWithGap + hg.HexGrid.config.tileGap * 0.5)) / hg.HexGrid.config.tileShortLengthWithGap) * 2 + 2;
 
-      grid.oddRowXOffset = parentHalfWidth - hg.config.tileShortLengthWithGap * (grid.oddRowTileCount - 1) / 2;
+      grid.oddRowXOffset = parentHalfWidth - hg.HexGrid.config.tileShortLengthWithGap * (grid.oddRowTileCount - 1) / 2;
 
-      grid.rowCount = Math.ceil((parentHeight - (hg.config.firstRowYOffset + hg.config.tileOuterRadius * 2 + hg.config.tileGap * Math.sqrt(3))) / grid.rowDeltaY) + 2;
+      grid.rowCount = Math.ceil((parentHeight - (hg.HexGrid.config.firstRowYOffset + hg.HexGrid.config.tileOuterRadius * 2 + hg.HexGrid.config.tileGap * Math.sqrt(3))) / grid.rowDeltaY) + 2;
     } else {
-      grid.rowDeltaY = hg.config.tileInnerRadius + hg.config.tileGap * 0.5;
-      grid.tileDeltaX = hg.config.tileOuterRadius * 3 + hg.config.tileGap * Math.sqrt(3);
+      grid.rowDeltaY = hg.HexGrid.config.tileInnerRadius + hg.HexGrid.config.tileGap * 0.5;
+      grid.tileDeltaX = hg.HexGrid.config.tileOuterRadius * 3 + hg.HexGrid.config.tileGap * Math.sqrt(3);
 
-      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX - hg.config.tileOuterRadius)) / grid.tileDeltaX) * 2 + 1;
-      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX + (hg.config.tileGap * hg.config.sqrtThreeOverTwo) + hg.config.tileOuterRadius * 0.5)) / grid.tileDeltaX) * 2 + 2;
+      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX - hg.HexGrid.config.tileOuterRadius)) / grid.tileDeltaX) * 2 + 1;
+      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX + (hg.HexGrid.config.tileGap * hg.HexGrid.config.sqrtThreeOverTwo) + hg.HexGrid.config.tileOuterRadius * 0.5)) / grid.tileDeltaX) * 2 + 2;
 
       grid.oddRowXOffset = parentHalfWidth - grid.tileDeltaX * (grid.oddRowTileCount - 1) / 2;
 
-      grid.rowCount = Math.ceil((parentHeight - (hg.config.firstRowYOffset + hg.config.tileInnerRadius * 3 + hg.config.tileGap * 2)) / grid.rowDeltaY) + 4;
+      grid.rowCount = Math.ceil((parentHeight - (hg.HexGrid.config.firstRowYOffset + hg.HexGrid.config.tileInnerRadius * 3 + hg.HexGrid.config.tileGap * 2)) / grid.rowDeltaY) + 4;
     }
 
     grid.evenRowXOffset = grid.oddRowXOffset +
@@ -98,11 +98,11 @@
     grid.contentAreaRight = grid.contentAreaLeft + grid.actualContentAreaWidth;
 
     if (grid.isVertical) {
-      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - hg.config.tileInnerRadius)) / grid.tileDeltaX);
-      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - hg.config.tileInnerRadius)) / grid.tileDeltaX);
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - hg.HexGrid.config.tileInnerRadius)) / grid.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - hg.HexGrid.config.tileInnerRadius)) / grid.tileDeltaX);
     } else {
-      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - hg.config.tileOuterRadius)) / grid.tileDeltaX);
-      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - hg.config.tileOuterRadius)) / grid.tileDeltaX);
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - hg.HexGrid.config.tileOuterRadius)) / grid.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - hg.HexGrid.config.tileOuterRadius)) / grid.tileDeltaX);
     }
 
     grid.oddRowContentTileCount = grid.oddRowTileCount - grid.oddRowContentStartIndex * 2;
@@ -113,8 +113,8 @@
 
     // Update the content inner indices to account for empty rows at the start of the grid
     grid.actualContentInnerIndices = [];
-    emptyRowsContentTileCount = Math.ceil(hg.config.emptyInitialRowCount / 2) * grid.oddRowContentTileCount +
-        Math.floor(hg.config.emptyInitialRowCount / 2) * grid.evenRowContentTileCount;
+    emptyRowsContentTileCount = Math.ceil(hg.HexGrid.config.emptyInitialRowCount / 2) * grid.oddRowContentTileCount +
+        Math.floor(hg.HexGrid.config.emptyInitialRowCount / 2) * grid.evenRowContentTileCount;
     for (i = 0, count = grid.originalContentInnerIndices.length; i < count; i += 1) {
       grid.actualContentInnerIndices[i] = grid.originalContentInnerIndices[i] + emptyRowsContentTileCount;
     }
@@ -155,7 +155,7 @@
     }
 
     // Use 0s to represent the empty tiles
-    count = (1 / hg.config.contentDensity) * grid.tileData.length;
+    count = (1 / hg.HexGrid.config.contentDensity) * grid.tileData.length;
     for (i = grid.tileData.length; i < count; i += 1) {
       tilesRepresentation[i] = 0;
     }
@@ -210,7 +210,7 @@
     tileIndex = 0;
     contentAreaIndex = 0;
     tileDataIndex = 0;
-    centerY = hg.config.firstRowYOffset;
+    centerY = hg.HexGrid.config.firstRowYOffset;
     rowCount = grid.rowCount;
     tilesNeighborDeltaIndices = [];
 
@@ -239,9 +239,9 @@
         isBorderTile = columnIndex === 0 || columnIndex === columnCount - 1 ||
             rowIndex === 0 || rowIndex === rowCount - 1;
 
-        grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, hg.config.tileOuterRadius,
-            grid.isVertical, hg.config.tileHue, hg.config.tileSaturation, hg.config.tileLightness, null,
-            tileIndex, isMarginTile, isBorderTile, hg.config.tileMass);
+        grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, hg.HexGrid.config.tileOuterRadius,
+            grid.isVertical, hg.HexGrid.config.tileHue, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness, null,
+            tileIndex, isMarginTile, isBorderTile, hg.HexGrid.config.tileMass);
 
         // Is the current tile within the content column?
         if (!isMarginTile) {
@@ -423,33 +423,6 @@
   }
 
   /**
-   * Event listener for the window resize event.
-   *
-   * Computes spatial parameters of the tiles in the grid.
-   *
-   * @this HexGrid
-   */
-  function onWindowResize() {
-    var grid;
-
-    grid = this;
-
-    grid.actualContentAreaWidth = grid.parent.clientWidth < hg.config.targetContentAreaWidth ?
-        grid.parent.clientWidth : hg.config.targetContentAreaWidth;
-
-    clearSvg.call(grid);
-
-    computeGridParameters.call(grid);
-    createTiles.call(grid);
-
-    grid.svg.style.height = grid.height + 'px';
-
-    grid.annotations.resize();
-
-    logGridInfo.call(grid);
-  }
-
-  /**
    * Removes all content from the SVG.
    *
    * @this HexGrid
@@ -469,44 +442,6 @@
   // Private static functions
 
   /**
-   * @constructor
-   * @param {HTMLElement} parent
-   * @param {Array.<Object>} tileData
-   * @param {boolean} isVertical
-   */
-  function HexGrid(parent, tileData, isVertical) {
-    var grid = this;
-
-    grid.parent = parent;
-    grid.tileData = tileData;
-    grid.isVertical = isVertical;
-
-    grid.actualContentAreaWidth = hg.config.actualContentAreaWidth;
-    grid.hue = hg.config.backgroundHue;
-    grid.saturation = hg.config.backgroundSaturation;
-    grid.lightness = hg.config.backgroundLightness;
-
-    grid.isComplete = false;
-
-    grid.svg = null;
-    grid.tiles = null;
-    grid.originalContentInnerIndices = null;
-    grid.innerIndexOfLastContentTile = null;
-
-    grid.annotations = new hg.HexGridAnnotations(grid);
-
-    grid.start = start;
-    grid.update = update;
-    grid.cancel = cancel;
-
-    createSvg.call(grid);
-    computeContentIndices.call(grid);
-    onWindowResize.call(grid);
-
-    window.addEventListener('resize', onWindowResize.bind(grid), false);
-  }
-
-  /**
    * Prints to the console some information about this grid.
    *
    * This is useful for testing purposes.
@@ -523,6 +458,31 @@
 
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
+
+  /**
+   * Computes spatial parameters of the tiles in the grid.
+   *
+   * @this HexGrid
+   */
+  function resize() {
+    var grid;
+
+    grid = this;
+
+    grid.actualContentAreaWidth = grid.parent.clientWidth < hg.HexGrid.config.targetContentAreaWidth ?
+        grid.parent.clientWidth : hg.HexGrid.config.targetContentAreaWidth;
+
+    clearSvg.call(grid);
+
+    computeGridParameters.call(grid);
+    createTiles.call(grid);
+
+    grid.svg.style.height = grid.height + 'px';
+
+    grid.annotations.resize();
+
+    logGridInfo.call(grid);
+  }
 
   /**
    * Sets this AnimationJob as started.
@@ -569,25 +529,51 @@
   }
 
   // ------------------------------------------------------------------------------------------- //
-  // Expose this module's factory function
+  // Expose this module's constructor
 
   /**
    * @global
+   * @constructor
    * @param {HTMLElement} parent
    * @param {Array.<Object>} tileData
    * @param {boolean} isVertical
-   * @returns {HexGrid}
    */
-  function createNewHexGrid(parent, tileData, isVertical) {
-    var grid = new HexGrid(parent, tileData, isVertical);
-    hg.animator.startJob(grid);
-    return grid;
+  function HexGrid(parent, tileData, isVertical) {
+    var grid = this;
+
+    grid.parent = parent;
+    grid.tileData = tileData;
+    grid.isVertical = isVertical;
+
+    grid.actualContentAreaWidth = hg.HexGrid.config.actualContentAreaWidth;
+    grid.hue = hg.HexGrid.config.backgroundHue;
+    grid.saturation = hg.HexGrid.config.backgroundSaturation;
+    grid.lightness = hg.HexGrid.config.backgroundLightness;
+
+    grid.isComplete = false;
+
+    grid.svg = null;
+    grid.tiles = null;
+    grid.originalContentInnerIndices = null;
+    grid.innerIndexOfLastContentTile = null;
+
+    grid.annotations = new hg.HexGridAnnotations(grid);
+
+    grid.resize = resize;
+    grid.start = start;
+    grid.update = update;
+    grid.cancel = cancel;
+
+    createSvg.call(grid);
+    computeContentIndices.call(grid);
+    resize.call(grid);
   }
+
+  HexGrid.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.createNewHexGrid = createNewHexGrid;
-  window.hg.config = config;
+  window.hg.HexGrid = HexGrid;
 
   console.log('HexGrid module loaded');
 })();
@@ -626,7 +612,7 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(hg.config.tileHue + 80, hg.config.tileSaturation, hg.config.tileLightness);
+        annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue + 80, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
       }
     }
   }
@@ -919,7 +905,7 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileInnerRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
       annotations.tileInnerRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
-      annotations.tileInnerRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius * hg.config.sqrtThreeOverTwo);
+      annotations.tileInnerRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius * hg.HexGrid.config.sqrtThreeOverTwo);
     }
   }
 
@@ -1195,7 +1181,8 @@
    * @param {number} y
    */
   function checkTileIntersection(tile, x, y) {
-    // TODO:
+    return checkTileBoundingBoxIntersection(tile, x, y) &&
+        util.isPointInsidePolyline(x, y, tile.vertices, false);
   }
 
   /**
@@ -1752,6 +1739,99 @@
 'use strict';
 
 /**
+ * This module defines a singleton that helps coordinate the various components of the hex-grid
+ * package.
+ *
+ * The controller singleton handles provides convenient helper functions for creating and staring
+ * grids and animations. It stores these objects and updates them in response to various system
+ * events--e.g., window resize.
+ *
+ * @module controller
+ */
+(function () {
+  var controller = {},
+      config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * Event listener for the window resize event.
+   *
+   * Resizes all of the hex-grid components.
+   */
+  function resize() {
+    controller.grids.forEach(function (grid, index) {
+      grid.resize();
+      restartWaveAnimation(index);
+    });
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Creates a HexGrid object and registers it with the animator.
+   *
+   * @param {HTMLElement} parent
+   * @param {Array.<Object>} tileData
+   * @param {boolean} isVertical
+   * @returns {number} The ID (actually index) of the new HexGrid.
+   */
+  function createNewHexGrid(parent, tileData, isVertical) {
+    var grid, waveAnimationJob, index;
+
+    grid = new hg.HexGrid(parent, tileData, isVertical);
+    controller.grids.push(grid);
+    hg.animator.startJob(grid);
+    index = controller.grids.length - 1;
+
+    waveAnimationJob = new hg.WaveAnimationJob(grid);
+    controller.waveAnimationJobs.push(waveAnimationJob);
+    restartWaveAnimation(index);
+
+    return index;
+  }
+
+  /**
+   * Restarts the WaveAnimationJob at the given index.
+   *
+   * @param {number} index
+   */
+  function restartWaveAnimation(index) {
+    var waveAnimationJob = hg.controller.waveAnimationJobs[index];
+
+    if (!waveAnimationJob.isComplete) {
+      hg.animator.cancelJob(waveAnimationJob);
+    }
+
+    waveAnimationJob.init();
+    hg.animator.startJob(waveAnimationJob);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  controller.grids = [];
+  controller.waveAnimationJobs = [];
+
+  controller.config = config;
+
+  controller.createNewHexGrid = createNewHexGrid;
+  controller.restartWaveAnimation = restartWaveAnimation;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.controller = controller;
+
+  window.addEventListener('resize', resize, false);
+
+  console.log('controller module loaded');
+})();
+
+'use strict';
+
+/**
  * This module defines a collection of static general utility functions.
  *
  * @module util
@@ -2200,6 +2280,71 @@
     return array;
   }
 
+  /**
+   * Return true if the given point would be located within the given polyline if its two ends
+   * were connected.
+   *
+   * If the given boolean is true, then the given polyline is interpreted as being a polygon--i.e.
+   * the first and last points are equivalent.
+   *
+   * This is an implementation of the even-odd rule algorithm.
+   *
+   * @param {number} pointX
+   * @param {number} pointY
+   * @param {Array.<number>} coordinates
+   * @param {boolean} isClosed
+   */
+  function isPointInsidePolyline(pointX, pointY, coordinates, isClosed) {
+    var pointIsInside, i, count, p1X, p1Y, p2X, p2Y, previousX, previousY, currentX, currentY;
+
+    pointIsInside = false;
+
+    if (isClosed) {
+      // There is no area within a straight line
+      if (coordinates.length < 6) {
+        return pointIsInside;
+      }
+
+      previousX = coordinates[coordinates.length - 4];
+      previousY = coordinates[coordinates.length - 3];
+    } else {
+      // There is no area within a straight line
+      if (coordinates.length < 4) {
+        return pointIsInside;
+      }
+
+      previousX = coordinates[coordinates.length - 2];
+      previousY = coordinates[coordinates.length - 1];
+    }
+
+    for (i = 0, count = coordinates.length - 2; i < count; i += 2) {
+      currentX = coordinates[i];
+      currentY = coordinates[i + 1];
+
+      if (currentX > previousX) {
+        p1X = previousX;
+        p1Y = previousY;
+        p2X = currentX;
+        p2Y = currentY;
+      } else {
+        p1X = currentX;
+        p1Y = currentY;
+        p2X = previousX;
+        p2Y = previousY;
+      }
+
+      if ((currentX < pointX) === (pointX <= previousX) &&
+          (pointY - p1Y) * (p2X - p1X) < (p2Y - p1Y) * (pointX - p1X)) {
+        pointIsInside = !pointIsInside;
+      }
+
+      previousX = currentX;
+      previousY = currentY;
+    }
+
+    return pointIsInside;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -2232,6 +2377,7 @@
     getXYFromPercentWithBezier: getXYFromPercentWithBezier,
     applyTransform: applyTransform,
     shuffle: shuffle,
+    isPointInsidePolyline: isPointInsidePolyline,
     svgNamespace: 'http://www.w3.org/2000/svg'
   };
 
@@ -2703,20 +2849,20 @@
 
   var config = {};
 
-  config.period = 2200;
-  config.displacementWavelengthX = -15;
-  config.displacementWavelengthY = -config.displacementWavelengthX * Math.sqrt(3);
-  config.waveProgressWavelength = 900;
+  config.period = 3200;
+  config.tileDeltaX = -15;
+  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
+  config.wavelength = 900;
 
   config.displacementWavelength =
-      Math.sqrt(config.displacementWavelengthX * config.displacementWavelengthX +
-          config.displacementWavelengthY * config.displacementWavelengthY);
+      Math.sqrt(config.tileDeltaX * config.tileDeltaX +
+          config.tileDeltaY * config.tileDeltaY);
 
   config.twoPeriod = config.period * 2;
   config.halfPeriod = config.period / 2;
 
-  config.twoWaveProgressWavelength = config.waveProgressWavelength * 2;
-  config.halfWaveProgressWavelength = config.waveProgressWavelength / 2;
+  config.twoWaveProgressWavelength = config.wavelength * 2;
+  config.halfWaveProgressWavelength = config.wavelength / 2;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -2738,7 +2884,7 @@
           tile.originalCenterY * tile.originalCenterY) + config.twoWaveProgressWavelength;
 
       tile.waveProgressOffset = -(length % config.twoWaveProgressWavelength -
-          config.waveProgressWavelength) / config.waveProgressWavelength;
+          config.wavelength) / config.wavelength;
     }
   }
 
@@ -2774,8 +2920,8 @@
     tileProgress =
         Math.sin(((((progress + 1 + tile.waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.centerX = tile.originalCenterX + config.displacementWavelengthX * tileProgress;
-    tile.centerY = tile.originalCenterY + config.displacementWavelengthY * tileProgress;
+    tile.centerX = tile.originalCenterX + config.tileDeltaX * tileProgress;
+    tile.centerY = tile.originalCenterY + config.tileDeltaY * tileProgress;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -2829,8 +2975,6 @@
   function cancel() {
     var job = this;
 
-    // TODO:
-
     job.isComplete = true;
   }
 
@@ -2852,8 +2996,11 @@
     job.start = start;
     job.update = update;
     job.cancel = cancel;
+    job.init = function () {
+      initTileProgressOffsets.call(job);
+    };
 
-    initTileProgressOffsets.call(job);
+    job.init();
 
     console.log('WaveAnimationJob created');
   }

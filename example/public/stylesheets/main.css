@@ -12,8 +12,14 @@ body {
 }
 
 #hex-grid-area {
+  position: relative;
   overflow-x: hidden;
   overflow-y: auto;
+  z-index: 0;
+}
+
+div.dg.ac {
+  z-index: 1;
 }
 
 /* TODO: somehow there is a 1px margin at the bottom of the SVG; it must die... */

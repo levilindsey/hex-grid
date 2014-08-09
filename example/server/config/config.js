@@ -18,6 +18,7 @@ config.app.url = 'http://localhost:' + config.app.port;
 
 // The locations of some important files
 config.publicPath = root + '/example/public';
+config.bowerPath = root + '/bower_components';
 config.srcPath = root + '/src';
 config.distPath = root + '/dist';
 config.faviconPath = config.publicPath + '/images/favicon.ico';

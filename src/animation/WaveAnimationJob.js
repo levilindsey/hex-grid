@@ -13,20 +13,20 @@
 
   var config = {};
 
-  config.period = 2200;
-  config.displacementWavelengthX = -15;
-  config.displacementWavelengthY = -config.displacementWavelengthX * Math.sqrt(3);
-  config.waveProgressWavelength = 900;
+  config.period = 3200;
+  config.tileDeltaX = -15;
+  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
+  config.wavelength = 900;
 
   config.displacementWavelength =
-      Math.sqrt(config.displacementWavelengthX * config.displacementWavelengthX +
-          config.displacementWavelengthY * config.displacementWavelengthY);
+      Math.sqrt(config.tileDeltaX * config.tileDeltaX +
+          config.tileDeltaY * config.tileDeltaY);
 
   config.twoPeriod = config.period * 2;
   config.halfPeriod = config.period / 2;
 
-  config.twoWaveProgressWavelength = config.waveProgressWavelength * 2;
-  config.halfWaveProgressWavelength = config.waveProgressWavelength / 2;
+  config.twoWaveProgressWavelength = config.wavelength * 2;
+  config.halfWaveProgressWavelength = config.wavelength / 2;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -48,7 +48,7 @@
           tile.originalCenterY * tile.originalCenterY) + config.twoWaveProgressWavelength;
 
       tile.waveProgressOffset = -(length % config.twoWaveProgressWavelength -
-          config.waveProgressWavelength) / config.waveProgressWavelength;
+          config.wavelength) / config.wavelength;
     }
   }
 
@@ -84,8 +84,8 @@
     tileProgress =
         Math.sin(((((progress + 1 + tile.waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.centerX = tile.originalCenterX + config.displacementWavelengthX * tileProgress;
-    tile.centerY = tile.originalCenterY + config.displacementWavelengthY * tileProgress;
+    tile.centerX = tile.originalCenterX + config.tileDeltaX * tileProgress;
+    tile.centerY = tile.originalCenterY + config.tileDeltaY * tileProgress;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -139,8 +139,6 @@
   function cancel() {
     var job = this;
 
-    // TODO:
-
     job.isComplete = true;
   }
 
@@ -162,8 +160,11 @@
     job.start = start;
     job.update = update;
     job.cancel = cancel;
+    job.init = function () {
+      initTileProgressOffsets.call(job);
+    };
 
-    initTileProgressOffsets.call(job);
+    job.init();
 
     console.log('WaveAnimationJob created');
   }
