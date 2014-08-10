@@ -49,14 +49,46 @@
    * @param {number} index
    */
   function restartWaveAnimation(index) {
-    var waveAnimationJob = hg.controller.waveAnimationJobs[index];
+    var job = controller.waveAnimationJobs[index];
 
-    if (!waveAnimationJob.isComplete) {
-      hg.animator.cancelJob(waveAnimationJob);
+    if (!job.isComplete) {
+      hg.animator.cancelJob(job);
     }
 
-    waveAnimationJob.init();
-    hg.animator.startJob(waveAnimationJob);
+    job.init();
+    hg.animator.startJob(job);
+  }
+
+  /**
+   * Creates a new LinesRadiateAnimationJob based off the tile at the given index.
+   *
+   * @param {number} gridIndex
+   * @param {number} tileIndex
+   */
+  function createLinesRadiateAnimation(gridIndex, tileIndex) {
+//    var job = ;// TODO:
+    hg.animator.startJob(job);
+  }
+
+  /**
+   * Creates a new RandomLIneAnimationJob.
+   *
+   * @param {number} gridIndex
+   */
+  function createRandomLineAnimation(gridIndex) {
+    var job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex]);
+    hg.animator.startJob(job);
+  }
+
+  /**
+   * Creates a new ShimmerRadiateAnimationJob based off the tile at the given index.
+   *
+   * @param {number} gridIndex
+   * @param {number} tileIndex
+   */
+  function createShimmerRadiateAnimation(gridIndex, tileIndex) {
+//    var job = ;// TODO:
+    hg.animator.startJob(job);
   }
 
   /**
@@ -81,6 +113,9 @@
 
   controller.createNewHexGrid = createNewHexGrid;
   controller.restartWaveAnimation = restartWaveAnimation;
+  controller.createLinesRadiateAnimation = createLinesRadiateAnimation;
+  controller.createRandomLineAnimation = createRandomLineAnimation;
+  controller.createShimmerRadiateAnimation = createShimmerRadiateAnimation;
   controller.resize = resize;
 
   // Expose this module

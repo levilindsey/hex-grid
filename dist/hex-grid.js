@@ -32,7 +32,7 @@
   config.tileOuterRadius = 80;
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
-  config.firstRowYOffset = config.tileOuterRadius * 0;
+  config.firstRowYOffset = config.tileOuterRadius * -0.8;
   config.contentDensity = 0.6;
   config.tileMass = 1;
 
@@ -2211,6 +2211,35 @@
   }
 
   /**
+   * Creates a new LinesRadiateAnimationJob based off the tile at the given index.
+   *
+   * @param {number} gridIndex
+   * @param {number} tileIndex
+   */
+  function createLinesRadiateAnimation(gridIndex, tileIndex) {
+    // TODO:
+  }
+
+  /**
+   * Creates a new RandomLIneAnimationJob.
+   *
+   * @param {number} gridIndex
+   */
+  function createRandomLineAnimation(gridIndex) {
+    // TODO:
+  }
+
+  /**
+   * Creates a new ShimmerRadiateAnimationJob based off the tile at the given index.
+   *
+   * @param {number} gridIndex
+   * @param {number} tileIndex
+   */
+  function createShimmerRadiateAnimation(gridIndex, tileIndex) {
+    // TODO:
+  }
+
+  /**
    * Event listener for the window resize event.
    *
    * Resizes all of the hex-grid components.
@@ -2232,6 +2261,9 @@
 
   controller.createNewHexGrid = createNewHexGrid;
   controller.restartWaveAnimation = restartWaveAnimation;
+  controller.createLinesRadiateAnimation = createLinesRadiateAnimation;
+  controller.createRandomLineAnimation = createRandomLineAnimation;
+  controller.createShimmerRadiateAnimation = createShimmerRadiateAnimation;
   controller.resize = resize;
 
   // Expose this module
@@ -3072,6 +3104,8 @@
     console.log('LinesRadiateAnimationJob created');
   }
 
+  LinesRadiateAnimationJob.config = config;
+
   // Expose this module
   if (!window.hg) window.hg = {};
   window.hg.LinesRadiateAnimationJob = LinesRadiateAnimationJob;
@@ -3082,9 +3116,9 @@
 'use strict';
 
 /**
- * This module defines a constructor for RandomLineAnimationJob objects.
+ * This module defines a constructor for LineAnimationJob objects.
  *
- * @module RandomLineAnimationJob
+ * @module LineAnimationJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -3103,11 +3137,27 @@
 
     // TODO:
 //    if (???) {
-//      console.log('RandomLineAnimationJob completed');
+//      console.log('LineAnimationJob completed');
 //
 //      job.isComplete = true;
 //      job.onComplete(true);
 //    }
+  }
+
+  function checkHasReachedEnd() {
+    var job;
+
+    job = this;
+
+    return job.grid.isVertical ?
+         :
+        ;
+
+    // if (isVertical)
+    // d=1...6: n(d) & n(d+1)
+
+    // else
+    // d=1...6: n(d) & n(d+1)
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3117,9 +3167,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this RandomLineAnimationJob as started.
+   * Sets this LineAnimationJob as started.
    *
-   * @this RandomLineAnimationJob
+   * @this LineAnimationJob
    */
   function start() {
     var job = this;
@@ -3131,11 +3181,11 @@
   }
 
   /**
-   * Updates the animation progress of this RandomLineAnimationJob to match the given time.
+   * Updates the animation progress of this LineAnimationJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this RandomLineAnimationJob
+   * @this LineAnimationJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -3148,9 +3198,9 @@
   }
 
   /**
-   * Stops this RandomLineAnimationJob, and returns the element its original form.
+   * Stops this LineAnimationJob, and returns the element its original form.
    *
-   * @this RandomLineAnimationJob
+   * @this LineAnimationJob
    */
   function cancel() {
     var job = this;
@@ -3168,25 +3218,46 @@
    * @global
    * @param {HexGrid} grid
    */
-  function RandomLineAnimationJob(grid) {
+  function LineAnimationJob(grid, tile, corner) {
     var job = this;
 
     job.grid = grid;
     job.startTime = 0;
     job.isComplete = false;
+    job.tile = null;
+    job.direction = null;
+    job.corner = null;
 
     job.start = start;
     job.update = update;
     job.cancel = cancel;
 
-    console.log('RandomLineAnimationJob created');
+    console.log('LineAnimationJob created');
   }
+
+  /**
+   * Creates a LineAnimationJob that is initialized at a tile vertex along the border of the grid.
+   *
+   * @param {HexGrid} grid
+   */
+  function createRandomLineAnimationJob(grid) {
+    var tile, corner, direction;
+
+    tile = ;
+    corner = ;
+    direction = ;
+
+    return new LineAnimationJob(grid, tile, corner, direction);
+  }
+
+  LineAnimationJob.config = config;
+  LineAnimationJob.createRandomLineAnimationJob = createRandomLineAnimationJob;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.RandomLineAnimationJob = RandomLineAnimationJob;
+  window.hg.LineAnimationJob = LineAnimationJob;
 
-  console.log('RandomLineAnimationJob module loaded');
+  console.log('LineAnimationJob module loaded');
 })();
 
 'use strict';
@@ -3291,6 +3362,8 @@
 
     console.log('ShimmerRadiateAnimationJob created');
   }
+
+  ShimmerRadiateAnimationJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};

@@ -16,6 +16,8 @@
 
   /**
    * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   *
+   * @this ShimmerRadiateAnimationJob
    */
   function checkForComplete() {
     var job = this;
@@ -25,7 +27,6 @@
 //      console.log('ShimmerRadiateAnimationJob completed');
 //
 //      job.isComplete = true;
-//      job.onComplete(true);
 //    }
   }
 
@@ -100,6 +101,8 @@
 
     console.log('ShimmerRadiateAnimationJob created');
   }
+
+  ShimmerRadiateAnimationJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};

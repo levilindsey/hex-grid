@@ -53,7 +53,7 @@
   }
 
   /**
-  * Sets up the grid folder within the dat.GUI controller.
+   * Sets up the grid folder within the dat.GUI controller.
    */
   function initGridFolder(parentFolder) {
     var hexGridFolder, colors;
@@ -135,7 +135,7 @@
   }
 
   /**
-  * Sets up the annotations folder within the dat.GUI controller.
+   * Sets up the annotations folder within the dat.GUI controller.
    */
   function initAnnotationsFolder(parentFolder) {
     var hexGridAnnotationsFolder, key, data;
@@ -153,7 +153,7 @@
   }
 
   /**
-  * Sets up the input folder within the dat.GUI controller.
+   * Sets up the input folder within the dat.GUI controller.
    */
   function initInputFolder(parentFolder) {
     var hexInputFolder;
@@ -166,7 +166,7 @@
   }
 
   /**
-  * Sets up the tile folder within the dat.GUI controller.
+   * Sets up the tile folder within the dat.GUI controller.
    */
   function initTileFolder(parentFolder) {
     var hexTileFolder;
@@ -189,42 +189,71 @@
   }
 
   /**
-  * Sets up the lines-radiate-animation folder within the dat.GUI controller.
+   * Sets up the lines-radiate-animation folder within the dat.GUI controller.
    */
   function initLinesRadiateAnimationFolder(parentFolder) {
-    var linesRadiateAnimationFolder;
+    var linesRadiateAnimationFolder, data;
 
     linesRadiateAnimationFolder = parentFolder.addFolder('Radiating Lines');
 
+    data = {
+      'triggerLinesRadiate': createRandomLinesRadiateAnimation
+    };
+
+    linesRadiateAnimationFolder.add(data, 'triggerLinesRadiate');
 //    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, '').onChange(function (value) {
 //      // TODO:
 //    });
+
+    function createRandomLinesRadiateAnimation() {
+      var tileIndex = parseInt(Math.random() * hg.controller.grids[app.main.gridId].tiles.length);
+      hg.controller.createLinesRadiateAnimation(app.main.gridId, tileIndex);
+    }
   }
 
   /**
-  * Sets up the random-line-animation folder within the dat.GUI controller.
+   * Sets up the random-line-animation folder within the dat.GUI controller.
    */
   function initRandomLineAnimationFolder(parentFolder) {
-    var randomLineAnimationFolder;
+    var randomLineAnimationFolder, data;
 
     randomLineAnimationFolder = parentFolder.addFolder('Random Lines');
 
+    data = {
+      'triggerLine': createRandomLineAnimation
+    };
+
+    randomLineAnimationFolder.add(data, 'triggerLine');
 //    randomLineAnimationFolder.add(hg.RandomLinesAnimationJob.config, '').onChange(function (value) {
 //      // TODO:
 //    });
+
+    function createRandomLineAnimation() {
+      hg.controller.createRandomLineAnimation(app.main.gridId);
+    }
   }
 
   /**
-  * Sets up the shimmer-radiate-animation folder within the dat.GUI controller.
+   * Sets up the shimmer-radiate-animation folder within the dat.GUI controller.
    */
   function initShimmerRadiateAnimationFolder(parentFolder) {
-    var shimmerRadiateAnimationFolder;
+    var shimmerRadiateAnimationFolder, data;
 
     shimmerRadiateAnimationFolder = parentFolder.addFolder('Radiating Shimmer');
 
+    data = {
+      'triggerShimmerRadiate': createRandomShimmerRadiateAnimation
+    };
+
+    shimmerRadiateAnimationFolder.add(data, 'triggerShimmerRadiate');
 //    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, '').onChange(function (value) {
 //      // TODO:
 //    });
+
+    function createRandomShimmerRadiateAnimation() {
+      var tileIndex = parseInt(Math.random() * hg.controller.grids[app.main.gridId].tiles.length);
+      hg.controller.createShimmerRadiateAnimation(app.main.gridId, tileIndex);
+    }
   }
 
   /**

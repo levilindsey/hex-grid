@@ -32,7 +32,7 @@
   config.tileOuterRadius = 80;
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
-  config.firstRowYOffset = config.tileOuterRadius * 0;
+  config.firstRowYOffset = config.tileOuterRadius * -0.8;
   config.contentDensity = 0.6;
   config.tileMass = 1;
 
@@ -70,6 +70,12 @@
 
     parentHalfWidth = grid.parent.clientWidth * 0.5;
     parentHeight = grid.parent.clientHeight;
+
+    grid.centerX = parentHalfWidth;
+    grid.centerY = parentHeight * 0.5;
+
+    grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
+        grid.parent.clientWidth : config.targetContentAreaWidth;
 
     if (grid.isVertical) {
       grid.rowDeltaY = config.tileOuterRadius * 1.5 + config.tileGap * config.sqrtThreeOverTwo;
@@ -245,6 +251,10 @@
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
             tileIndex, isMarginTile, isBorderTile, config.tileMass);
+
+        if (isBorderTile) {
+          grid.borderTiles.push(grid.tiles[tileIndex]);
+        }
 
         // Is the current tile within the content column?
         if (!isMarginTile) {
@@ -475,11 +485,7 @@
 
     grid = this;
 
-    grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
-        grid.parent.clientWidth : config.targetContentAreaWidth;
-
     clearSvg.call(grid);
-
     computeGridParameters.call(grid);
     createTiles.call(grid);
 
@@ -602,8 +608,11 @@
 
     grid.svg = null;
     grid.tiles = [];
+    grid.borderTiles = null;
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
+    grid.centerX = Number.NaN;
+    grid.centerY = Number.NaN;
 
     grid.annotations = new hg.HexGridAnnotations(grid);
 
