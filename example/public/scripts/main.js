@@ -32,8 +32,8 @@
   }
 
   function initDatGui() {
-    var gui, hexGridFolder, hexGridAnnotationsFolder, hexInputFolder, hexTileFolder,
-        animationsFolder, linesRadiateAnimationFolder, randomLineAnimationFolder,
+    var key, parameters, gui, hexGridFolder, hexGridAnnotationsFolder, hexInputFolder,
+        hexTileFolder, animationsFolder, linesRadiateAnimationFolder, randomLineAnimationFolder,
         shimmerRadiateAnimationFolder, waveAnimationFolder;
 
     gui = new dat.GUI();
@@ -46,9 +46,14 @@
 //    });
 
     hexGridAnnotationsFolder = gui.addFolder('Annotations');
-//    hexGridAnnotationsFolder.add(parameters, '').onChange(function (value) {
-//      // TODO:
-//    });
+    for (key in hg.HexGridAnnotations.config.annotations) {
+      parameters = {};
+      parameters[key] = hg.HexGridAnnotations.config.annotations[key].enabled;
+
+      hexGridAnnotationsFolder.add(parameters, key).onChange(function (value) {
+            hg.controller.grids[gridId].annotations.toggleAnnotationEnabled(this.property, value);
+          });
+    }
 
     hexInputFolder = gui.addFolder('Input');
 //    hexInputFolder.add(parameters, '').onChange(function (value) {
@@ -80,13 +85,21 @@
 //    });
 
     waveAnimationFolder = animationsFolder.addFolder('Wave');
-    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'period');
-    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'wavelength')
+    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'period', 1, 10000);
+    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'wavelength', 1, 2000)
         .onChange(function () {
           hg.controller.restartWaveAnimation(gridId);
         });
-    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'tileDeltaX');
-    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'tileDeltaY');
+    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'tileDeltaX', -300, 300);
+    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'tileDeltaY', -300, 300);
+    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'originX', -500, 3000)
+        .onChange(function () {
+          hg.controller.restartWaveAnimation(gridId);
+        });
+    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'originY', -500, 3000)
+        .onChange(function () {
+          hg.controller.restartWaveAnimation(gridId);
+        });
 
     // TODO: add an additional control to completely hide the dat.GUI controls
   }

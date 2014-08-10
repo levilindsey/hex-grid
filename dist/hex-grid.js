@@ -597,8 +597,104 @@
   config.forceLineLengthMultiplier = 4000;
   config.velocityLineLengthMultiplier = 300;
 
+  config.annotations = {
+    'contentTiles': {
+      enabled: true,
+      create: fillContentTiles,
+      destroy: unfillContentTiles,
+      update: function () {/* Do nothing*/}
+    },
+    'transparentTiles': {
+      enabled: true,
+      create: makeTilesTransparent,
+      destroy: makeTilesVisible,
+      update: function () {/* Do nothing*/}
+    },
+    'tileAnchorCenters': {
+      enabled: false,
+      create: createTileAnchorCenters,
+      destroy: destroyTileAnchorCenters,
+      update: updateTileAnchorCenters
+    },
+    'tileParticleCenters': {
+      enabled: false,
+      create: createTileParticleCenters,
+      destroy: destroyTileParticleCenters,
+      update: updateTileParticleCenters
+    },
+    'tileDisplacementColors': {
+      enabled: true,
+      create: createTileDisplacementColors,
+      destroy: destroyTileDisplacementColors,
+      update: updateTileDisplacementColors
+    },
+    'tileInnerRadii': {
+      enabled: false,
+      create: createTileInnerRadii,
+      destroy: destroyTileInnerRadii,
+      update: updateTileInnerRadii
+    },
+    'tileOuterRadii': {
+      enabled: false,
+      create: createTileOuterRadii,
+      destroy: destroyTileOuterRadii,
+      update: updateTileOuterRadii
+    },
+    'tileIndices': {
+      enabled: false,
+      create: createTileIndices,
+      destroy: destroyTileIndices,
+      update: updateTileIndices
+    },
+    'tileForces': {
+      enabled: false,
+      create: createTileForces,
+      destroy: destroyTileForces,
+      update: updateTileForces
+    },
+    'tileVelocities': {
+      enabled: false,
+      create: createTileVelocities,
+      destroy: destroyTileVelocities,
+      update: updateTileVelocities
+    },
+    'tileNeighborConnections': {
+      enabled: true,
+      create: createTileNeighborConnections,
+      destroy: destroyTileNeighborConnections,
+      update: updateTileNeighborConnections
+    },
+    'contentAreaGuidelines': {
+      enabled: false,
+      create: drawContentAreaGuideLines,
+      destroy: removeContentAreaGuideLines,
+      update:  function () {/* Do nothing*/}
+    }
+  };
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
+
+  // --------------------------------------------------- //
+  // Annotation creation functions
+
+  /**
+   * Computes spatial parameters of the tile annotations and creates SVG elements to represent
+   * these annotations.
+   *
+   * @this HexGridAnnotations
+   */
+  function createAnnotations() {
+    var annotations, key;
+
+    annotations = this;
+
+    for (key in annotations.annotations) {
+      if (annotations.annotations[key].enabled) {
+        annotations.annotations[key].create.call(annotations);
+      }
+    }
+  }
 
   /**
    * Draws content tiles with a different color.
@@ -628,7 +724,7 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.grid.tiles[i].element.setAttribute('fill', 'transparent');
+      annotations.grid.tiles[i].element.setAttribute('opacity', '0');
     }
   }
 
@@ -641,6 +737,7 @@
     var annotations, line;
 
     annotations = this;
+    annotations.contentAreaGuideLines = [];
 
     line = document.createElementNS(hg.util.svgNamespace, 'line');
     line.setAttribute('x1', annotations.grid.contentAreaLeft);
@@ -650,6 +747,7 @@
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
     annotations.grid.svg.appendChild(line);
+    annotations.contentAreaGuideLines[0] = line;
 
     line = document.createElementNS(hg.util.svgNamespace, 'line');
     line.setAttribute('x1', annotations.grid.contentAreaRight);
@@ -659,6 +757,7 @@
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
     annotations.grid.svg.appendChild(line);
+    annotations.contentAreaGuideLines[1] = line;
   }
 
   /**
@@ -674,7 +773,7 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileParticleCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
-      annotations.tileParticleCenters[i].setAttribute('r', '2');
+      annotations.tileParticleCenters[i].setAttribute('r', '4');
       annotations.tileParticleCenters[i].setAttribute('fill', 'gray');
       annotations.grid.svg.appendChild(annotations.tileParticleCenters[i]);
     }
@@ -701,6 +800,27 @@
       annotations.tileAnchorCenters[i].setAttribute('r', '4');
       annotations.tileAnchorCenters[i].setAttribute('fill', 'white');
       annotations.grid.svg.appendChild(annotations.tileAnchorCenters[i]);
+    }
+  }
+
+  /**
+   * Creates a circle over each tile at its anchor position, which will be used to show colors
+   * that indicate its displacement from its original position.
+   *
+   * @this HexGridAnnotations
+   */
+  function createTileDisplacementColors() {
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.tileDisplacementCircles = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileDisplacementCircles[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileDisplacementCircles[i].setAttribute('r', '80');
+      annotations.tileDisplacementCircles[i].setAttribute('opacity', '0.4');
+      annotations.tileDisplacementCircles[i].setAttribute('fill', 'white');
+      annotations.grid.svg.appendChild(annotations.tileDisplacementCircles[i]);
     }
   }
 
@@ -830,6 +950,236 @@
     }
   }
 
+  // --------------------------------------------------- //
+  // Annotation destruction functions
+
+  /**
+   * Destroys the SVG elements used to represent grid annotations.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyAnnotations() {
+    var annotations, key;
+
+    annotations = this;
+
+    for (key in annotations.annotations) {
+      annotations.annotations[key].destroy.call(annotations);
+    }
+  }
+
+  /**
+   * Draws content tiles with a different color.
+   *
+   * @this HexGridAnnotations
+   */
+  function unfillContentTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      if (annotations.grid.tiles[i].holdsContent) {
+        annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+      }
+    }
+  }
+
+  /**
+   * Draws all of the tiles as transparent.
+   *
+   * @this HexGridAnnotations
+   */
+  function makeTilesVisible() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.grid.tiles[i].element.setAttribute('opacity', '1');
+    }
+  }
+
+  /**
+   * Draws vertical guidelines along the left and right sides of the main content area.
+   *
+   * @this HexGridAnnotations
+   */
+  function removeContentAreaGuideLines() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.contentAreaGuideLines.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.contentAreaGuideLines[i]);
+    }
+
+    annotations.contentAreaGuideLines = [];
+  }
+
+  /**
+   * Destroys a dot at the center of each tile at its current position.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyTileParticleCenters() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.tileParticleCenters.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.tileParticleCenters[i]);
+    }
+
+    annotations.tileParticleCenters = [];
+  }
+
+  /**
+   * Destroys a dot at the center of each tile at its anchor position.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyTileAnchorCenters() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.tileAnchorLines.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.tileAnchorLines[i]);
+      annotations.grid.svg.removeChild(annotations.tileAnchorCenters[i]);
+    }
+
+    annotations.tileAnchorLines = [];
+    annotations.tileAnchorCenters = [];
+  }
+
+  /**
+   * Destroys a circle over each tile at its anchor position, which will be used to show colors
+   * that indicate its displacement from its original position.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyTileDisplacementColors() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.tileDisplacementCircles.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.tileDisplacementCircles[i]);
+    }
+
+    annotations.tileDisplacementCircles = [];
+  }
+
+  /**
+   * Destroys the inner radius of each tile.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyTileInnerRadii() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.tileInnerRadii.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.tileInnerRadii[i]);
+    }
+
+    annotations.tileInnerRadii = [];
+  }
+
+  /**
+   * Destroys the outer radius of each tile.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyTileOuterRadii() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.tileOuterRadii.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.tileOuterRadii[i]);
+    }
+
+    annotations.tileOuterRadii = [];
+  }
+
+  /**
+   * Destroys lines connecting each tile to each of its neighbors.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyTileNeighborConnections() {
+    var annotations, i, j, iCount, jCount;
+
+    annotations = this;
+
+    for (i = 0, iCount = annotations.neighborLines.length; i < iCount; i += 1) {
+      for (j = 0, jCount = annotations.neighborLines[i].length; j < jCount; j += 1) {
+        if (annotations.neighborLines[i][j]) {
+          annotations.grid.svg.removeChild(annotations.neighborLines[i][j]);
+        }
+      }
+    }
+
+    annotations.neighborLines = [];
+  }
+
+  /**
+   * Destroys lines representing the cumulative force acting on each tile.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyTileForces() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.forceLines.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.forceLines[i]);
+    }
+
+    annotations.forceLines = [];
+  }
+
+  /**
+   * Destroys lines representing the velocity of each tile.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyTileVelocities() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.velocityLines.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.velocityLines[i]);
+    }
+
+    annotations.velocityLines = [];
+  }
+
+  /**
+   * Destroys the index of each tile.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyTileIndices() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.indexTexts.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.indexTexts[i]);
+    }
+
+    annotations.indexTexts = [];
+  }
+
+  // --------------------------------------------------- //
+  // Annotation updating functions
+
   /**
    * Updates a dot at the center of each tile at its current position.
    *
@@ -867,28 +1217,29 @@
   }
 
   /**
-   * Updates the color of a dot at the center of each tile at its anchor position according to its
+   * Updates the color of a circle over each tile at its anchor position according to its
    * displacement from its original position.
    *
    * @this HexGridAnnotations
    */
-  function updateTileAnchorCenterColorsWithDisplacement() {
+  function updateTileDisplacementColors() {
     var annotations, i, count, deltaX, deltaY, angle, distance, colorString;
 
     annotations = this;
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      deltaX = annotations.grid.tiles[i].centerX - annotations.grid.tiles[i].originalCenterX;
-      deltaY = annotations.grid.tiles[i].centerY - annotations.grid.tiles[i].originalCenterY;
+      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalCenterX;
+      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalCenterY;
       angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       colorString = 'hsl(' + angle + ',' +
           distance / hg.WaveAnimationJob.config.displacementWavelength * 100 + '%,80%)';
 
-      annotations.tileAnchorCenters[i].setAttribute('fill', colorString);
-
-      annotations.tileAnchorCenters[i].setAttribute('r', '80');
-      annotations.tileAnchorCenters[i].setAttribute('opacity', '0.4');
+      annotations.tileDisplacementCircles[i].setAttribute('fill', colorString);
+      annotations.tileDisplacementCircles[i]
+          .setAttribute('cx', annotations.grid.tiles[i].particle.px);
+      annotations.tileDisplacementCircles[i]
+          .setAttribute('cy', annotations.grid.tiles[i].particle.py);
     }
   }
 
@@ -1008,7 +1359,7 @@
   // Public dynamic functions
 
   /**
-   * Computes spatial parameters of the tile annotations.
+   * Re-computes annotation properties.
    *
    * @this HexGridAnnotations
    */
@@ -1017,17 +1368,8 @@
 
     annotations = this;
 
-    fillContentTiles.call(annotations);
-//    makeTilesTransparent.call(annotations);
-    createTileAnchorCenters.call(annotations);
-//    createTileParticleCenters.call(annotations);
-//    createTileInnerRadii.call(annotations);
-//    createTileOuterRadii.call(annotations);
-//    createTileIndices.call(annotations);
-    createTileVelocities.call(annotations);
-    createTileForces.call(annotations);
-//    createTileNeighborConnections.call(annotations);
-//    drawContentAreaGuideLines.call(annotations);
+    destroyAnnotations.call(annotations);
+    createAnnotations.call(annotations);
   }
 
   /**
@@ -1038,19 +1380,36 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
+    var annotations, key;
+
+    annotations = this;
+
+    for (key in annotations.annotations) {
+      if (annotations.annotations[key].enabled) {
+        annotations.annotations[key].update.call(annotations);
+      }
+    }
+  }
+
+  /**
+   * Toggles whether the given annotation is enabled.
+   *
+   * @param {string} annotation
+   * @param {boolean} enabled
+   * @throws {Error}
+   */
+  function toggleAnnotationEnabled(annotation, enabled) {
     var annotations;
 
     annotations = this;
 
-    updateTileAnchorCenters.call(annotations);
-//    updateTileAnchorCenterColorsWithDisplacement.call(annotations);
-//    updateTileParticleCenters.call(annotations);
-//    updateTileInnerRadii.call(annotations);
-//    updateTileOuterRadii.call(annotations);
-//    updateTileIndices.call(annotations);
-    updateTileForces.call(annotations);
-    updateTileVelocities.call(annotations);
-//    updateTileNeighborConnections.call(annotations);
+    annotations.annotations[annotation].enabled = enabled;
+
+    if (enabled) {
+      annotations.annotations[annotation].create.call(annotations);
+    } else {
+      annotations.annotations[annotation].destroy.call(annotations);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -1067,7 +1426,21 @@
     var annotations = this;
 
     annotations.grid = grid;
+    annotations.annotations = hg.util.shallowCopy(config.annotations);
 
+    annotations.contentAreaGuideLines = [];
+    annotations.tileParticleCenters = [];
+    annotations.tileAnchorLines = [];
+    annotations.tileAnchorCenters = [];
+    annotations.tileDisplacementCircles = [];
+    annotations.tileInnerRadii = [];
+    annotations.tileOuterRadii = [];
+    annotations.neighborLines = [];
+    annotations.forceLines = [];
+    annotations.velocityLines = [];
+    annotations.indexTexts = [];
+
+    annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
     annotations.update = update;
     annotations.resize = resize;
   }
@@ -2345,6 +2718,24 @@
     return pointIsInside;
   }
 
+  /**
+   * Performs a shallow copy of the given object.
+   *
+   * @param {Object} object
+   * @returns {Object}
+   */
+  function shallowCopy(object) {
+    var key, cloneObject;
+
+    cloneObject = {};
+
+    for (key in object) {
+      cloneObject[key] = object[key];
+    }
+
+    return cloneObject;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -2378,6 +2769,7 @@
     applyTransform: applyTransform,
     shuffle: shuffle,
     isPointInsidePolyline: isPointInsidePolyline,
+    shallowCopy: shallowCopy,
     svgNamespace: 'http://www.w3.org/2000/svg'
   };
 
@@ -2853,6 +3245,8 @@
   config.tileDeltaX = -15;
   config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
   config.wavelength = 900;
+  config.originX = 0;
+  config.originY = 0;
 
   config.displacementWavelength =
       Math.sqrt(config.tileDeltaX * config.tileDeltaX +
@@ -2873,36 +3267,20 @@
    * @this WaveAnimationJob
    */
   function initTileProgressOffsets() {
-    var job, i, count, tile, length;
+    var job, i, count, tile, length, deltaX, deltaY;
 
     job = this;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
-      length = Math.sqrt(tile.originalCenterX * tile.originalCenterX +
-          tile.originalCenterY * tile.originalCenterY) + config.twoWaveProgressWavelength;
+      deltaX = tile.originalCenterX - config.originX;
+      deltaY = tile.originalCenterY - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.twoWaveProgressWavelength;
 
       tile.waveProgressOffset = -(length % config.twoWaveProgressWavelength -
           config.wavelength) / config.wavelength;
     }
-  }
-
-  /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
-   *
-   * @this WaveAnimationJob
-   */
-  function checkForComplete() {
-    var job = this;
-
-    // TODO:
-//    if (???) {
-//      console.log('WaveAnimationJob completed');
-//
-//      job.isComplete = true;
-//      job.onComplete(true);
-//    }
   }
 
   /**
@@ -2940,8 +3318,6 @@
 
     job.startTime = Date.now();
     job.isComplete = false;
-
-    // TODO:
   }
 
   /**
@@ -2963,8 +3339,6 @@
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       updateTile.call(job, progress, job.grid.tiles[i]);
     }
-
-    checkForComplete.call(job);
   }
 
   /**

@@ -514,6 +514,24 @@
     return pointIsInside;
   }
 
+  /**
+   * Performs a shallow copy of the given object.
+   *
+   * @param {Object} object
+   * @returns {Object}
+   */
+  function shallowCopy(object) {
+    var key, cloneObject;
+
+    cloneObject = {};
+
+    for (key in object) {
+      cloneObject[key] = object[key];
+    }
+
+    return cloneObject;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -547,6 +565,7 @@
     applyTransform: applyTransform,
     shuffle: shuffle,
     isPointInsidePolyline: isPointInsidePolyline,
+    shallowCopy: shallowCopy,
     svgNamespace: 'http://www.w3.org/2000/svg'
   };
 

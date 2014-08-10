@@ -17,6 +17,8 @@
   config.tileDeltaX = -15;
   config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
   config.wavelength = 900;
+  config.originX = 0;
+  config.originY = 0;
 
   config.displacementWavelength =
       Math.sqrt(config.tileDeltaX * config.tileDeltaX +
@@ -37,36 +39,20 @@
    * @this WaveAnimationJob
    */
   function initTileProgressOffsets() {
-    var job, i, count, tile, length;
+    var job, i, count, tile, length, deltaX, deltaY;
 
     job = this;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
-      length = Math.sqrt(tile.originalCenterX * tile.originalCenterX +
-          tile.originalCenterY * tile.originalCenterY) + config.twoWaveProgressWavelength;
+      deltaX = tile.originalCenterX - config.originX;
+      deltaY = tile.originalCenterY - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.twoWaveProgressWavelength;
 
       tile.waveProgressOffset = -(length % config.twoWaveProgressWavelength -
           config.wavelength) / config.wavelength;
     }
-  }
-
-  /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
-   *
-   * @this WaveAnimationJob
-   */
-  function checkForComplete() {
-    var job = this;
-
-    // TODO:
-//    if (???) {
-//      console.log('WaveAnimationJob completed');
-//
-//      job.isComplete = true;
-//      job.onComplete(true);
-//    }
   }
 
   /**
@@ -104,8 +90,6 @@
 
     job.startTime = Date.now();
     job.isComplete = false;
-
-    // TODO:
   }
 
   /**
@@ -127,8 +111,6 @@
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       updateTile.call(job, progress, job.grid.tiles[i]);
     }
-
-    checkForComplete.call(job);
   }
 
   /**
