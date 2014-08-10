@@ -8,7 +8,12 @@
  */
 (function () {
 
-  var parameters = {};
+  var parameters = {},
+      config = {};
+
+  config.datGuiWidth = 300;
+
+  parameters.config = config;
 
   if (!window.app) window.app = {};
   app.parameters = parameters;
@@ -22,10 +27,12 @@
     var gui, miscellaneousFolder, animationsFolder;
 
     gui = new dat.GUI();
+    gui.width = config.datGuiWidth;
 
     // --- Miscellaneous grid properties --- //
 
     miscellaneousFolder = gui.addFolder('Misc');
+//    miscellaneousFolder.open();
 
     initAnnotationsFolder(miscellaneousFolder);
     initGridFolder(miscellaneousFolder);
@@ -35,6 +42,7 @@
     // --- Animation properties --- //
 
     animationsFolder = gui.addFolder('Animations');
+    animationsFolder.open();
 
     initWaveAnimationFolder(animationsFolder);
     initLinesRadiateAnimationFolder(animationsFolder);
@@ -64,6 +72,20 @@
       l: hg.HexGrid.config.tileLightness * 0.01
     });
 
+    hexGridFolder.add(hg.controller.grids[app.main.gridId], 'isVertical')
+        .onChange(function () {
+          hg.controller.resize();
+        });
+    hexGridFolder.add(hg.HexGrid.config, 'tileOuterRadius', 10, 400)
+        .onChange(function () {
+          hg.HexGrid.config.computeDependentValues();
+          hg.controller.resize();
+        });
+    hexGridFolder.add(hg.HexGrid.config, 'tileGap', -50, 100)
+        .onChange(function () {
+          hg.HexGrid.config.computeDependentValues();
+          hg.controller.resize();
+        });
     hexGridFolder.addColor(colors, 'backgroundColor')
         .onChange(function () {
           var color = hg.util.hsvToHsl(colors.backgroundColor);
@@ -86,16 +108,6 @@
           if (hg.HexGridAnnotations.config.annotations['contentTiles'].enabled) {
             hg.controller.grids[app.main.gridId].annotations.toggleAnnotationEnabled('contentTiles', true);
           }
-        });
-    hexGridFolder.add(hg.HexGrid.config, 'tileOuterRadius', 10, 400)
-        .onChange(function () {
-          hg.HexGrid.config.computeDependentValues();
-          hg.controller.resize();
-        });
-    hexGridFolder.add(hg.HexGrid.config, 'tileGap', -50, 100)
-        .onChange(function () {
-          hg.HexGrid.config.computeDependentValues();
-          hg.controller.resize();
         });
     hexGridFolder.add(hg.HexGrid.config, 'firstRowYOffset', -100, 100)
         .onChange(function () {
@@ -161,29 +173,19 @@
 
     hexTileFolder = parentFolder.addFolder('Tiles');
 
-//    hexTileFolder.add(hg.HexTile.config, '').onChange(function (value) {
-//      // TODO:
-//    });
-
-    hexTileFolder.add(hg.HexGrid.config, 'tileMass', 500, 1500)
-        .onChange(function () {
-          hg.controller.resize();// TODO: don't resize; add an update function instead
+    hexTileFolder.add(hg.HexTile.config, 'dragCoeff', 0.000001, 0.999999);
+    hexTileFolder.add(hg.HexTile.config, 'neighborSpringCoeff', 0.000001, 0.009999);
+    hexTileFolder.add(hg.HexTile.config, 'neighborDampingCoeff', 0.000001, 0.009999);
+    hexTileFolder.add(hg.HexTile.config, 'innerAnchorSpringCoeff', 0.000001, 0.009999);
+    hexTileFolder.add(hg.HexTile.config, 'innerAnchorDampingCoeff', 0.000001, 0.009999);
+    hexTileFolder.add(hg.HexTile.config, 'borderAnchorSpringCoeff', 0.000001, 0.009999);
+    hexTileFolder.add(hg.HexTile.config, 'borderAnchorDampingCoeff', 0.000001, 0.009999);
+    hexTileFolder.add(hg.HexTile.config, 'forceSuppressionLowerThreshold', 0.000001, 0.009999);
+    hexTileFolder.add(hg.HexTile.config, 'velocitySuppressionLowerThreshold', 0.000001, 0.009999);
+    hexTileFolder.add(hg.HexGrid.config, 'tileMass', 0.1, 10)
+        .onChange(function (value) {
+          hg.controller.grids[app.main.gridId].updateTileMass(value);
         });
-
-    //TODO/////////////////////////////////////////////////////////////////////////
-//    config.coeffOfDrag = 0.01;
-//
-//    config.neighborCoeffOfSpring = 0.00001;
-//    config.neighborCoeffOfDamping = 0.001;
-//
-//    config.innerAnchorCoeffOfSpring = 0.00004;
-//    config.innerAnchorCoeffOfDamping = 0.001;
-//
-//    config.borderAnchorCoeffOfSpring = 0.00004;
-//    config.borderAnchorCoeffOfDamping = 0.001;
-//
-//    config.forceSuppressionLowerThreshold = 0.0005;
-//    config.velocitySuppressionLowerThreshold = 0.0005;
   }
 
   /**
@@ -232,6 +234,7 @@
     var waveAnimationFolder;
 
     waveAnimationFolder = parentFolder.addFolder('Wave');
+    waveAnimationFolder.open();
 
     waveAnimationFolder.add(hg.WaveAnimationJob.config, 'period', 1, 10000);
     waveAnimationFolder.add(hg.WaveAnimationJob.config, 'wavelength', 1, 2000)

@@ -339,7 +339,7 @@
 
         // Is this the last column?
         if (columnIndex === columnCount - 1) {
-          neighborDeltaIndices[2] = Number.NaN;
+          neighborDeltaIndices[1] = Number.NaN;
         }
       }
 
@@ -466,7 +466,7 @@
   // Public dynamic functions
 
   /**
-   * Computes spatial parameters of the tiles in the grid.
+   * Computes spatial parameters of the tiles in this grid.
    *
    * @this HexGrid
    */
@@ -491,7 +491,7 @@
   }
 
   /**
-   * Sets the color of the grid's background.
+   * Sets the color of this grid's background.
    *
    * @this HexGrid
    */
@@ -505,7 +505,7 @@
   }
 
   /**
-   * Sets the color of the grid's tiles.
+   * Sets the color of this grid's tiles.
    *
    * @this HexGrid
    */
@@ -516,6 +516,22 @@
 
     for (i = 0, count = grid.tiles.length; i < count; i += 1) {
       grid.tiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+    }
+  }
+
+  /**
+   * Sets the mass of this grid's tiles.
+   *
+   * @this HexGrid
+   * @param {number} mass
+   */
+  function updateTileMass(mass) {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tiles[i].particle.m = mass;
     }
   }
 
@@ -571,7 +587,7 @@
    * @constructor
    * @param {HTMLElement} parent
    * @param {Array.<Object>} tileData
-   * @param {boolean} isVertical
+   * @param {boolean} [isVertical]
    */
   function HexGrid(parent, tileData, isVertical) {
     var grid = this;
@@ -597,6 +613,7 @@
     grid.cancel = cancel;
     grid.updateBackgroundColor = updateBackgroundColor;
     grid.updateTileColor = updateTileColor;
+    grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
 
     createSvg.call(grid);
@@ -1640,16 +1657,16 @@
   config = {};
 
   // TODO: play with these
-  config.coeffOfDrag = 0.01;
+  config.dragCoeff = 0.01;
 
-  config.neighborCoeffOfSpring = 0.00001;
-  config.neighborCoeffOfDamping = 0.001;
+  config.neighborSpringCoeff = 0.00001;
+  config.neighborDampingCoeff = 0.001;
 
-  config.innerAnchorCoeffOfSpring = 0.00004;
-  config.innerAnchorCoeffOfDamping = 0.001;
+  config.innerAnchorSpringCoeff = 0.00004;
+  config.innerAnchorDampingCoeff = 0.001;
 
-  config.borderAnchorCoeffOfSpring = 0.00004;
-  config.borderAnchorCoeffOfDamping = 0.001;
+  config.borderAnchorSpringCoeff = 0.00004;
+  config.borderAnchorDampingCoeff = 0.001;
 
   config.forceSuppressionLowerThreshold = 0.0005;
   config.velocitySuppressionLowerThreshold = 0.0005;
@@ -1891,8 +1908,8 @@
       // --- Accumulate forces --- //
 
       // --- Drag force --- //
-      tile.particle.forceAccumulatorX += -config.coeffOfDrag * tile.particle.vx;
-      tile.particle.forceAccumulatorY += -config.coeffOfDrag * tile.particle.vy;
+      tile.particle.forceAccumulatorX += -config.dragCoeff * tile.particle.vx;
+      tile.particle.forceAccumulatorY += -config.dragCoeff * tile.particle.vy;
 
       // --- Spring forces from neighbor tiles --- //
       for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
@@ -1913,8 +1930,8 @@
             dotProd = lx * lDotX + ly * lDotY;
             length = Math.sqrt(lx * lx + ly * ly);
 
-            temp = (config.neighborCoeffOfSpring * (length - neighbor.restLength) +
-                config.neighborCoeffOfDamping * dotProd / length) / length;
+            temp = (config.neighborSpringCoeff * (length - neighbor.restLength) +
+                config.neighborDampingCoeff * dotProd / length) / length;
             springForceX = lx * temp;
             springForceY = ly * temp;
 
@@ -1939,10 +1956,10 @@
         dotProd = lx * lDotX + ly * lDotY;
 
         if (tile.isBorderTile) {
-          temp = (config.borderAnchorCoeffOfSpring * length + config.borderAnchorCoeffOfDamping *
+          temp = (config.borderAnchorSpringCoeff * length + config.borderAnchorDampingCoeff *
               dotProd / length) / length;
         } else {
-          temp = (config.innerAnchorCoeffOfSpring * length + config.innerAnchorCoeffOfDamping *
+          temp = (config.innerAnchorSpringCoeff * length + config.innerAnchorDampingCoeff *
               dotProd / length) / length;
         }
 

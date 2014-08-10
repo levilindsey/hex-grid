@@ -339,7 +339,7 @@
 
         // Is this the last column?
         if (columnIndex === columnCount - 1) {
-          neighborDeltaIndices[2] = Number.NaN;
+          neighborDeltaIndices[1] = Number.NaN;
         }
       }
 
@@ -466,7 +466,7 @@
   // Public dynamic functions
 
   /**
-   * Computes spatial parameters of the tiles in the grid.
+   * Computes spatial parameters of the tiles in this grid.
    *
    * @this HexGrid
    */
@@ -491,7 +491,7 @@
   }
 
   /**
-   * Sets the color of the grid's background.
+   * Sets the color of this grid's background.
    *
    * @this HexGrid
    */
@@ -505,7 +505,7 @@
   }
 
   /**
-   * Sets the color of the grid's tiles.
+   * Sets the color of this grid's tiles.
    *
    * @this HexGrid
    */
@@ -516,6 +516,22 @@
 
     for (i = 0, count = grid.tiles.length; i < count; i += 1) {
       grid.tiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+    }
+  }
+
+  /**
+   * Sets the mass of this grid's tiles.
+   *
+   * @this HexGrid
+   * @param {number} mass
+   */
+  function updateTileMass(mass) {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tiles[i].particle.m = mass;
     }
   }
 
@@ -571,7 +587,7 @@
    * @constructor
    * @param {HTMLElement} parent
    * @param {Array.<Object>} tileData
-   * @param {boolean} isVertical
+   * @param {boolean} [isVertical]
    */
   function HexGrid(parent, tileData, isVertical) {
     var grid = this;
@@ -597,6 +613,7 @@
     grid.cancel = cancel;
     grid.updateBackgroundColor = updateBackgroundColor;
     grid.updateTileColor = updateTileColor;
+    grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
 
     createSvg.call(grid);
