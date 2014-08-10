@@ -17,18 +17,6 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
-  /**
-   * Event listener for the window resize event.
-   *
-   * Resizes all of the hex-grid components.
-   */
-  function resize() {
-    controller.grids.forEach(function (grid, index) {
-      grid.resize();
-      restartWaveAnimation(index);
-    });
-  }
-
   // ------------------------------------------------------------------------------------------- //
   // Public static functions
 
@@ -71,6 +59,18 @@
     hg.animator.startJob(waveAnimationJob);
   }
 
+  /**
+   * Event listener for the window resize event.
+   *
+   * Resizes all of the hex-grid components.
+   */
+  function resize() {
+    controller.grids.forEach(function (grid, index) {
+      grid.resize();
+      restartWaveAnimation(index);
+    });
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this singleton
 
@@ -81,6 +81,7 @@
 
   controller.createNewHexGrid = createNewHexGrid;
   controller.restartWaveAnimation = restartWaveAnimation;
+  controller.resize = resize;
 
   // Expose this module
   if (!window.hg) window.hg = {};

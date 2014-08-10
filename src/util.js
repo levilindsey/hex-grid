@@ -532,6 +532,36 @@
     return cloneObject;
   }
 
+  /**
+   * Converts the given HSL color values to HSV color values.
+   *
+   * @param {{h:number,s:number,l:number}} hsl
+   * @returns {{h:number,s:number,v:number}}
+   */
+  function hslToHsv(hsl) {
+    var temp = hsl.s * (hsl.l < 0.5 ? hsl.l : 1 - hsl.l);
+    return {
+      h: hsl.h,
+      s: 2 * temp / (hsl.l + temp),
+      v: hsl.l + temp
+    };
+  }
+
+  /**
+   * Converts the given HSV color values to HSL color values.
+   *
+   * @param {{h:number,s:number,v:number}} hsv
+   * @returns {{h:number,s:number,l:number}}
+   */
+  function hsvToHsl(hsv) {
+    var temp = (2 - hsv.s) * hsv.v;
+    return {
+      h: hsv.h,
+      s: hsv.s * hsv.v / (temp < 1 ? temp : 1.9999999 - temp),
+      l: temp * 0.5
+    };
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -566,6 +596,8 @@
     shuffle: shuffle,
     isPointInsidePolyline: isPointInsidePolyline,
     shallowCopy: shallowCopy,
+    hsvToHsl: hsvToHsl,
+    hslToHsv: hslToHsv,
     svgNamespace: 'http://www.w3.org/2000/svg'
   };
 

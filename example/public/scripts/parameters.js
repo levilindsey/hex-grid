@@ -48,28 +48,93 @@
   * Sets up the grid folder within the dat.GUI controller.
    */
   function initGridFolder(parentFolder) {
-    var hexGridFolder;
+    var hexGridFolder, colors;
 
     hexGridFolder = parentFolder.addFolder('Grid');
 
-//    hexGridFolder.add(parameters, '').onChange(function (value) {
-//      // TODO:
-//    });
+    colors = {};
+    colors.backgroundColor = hg.util.hslToHsv({
+      h: hg.HexGrid.config.backgroundHue,
+      s: hg.HexGrid.config.backgroundSaturation * 0.01,
+      l: hg.HexGrid.config.backgroundLightness * 0.01
+    });
+    colors.tileColor = hg.util.hslToHsv({
+      h: hg.HexGrid.config.tileHue,
+      s: hg.HexGrid.config.tileSaturation * 0.01,
+      l: hg.HexGrid.config.tileLightness * 0.01
+    });
+
+    hexGridFolder.addColor(colors, 'backgroundColor')
+        .onChange(function () {
+          var color = hg.util.hsvToHsl(colors.backgroundColor);
+
+          hg.HexGrid.config.backgroundHue = color.h;
+          hg.HexGrid.config.backgroundSaturation = color.s * 100;
+          hg.HexGrid.config.backgroundLightness = color.l * 100;
+
+          hg.controller.grids[app.main.gridId].updateBackgroundColor();
+        });
+    hexGridFolder.addColor(colors, 'tileColor')
+        .onChange(function () {
+          var color = hg.util.hsvToHsl(colors.tileColor);
+
+          hg.HexGrid.config.tileHue = color.h;
+          hg.HexGrid.config.tileSaturation = color.s * 100;
+          hg.HexGrid.config.tileLightness = color.l * 100;
+
+          hg.controller.grids[app.main.gridId].updateTileColor();
+          if (hg.HexGridAnnotations.config.annotations['contentTiles'].enabled) {
+            hg.controller.grids[app.main.gridId].annotations.toggleAnnotationEnabled('contentTiles', true);
+          }
+        });
+    hexGridFolder.add(hg.HexGrid.config, 'tileOuterRadius', 10, 400)
+        .onChange(function () {
+          hg.HexGrid.config.computeDependentValues();
+          hg.controller.resize();
+        });
+    hexGridFolder.add(hg.HexGrid.config, 'tileGap', -50, 100)
+        .onChange(function () {
+          hg.HexGrid.config.computeDependentValues();
+          hg.controller.resize();
+        });
+    hexGridFolder.add(hg.HexGrid.config, 'firstRowYOffset', -100, 100)
+        .onChange(function () {
+          hg.HexGrid.config.computeDependentValues();
+          hg.controller.resize();
+        });
+    hexGridFolder.add(hg.HexGrid.config, 'contentStartingRowIndex', 0, 4).step(1)
+        .onChange(function () {
+          hg.HexGrid.config.computeDependentValues();
+          hg.controller.grids[app.main.gridId].computeContentIndices();
+          hg.controller.resize();
+        });
+    hexGridFolder.add(hg.HexGrid.config, 'targetContentAreaWidth', 500, 1500)
+        .onChange(function () {
+          hg.HexGrid.config.computeDependentValues();
+          hg.controller.grids[app.main.gridId].computeContentIndices();
+          hg.controller.resize();
+        });
+    hexGridFolder.add(hg.HexGrid.config, 'contentDensity', 0.1, 1.0)
+        .onChange(function () {
+          hg.HexGrid.config.computeDependentValues();
+          hg.controller.grids[app.main.gridId].computeContentIndices();
+          hg.controller.resize();
+        });
   }
 
   /**
   * Sets up the annotations folder within the dat.GUI controller.
    */
   function initAnnotationsFolder(parentFolder) {
-    var hexGridAnnotationsFolder, key;
+    var hexGridAnnotationsFolder, key, data;
 
     hexGridAnnotationsFolder = parentFolder.addFolder('Annotations');
 
     for (key in hg.HexGridAnnotations.config.annotations) {
-      parameters = {};
-      parameters[key] = hg.HexGridAnnotations.config.annotations[key].enabled;
+      data = {};
+      data[key] = hg.HexGridAnnotations.config.annotations[key].enabled;
 
-      hexGridAnnotationsFolder.add(parameters, key).onChange(function (value) {
+      hexGridAnnotationsFolder.add(data, key).onChange(function (value) {
         hg.controller.grids[app.main.gridId].annotations.toggleAnnotationEnabled(this.property, value);
       });
     }
@@ -83,7 +148,7 @@
 
     hexInputFolder = parentFolder.addFolder('Input');
 
-//    hexInputFolder.add(parameters, '').onChange(function (value) {
+//    hexInputFolder.add(hg.HexInput.config, '').onChange(function (value) {
 //      // TODO:
 //    });
   }
@@ -96,9 +161,29 @@
 
     hexTileFolder = parentFolder.addFolder('Tiles');
 
-//    hexTileFolder.add(parameters, '').onChange(function (value) {
+//    hexTileFolder.add(hg.HexTile.config, '').onChange(function (value) {
 //      // TODO:
 //    });
+
+    hexTileFolder.add(hg.HexGrid.config, 'tileMass', 500, 1500)
+        .onChange(function () {
+          hg.controller.resize();// TODO: don't resize; add an update function instead
+        });
+
+    //TODO/////////////////////////////////////////////////////////////////////////
+//    config.coeffOfDrag = 0.01;
+//
+//    config.neighborCoeffOfSpring = 0.00001;
+//    config.neighborCoeffOfDamping = 0.001;
+//
+//    config.innerAnchorCoeffOfSpring = 0.00004;
+//    config.innerAnchorCoeffOfDamping = 0.001;
+//
+//    config.borderAnchorCoeffOfSpring = 0.00004;
+//    config.borderAnchorCoeffOfDamping = 0.001;
+//
+//    config.forceSuppressionLowerThreshold = 0.0005;
+//    config.velocitySuppressionLowerThreshold = 0.0005;
   }
 
   /**
@@ -109,7 +194,7 @@
 
     linesRadiateAnimationFolder = parentFolder.addFolder('Radiating Lines');
 
-//    linesRadiateAnimationFolder.add(parameters, '').onChange(function (value) {
+//    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, '').onChange(function (value) {
 //      // TODO:
 //    });
   }
@@ -122,7 +207,7 @@
 
     randomLineAnimationFolder = parentFolder.addFolder('Random Lines');
 
-//    randomLineAnimationFolder.add(parameters, '').onChange(function (value) {
+//    randomLineAnimationFolder.add(hg.RandomLinesAnimationJob.config, '').onChange(function (value) {
 //      // TODO:
 //    });
   }
@@ -135,7 +220,7 @@
 
     shimmerRadiateAnimationFolder = parentFolder.addFolder('Radiating Shimmer');
 
-//    shimmerRadiateAnimationFolder.add(parameters, '').onChange(function (value) {
+//    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, '').onChange(function (value) {
 //      // TODO:
 //    });
   }

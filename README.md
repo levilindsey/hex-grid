@@ -11,9 +11,13 @@ TODO
 
 ### Acknowledgments
 
-- dat.gui:  
-  - [http://code.google.com/p/dat-gui](http://code.google.com/p/dat-gui)
-  - Used by the example code in order to demonstrate the effects of the various parameters.
+The following packages/libraries/projects were used in the development of hex-grid:
+
+- [http://code.google.com/p/dat-gui](dat.gui)
+- [http://nodejs.org/](Node.js)
+- [http://expressjs.com/](Express)
+- [http://gulpjs.com/](Gulp.js)
+- [http://bower.io/](Bower)
 
 ======
 

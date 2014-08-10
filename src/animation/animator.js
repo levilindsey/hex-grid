@@ -110,7 +110,7 @@
    * @param {AnimationJob} job
    */
   function startJob(job) {
-    console.log('AnimationJob starting');
+    console.log('AnimationJob starting: ' + job.constructor.name);
 
     job.start();
     animator.jobs.push(job);
@@ -124,7 +124,7 @@
    * @param {AnimationJob} job
    */
   function cancelJob(job) {
-    console.log('AnimationJob cancelling');
+    console.log('AnimationJob cancelling: ' + job.constructor.name);
 
     job.cancel();
     removeJob(job);

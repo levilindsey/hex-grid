@@ -25,13 +25,13 @@
       update: function () {/* Do nothing*/}
     },
     'transparentTiles': {
-      enabled: true,
+      enabled: false,
       create: makeTilesTransparent,
       destroy: makeTilesVisible,
       update: function () {/* Do nothing*/}
     },
     'tileAnchorCenters': {
-      enabled: false,
+      enabled: true,
       create: createTileAnchorCenters,
       destroy: destroyTileAnchorCenters,
       update: updateTileAnchorCenters
@@ -43,7 +43,7 @@
       update: updateTileParticleCenters
     },
     'tileDisplacementColors': {
-      enabled: true,
+      enabled: false,
       create: createTileDisplacementColors,
       destroy: destroyTileDisplacementColors,
       update: updateTileDisplacementColors
@@ -67,13 +67,13 @@
       update: updateTileIndices
     },
     'tileForces': {
-      enabled: false,
+      enabled: true,
       create: createTileForces,
       destroy: destroyTileForces,
       update: updateTileForces
     },
     'tileVelocities': {
-      enabled: false,
+      enabled: true,
       create: createTileVelocities,
       destroy: destroyTileVelocities,
       update: updateTileVelocities
@@ -97,24 +97,6 @@
 
   // --------------------------------------------------- //
   // Annotation creation functions
-
-  /**
-   * Computes spatial parameters of the tile annotations and creates SVG elements to represent
-   * these annotations.
-   *
-   * @this HexGridAnnotations
-   */
-  function createAnnotations() {
-    var annotations, key;
-
-    annotations = this;
-
-    for (key in annotations.annotations) {
-      if (annotations.annotations[key].enabled) {
-        annotations.annotations[key].create.call(annotations);
-      }
-    }
-  }
 
   /**
    * Draws content tiles with a different color.
@@ -372,21 +354,6 @@
 
   // --------------------------------------------------- //
   // Annotation destruction functions
-
-  /**
-   * Destroys the SVG elements used to represent grid annotations.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyAnnotations() {
-    var annotations, key;
-
-    annotations = this;
-
-    for (key in annotations.annotations) {
-      annotations.annotations[key].destroy.call(annotations);
-    }
-  }
 
   /**
    * Draws content tiles with a different color.
@@ -779,20 +746,6 @@
   // Public dynamic functions
 
   /**
-   * Re-computes annotation properties.
-   *
-   * @this HexGridAnnotations
-   */
-  function resize() {
-    var annotations;
-
-    annotations = this;
-
-    destroyAnnotations.call(annotations);
-    createAnnotations.call(annotations);
-  }
-
-  /**
    * Updates the animation progress of this AnimationJob to match the given time.
    *
    * @this HexGridAnnotations
@@ -814,6 +767,7 @@
   /**
    * Toggles whether the given annotation is enabled.
    *
+   * @this HexGridAnnotations
    * @param {string} annotation
    * @param {boolean} enabled
    * @throws {Error}
@@ -829,6 +783,39 @@
       annotations.annotations[annotation].create.call(annotations);
     } else {
       annotations.annotations[annotation].destroy.call(annotations);
+    }
+  }
+
+  /**
+   * Computes spatial parameters of the tile annotations and creates SVG elements to represent
+   * these annotations.
+   *
+   * @this HexGridAnnotations
+   */
+  function createAnnotations() {
+    var annotations, key;
+
+    annotations = this;
+
+    for (key in annotations.annotations) {
+      if (annotations.annotations[key].enabled) {
+        annotations.annotations[key].create.call(annotations);
+      }
+    }
+  }
+
+  /**
+   * Destroys the SVG elements used to represent grid annotations.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyAnnotations() {
+    var annotations, key;
+
+    annotations = this;
+
+    for (key in annotations.annotations) {
+      annotations.annotations[key].destroy.call(annotations);
     }
   }
 
@@ -862,7 +849,8 @@
 
     annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
     annotations.update = update;
-    annotations.resize = resize;
+    annotations.createAnnotations = createAnnotations;
+    annotations.destroyAnnotations = destroyAnnotations;
   }
 
   HexGridAnnotations.config = config;

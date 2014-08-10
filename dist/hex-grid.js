@@ -34,16 +34,20 @@
   config.contentStartingRowIndex = 2;
   config.firstRowYOffset = config.tileOuterRadius * 0;
   config.contentDensity = 0.6;
-  config.emptyInitialRowCount = 2;
   config.tileMass = 1;
 
-  config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
-  config.twoOverSqrtThree = 2 / Math.sqrt(3);
+  config.computeDependentValues = function () {
+    config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
+    config.twoOverSqrtThree = 2 / Math.sqrt(3);
 
-  config.tileInnerRadius = config.tileOuterRadius * config.sqrtThreeOverTwo;
+    config.tileInnerRadius = config.tileOuterRadius * config.sqrtThreeOverTwo;
 
-  config.tileShortLengthWithGap = config.tileInnerRadius * 2 + config.tileGap;
-  config.tileLongLengthWithGap = config.tileOuterRadius * 2 + config.tileGap * config.twoOverSqrtThree;
+    config.tileShortLengthWithGap = config.tileInnerRadius * 2 + config.tileGap;
+    config.tileLongLengthWithGap =
+        config.tileOuterRadius * 2 + config.tileGap * config.twoOverSqrtThree;
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -68,25 +72,25 @@
     parentHeight = grid.parent.clientHeight;
 
     if (grid.isVertical) {
-      grid.rowDeltaY = hg.HexGrid.config.tileOuterRadius * 1.5 + hg.HexGrid.config.tileGap * hg.HexGrid.config.sqrtThreeOverTwo;
-      grid.tileDeltaX = hg.HexGrid.config.tileShortLengthWithGap;
+      grid.rowDeltaY = config.tileOuterRadius * 1.5 + config.tileGap * config.sqrtThreeOverTwo;
+      grid.tileDeltaX = config.tileShortLengthWithGap;
 
-      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (hg.HexGrid.config.tileInnerRadius + hg.HexGrid.config.tileGap)) / hg.HexGrid.config.tileShortLengthWithGap) * 2 + 1;
-      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (hg.HexGrid.config.tileShortLengthWithGap + hg.HexGrid.config.tileGap * 0.5)) / hg.HexGrid.config.tileShortLengthWithGap) * 2 + 2;
+      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (config.tileInnerRadius + config.tileGap)) / config.tileShortLengthWithGap) * 2 + 1;
+      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (config.tileShortLengthWithGap + config.tileGap * 0.5)) / config.tileShortLengthWithGap) * 2 + 2;
 
-      grid.oddRowXOffset = parentHalfWidth - hg.HexGrid.config.tileShortLengthWithGap * (grid.oddRowTileCount - 1) / 2;
+      grid.oddRowXOffset = parentHalfWidth - config.tileShortLengthWithGap * (grid.oddRowTileCount - 1) / 2;
 
-      grid.rowCount = Math.ceil((parentHeight - (hg.HexGrid.config.firstRowYOffset + hg.HexGrid.config.tileOuterRadius * 2 + hg.HexGrid.config.tileGap * Math.sqrt(3))) / grid.rowDeltaY) + 2;
+      grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileOuterRadius * 2 + config.tileGap * Math.sqrt(3))) / grid.rowDeltaY) + 2;
     } else {
-      grid.rowDeltaY = hg.HexGrid.config.tileInnerRadius + hg.HexGrid.config.tileGap * 0.5;
-      grid.tileDeltaX = hg.HexGrid.config.tileOuterRadius * 3 + hg.HexGrid.config.tileGap * Math.sqrt(3);
+      grid.rowDeltaY = config.tileInnerRadius + config.tileGap * 0.5;
+      grid.tileDeltaX = config.tileOuterRadius * 3 + config.tileGap * Math.sqrt(3);
 
-      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX - hg.HexGrid.config.tileOuterRadius)) / grid.tileDeltaX) * 2 + 1;
-      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX + (hg.HexGrid.config.tileGap * hg.HexGrid.config.sqrtThreeOverTwo) + hg.HexGrid.config.tileOuterRadius * 0.5)) / grid.tileDeltaX) * 2 + 2;
+      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX - config.tileOuterRadius)) / grid.tileDeltaX) * 2 + 1;
+      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX + (config.tileGap * config.sqrtThreeOverTwo) + config.tileOuterRadius * 0.5)) / grid.tileDeltaX) * 2 + 2;
 
       grid.oddRowXOffset = parentHalfWidth - grid.tileDeltaX * (grid.oddRowTileCount - 1) / 2;
 
-      grid.rowCount = Math.ceil((parentHeight - (hg.HexGrid.config.firstRowYOffset + hg.HexGrid.config.tileInnerRadius * 3 + hg.HexGrid.config.tileGap * 2)) / grid.rowDeltaY) + 4;
+      grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileInnerRadius * 3 + config.tileGap * 2)) / grid.rowDeltaY) + 4;
     }
 
     grid.evenRowXOffset = grid.oddRowXOffset +
@@ -98,11 +102,11 @@
     grid.contentAreaRight = grid.contentAreaLeft + grid.actualContentAreaWidth;
 
     if (grid.isVertical) {
-      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - hg.HexGrid.config.tileInnerRadius)) / grid.tileDeltaX);
-      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - hg.HexGrid.config.tileInnerRadius)) / grid.tileDeltaX);
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileInnerRadius)) / grid.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileInnerRadius)) / grid.tileDeltaX);
     } else {
-      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - hg.HexGrid.config.tileOuterRadius)) / grid.tileDeltaX);
-      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - hg.HexGrid.config.tileOuterRadius)) / grid.tileDeltaX);
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileOuterRadius)) / grid.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileOuterRadius)) / grid.tileDeltaX);
     }
 
     grid.oddRowContentTileCount = grid.oddRowTileCount - grid.oddRowContentStartIndex * 2;
@@ -113,8 +117,8 @@
 
     // Update the content inner indices to account for empty rows at the start of the grid
     grid.actualContentInnerIndices = [];
-    emptyRowsContentTileCount = Math.ceil(hg.HexGrid.config.emptyInitialRowCount / 2) * grid.oddRowContentTileCount +
-        Math.floor(hg.HexGrid.config.emptyInitialRowCount / 2) * grid.evenRowContentTileCount;
+    emptyRowsContentTileCount = Math.ceil(config.contentStartingRowIndex / 2) * grid.oddRowContentTileCount +
+        Math.floor(config.contentStartingRowIndex / 2) * grid.evenRowContentTileCount;
     for (i = 0, count = grid.originalContentInnerIndices.length; i < count; i += 1) {
       grid.actualContentInnerIndices[i] = grid.originalContentInnerIndices[i] + emptyRowsContentTileCount;
     }
@@ -155,7 +159,7 @@
     }
 
     // Use 0s to represent the empty tiles
-    count = (1 / hg.HexGrid.config.contentDensity) * grid.tileData.length;
+    count = (1 / config.contentDensity) * grid.tileData.length;
     for (i = grid.tileData.length; i < count; i += 1) {
       tilesRepresentation[i] = 0;
     }
@@ -186,8 +190,7 @@
     grid.svg.style.position = 'relative';
     grid.svg.style.width = '100%';
     grid.svg.style.zIndex = '2147483647';
-    grid.svg.style.backgroundColor =
-        'hsl(' + grid.hue + ',' + grid.saturation + '%,' + grid.lightness + '%)';
+    updateBackgroundColor.call(grid);
     grid.parent.appendChild(grid.svg);
 
     grid.svgDefs = document.createElementNS(hg.util.svgNamespace, 'defs');
@@ -210,7 +213,7 @@
     tileIndex = 0;
     contentAreaIndex = 0;
     tileDataIndex = 0;
-    centerY = hg.HexGrid.config.firstRowYOffset;
+    centerY = config.firstRowYOffset;
     rowCount = grid.rowCount;
     tilesNeighborDeltaIndices = [];
 
@@ -239,9 +242,9 @@
         isBorderTile = columnIndex === 0 || columnIndex === columnCount - 1 ||
             rowIndex === 0 || rowIndex === rowCount - 1;
 
-        grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, hg.HexGrid.config.tileOuterRadius,
-            grid.isVertical, hg.HexGrid.config.tileHue, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness, null,
-            tileIndex, isMarginTile, isBorderTile, hg.HexGrid.config.tileMass);
+        grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
+            grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
+            tileIndex, isMarginTile, isBorderTile, config.tileMass);
 
         // Is the current tile within the content column?
         if (!isMarginTile) {
@@ -433,6 +436,8 @@
     grid = this;
     svg = grid.svg;
 
+    grid.annotations.destroyAnnotations.call(grid.annotations);
+
     while (svg.firstChild) {
       svg.removeChild(svg.firstChild);
     }
@@ -449,11 +454,12 @@
   function logGridInfo() {
     var grid = this;
 
-    console.log('--- HexGrid Info: --------');
-    console.log('--- Tile count=' + grid.tiles.length);
-    console.log('--- Row count=' + grid.rowCount);
-    console.log('--- Odd row tile count=' + grid.oddRowTileCount);
-    console.log('--- Even row tile count=' + grid.evenRowTileCount);
+    console.log('// --- HexGrid Info: ------- //');
+    console.log('// - Tile count=' + grid.tiles.length);
+    console.log('// - Row count=' + grid.rowCount);
+    console.log('// - Odd row tile count=' + grid.oddRowTileCount);
+    console.log('// - Even row tile count=' + grid.evenRowTileCount);
+    console.log('// ------------------------- //');
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -469,8 +475,8 @@
 
     grid = this;
 
-    grid.actualContentAreaWidth = grid.parent.clientWidth < hg.HexGrid.config.targetContentAreaWidth ?
-        grid.parent.clientWidth : hg.HexGrid.config.targetContentAreaWidth;
+    grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
+        grid.parent.clientWidth : config.targetContentAreaWidth;
 
     clearSvg.call(grid);
 
@@ -479,9 +485,38 @@
 
     grid.svg.style.height = grid.height + 'px';
 
-    grid.annotations.resize();
+    grid.annotations.createAnnotations();
 
     logGridInfo.call(grid);
+  }
+
+  /**
+   * Sets the color of the grid's background.
+   *
+   * @this HexGrid
+   */
+  function updateBackgroundColor() {
+    var grid;
+
+    grid = this;
+
+    grid.svg.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
+        config.backgroundSaturation + '%,' + config.backgroundLightness + '%)';
+  }
+
+  /**
+   * Sets the color of the grid's tiles.
+   *
+   * @this HexGrid
+   */
+  function updateTileColor() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+    }
   }
 
   /**
@@ -545,15 +580,12 @@
     grid.tileData = tileData;
     grid.isVertical = isVertical;
 
-    grid.actualContentAreaWidth = hg.HexGrid.config.actualContentAreaWidth;
-    grid.hue = hg.HexGrid.config.backgroundHue;
-    grid.saturation = hg.HexGrid.config.backgroundSaturation;
-    grid.lightness = hg.HexGrid.config.backgroundLightness;
+    grid.actualContentAreaWidth = config.targetContentAreaWidth;
 
     grid.isComplete = false;
 
     grid.svg = null;
-    grid.tiles = null;
+    grid.tiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
 
@@ -563,6 +595,9 @@
     grid.start = start;
     grid.update = update;
     grid.cancel = cancel;
+    grid.updateBackgroundColor = updateBackgroundColor;
+    grid.updateTileColor = updateTileColor;
+    grid.computeContentIndices = computeContentIndices;
 
     createSvg.call(grid);
     computeContentIndices.call(grid);
@@ -605,13 +640,13 @@
       update: function () {/* Do nothing*/}
     },
     'transparentTiles': {
-      enabled: true,
+      enabled: false,
       create: makeTilesTransparent,
       destroy: makeTilesVisible,
       update: function () {/* Do nothing*/}
     },
     'tileAnchorCenters': {
-      enabled: false,
+      enabled: true,
       create: createTileAnchorCenters,
       destroy: destroyTileAnchorCenters,
       update: updateTileAnchorCenters
@@ -623,7 +658,7 @@
       update: updateTileParticleCenters
     },
     'tileDisplacementColors': {
-      enabled: true,
+      enabled: false,
       create: createTileDisplacementColors,
       destroy: destroyTileDisplacementColors,
       update: updateTileDisplacementColors
@@ -647,13 +682,13 @@
       update: updateTileIndices
     },
     'tileForces': {
-      enabled: false,
+      enabled: true,
       create: createTileForces,
       destroy: destroyTileForces,
       update: updateTileForces
     },
     'tileVelocities': {
-      enabled: false,
+      enabled: true,
       create: createTileVelocities,
       destroy: destroyTileVelocities,
       update: updateTileVelocities
@@ -677,24 +712,6 @@
 
   // --------------------------------------------------- //
   // Annotation creation functions
-
-  /**
-   * Computes spatial parameters of the tile annotations and creates SVG elements to represent
-   * these annotations.
-   *
-   * @this HexGridAnnotations
-   */
-  function createAnnotations() {
-    var annotations, key;
-
-    annotations = this;
-
-    for (key in annotations.annotations) {
-      if (annotations.annotations[key].enabled) {
-        annotations.annotations[key].create.call(annotations);
-      }
-    }
-  }
 
   /**
    * Draws content tiles with a different color.
@@ -952,21 +969,6 @@
 
   // --------------------------------------------------- //
   // Annotation destruction functions
-
-  /**
-   * Destroys the SVG elements used to represent grid annotations.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyAnnotations() {
-    var annotations, key;
-
-    annotations = this;
-
-    for (key in annotations.annotations) {
-      annotations.annotations[key].destroy.call(annotations);
-    }
-  }
 
   /**
    * Draws content tiles with a different color.
@@ -1359,20 +1361,6 @@
   // Public dynamic functions
 
   /**
-   * Re-computes annotation properties.
-   *
-   * @this HexGridAnnotations
-   */
-  function resize() {
-    var annotations;
-
-    annotations = this;
-
-    destroyAnnotations.call(annotations);
-    createAnnotations.call(annotations);
-  }
-
-  /**
    * Updates the animation progress of this AnimationJob to match the given time.
    *
    * @this HexGridAnnotations
@@ -1394,6 +1382,7 @@
   /**
    * Toggles whether the given annotation is enabled.
    *
+   * @this HexGridAnnotations
    * @param {string} annotation
    * @param {boolean} enabled
    * @throws {Error}
@@ -1409,6 +1398,39 @@
       annotations.annotations[annotation].create.call(annotations);
     } else {
       annotations.annotations[annotation].destroy.call(annotations);
+    }
+  }
+
+  /**
+   * Computes spatial parameters of the tile annotations and creates SVG elements to represent
+   * these annotations.
+   *
+   * @this HexGridAnnotations
+   */
+  function createAnnotations() {
+    var annotations, key;
+
+    annotations = this;
+
+    for (key in annotations.annotations) {
+      if (annotations.annotations[key].enabled) {
+        annotations.annotations[key].create.call(annotations);
+      }
+    }
+  }
+
+  /**
+   * Destroys the SVG elements used to represent grid annotations.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyAnnotations() {
+    var annotations, key;
+
+    annotations = this;
+
+    for (key in annotations.annotations) {
+      annotations.annotations[key].destroy.call(annotations);
     }
   }
 
@@ -1442,7 +1464,8 @@
 
     annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
     annotations.update = update;
-    annotations.resize = resize;
+    annotations.createAnnotations = createAnnotations;
+    annotations.destroyAnnotations = destroyAnnotations;
   }
 
   HexGridAnnotations.config = config;
@@ -2128,18 +2151,6 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
-  /**
-   * Event listener for the window resize event.
-   *
-   * Resizes all of the hex-grid components.
-   */
-  function resize() {
-    controller.grids.forEach(function (grid, index) {
-      grid.resize();
-      restartWaveAnimation(index);
-    });
-  }
-
   // ------------------------------------------------------------------------------------------- //
   // Public static functions
 
@@ -2182,6 +2193,18 @@
     hg.animator.startJob(waveAnimationJob);
   }
 
+  /**
+   * Event listener for the window resize event.
+   *
+   * Resizes all of the hex-grid components.
+   */
+  function resize() {
+    controller.grids.forEach(function (grid, index) {
+      grid.resize();
+      restartWaveAnimation(index);
+    });
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this singleton
 
@@ -2192,6 +2215,7 @@
 
   controller.createNewHexGrid = createNewHexGrid;
   controller.restartWaveAnimation = restartWaveAnimation;
+  controller.resize = resize;
 
   // Expose this module
   if (!window.hg) window.hg = {};
@@ -2736,6 +2760,36 @@
     return cloneObject;
   }
 
+  /**
+   * Converts the given HSL color values to HSV color values.
+   *
+   * @param {{h:number,s:number,l:number}} hsl
+   * @returns {{h:number,s:number,v:number}}
+   */
+  function hslToHsv(hsl) {
+    var temp = hsl.s * (hsl.l < 0.5 ? hsl.l : 1 - hsl.l);
+    return {
+      h: hsl.h,
+      s: 2 * temp / (hsl.l + temp),
+      v: hsl.l + temp
+    };
+  }
+
+  /**
+   * Converts the given HSV color values to HSL color values.
+   *
+   * @param {{h:number,s:number,v:number}} hsv
+   * @returns {{h:number,s:number,l:number}}
+   */
+  function hsvToHsl(hsv) {
+    var temp = (2 - hsv.s) * hsv.v;
+    return {
+      h: hsv.h,
+      s: hsv.s * hsv.v / (temp < 1 ? temp : 1.9999999 - temp),
+      l: temp * 0.5
+    };
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -2770,6 +2824,8 @@
     shuffle: shuffle,
     isPointInsidePolyline: isPointInsidePolyline,
     shallowCopy: shallowCopy,
+    hsvToHsl: hsvToHsl,
+    hslToHsv: hslToHsv,
     svgNamespace: 'http://www.w3.org/2000/svg'
   };
 
@@ -3500,7 +3556,7 @@
    * @param {AnimationJob} job
    */
   function startJob(job) {
-    console.log('AnimationJob starting');
+    console.log('AnimationJob starting: ' + job.constructor.name);
 
     job.start();
     animator.jobs.push(job);
@@ -3514,7 +3570,7 @@
    * @param {AnimationJob} job
    */
   function cancelJob(job) {
-    console.log('AnimationJob cancelling');
+    console.log('AnimationJob cancelling: ' + job.constructor.name);
 
     job.cancel();
     removeJob(job);
