@@ -216,6 +216,7 @@
     grid = this;
 
     grid.tiles = [];
+    grid.borderTiles = [];
     tileIndex = 0;
     contentAreaIndex = 0;
     tileDataIndex = 0;
@@ -3082,15 +3083,18 @@
 
     job = this;
 
-    if (job.direction === (job.corner + 3) % 6) {
+    if (job.directions[job.currentCornerIndex] === (job.corners[job.currentCornerIndex] + 3) % 6) {
       // When the job is at the opposite corner of a tile from the direction it is headed, then it
       // has not reached the edge
       return false;
     } else {
-      neighborIndex1 = job.corner;
-      neighborIndex2 = job.grid.isVertical ? (job.corner + 5) % 6 : (job.corner + 1) % 6;
+      neighborIndex1 = job.corners[job.currentCornerIndex];
+      neighborIndex2 = job.grid.isVertical ?
+          (job.corners[job.currentCornerIndex] + 5) % 6 :
+          (job.corners[job.currentCornerIndex] + 1) % 6;
 
-      return job.tile.neighbors[neighborIndex1] && job.tile.neighbors[neighborIndex2];
+      return job.tiles[job.currentCornerIndex].neighbors[neighborIndex1] &&
+          job.tiles[job.currentCornerIndex].neighbors[neighborIndex2];
     }
   }
 
@@ -3121,15 +3125,16 @@
 
     ellapsedTime = currentTime - job.startTime;
     distanceTravelled = ellapsedTime / job.lineSidePeriod * hg.HexGrid.config.tileOuterRadius;
-    frontSegmentLength = ;
-    backSegmentLength = ;
-    segmentsTouchedCount = ;
+    frontSegmentLength = distanceTravelled % hg.HexGrid.config.tileOuterRadius;
+    backSegmentLength = (job.lineLength - frontSegmentLength) % hg.HexGrid.config.tileOuterRadius;
+    segmentsTouchedCount = parseInt(distanceTravelled / hg.HexGrid.config.tileOuterRadius) + 1;
 
-    job.frontSegmentEndRatio = ;
-    job.backSegmentStartRatio = ;
+    job.frontSegmentEndRatio = frontSegmentLength / hg.HexGrid.config.tileOuterRadius;
+    job.backSegmentStartRatio = 1 - (backSegmentLength / hg.HexGrid.config.tileOuterRadius);
 
-    if (segmentsTouchedCount > job.vertices.length) {
-      job.vertices.push(getNextVertex.call(job));
+    while (segmentsTouchedCount > job.corners.length) {
+      job.corners.push(getNextVertex.call(job));
+      job.currentCornerIndex = job.corners.length - 1;
     }
   }
 
@@ -3199,11 +3204,11 @@
       job.grid.svg.removeChild(job.segments[i]);
     }
 
-    job.tile = null;
-    job.corner = Number.NaN;
-    job.direction = Number.NaN;
+    job.tiles = [];
+    job.corners = [];
+    job.directions = [];
     job.segments = [];
-    job.vertices = [];
+    job.currentCornerIndex = Number.NaN;
     job.hasReachedEnd = true;
 
     job.isComplete = true;
@@ -3224,16 +3229,16 @@
     var job = this;
 
     job.grid = grid;
-    job.tile = tile;
-    job.corner = corner;
-    job.direction = direction;
+    job.tiles = [tile];
+    job.corners = [corner];
+    job.directions = [direction];
+    job.segments = null;
+    job.currentCornerIndex = Number.NaN;
+    job.frontSegmentEndRatio = Number.NaN;
+    job.backSegmentStartRatio = Number.NaN;
     job.hasReachedEnd = false;
     job.startTime = 0;
     job.isComplete = false;
-    job.segments = null;
-    job.vertices = null;
-    job.frontSegmentEndRatio = Number.NaN;
-    job.backSegmentStartRatio = Number.NaN;
 
     job.startHue = Number.NaN;
     job.endHue = Number.NaN;
@@ -3629,7 +3634,7 @@
   config.period = 3200;
   config.tileDeltaX = -15;
   config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
-  config.wavelength = 900;
+  config.wavelength = 1800;
   config.originX = 0;
   config.originY = 0;
 
@@ -3637,11 +3642,7 @@
       Math.sqrt(config.tileDeltaX * config.tileDeltaX +
           config.tileDeltaY * config.tileDeltaY);
 
-  config.twoPeriod = config.period * 2;
   config.halfPeriod = config.period / 2;
-
-  config.twoWaveProgressWavelength = config.wavelength * 2;
-  config.halfWaveProgressWavelength = config.wavelength / 2;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -3652,19 +3653,21 @@
    * @this WaveAnimationJob
    */
   function initTileProgressOffsets() {
-    var job, i, count, tile, length, deltaX, deltaY;
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
 
     job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
       deltaX = tile.originalCenterX - config.originX;
       deltaY = tile.originalCenterY - config.originY;
-      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.twoWaveProgressWavelength;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
-      tile.waveProgressOffset = -(length % config.twoWaveProgressWavelength -
-          config.wavelength) / config.wavelength;
+      tile.waveProgressOffset = -(length % config.wavelength - halfWaveProgressWavelength)
+          / halfWaveProgressWavelength;
     }
   }
 

@@ -16,7 +16,7 @@
   config.period = 3200;
   config.tileDeltaX = -15;
   config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
-  config.wavelength = 900;
+  config.wavelength = 1800;
   config.originX = 0;
   config.originY = 0;
 
@@ -24,11 +24,7 @@
       Math.sqrt(config.tileDeltaX * config.tileDeltaX +
           config.tileDeltaY * config.tileDeltaY);
 
-  config.twoPeriod = config.period * 2;
   config.halfPeriod = config.period / 2;
-
-  config.twoWaveProgressWavelength = config.wavelength * 2;
-  config.halfWaveProgressWavelength = config.wavelength / 2;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -39,19 +35,21 @@
    * @this WaveAnimationJob
    */
   function initTileProgressOffsets() {
-    var job, i, count, tile, length, deltaX, deltaY;
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
 
     job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
       deltaX = tile.originalCenterX - config.originX;
       deltaY = tile.originalCenterY - config.originY;
-      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.twoWaveProgressWavelength;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
-      tile.waveProgressOffset = -(length % config.twoWaveProgressWavelength -
-          config.wavelength) / config.wavelength;
+      tile.waveProgressOffset = -(length % config.wavelength - halfWaveProgressWavelength)
+          / halfWaveProgressWavelength;
     }
   }
 

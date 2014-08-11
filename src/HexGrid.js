@@ -216,6 +216,7 @@
     grid = this;
 
     grid.tiles = [];
+    grid.borderTiles = [];
     tileIndex = 0;
     contentAreaIndex = 0;
     tileDataIndex = 0;

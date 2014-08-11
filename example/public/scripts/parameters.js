@@ -265,8 +265,11 @@
     waveAnimationFolder = parentFolder.addFolder('Wave');
     waveAnimationFolder.open();
 
-    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'period', 1, 10000);
-    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'wavelength', 1, 2000)
+    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'period', 1, 10000)
+        .onChange(function (value) {
+          hg.WaveAnimationJob.config.halfPeriod = value / 2;
+        });
+    waveAnimationFolder.add(hg.WaveAnimationJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
           hg.controller.restartWaveAnimation(app.main.gridId);
         });
