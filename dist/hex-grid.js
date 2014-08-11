@@ -71,6 +71,12 @@
     parentHalfWidth = grid.parent.clientWidth * 0.5;
     parentHeight = grid.parent.clientHeight;
 
+    grid.centerX = parentHalfWidth;
+    grid.centerY = parentHeight * 0.5;
+
+    grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
+        grid.parent.clientWidth : config.targetContentAreaWidth;
+
     if (grid.isVertical) {
       grid.rowDeltaY = config.tileOuterRadius * 1.5 + config.tileGap * config.sqrtThreeOverTwo;
       grid.tileDeltaX = config.tileShortLengthWithGap;
@@ -245,6 +251,10 @@
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
             tileIndex, isMarginTile, isBorderTile, config.tileMass);
+
+        if (isBorderTile) {
+          grid.borderTiles.push(grid.tiles[tileIndex]);
+        }
 
         // Is the current tile within the content column?
         if (!isMarginTile) {
@@ -475,11 +485,7 @@
 
     grid = this;
 
-    grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
-        grid.parent.clientWidth : config.targetContentAreaWidth;
-
     clearSvg.call(grid);
-
     computeGridParameters.call(grid);
     createTiles.call(grid);
 
@@ -602,8 +608,11 @@
 
     grid.svg = null;
     grid.tiles = [];
+    grid.borderTiles = null;
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
+    grid.centerX = Number.NaN;
+    grid.centerY = Number.NaN;
 
     grid.annotations = new hg.HexGridAnnotations(grid);
 
@@ -2200,14 +2209,14 @@
    * @param {number} index
    */
   function restartWaveAnimation(index) {
-    var waveAnimationJob = hg.controller.waveAnimationJobs[index];
+    var job = controller.waveAnimationJobs[index];
 
-    if (!waveAnimationJob.isComplete) {
-      hg.animator.cancelJob(waveAnimationJob);
+    if (!job.isComplete) {
+      hg.animator.cancelJob(job);
     }
 
-    waveAnimationJob.init();
-    hg.animator.startJob(waveAnimationJob);
+    job.init();
+    hg.animator.startJob(job);
   }
 
   /**
@@ -2217,7 +2226,8 @@
    * @param {number} tileIndex
    */
   function createLinesRadiateAnimation(gridIndex, tileIndex) {
-    // TODO:
+//    var job = ;// TODO:
+    hg.animator.startJob(job);
   }
 
   /**
@@ -2226,7 +2236,8 @@
    * @param {number} gridIndex
    */
   function createRandomLineAnimation(gridIndex) {
-    // TODO:
+    var job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex]);
+    hg.animator.startJob(job);
   }
 
   /**
@@ -2236,7 +2247,8 @@
    * @param {number} tileIndex
    */
   function createShimmerRadiateAnimation(gridIndex, tileIndex) {
-    // TODO:
+//    var job = ;// TODO:
+    hg.animator.startJob(job);
   }
 
   /**
@@ -3004,118 +3016,6 @@
 'use strict';
 
 /**
- * This module defines a constructor for LinesRadiateAnimationJob objects.
- *
- * @module LinesRadiateAnimationJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
-   */
-  function checkForComplete() {
-    var job = this;
-
-    // TODO:
-//    if (???) {
-//      console.log('LinesRadiateAnimationJob completed');
-//
-//      job.isComplete = true;
-//      job.onComplete(true);
-//    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this LinesRadiateAnimationJob as started.
-   *
-   * @this LinesRadiateAnimationJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-
-    // TODO:
-  }
-
-  /**
-   * Updates the animation progress of this LinesRadiateAnimationJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this LinesRadiateAnimationJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job = this;
-
-    // TODO:
-
-    checkForComplete.call(job);
-  }
-
-  /**
-   * Stops this LinesRadiateAnimationJob, and returns the element its original form.
-   *
-   * @this LinesRadiateAnimationJob
-   */
-  function cancel() {
-    var job = this;
-
-    // TODO:
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {HexGrid} grid
-   */
-  function LinesRadiateAnimationJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.cancel = cancel;
-
-    console.log('LinesRadiateAnimationJob created');
-  }
-
-  LinesRadiateAnimationJob.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.LinesRadiateAnimationJob = LinesRadiateAnimationJob;
-
-  console.log('LinesRadiateAnimationJob module loaded');
-})();
-
-'use strict';
-
-/**
  * This module defines a constructor for LineAnimationJob objects.
  *
  * @module LineAnimationJob
@@ -3126,11 +3026,39 @@
 
   var config = {};
 
+  config.duration = 1600;
+  config.lineLength = 200;
+  config.lineSidePeriod = 300; // milliseconds per tile side
+
+  config.startSaturation = 100;
+  config.startLightness = 70;
+  config.startOpacity = 0.8;
+
+  config.endSaturation = 50;
+  config.endLightness = 90;
+  config.endOpacity = 0;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
   /**
+   * Creates the start and end hue for the line of this animation.
+   *
+   * @this LineAnimationJob
+   */
+  function createHues() {
+    var job;
+
+    job = this;
+
+    job.startHue = Math.random() * 360;
+    job.endHue = Math.random() * 360;
+  }
+
+  /**
    * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   *
+   * @this LineAnimationJob
    */
   function checkForComplete() {
     var job = this;
@@ -3140,24 +3068,84 @@
 //      console.log('LineAnimationJob completed');
 //
 //      job.isComplete = true;
-//      job.onComplete(true);
 //    }
   }
 
-  function checkHasReachedEnd() {
+  /**
+   * Determines whether this LineAnimationJob has reached the edge of the grid.
+   *
+   * @this LineAnimationJob
+   * @returns {boolean}
+   */
+  function checkHasReachedEdge() {
+    var job, neighborIndex1, neighborIndex2;
+
+    job = this;
+
+    if (job.direction === (job.corner + 3) % 6) {
+      // When the job is at the opposite corner of a tile from the direction it is headed, then it
+      // has not reached the edge
+      return false;
+    } else {
+      neighborIndex1 = job.corner;
+      neighborIndex2 = job.grid.isVertical ? (job.corner + 5) % 6 : (job.corner + 1) % 6;
+
+      return job.tile.neighbors[neighborIndex1] && job.tile.neighbors[neighborIndex2];
+    }
+  }
+
+  /**
+   * Returns the next vertex in the path of this animation.
+   *
+   * @this LineAnimationJob
+   */
+  function getNextVertex() {
     var job;
 
     job = this;
 
-    return job.grid.isVertical ?
-         :
-        ;
+    // TODO:
+  }
 
-    // if (isVertical)
-    // d=1...6: n(d) & n(d+1)
+  /**
+   * Updates the parameters of the segments of this animation.
+   *
+   * @this LineAnimationJob
+   * @param {number} currentTime
+   */
+  function updateSegments(currentTime) {
+    var job, ellapsedTime, distanceTravelled, frontSegmentLength, backSegmentLength,
+        segmentsTouchedCount;
 
-    // else
-    // d=1...6: n(d) & n(d+1)
+    job = this;
+
+    ellapsedTime = currentTime - job.startTime;
+    distanceTravelled = ellapsedTime / job.lineSidePeriod * hg.HexGrid.config.tileOuterRadius;
+    frontSegmentLength = ;
+    backSegmentLength = ;
+    segmentsTouchedCount = ;
+
+    job.frontSegmentEndRatio = ;
+    job.backSegmentStartRatio = ;
+
+    if (segmentsTouchedCount > job.vertices.length) {
+      job.vertices.push(getNextVertex.call(job));
+    }
+  }
+
+  /**
+   * Updates the actual SVG elements to render the current state of this animation.
+   *
+   * @this LineAnimationJob
+   */
+  function drawSegments() {
+    var job;
+
+    job = this;
+
+    // TODO:
+//    job.frontSegmentEndRatio
+//    job.backSegmentStartRatio
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3192,8 +3180,8 @@
   function update(currentTime, deltaTime) {
     var job = this;
 
-    // TODO:
-
+    updateSegments.call(job, currentTime);
+    drawSegments.call(job);
     checkForComplete.call(job);
   }
 
@@ -3203,9 +3191,20 @@
    * @this LineAnimationJob
    */
   function cancel() {
-    var job = this;
+    var job, i, count;
 
-    // TODO:
+    job = this;
+
+    for (i = 0, count = job.segments.length; i < count; i += 1) {
+      job.grid.svg.removeChild(job.segments[i]);
+    }
+
+    job.tile = null;
+    job.corner = Number.NaN;
+    job.direction = Number.NaN;
+    job.segments = [];
+    job.vertices = [];
+    job.hasReachedEnd = true;
 
     job.isComplete = true;
   }
@@ -3217,22 +3216,49 @@
    * @constructor
    * @global
    * @param {HexGrid} grid
+   * @param {HexTile} tile
+   * @param {number} corner
+   * @param {number} direction
    */
-  function LineAnimationJob(grid, tile, corner) {
+  function LineAnimationJob(grid, tile, corner, direction) {
     var job = this;
 
     job.grid = grid;
+    job.tile = tile;
+    job.corner = corner;
+    job.direction = direction;
+    job.hasReachedEnd = false;
     job.startTime = 0;
     job.isComplete = false;
-    job.tile = null;
-    job.direction = null;
-    job.corner = null;
+    job.segments = null;
+    job.vertices = null;
+    job.frontSegmentEndRatio = Number.NaN;
+    job.backSegmentStartRatio = Number.NaN;
+
+    job.startHue = Number.NaN;
+    job.endHue = Number.NaN;
+
+    job.duration = config.duration;
+    job.lineLength = config.lineLength;
+    job.lineSidePeriod = config.lineSidePeriod;
+
+    job.startSaturation = config.startSaturation;
+    job.startLightness = config.startLightness;
+    job.startOpacity = config.startOpacity;
+
+    job.endSaturation = config.endSaturation;
+    job.endLightness = config.endLightness;
+    job.endOpacity = config.endOpacity;
+    // TODO: add the other line config params here (this is important so that the radiate job can have its own params)
 
     job.start = start;
     job.update = update;
     job.cancel = cancel;
 
-    console.log('LineAnimationJob created');
+    createHues.call(job);
+
+    console.log('LineAnimationJob created: tileIndex=' + tile.index + ', corner=' + corner +
+        ', direction=' + direction);
   }
 
   /**
@@ -3243,9 +3269,39 @@
   function createRandomLineAnimationJob(grid) {
     var tile, corner, direction;
 
-    tile = ;
-    corner = ;
-    direction = ;
+    // Pick a random border tile to start from
+    tile = grid.borderTiles[parseInt(Math.random() * grid.borderTiles.length)];
+
+    // Determine which corner and direction to use based on the selected tile
+    if (grid.isVertical) {
+      if (!tile.neighbors[4]) { // Left side
+        corner = Math.random() < 0.5 ? 4 : 5;
+        direction = tile.originalCenterY < grid.centerY ? 2 : 1;
+      } else if (!tile.neighbors[1]) { // Right side
+        corner = Math.random() < 0.5 ? 1 : 2;
+        direction = tile.originalCenterY < grid.centerY ? 4 : 5;
+      } else if (!tile.neighbors[0]) { // Top side
+        corner = 0;
+        direction = 3;
+      } else { // Bottom side
+        corner = 3;
+        direction = 0;
+      }
+    } else {
+      if (!tile.neighbors[0]) { // Top side
+        corner = Math.random() < 0.5 ? 0 : 5;
+        direction = tile.originalCenterX < grid.centerX ? 2 : 3;
+      } else if (!tile.neighbors[3]) { // Bottom side
+        corner = Math.random() < 0.5 ? 2 : 3;
+        direction = tile.originalCenterX < grid.centerX ? 0 : 5;
+      } else if (!tile.neighbors[4]) { // Left side
+        corner = 4;
+        direction = 1;
+      } else { // Right side
+        corner = 1;
+        direction = 4;
+      }
+    }
 
     return new LineAnimationJob(grid, tile, corner, direction);
   }
@@ -3258,6 +3314,188 @@
   window.hg.LineAnimationJob = LineAnimationJob;
 
   console.log('LineAnimationJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * This module defines a constructor for LinesRadiateAnimationJob objects.
+ *
+ * @module LinesRadiateAnimationJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 900;
+  config.lineLength = 140;
+  config.lineSidePeriod = 200; // milliseconds per tile side
+
+  config.startSaturation = 100;
+  config.startLightness = 70;
+  config.startOpacity = 0.8;
+
+  config.endSaturation = 50;
+  config.endLightness = 90;
+  config.endOpacity = 0;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Creates the individual LineAnimationJobs that comprise this LinesRadiateAnimationJob.
+   *
+   * @this LinesRadiateAnimationJob
+   */
+  function createLineAnimationJobs() {
+    var job, i;
+
+    job = this;
+    job.lineAnimationJobs = [];
+
+    for (i = 0; i < 6; i += 1) {
+      job.lineAnimationJobs[i] = new hg.LineAnimationJob(job.grid, job.tile, i, i);
+
+      // Replace the line animation's normal parameters with some that are specific to radiating
+      // lines
+      job.lineAnimationJobs[i].duration = config.duration;
+      job.lineAnimationJobs[i].lineLength = config.lineLength;
+      job.lineAnimationJobs[i].lineSidePeriod = config.lineSidePeriod;
+
+      job.lineAnimationJobs[i].startSaturation = config.startSaturation;
+      job.lineAnimationJobs[i].startLightness = config.startLightness;
+      job.lineAnimationJobs[i].startOpacity = config.startOpacity;
+
+      job.lineAnimationJobs[i].endSaturation = config.endSaturation;
+      job.lineAnimationJobs[i].endLightness = config.endLightness;
+      job.lineAnimationJobs[i].endOpacity = config.endOpacity;
+      // TODO: add the other radiate-specific line-animation parameters
+    }
+  }
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   *
+   * @this LinesRadiateAnimationJob
+   */
+  function checkForComplete() {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
+      if (job.lineAnimationJobs[i].isComplete) {
+        job.lineAnimationJobs.splice(i, 1);
+      } else {
+        return;
+      }
+    }
+
+    console.log('LinesRadiateAnimationJob completed');
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this LinesRadiateAnimationJob as started.
+   *
+   * @this LinesRadiateAnimationJob
+   */
+  function start() {
+    var job, i, count;
+
+    job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
+      job.lineAnimationJobs[i].start();
+    }
+  }
+
+  /**
+   * Updates the animation progress of this LinesRadiateAnimationJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LinesRadiateAnimationJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
+      job.lineAnimationJobs[i].update(currentTime, deltaTime);
+    }
+
+    checkForComplete.call(job);
+  }
+
+  /**
+   * Stops this LinesRadiateAnimationJob, and returns the element its original form.
+   *
+   * @this LinesRadiateAnimationJob
+   */
+  function cancel() {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
+      job.lineAnimationJobs[i].cancel();
+    }
+
+    job.lineAnimationJobs = [];
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {HexGrid} grid
+   * @param {HexTile} tile
+   */
+  function LinesRadiateAnimationJob(grid, tile) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+    job.startTime = 0;
+    job.isComplete = false;
+    job.lineAnimationJobs = null;
+
+    job.start = start;
+    job.update = update;
+    job.cancel = cancel;
+
+    createLineAnimationJobs.call(job);
+
+    console.log('LinesRadiateAnimationJob created: tileIndex=' + tile.index);
+  }
+
+  LinesRadiateAnimationJob.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.LinesRadiateAnimationJob = LinesRadiateAnimationJob;
+
+  console.log('LinesRadiateAnimationJob module loaded');
 })();
 
 'use strict';
@@ -3278,6 +3516,8 @@
 
   /**
    * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   *
+   * @this ShimmerRadiateAnimationJob
    */
   function checkForComplete() {
     var job = this;
@@ -3287,7 +3527,6 @@
 //      console.log('ShimmerRadiateAnimationJob completed');
 //
 //      job.isComplete = true;
-//      job.onComplete(true);
 //    }
   }
 

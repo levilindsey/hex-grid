@@ -11,10 +11,34 @@
 
   var config = {};
 
+  config.duration = 1600;
+  config.lineLength = 200;
   config.lineSidePeriod = 300; // milliseconds per tile side
+
+  config.startSaturation = 100;
+  config.startLightness = 70;
+  config.startOpacity = 0.8;
+
+  config.endSaturation = 50;
+  config.endLightness = 90;
+  config.endOpacity = 0;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
+
+  /**
+   * Creates the start and end hue for the line of this animation.
+   *
+   * @this LineAnimationJob
+   */
+  function createHues() {
+    var job;
+
+    job = this;
+
+    job.startHue = Math.random() * 360;
+    job.endHue = Math.random() * 360;
+  }
 
   /**
    * Checks whether this job is complete. If so, a flag is set and a callback is called.
@@ -38,20 +62,75 @@
    * @this LineAnimationJob
    * @returns {boolean}
    */
-  function checkHasReachedEnd() {
+  function checkHasReachedEdge() {
+    var job, neighborIndex1, neighborIndex2;
+
+    job = this;
+
+    if (job.direction === (job.corner + 3) % 6) {
+      // When the job is at the opposite corner of a tile from the direction it is headed, then it
+      // has not reached the edge
+      return false;
+    } else {
+      neighborIndex1 = job.corner;
+      neighborIndex2 = job.grid.isVertical ? (job.corner + 5) % 6 : (job.corner + 1) % 6;
+
+      return job.tile.neighbors[neighborIndex1] && job.tile.neighbors[neighborIndex2];
+    }
+  }
+
+  /**
+   * Returns the next vertex in the path of this animation.
+   *
+   * @this LineAnimationJob
+   */
+  function getNextVertex() {
     var job;
 
     job = this;
 
-    return job.grid.isVertical ?
-         :
-        ;
+    // TODO:
+  }
 
-    // if (isVertical)
-    // d=1...6: n(d) & n(d+1)
+  /**
+   * Updates the parameters of the segments of this animation.
+   *
+   * @this LineAnimationJob
+   * @param {number} currentTime
+   */
+  function updateSegments(currentTime) {
+    var job, ellapsedTime, distanceTravelled, frontSegmentLength, backSegmentLength,
+        segmentsTouchedCount;
 
-    // else
-    // d=1...6: n(d) & n(d+1)
+    job = this;
+
+    ellapsedTime = currentTime - job.startTime;
+    distanceTravelled = ellapsedTime / job.lineSidePeriod * hg.HexGrid.config.tileOuterRadius;
+    frontSegmentLength = ;
+    backSegmentLength = ;
+    segmentsTouchedCount = ;
+
+    job.frontSegmentEndRatio = ;
+    job.backSegmentStartRatio = ;
+
+    if (segmentsTouchedCount > job.vertices.length) {
+      job.vertices.push(getNextVertex.call(job));
+    }
+  }
+
+  /**
+   * Updates the actual SVG elements to render the current state of this animation.
+   *
+   * @this LineAnimationJob
+   */
+  function drawSegments() {
+    var job;
+
+    job = this;
+
+    // TODO:
+//    job.frontSegmentEndRatio
+//    job.backSegmentStartRatio
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -86,8 +165,8 @@
   function update(currentTime, deltaTime) {
     var job = this;
 
-    // TODO:
-
+    updateSegments.call(job, currentTime);
+    drawSegments.call(job);
     checkForComplete.call(job);
   }
 
@@ -97,9 +176,20 @@
    * @this LineAnimationJob
    */
   function cancel() {
-    var job = this;
+    var job, i, count;
 
-    // TODO:
+    job = this;
+
+    for (i = 0, count = job.segments.length; i < count; i += 1) {
+      job.grid.svg.removeChild(job.segments[i]);
+    }
+
+    job.tile = null;
+    job.corner = Number.NaN;
+    job.direction = Number.NaN;
+    job.segments = [];
+    job.vertices = [];
+    job.hasReachedEnd = true;
 
     job.isComplete = true;
   }
@@ -122,16 +212,38 @@
     job.tile = tile;
     job.corner = corner;
     job.direction = direction;
+    job.hasReachedEnd = false;
     job.startTime = 0;
     job.isComplete = false;
+    job.segments = null;
+    job.vertices = null;
+    job.frontSegmentEndRatio = Number.NaN;
+    job.backSegmentStartRatio = Number.NaN;
 
+    job.startHue = Number.NaN;
+    job.endHue = Number.NaN;
+
+    job.duration = config.duration;
+    job.lineLength = config.lineLength;
     job.lineSidePeriod = config.lineSidePeriod;
+
+    job.startSaturation = config.startSaturation;
+    job.startLightness = config.startLightness;
+    job.startOpacity = config.startOpacity;
+
+    job.endSaturation = config.endSaturation;
+    job.endLightness = config.endLightness;
+    job.endOpacity = config.endOpacity;
+    // TODO: add the other line config params here (this is important so that the radiate job can have its own params)
 
     job.start = start;
     job.update = update;
     job.cancel = cancel;
 
-    console.log('LineAnimationJob created');
+    createHues.call(job);
+
+    console.log('LineAnimationJob created: tileIndex=' + tile.index + ', corner=' + corner +
+        ', direction=' + direction);
   }
 
   /**

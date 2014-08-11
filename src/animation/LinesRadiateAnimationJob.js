@@ -11,7 +11,17 @@
 
   var config = {};
 
+  config.duration = 900;
+  config.lineLength = 140;
   config.lineSidePeriod = 200; // milliseconds per tile side
+
+  config.startSaturation = 100;
+  config.startLightness = 70;
+  config.startOpacity = 0.8;
+
+  config.endSaturation = 50;
+  config.endLightness = 90;
+  config.endOpacity = 0;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -30,8 +40,20 @@
     for (i = 0; i < 6; i += 1) {
       job.lineAnimationJobs[i] = new hg.LineAnimationJob(job.grid, job.tile, i, i);
 
-      // TODO: add other radiate-specific line-animation parameters
+      // Replace the line animation's normal parameters with some that are specific to radiating
+      // lines
+      job.lineAnimationJobs[i].duration = config.duration;
+      job.lineAnimationJobs[i].lineLength = config.lineLength;
       job.lineAnimationJobs[i].lineSidePeriod = config.lineSidePeriod;
+
+      job.lineAnimationJobs[i].startSaturation = config.startSaturation;
+      job.lineAnimationJobs[i].startLightness = config.startLightness;
+      job.lineAnimationJobs[i].startOpacity = config.startOpacity;
+
+      job.lineAnimationJobs[i].endSaturation = config.endSaturation;
+      job.lineAnimationJobs[i].endLightness = config.endLightness;
+      job.lineAnimationJobs[i].endOpacity = config.endOpacity;
+      // TODO: add the other radiate-specific line-animation parameters
     }
   }
 
@@ -41,12 +63,14 @@
    * @this LinesRadiateAnimationJob
    */
   function checkForComplete() {
-    var job, i;
+    var job, i, count;
 
     job = this;
 
-    for (i = 0; i < 6; i += 1) {
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
       if (job.lineAnimationJobs[i].isComplete) {
+        job.lineAnimationJobs.splice(i, 1);
+      } else {
         return;
       }
     }
@@ -68,14 +92,14 @@
    * @this LinesRadiateAnimationJob
    */
   function start() {
-    var job, i;
+    var job, i, count;
 
     job = this;
 
     job.startTime = Date.now();
     job.isComplete = false;
 
-    for (i = 0; i < 6; i += 1) {
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
       job.lineAnimationJobs[i].start();
     }
   }
@@ -90,11 +114,11 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, i;
+    var job, i, count;
 
     job = this;
 
-    for (i = 0; i < 6; i += 1) {
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
       job.lineAnimationJobs[i].update(currentTime, deltaTime);
     }
 
@@ -107,13 +131,15 @@
    * @this LinesRadiateAnimationJob
    */
   function cancel() {
-    var job, i;
+    var job, i, count;
 
     job = this;
 
-    for (i = 0; i < 6; i += 1) {
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
       job.lineAnimationJobs[i].cancel();
     }
+
+    job.lineAnimationJobs = [];
 
     job.isComplete = true;
   }
@@ -142,7 +168,7 @@
 
     createLineAnimationJobs.call(job);
 
-    console.log('LinesRadiateAnimationJob created');
+    console.log('LinesRadiateAnimationJob created: tileIndex=' + tile.index);
   }
 
   LinesRadiateAnimationJob.config = config;
