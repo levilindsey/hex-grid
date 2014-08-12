@@ -398,6 +398,9 @@
       // Reset force accumulator for next time step
       tile.particle.forceAccumulatorX = 0;
       tile.particle.forceAccumulatorY = 0;
+
+      // Compute new vertex locations
+      tile.vertices = computeVertices(tile.particle.px, tile.particle.py, tile.vertexDeltas);
     }
   }
 
@@ -411,7 +414,6 @@
 
     tile = this;
 
-    tile.vertices = computeVertices(tile.particle.px, tile.particle.py, tile.vertexDeltas);
     setVertices.call(tile, tile.vertices);
   }
 
@@ -490,6 +492,7 @@
     tile.isBorderTile = isBorderTile;
     tile.neighbors = null;
     tile.vertices = null;
+    tile.vertexDeltas = null;
     tile.particle = null;
 
     tile.setContent = setContent;

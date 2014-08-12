@@ -103,6 +103,11 @@ config.computeDependentValues();
       console.log('LineAnimationJob completed');
 
       job.isComplete = true;
+
+      if (job.polyline) {
+        job.grid.svg.removeChild(job.polyline);
+        job.polyline = null;
+      }
     }
   }
 
@@ -132,22 +137,27 @@ config.computeDependentValues();
    * @this LineAnimationJob
    */
   function determineNeighbors() {
-    var job, lowerNeigborIndex, upperNeigborIndex;
+    var job, lowerNeigborTileIndex, upperNeigborTileIndex;
 
     job = this;
 
     if (job.grid.isVertical) {
-      lowerNeigborIndex = (job.corners[job.currentCornerIndex] + 5) % 6;
-      upperNeigborIndex = job.corners[job.currentCornerIndex];
+      lowerNeigborTileIndex = (job.corners[job.currentCornerIndex] + 5) % 6;
+      upperNeigborTileIndex = job.corners[job.currentCornerIndex];
     } else {
-      lowerNeigborIndex = job.corners[job.currentCornerIndex];
-      upperNeigborIndex = (job.corners[job.currentCornerIndex] + 1) % 6;
+      lowerNeigborTileIndex = job.corners[job.currentCornerIndex];
+      upperNeigborTileIndex = (job.corners[job.currentCornerIndex] + 1) % 6;
     }
 
     job.lowerNeighborTiles[job.currentCornerIndex] =
-        job.tiles[job.currentCornerIndex].neighbors[lowerNeigborIndex];
+        job.tiles[job.currentCornerIndex].neighbors[lowerNeigborTileIndex];
     job.upperNeighborTiles[job.currentCornerIndex] =
-        job.tiles[job.currentCornerIndex].neighbors[upperNeigborIndex];
+        job.tiles[job.currentCornerIndex].neighbors[upperNeigborTileIndex];
+
+    job.lowerNeighborCorners[job.currentCornerIndex] =
+        (job.corners[job.currentCornerIndex] + 1) % 6;
+    job.upperNeighborCorners[job.currentCornerIndex] =
+        (job.corners[job.currentCornerIndex] + 5) % 6;
   }
 
   /**
@@ -247,15 +257,57 @@ config.computeDependentValues();
 
     ellapsedTime = currentTime - job.startTime;
     distanceTravelled = ellapsedTime / job.lineSidePeriod * hg.HexGrid.config.tileOuterRadius;
+    segmentsTouchedCount = parseInt(distanceTravelled / hg.HexGrid.config.tileOuterRadius) + 1;
+
+    while (segmentsTouchedCount > job.corners.length && !job.hasReachedEdge) {
+      chooseNextVertex.call(job);
+    }
+
     frontSegmentLength = distanceTravelled % hg.HexGrid.config.tileOuterRadius;
     backSegmentLength = (job.lineLength - frontSegmentLength) % hg.HexGrid.config.tileOuterRadius;
-    segmentsTouchedCount = parseInt(distanceTravelled / hg.HexGrid.config.tileOuterRadius) + 1;
 
     job.frontSegmentEndRatio = frontSegmentLength / hg.HexGrid.config.tileOuterRadius;
     job.backSegmentStartRatio = 1 - (backSegmentLength / hg.HexGrid.config.tileOuterRadius);
 
-    while (segmentsTouchedCount > job.corners.length && !job.hasReachedEdge) {
-      chooseNextVertex.call(job);
+    job.isShort = job.lineLength < hg.HexGrid.config.tileOuterRadius;
+    job.isStarting = distanceTravelled < job.lineLength;
+    **;// TODO: this doesn't work; need to somehow consider job.hasReachedEdge (but now that I moved the hasReachedEdge calculation to above, this should be straight-forward...)
+    job.isEnding = distanceTravelled > segmentsTouchedCount * hg.HexGrid.config.tileOuterRadius;
+
+    if (job.isShort) {
+      // The polyline is shorter than a tile side
+      if (frontSegmentLength === distanceTravelled) {
+        // The polyline is between corners
+        job.segmentsIncludedCount = 1;
+      } else {
+        // The polyline is across a corner
+        job.segmentsIncludedCount = 2;
+      }
+    } else {
+      if (job.isStarting) {
+        // The polyline is starting; the back of the polyline would lie outside the grid
+        **;
+      } else if (job.isEnding) {
+        // The polyline is ending; the front of the polyline would lie outside the grid
+        **;
+      } else {
+        // The polyline is fully within the grid
+        **;
+      }
+
+
+
+
+//      if (frontSegmentLength === distanceTravelled) {
+//        // The polyline is at the start and part of the polyline would lie outside the grid
+//        job.segmentsIncludedCount = 1;
+//      } else if () {
+//        // The polyline is at the end and part of the polyline would lie outside the grid
+//
+//      } else {
+//        job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
+//            backSegmentLength) % hg.HexGrid.config.tileOuterRadius) + 2;
+//      }
     }
 
     checkForComplete.call(job);
@@ -267,25 +319,58 @@ config.computeDependentValues();
    * @this LineAnimationJob
    */
   function drawSegments() {
-    var job, i, count, pointsString, points;
+    var job, i, count, pointsString, gapPoints, polylinePoints, gapPointsIndex;
 
     job = this;
 
-    points = [];
+    gapPoints = [];
 
-    // TODO: job.frontSegmentEndRatio
-
-    for (i = , count = ; i < count; i += 1) {
-      points[] = getCornerGapPoint(job.tiles[], job.lowerNeighborTiles[],
-          job.upperNeighborTiles[], job.corners[], job.grid.isVertical);
+    for (i = 0, count = job.corners.length; i < count; i += 1) {
+      gapPoints[i] = getCornerGapPoint(job.tiles[i], job.corners[i], job.lowerNeighborTiles[i],
+          job.upperNeighborTiles[i], job.lowerNeighborCorners[i], job.upperNeighborCorners[i]);
     }
 
-    // TODO: job.backSegmentStartRatio
+    polylinePoints = [];
+
+    // Calculate the outer point of the front, partial segment
+    gapPointsIndex = job.currentCornerIndex - 1;
+    polylinePoints[job.segmentsIncludedCount] = {
+      x: gapPoints[gapPointsIndex + 1].x * job.frontSegmentEndRatio +
+          gapPoints[gapPointsIndex].x * (1 - job.frontSegmentEndRatio),
+      y: gapPoints[gapPointsIndex + 1].y * job.frontSegmentEndRatio +
+          gapPoints[gapPointsIndex].y * (1 - job.frontSegmentEndRatio)
+    };
+
+    if (job.segmentsIncludedCount > 1) {
+      // Copy over all of the inner points
+      for (i = job.segmentsIncludedCount - 1, gapPointsIndex = job.currentCornerIndex - 1;
+           i > 0; i -= 1, gapPointsIndex -= 1) {
+        polylinePoints[i] = gapPoints[gapPointsIndex];
+      }
+
+      // Calculate the outer point of the back, partial segment
+      gapPointsIndex = job.currentCornerIndex - job.segmentsIncludedCount - 1;
+      polylinePoints[0] = {
+        x: gapPoints[gapPointsIndex + 1].x * job.backSegmentStartRatio +
+            gapPoints[gapPointsIndex].x * (1 - job.backSegmentStartRatio),
+        y: gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
+            gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
+      };
+    } else {
+      **;
+      // TODO: make sure this polyline logic can handle six cases:
+      //   1. The polyline is in the middle of the grid; the front and back segments are between different tiles
+      //   2. The polyline is at the start of the grid; the back segment is off-grid and the entire back rendered segment needs to be drawn
+      //   3. The polyline is at the end of the grid; the front segment is off-grid and the entire front rendered segment needs to be drawn
+      //   4. The polyline is shorter than a single tile segment; the polyline is between vertices and thus only part of one segment needs to be drawn
+      //   5. The polyline is shorter than a single tile segment; the polyline is across two segments and thus parts of two segments need to be drawn
+      //   6. One end of the polyline lies exactly on a vertex; what are the possible edge cases I need to account for?
+    }
 
     // Create the points string
     pointsString = '';
-    for (i = 0, count = points.length; i < count; i += 1) {
-      pointsString += points[i].x + ',' + points[i].y + ' ';
+    for (i = 0, count = polylinePoints.length; i < count; i += 1) {
+      pointsString += polylinePoints[i].x + ',' + polylinePoints[i].y + ' ';
     }
 
     // Update the attributes of the polyline SVG element
@@ -299,33 +384,37 @@ config.computeDependentValues();
    * Calculates the point in the middle of the gap between tiles at the given corner.
    *
    * @param {HexTile} tile
+   * @param {number} corner
    * @param {HexTile} lowerNeighbor
    * @param {HexTile} upperNeighbor
-   * @param {number} corner
-   * @param {boolean} isVertical
+   * @param {number} lowerNeighborCorner
+   * @param {number} upperNeighborCorner
    * @returns {{x:number,y:number}}
    */
-  function getCornerGapPoint(tile, lowerNeighbor, upperNeighbor, corner, isVertical) {
+  function getCornerGapPoint(tile, corner, lowerNeighbor, upperNeighbor, lowerNeighborCorner,
+                             upperNeighborCorner) {
     var count, xSum, ySum;
 
     if (lowerNeighbor) {
       if (upperNeighbor) {
         count = 3;
-        xSum = ;
-        ySum = ;
+        xSum = tile.particle.px + lowerNeighbor.particle.px + upperNeighbor.particle.px;
+        ySum = tile.particle.py + lowerNeighbor.particle.py + upperNeighbor.particle.py;
       } else {
         count = 2;
-        xSum = ;
-        ySum = ;
+        xSum = tile.vertices[corner * 2] + lowerNeighbor.vertices[lowerNeighborCorner * 2];
+        ySum = tile.vertices[corner * 2 + 1] + lowerNeighbor.vertices[lowerNeighborCorner * 2 + 1];
       }
-    } else if (upperNeighbor) {
-      count = 2;
-      xSum = ;
-      ySum = ;
     } else {
-      count = 1;
-      xSum = ;
-      ySum = ;
+      if (upperNeighbor) {
+        count = 2;
+        xSum = tile.vertices[corner * 2] + upperNeighbor.vertices[upperNeighborCorner * 2];
+        ySum = tile.vertices[corner * 2 + 1] + upperNeighbor.vertices[upperNeighborCorner * 2 + 1];
+      } else {
+        count = 1;
+        xSum = tile.vertices[corner * 2];
+        ySum = tile.vertices[corner * 2 + 1];
+      }
     }
 
     return {
@@ -378,12 +467,12 @@ config.computeDependentValues();
    * @this LineAnimationJob
    */
   function cancel() {
-    var job, i, count;
+    var job;
 
     job = this;
 
-    for (i = 0, count = job.segments.length; i < count; i += 1) {
-      job.grid.svg.removeChild(job.segments[i]);
+    if (job.polyline) {
+      job.grid.svg.removeChild(job.polyline);
     }
 
     job.tiles = [];
@@ -414,6 +503,8 @@ config.computeDependentValues();
     job.corners = [corner];
     job.lowerNeighborTiles = [];
     job.upperNeighborTiles = [];
+    job.lowerNeighborCorners = [];
+    job.upperNeighborCorners = [];
     job.direction = direction;
     job.currentCornerIndex = 0;
     job.frontSegmentEndRatio = Number.NaN;
