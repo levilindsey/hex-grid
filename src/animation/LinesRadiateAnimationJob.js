@@ -24,6 +24,8 @@
   config.endLightness = 90;
   config.endOpacity = 0;
 
+  config.sameDirectionProb = 0.8;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -55,6 +57,8 @@
       job.lineAnimationJobs[i].endSaturation = config.endSaturation;
       job.lineAnimationJobs[i].endLightness = config.endLightness;
       job.lineAnimationJobs[i].endOpacity = config.endOpacity;
+
+      job.lineAnimationJobs[i].sameDirectionProb = config.sameDirectionProb;
       // TODO: add the other radiate-specific line-animation parameters
     }
   }

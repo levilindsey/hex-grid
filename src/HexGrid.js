@@ -36,6 +36,8 @@
   config.contentDensity = 0.6;
   config.tileMass = 1;
 
+  //  --- Dependent parameters --- //
+
   config.computeDependentValues = function () {
     config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
     config.twoOverSqrtThree = 2 / Math.sqrt(3);

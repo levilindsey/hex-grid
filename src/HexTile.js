@@ -33,8 +33,14 @@
   config.velocitySuppressionLowerThreshold = 0.0005;
   // TODO: add similar, upper thresholds
 
-  config.forceSuppressionThresholdNegative = -config.forceSuppressionLowerThreshold;
-  config.velocitySuppressionThresholdNegative = -config.velocitySuppressionLowerThreshold;
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.forceSuppressionThresholdNegative = -config.forceSuppressionLowerThreshold;
+    config.velocitySuppressionThresholdNegative = -config.velocitySuppressionLowerThreshold;
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions

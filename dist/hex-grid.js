@@ -3295,7 +3295,7 @@
     job.corners = [];
     job.directions = [];
     job.currentCornerIndex = Number.NaN;
-    job.hasReachedEnd = true;
+    job.hasReachedEdge = true;
 
     job.isComplete = true;
   }
@@ -3322,7 +3322,7 @@
     job.frontSegmentEndRatio = Number.NaN;
     job.backSegmentStartRatio = Number.NaN;
     job.polyline = null;
-    job.hasReachedEnd = false;
+    job.hasReachedEdge = false;
     job.startTime = 0;
     job.isComplete = false;
 

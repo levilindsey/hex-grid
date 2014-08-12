@@ -24,6 +24,20 @@
   config.endLightness = 90;
   config.endOpacity = 0;
 
+  config.sameDirectionProb = 0.6;
+
+
+  config.oppositeDirectionProb = 0;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.distantSidewaysDirectionProb = (1 - config.sameDirectionProb) / 2;
+    config.closeSidewaysDirectionProb = (1 - config.oppositeDirectionProb) / 2;
+  };
+
+config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -66,7 +80,7 @@
 
     job = this;
 
-    progress = (currentTime - job.startTime) / duration;
+    progress = (currentTime - job.startTime) / job.duration;
     oneMinusProgress = 1 - progress;
 
     job.currentHue = oneMinusProgress * job.startHue + progress * job.endHue;
@@ -81,40 +95,59 @@
    * @this LineAnimationJob
    */
   function checkForComplete() {
-    var job = this;
+    var job;
 
-    **;// TODO:
-//    if (???) {
-//      console.log('LineAnimationJob completed');
-//
-//      job.isComplete = true;
-//    }
+    job = this;
+
+    if (job.hasReachedEdge && ) {
+      console.log('LineAnimationJob completed');
+
+      job.isComplete = true;
+    }
   }
 
   /**
    * Determines whether this LineAnimationJob has reached the edge of the grid.
    *
    * @this LineAnimationJob
-   * @returns {boolean}
    */
   function checkHasReachedEdge() {
-    var job, neighborIndex1, neighborIndex2;
+    var job;
 
     job = this;
 
-    if (job.directions[job.currentCornerIndex] === (job.corners[job.currentCornerIndex] + 3) % 6) {
+    if (job.direction === (job.corners[job.currentCornerIndex] + 3) % 6) {
       // When the job is at the opposite corner of a tile from the direction it is headed, then it
       // has not reached the edge
-      return false;
+      job.hasReachedEdge = false;
     } else {
-      neighborIndex1 = job.corners[job.currentCornerIndex];
-      neighborIndex2 = job.grid.isVertical ?
-          (job.corners[job.currentCornerIndex] + 5) % 6 :
-          (job.corners[job.currentCornerIndex] + 1) % 6;
-
-      return job.tiles[job.currentCornerIndex].neighbors[neighborIndex1] &&
-          job.tiles[job.currentCornerIndex].neighbors[neighborIndex2];
+      job.hasReachedEdge = job.lowerNeighborTiles[job.currentCornerIndex] &&
+          job.upperNeighborTiles[job.currentCornerIndex];
     }
+  }
+
+  /**
+   * Determines the neighbors of this job's current tile at the current corner.
+   *
+   * @this LineAnimationJob
+   */
+  function determineNeighbors() {
+    var job, lowerNeigborIndex, upperNeigborIndex;
+
+    job = this;
+
+    if (job.grid.isVertical) {
+      lowerNeigborIndex = (job.corners[job.currentCornerIndex] + 5) % 6;
+      upperNeigborIndex = job.corners[job.currentCornerIndex];
+    } else {
+      lowerNeigborIndex = job.corners[job.currentCornerIndex];
+      upperNeigborIndex = (job.corners[job.currentCornerIndex] + 1) % 6;
+    }
+
+    job.lowerNeighborTiles[job.currentCornerIndex] =
+        job.tiles[job.currentCornerIndex].neighbors[lowerNeigborIndex];
+    job.upperNeighborTiles[job.currentCornerIndex] =
+        job.tiles[job.currentCornerIndex].neighbors[upperNeigborIndex];
   }
 
   /**
@@ -122,12 +155,82 @@
    *
    * @this LineAnimationJob
    */
-  function getNextVertex() {
-    var job;
+  function chooseNextVertex() {
+    var job, cornerConfig, neighborProb, lowerSelfProb, upperSelfProb, random, relativeDirection, nextCorner, nextTile;
 
     job = this;
 
-    **;// TODO:
+    cornerConfig = (job.corners[job.currentCornerIndex] - job.direction + 6) % 6;
+
+    // Determine relative direction probabilities
+    switch (cornerConfig) {
+      case 0:
+        neighborProb = config.sameDirectionProb;
+        lowerSelfProb = config.distantSidewaysDirectionProb;
+        upperSelfProb = config.distantSidewaysDirectionProb;
+        break;
+      case 1:
+        neighborProb = config.closeSidewaysDirectionProb;
+        lowerSelfProb = config.closeSidewaysDirectionProb;
+        upperSelfProb = config.oppositeDirectionProb;
+        break;
+      case 2:
+        neighborProb = config.distantSidewaysDirectionProb;
+        lowerSelfProb = config.sameDirectionProb;
+        upperSelfProb = config.distantSidewaysDirectionProb;
+        break;
+      case 3:
+        neighborProb = config.oppositeDirectionProb;
+        lowerSelfProb = config.closeSidewaysDirectionProb;
+        upperSelfProb = config.closeSidewaysDirectionProb;
+        break;
+      case 4:
+        neighborProb = config.distantSidewaysDirectionProb;
+        lowerSelfProb = config.distantSidewaysDirectionProb;
+        upperSelfProb = config.sameDirectionProb;
+        break;
+      case 5:
+        neighborProb = config.closeSidewaysDirectionProb;
+        lowerSelfProb = config.oppositeDirectionProb;
+        upperSelfProb = config.closeSidewaysDirectionProb;
+        break;
+      default:
+        throw new Error('Invalid state: cornerConfig=' + cornerConfig);
+    }
+
+    random = Math.random();
+    relativeDirection = random < neighborProb ? 0 : random < neighborProb + lowerSelfProb ? 1 : 2;
+
+    // Determine the next corner configuration
+    switch (relativeDirection) {
+      case 0: // neighbor
+        if (job.grid.isVertical) {
+          nextCorner = (job.corners[job.currentCornerIndex] + 1) % 6;
+          nextTile = job.tiles[job.currentCornerIndex].neighbors[(job.corners[job.currentCornerIndex] + 5) % 6].tile;
+        } else {
+          nextCorner = (job.corners[job.currentCornerIndex] + 1) % 6;
+          nextTile = job.tiles[job.currentCornerIndex].neighbors[job.corners[job.currentCornerIndex]].tile;
+        }
+        break;
+      case 1: // lower self
+        nextCorner = (job.corners[job.currentCornerIndex] + 5) % 6;
+        nextTile = job.tiles[job.currentCornerIndex];
+        break;
+      case 2: // upper self
+        nextCorner = (job.corners[job.currentCornerIndex] + 1) % 6;
+        nextTile = job.tiles[job.currentCornerIndex];
+        break;
+      default:
+        throw new Error('Invalid state: relativeDirection=' + relativeDirection);
+    }
+
+    job.currentCornerIndex = job.corners.length;
+
+    job.corners[job.currentCornerIndex] = nextCorner;
+    job.tiles[job.currentCornerIndex] = nextTile;
+
+    determineNeighbors.call(job);
+    checkHasReachedEdge.call(job);
   }
 
   /**
@@ -151,10 +254,11 @@
     job.frontSegmentEndRatio = frontSegmentLength / hg.HexGrid.config.tileOuterRadius;
     job.backSegmentStartRatio = 1 - (backSegmentLength / hg.HexGrid.config.tileOuterRadius);
 
-    while (segmentsTouchedCount > job.corners.length) {
-      job.corners.push(getNextVertex.call(job));
-      job.currentCornerIndex = job.corners.length - 1;
+    while (segmentsTouchedCount > job.corners.length && !job.hasReachedEdge) {
+      chooseNextVertex.call(job);
     }
+
+    checkForComplete.call(job);
   }
 
   /**
@@ -172,7 +276,8 @@
     // TODO: job.frontSegmentEndRatio
 
     for (i = , count = ; i < count; i += 1) {
-      points[] = getCornerGapPoint(job.tiles[], job.corners[], job.directions[]);
+      points[] = getCornerGapPoint(job.tiles[], job.lowerNeighborTiles[],
+          job.upperNeighborTiles[], job.corners[], job.grid.isVertical);
     }
 
     // TODO: job.backSegmentStartRatio
@@ -194,27 +299,33 @@
    * Calculates the point in the middle of the gap between tiles at the given corner.
    *
    * @param {HexTile} tile
+   * @param {HexTile} lowerNeighbor
+   * @param {HexTile} upperNeighbor
    * @param {number} corner
-   * @param {number} direction
+   * @param {boolean} isVertical
    * @returns {{x:number,y:number}}
    */
-  function getCornerGapPoint(tile, corner, direction) {
-    var job, count, xSum, ySum;
+  function getCornerGapPoint(tile, lowerNeighbor, upperNeighbor, corner, isVertical) {
+    var count, xSum, ySum;
 
-    count = 1;
-    xSum = ;
-    ySum = ;
-
-    if () {
-      count += 1;
-      xSum += ;
-      ySum += ;
-    }
-
-    if () {
-      count += 1;
-      xSum += ;
-      ySum += ;
+    if (lowerNeighbor) {
+      if (upperNeighbor) {
+        count = 3;
+        xSum = ;
+        ySum = ;
+      } else {
+        count = 2;
+        xSum = ;
+        ySum = ;
+      }
+    } else if (upperNeighbor) {
+      count = 2;
+      xSum = ;
+      ySum = ;
+    } else {
+      count = 1;
+      xSum = ;
+      ySum = ;
     }
 
     return {
@@ -277,9 +388,9 @@
 
     job.tiles = [];
     job.corners = [];
-    job.directions = [];
+    job.direction = Number.NaN;
     job.currentCornerIndex = Number.NaN;
-    job.hasReachedEnd = true;
+    job.hasReachedEdge = true;
 
     job.isComplete = true;
   }
@@ -301,12 +412,14 @@
     job.grid = grid;
     job.tiles = [tile];
     job.corners = [corner];
-    job.directions = [direction];
-    job.currentCornerIndex = Number.NaN;
+    job.lowerNeighborTiles = [];
+    job.upperNeighborTiles = [];
+    job.direction = direction;
+    job.currentCornerIndex = 0;
     job.frontSegmentEndRatio = Number.NaN;
     job.backSegmentStartRatio = Number.NaN;
     job.polyline = null;
-    job.hasReachedEnd = false;
+    job.hasReachedEdge = false;
     job.startTime = 0;
     job.isComplete = false;
 
@@ -327,6 +440,8 @@
     job.endLightness = config.endLightness;
     job.endOpacity = config.endOpacity;
 
+    job.sameDirectionProb = config.sameDirectionProb;
+
     job.currentSaturation = config.startSaturation;
     job.currentLightness = config.startLightness;
     job.currentOpacity = config.startOpacity;
@@ -336,6 +451,7 @@
     job.update = update;
     job.cancel = cancel;
 
+    determineNeighbors.call(job);
     createHues.call(job);
     createPolyline.call(job);
 
