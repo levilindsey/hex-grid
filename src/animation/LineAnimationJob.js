@@ -12,6 +12,7 @@
   var config = {};
 
   config.duration = 1600;
+  config.lineWidth = 8;
   config.lineLength = 200;
   config.lineSidePeriod = 300; // milliseconds per tile side
 
@@ -41,6 +42,40 @@
   }
 
   /**
+   * Creates the polyline SVG element that is used to render this animation.
+   *
+   * @this LineAnimationJob
+   */
+  function createPolyline() {
+    var job;
+
+    job = this;
+
+    job.polyline = document.createElementNS(hg.util.svgNamespace, 'polyline');
+    job.grid.svg.appendChild(job.polyline);
+  }
+
+  /**
+   * Updates the color values of the line of this animation.
+   *
+   * @this LineAnimationJob
+   * @param {number} currentTime
+   */
+  function updateColorValues(currentTime) {
+    var job, progress, oneMinusProgress;
+
+    job = this;
+
+    progress = (currentTime - job.startTime) / duration;
+    oneMinusProgress = 1 - progress;
+
+    job.currentHue = oneMinusProgress * job.startHue + progress * job.endHue;
+    job.currentSaturation = oneMinusProgress * job.startSaturation + progress * job.endSaturation;
+    job.currentLightness = oneMinusProgress * job.startLightness + progress * job.endLightness;
+    job.currentOpacity = oneMinusProgress * job.startOpacity + progress * job.endOpacity;
+  }
+
+  /**
    * Checks whether this job is complete. If so, a flag is set and a callback is called.
    *
    * @this LineAnimationJob
@@ -48,7 +83,7 @@
   function checkForComplete() {
     var job = this;
 
-    // TODO:
+    **;// TODO:
 //    if (???) {
 //      console.log('LineAnimationJob completed');
 //
@@ -92,7 +127,7 @@
 
     job = this;
 
-    // TODO:
+    **;// TODO:
   }
 
   /**
@@ -128,13 +163,64 @@
    * @this LineAnimationJob
    */
   function drawSegments() {
-    var job;
+    var job, i, count, pointsString, points;
 
     job = this;
 
-    // TODO:
-//    job.frontSegmentEndRatio
-//    job.backSegmentStartRatio
+    points = [];
+
+    // TODO: job.frontSegmentEndRatio
+
+    for (i = , count = ; i < count; i += 1) {
+      points[] = getCornerGapPoint(job.tiles[], job.corners[], job.directions[]);
+    }
+
+    // TODO: job.backSegmentStartRatio
+
+    // Create the points string
+    pointsString = '';
+    for (i = 0, count = points.length; i < count; i += 1) {
+      pointsString += points[i].x + ',' + points[i].y + ' ';
+    }
+
+    // Update the attributes of the polyline SVG element
+    job.polyline.setAttribute('points', pointsString);
+    job.polyline.setAttribute('stroke', 'hsla(' + job.currentHue + ',' + job.currentSaturation +
+        '%,' + job.currentLightness + '%,' + job.currentOpacity + ')');
+    job.polyline.setAttribute('stroke-width', job.lineWidth);
+  }
+
+  /**
+   * Calculates the point in the middle of the gap between tiles at the given corner.
+   *
+   * @param {HexTile} tile
+   * @param {number} corner
+   * @param {number} direction
+   * @returns {{x:number,y:number}}
+   */
+  function getCornerGapPoint(tile, corner, direction) {
+    var job, count, xSum, ySum;
+
+    count = 1;
+    xSum = ;
+    ySum = ;
+
+    if () {
+      count += 1;
+      xSum += ;
+      ySum += ;
+    }
+
+    if () {
+      count += 1;
+      xSum += ;
+      ySum += ;
+    }
+
+    return {
+      x: xSum / count,
+      y: ySum / count
+    };
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -169,6 +255,7 @@
   function update(currentTime, deltaTime) {
     var job = this;
 
+    updateColorValues.call(job, currentTime);
     updateSegments.call(job, currentTime);
     drawSegments.call(job);
     checkForComplete.call(job);
@@ -191,7 +278,6 @@
     job.tiles = [];
     job.corners = [];
     job.directions = [];
-    job.segments = [];
     job.currentCornerIndex = Number.NaN;
     job.hasReachedEnd = true;
 
@@ -216,18 +302,20 @@
     job.tiles = [tile];
     job.corners = [corner];
     job.directions = [direction];
-    job.segments = null;
     job.currentCornerIndex = Number.NaN;
     job.frontSegmentEndRatio = Number.NaN;
     job.backSegmentStartRatio = Number.NaN;
+    job.polyline = null;
     job.hasReachedEnd = false;
     job.startTime = 0;
     job.isComplete = false;
 
     job.startHue = Number.NaN;
     job.endHue = Number.NaN;
+    job.currentHue = Number.NaN;
 
     job.duration = config.duration;
+    job.lineWidth = config.lineWidth;
     job.lineLength = config.lineLength;
     job.lineSidePeriod = config.lineSidePeriod;
 
@@ -238,6 +326,10 @@
     job.endSaturation = config.endSaturation;
     job.endLightness = config.endLightness;
     job.endOpacity = config.endOpacity;
+
+    job.currentSaturation = config.startSaturation;
+    job.currentLightness = config.startLightness;
+    job.currentOpacity = config.startOpacity;
     // TODO: add the other line config params here (this is important so that the radiate job can have its own params)
 
     job.start = start;
@@ -245,6 +337,7 @@
     job.cancel = cancel;
 
     createHues.call(job);
+    createPolyline.call(job);
 
     console.log('LineAnimationJob created: tileIndex=' + tile.index + ', corner=' + corner +
         ', direction=' + direction);

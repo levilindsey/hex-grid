@@ -12,6 +12,7 @@
   var config = {};
 
   config.duration = 900;
+  config.lineWidth = 6;
   config.lineLength = 140;
   config.lineSidePeriod = 200; // milliseconds per tile side
 
@@ -43,6 +44,7 @@
       // Replace the line animation's normal parameters with some that are specific to radiating
       // lines
       job.lineAnimationJobs[i].duration = config.duration;
+      job.lineAnimationJobs[i].lineWidth = config.lineWidth;
       job.lineAnimationJobs[i].lineLength = config.lineLength;
       job.lineAnimationJobs[i].lineSidePeriod = config.lineSidePeriod;
 
