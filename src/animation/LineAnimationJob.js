@@ -28,6 +28,7 @@
 
 
   config.oppositeDirectionProb = 0;
+  config.epsilon = 0.00001;
 
   //  --- Dependent parameters --- //
 
@@ -251,7 +252,7 @@ config.computeDependentValues();
    */
   function updateSegments(currentTime) {
     var job, ellapsedTime, distanceTravelled, frontSegmentLength, backSegmentLength,
-        segmentsTouchedCount;
+        segmentsTouchedCount, distancePastEdge;
 
     job = this;
 
@@ -264,50 +265,57 @@ config.computeDependentValues();
     }
 
     frontSegmentLength = distanceTravelled % hg.HexGrid.config.tileOuterRadius;
-    backSegmentLength = (job.lineLength - frontSegmentLength) % hg.HexGrid.config.tileOuterRadius;
+    backSegmentLength = (job.lineLength - frontSegmentLength +
+        hg.HexGrid.config.tileOuterRadius) % hg.HexGrid.config.tileOuterRadius;
 
     job.frontSegmentEndRatio = frontSegmentLength / hg.HexGrid.config.tileOuterRadius;
     job.backSegmentStartRatio = 1 - (backSegmentLength / hg.HexGrid.config.tileOuterRadius);
 
     job.isShort = job.lineLength < hg.HexGrid.config.tileOuterRadius;
     job.isStarting = distanceTravelled < job.lineLength;
-    **;// TODO: this doesn't work; need to somehow consider job.hasReachedEdge (but now that I moved the hasReachedEdge calculation to above, this should be straight-forward...)
-    job.isEnding = distanceTravelled > segmentsTouchedCount * hg.HexGrid.config.tileOuterRadius;
 
-    if (job.isShort) {
-      // The polyline is shorter than a tile side
-      if (frontSegmentLength === distanceTravelled) {
-        // The polyline is between corners
+    **;// TODO: what if the segment is both starting AND ending?
+    //   - it seems that I need to instead first set the segment counts, then subtract from them for the various conditions
+
+    if (job.isStarting) {
+      // The polyline is starting; the back of the polyline would lie outside the grid
+      job.segmentsIncludedCount = segmentsTouchedCount;
+      job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 1;
+    } else if (job.hasReachedEdge) {
+      // The polyline is ending; the front of the polyline would lie outside the grid
+      if (job.isShort) {
+        // The polyline is shorter than a tile side
         job.segmentsIncludedCount = 1;
+        job.completeSegmentsIncludedCount = 0;
       } else {
-        // The polyline is across a corner
-        job.segmentsIncludedCount = 2;
+        distancePastEdge = hg.HexGrid.config.tileOuterRadius *
+            (segmentsTouchedCount - job.currentCornerIndex - 1);
+        job.segmentsIncludedCount =
+            (job.lineLength - distancePastEdge) % hg.HexGrid.config.tileOuterRadius;
+        job.segmentsIncludedCount =
+            job.segmentsIncludedCount < 0 ? 0 : parseInt(job.segmentsIncludedCount) + 1;
+        job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 1;
       }
     } else {
-      if (job.isStarting) {
-        // The polyline is starting; the back of the polyline would lie outside the grid
-        **;
-      } else if (job.isEnding) {
-        // The polyline is ending; the front of the polyline would lie outside the grid
-        **;
+      // The polyline is fully within the grid
+      if (job.isShort) {
+        // The polyline is shorter than a tile side
+        // (the test is testing equality, but needs to account for floating point round-off error)
+        if ((distanceTravelled % hg.HexGrid.config.tileOuterRadius) - frontSegmentLength +
+            config.epsilon < config.epsilon * 2) {
+          // The polyline is between corners
+          job.segmentsIncludedCount = 1;
+          job.completeSegmentsIncludedCount = 0;
+        } else {
+          // The polyline is across a corner
+          job.segmentsIncludedCount = 2;
+          job.completeSegmentsIncludedCount = 0;
+        }
       } else {
-        // The polyline is fully within the grid
-        **;
+        job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
+            backSegmentLength + config.epsilon) % hg.HexGrid.config.tileOuterRadius) + 2;
+        job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 2;
       }
-
-
-
-
-//      if (frontSegmentLength === distanceTravelled) {
-//        // The polyline is at the start and part of the polyline would lie outside the grid
-//        job.segmentsIncludedCount = 1;
-//      } else if () {
-//        // The polyline is at the end and part of the polyline would lie outside the grid
-//
-//      } else {
-//        job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
-//            backSegmentLength) % hg.HexGrid.config.tileOuterRadius) + 2;
-//      }
     }
 
     checkForComplete.call(job);
@@ -319,7 +327,7 @@ config.computeDependentValues();
    * @this LineAnimationJob
    */
   function drawSegments() {
-    var job, i, count, pointsString, gapPoints, polylinePoints, gapPointsIndex;
+    var job, i, count, polylinePointsIndex, pointsString, gapPoints, polylinePoints, gapPointsIndex;
 
     job = this;
 
@@ -331,41 +339,41 @@ config.computeDependentValues();
     }
 
     polylinePoints = [];
+    polylinePointsIndex = job.segmentsIncludedCount;
+    gapPointsIndex = job.currentCornerIndex;
 
-    // Calculate the outer point of the front, partial segment
-    gapPointsIndex = job.currentCornerIndex - 1;
-    polylinePoints[job.segmentsIncludedCount] = {
-      x: gapPoints[gapPointsIndex + 1].x * job.frontSegmentEndRatio +
-          gapPoints[gapPointsIndex].x * (1 - job.frontSegmentEndRatio),
-      y: gapPoints[gapPointsIndex + 1].y * job.frontSegmentEndRatio +
-          gapPoints[gapPointsIndex].y * (1 - job.frontSegmentEndRatio)
-    };
+    if (!job.hasReachedEdge) {
+      polylinePoints[polylinePointsIndex] = {
+        x: gapPoints[gapPointsIndex].x * job.frontSegmentEndRatio +
+            gapPoints[gapPointsIndex - 1].x * (1 - job.frontSegmentEndRatio),
+        y: gapPoints[gapPointsIndex].y * job.frontSegmentEndRatio +
+            gapPoints[gapPointsIndex - 1].y * (1 - job.frontSegmentEndRatio)
+      };
+      polylinePointsIndex -= 1;
+      gapPointsIndex -= 1;
+    }
 
-    if (job.segmentsIncludedCount > 1) {
-      // Copy over all of the inner points
-      for (i = job.segmentsIncludedCount - 1, gapPointsIndex = job.currentCornerIndex - 1;
-           i > 0; i -= 1, gapPointsIndex -= 1) {
-        polylinePoints[i] = gapPoints[gapPointsIndex];
-      }
+    for (i = 0, count = job.completeSegmentsIncludedCount; i < count;
+         i += 1, polylinePointsIndex -= 1, gapPointsIndex -= 1) {
+      polylinePoints[polylinePointsIndex] = gapPoints[gapPointsIndex];
+    }
 
-      // Calculate the outer point of the back, partial segment
-      gapPointsIndex = job.currentCornerIndex - job.segmentsIncludedCount - 1;
+    if (!job.isStarting) {
       polylinePoints[0] = {
         x: gapPoints[gapPointsIndex + 1].x * job.backSegmentStartRatio +
             gapPoints[gapPointsIndex].x * (1 - job.backSegmentStartRatio),
         y: gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
             gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
-      };
-    } else {
-      **;
-      // TODO: make sure this polyline logic can handle six cases:
-      //   1. The polyline is in the middle of the grid; the front and back segments are between different tiles
-      //   2. The polyline is at the start of the grid; the back segment is off-grid and the entire back rendered segment needs to be drawn
-      //   3. The polyline is at the end of the grid; the front segment is off-grid and the entire front rendered segment needs to be drawn
-      //   4. The polyline is shorter than a single tile segment; the polyline is between vertices and thus only part of one segment needs to be drawn
-      //   5. The polyline is shorter than a single tile segment; the polyline is across two segments and thus parts of two segments need to be drawn
-      //   6. One end of the polyline lies exactly on a vertex; what are the possible edge cases I need to account for?
+      }
     }
+
+    **;// TODO: make sure this polyline logic can handle six cases:
+    //   1. The polyline is in the middle of the grid; the front and back segments are between different tiles
+    //   2. The polyline is at the start of the grid; the back segment is off-grid and the entire back rendered segment needs to be drawn
+    //   3. The polyline is at the end of the grid; the front segment is off-grid and the entire front rendered segment needs to be drawn
+    //   4. The polyline is shorter than a single tile segment; the polyline is between vertices and thus only part of one segment needs to be drawn
+    //   5. The polyline is shorter than a single tile segment; the polyline is across two segments and thus parts of two segments need to be drawn
+    //   6. One end of the polyline lies exactly on a vertex; what are the possible edge cases I need to account for?
 
     // Create the points string
     pointsString = '';
