@@ -36,6 +36,8 @@
   config.contentDensity = 0.6;
   config.tileMass = 1;
 
+  //  --- Dependent parameters --- //
+
   config.computeDependentValues = function () {
     config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
     config.twoOverSqrtThree = 2 / Math.sqrt(3);
@@ -1682,8 +1684,14 @@
   config.velocitySuppressionLowerThreshold = 0.0005;
   // TODO: add similar, upper thresholds
 
-  config.forceSuppressionThresholdNegative = -config.forceSuppressionLowerThreshold;
-  config.velocitySuppressionThresholdNegative = -config.velocitySuppressionLowerThreshold;
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.forceSuppressionThresholdNegative = -config.forceSuppressionLowerThreshold;
+    config.velocitySuppressionThresholdNegative = -config.velocitySuppressionLowerThreshold;
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -2041,6 +2049,9 @@
       // Reset force accumulator for next time step
       tile.particle.forceAccumulatorX = 0;
       tile.particle.forceAccumulatorY = 0;
+
+      // Compute new vertex locations
+      tile.vertices = computeVertices(tile.particle.px, tile.particle.py, tile.vertexDeltas);
     }
   }
 
@@ -2054,7 +2065,6 @@
 
     tile = this;
 
-    tile.vertices = computeVertices(tile.particle.px, tile.particle.py, tile.vertexDeltas);
     setVertices.call(tile, tile.vertices);
   }
 
@@ -2133,6 +2143,7 @@
     tile.isBorderTile = isBorderTile;
     tile.neighbors = null;
     tile.vertices = null;
+    tile.vertexDeltas = null;
     tile.particle = null;
 
     tile.setContent = setContent;
@@ -3027,7 +3038,7 @@
 
   var config = {};
 
-  config.duration = 1600;
+  config.duration = 3200;
   config.lineWidth = 8;
   config.lineLength = 200;
   config.lineSidePeriod = 300; // milliseconds per tile side
@@ -3039,6 +3050,21 @@
   config.endSaturation = 50;
   config.endLightness = 90;
   config.endOpacity = 0;
+
+  config.sameDirectionProb = 0.7;
+
+
+  config.oppositeDirectionProb = 0;
+  config.epsilon = 0.00001;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.distantSidewaysDirectionProb = (1 - config.sameDirectionProb) / 2;
+    config.closeSidewaysDirectionProb = (1 - config.oppositeDirectionProb) / 2;
+  };
+
+config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -3068,6 +3094,7 @@
     job = this;
 
     job.polyline = document.createElementNS(hg.util.svgNamespace, 'polyline');
+    job.polyline.setAttribute('fill-opacity', '0');
     job.grid.svg.appendChild(job.polyline);
   }
 
@@ -3075,14 +3102,13 @@
    * Updates the color values of the line of this animation.
    *
    * @this LineAnimationJob
-   * @param {number} currentTime
    */
-  function updateColorValues(currentTime) {
+  function updateColorValues() {
     var job, progress, oneMinusProgress;
 
     job = this;
 
-    progress = (currentTime - job.startTime) / duration;
+    progress = job.ellapsedTime / job.duration;
     oneMinusProgress = 1 - progress;
 
     job.currentHue = oneMinusProgress * job.startHue + progress * job.endHue;
@@ -3092,45 +3118,78 @@
   }
 
   /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   * Updates the state of this job to handle its completion.
    *
    * @this LineAnimationJob
    */
-  function checkForComplete() {
-    var job = this;
+  function handleCompletion() {
+    var job;
 
-    **;// TODO:
-//    if (???) {
-//      console.log('LineAnimationJob completed');
-//
-//      job.isComplete = true;
-//    }
+    job = this;
+
+    console.log('LineAnimationJob completed');
+
+    if (job.polyline) {
+      job.grid.svg.removeChild(job.polyline);
+      job.polyline = null;
+    }
+
+    job.tiles = [];
+    job.corners = [];
+    job.direction = Number.NaN;
+    job.currentCornerIndex = Number.NaN;
+    job.hasReachedEdge = true;
+
+    job.isComplete = true;
   }
 
   /**
    * Determines whether this LineAnimationJob has reached the edge of the grid.
    *
    * @this LineAnimationJob
-   * @returns {boolean}
    */
   function checkHasReachedEdge() {
-    var job, neighborIndex1, neighborIndex2;
+    var job;
 
     job = this;
 
-    if (job.directions[job.currentCornerIndex] === (job.corners[job.currentCornerIndex] + 3) % 6) {
+    if (job.direction === (job.corners[job.currentCornerIndex] + 3) % 6) {
       // When the job is at the opposite corner of a tile from the direction it is headed, then it
       // has not reached the edge
-      return false;
+      job.hasReachedEdge = false;
     } else {
-      neighborIndex1 = job.corners[job.currentCornerIndex];
-      neighborIndex2 = job.grid.isVertical ?
-          (job.corners[job.currentCornerIndex] + 5) % 6 :
-          (job.corners[job.currentCornerIndex] + 1) % 6;
-
-      return job.tiles[job.currentCornerIndex].neighbors[neighborIndex1] &&
-          job.tiles[job.currentCornerIndex].neighbors[neighborIndex2];
+      job.hasReachedEdge = !job.lowerNeighbors[job.currentCornerIndex] ||
+          !job.upperNeighbors[job.currentCornerIndex];
     }
+  }
+
+  /**
+   * Determines the neighbors of this job's current tile at the current corner.
+   *
+   * @this LineAnimationJob
+   */
+  function determineNeighbors() {
+    var job, lowerNeigborTileIndex, upperNeigborTileIndex;
+
+    job = this;
+
+    if (job.grid.isVertical) {
+      lowerNeigborTileIndex = (job.corners[job.currentCornerIndex] + 5) % 6;
+      upperNeigborTileIndex = job.corners[job.currentCornerIndex];
+    } else {
+      lowerNeigborTileIndex = job.corners[job.currentCornerIndex];
+      upperNeigborTileIndex = (job.corners[job.currentCornerIndex] + 1) % 6;
+    }
+
+    job.lowerNeighbors[job.currentCornerIndex] =
+        job.tiles[job.currentCornerIndex].neighbors[lowerNeigborTileIndex];
+    job.upperNeighbors[job.currentCornerIndex] =
+        job.tiles[job.currentCornerIndex].neighbors[upperNeigborTileIndex];
+
+    job.lowerNeighborCorners[job.currentCornerIndex] =
+        (job.corners[job.currentCornerIndex] + 1) % 6;
+    job.upperNeighborCorners[job.currentCornerIndex] =
+        (job.corners[job.currentCornerIndex] + 5) % 6;
   }
 
   /**
@@ -3138,38 +3197,171 @@
    *
    * @this LineAnimationJob
    */
-  function getNextVertex() {
-    var job;
+  function chooseNextVertex() {
+    var job, cornerConfig, neighborProb, lowerSelfProb, upperSelfProb, random, relativeDirection,
+        absoluteDirection, nextCorner, nextTile;
 
     job = this;
 
-    **;// TODO:
+    cornerConfig = (job.corners[job.currentCornerIndex] - job.direction + 6) % 6;
+
+    // Determine relative direction probabilities
+    switch (cornerConfig) {
+      case 0:
+        neighborProb = config.sameDirectionProb;
+        lowerSelfProb = config.distantSidewaysDirectionProb;
+        upperSelfProb = config.distantSidewaysDirectionProb;
+        break;
+      case 1:
+        neighborProb = config.closeSidewaysDirectionProb;
+        lowerSelfProb = config.closeSidewaysDirectionProb;
+        upperSelfProb = config.oppositeDirectionProb;
+        break;
+      case 2:
+        neighborProb = config.distantSidewaysDirectionProb;
+        lowerSelfProb = config.sameDirectionProb;
+        upperSelfProb = config.distantSidewaysDirectionProb;
+        break;
+      case 3:
+        neighborProb = config.oppositeDirectionProb;
+        lowerSelfProb = config.closeSidewaysDirectionProb;
+        upperSelfProb = config.closeSidewaysDirectionProb;
+        break;
+      case 4:
+        neighborProb = config.distantSidewaysDirectionProb;
+        lowerSelfProb = config.distantSidewaysDirectionProb;
+        upperSelfProb = config.sameDirectionProb;
+        break;
+      case 5:
+        neighborProb = config.closeSidewaysDirectionProb;
+        lowerSelfProb = config.oppositeDirectionProb;
+        upperSelfProb = config.closeSidewaysDirectionProb;
+        break;
+      default:
+        throw new Error('Invalid state: cornerConfig=' + cornerConfig);
+    }
+
+    do {
+      random = Math.random();
+      relativeDirection = random < neighborProb ? 0 : random < neighborProb + lowerSelfProb ? 1 : 2;
+      absoluteDirection = ;
+    } while (absoluteDirection === job.latestDirection + 3 % 6);
+
+    job.latestDirection = absoluteDirection;
+
+    // Determine the next corner configuration
+    switch (relativeDirection) {
+      case 0: // neighbor
+        if (job.grid.isVertical) {
+          nextCorner = (job.corners[job.currentCornerIndex] + 1) % 6;
+          nextTile = job.tiles[job.currentCornerIndex].neighbors[(job.corners[job.currentCornerIndex] + 5) % 6].tile;
+        } else {
+          nextCorner = (job.corners[job.currentCornerIndex] + 1) % 6;
+          nextTile = job.tiles[job.currentCornerIndex].neighbors[job.corners[job.currentCornerIndex]].tile;
+        }
+        break;
+      case 1: // lower self
+        nextCorner = (job.corners[job.currentCornerIndex] + 5) % 6;
+        nextTile = job.tiles[job.currentCornerIndex];
+        break;
+      case 2: // upper self
+        nextCorner = (job.corners[job.currentCornerIndex] + 1) % 6;
+        nextTile = job.tiles[job.currentCornerIndex];
+        break;
+      default:
+        throw new Error('Invalid state: relativeDirection=' + relativeDirection);
+    }
+
+    job.currentCornerIndex = job.corners.length;
+
+    job.corners[job.currentCornerIndex] = nextCorner;
+    job.tiles[job.currentCornerIndex] = nextTile;
+
+    determineNeighbors.call(job);
+    checkHasReachedEdge.call(job);
   }
 
   /**
    * Updates the parameters of the segments of this animation.
    *
    * @this LineAnimationJob
-   * @param {number} currentTime
    */
-  function updateSegments(currentTime) {
-    var job, ellapsedTime, distanceTravelled, frontSegmentLength, backSegmentLength,
-        segmentsTouchedCount;
+  function updateSegments() {
+    var job, distanceTravelled, frontSegmentLength, backSegmentLength, segmentsTouchedCount,
+        distancePastEdge;
 
     job = this;
 
-    ellapsedTime = currentTime - job.startTime;
-    distanceTravelled = ellapsedTime / job.lineSidePeriod * hg.HexGrid.config.tileOuterRadius;
-    frontSegmentLength = distanceTravelled % hg.HexGrid.config.tileOuterRadius;
-    backSegmentLength = (job.lineLength - frontSegmentLength) % hg.HexGrid.config.tileOuterRadius;
+    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * hg.HexGrid.config.tileOuterRadius;
     segmentsTouchedCount = parseInt(distanceTravelled / hg.HexGrid.config.tileOuterRadius) + 1;
+
+    while (segmentsTouchedCount >= job.corners.length && !job.hasReachedEdge) {
+      chooseNextVertex.call(job);
+    }
+
+    frontSegmentLength = distanceTravelled % hg.HexGrid.config.tileOuterRadius;
+    backSegmentLength = (job.lineLength - frontSegmentLength +
+        hg.HexGrid.config.tileOuterRadius) % hg.HexGrid.config.tileOuterRadius;
 
     job.frontSegmentEndRatio = frontSegmentLength / hg.HexGrid.config.tileOuterRadius;
     job.backSegmentStartRatio = 1 - (backSegmentLength / hg.HexGrid.config.tileOuterRadius);
 
-    while (segmentsTouchedCount > job.corners.length) {
-      job.corners.push(getNextVertex.call(job));
-      job.currentCornerIndex = job.corners.length - 1;
+    job.isShort = job.lineLength < hg.HexGrid.config.tileOuterRadius;
+    job.isStarting = distanceTravelled < job.lineLength;
+
+//    **;// TODO: what if the segment is both starting AND ending?
+    //   - it seems that I need to instead first set the segment counts, then subtract from them for the various conditions
+
+    if (job.isStarting) {
+      // The polyline is starting; the back of the polyline would lie outside the grid
+      job.segmentsIncludedCount = segmentsTouchedCount;
+      job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 1;
+      console.log('>>>>>1.1');/////TODO/////
+    } else if (job.hasReachedEdge) {
+      // The polyline is ending; the front of the polyline would lie outside the grid
+      if (job.isShort) {
+        // The polyline is shorter than a tile side
+        job.segmentsIncludedCount = 1;
+        job.completeSegmentsIncludedCount = 0;
+        console.log('>>>>>2.1');/////TODO/////
+      } else {
+        distancePastEdge = hg.HexGrid.config.tileOuterRadius *
+            (segmentsTouchedCount - job.currentCornerIndex - 1);
+
+        if (distancePastEdge > job.lineLength) {
+          handleCompletion.call(job);
+        }
+
+        job.segmentsIncludedCount =
+            (job.lineLength - distancePastEdge) % hg.HexGrid.config.tileOuterRadius;
+        job.segmentsIncludedCount =
+            job.segmentsIncludedCount < 0 ? 0 : parseInt(job.segmentsIncludedCount) + 1;
+        job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 1;
+        console.log('>>>>>2.2');/////TODO/////
+      }
+    } else {
+      // The polyline is fully within the grid
+      if (job.isShort) {
+        // The polyline is shorter than a tile side
+        // (the test is testing equality, but needs to account for floating point round-off error)
+        if ((distanceTravelled % hg.HexGrid.config.tileOuterRadius) - frontSegmentLength +
+            config.epsilon < config.epsilon * 2) {
+          // The polyline is between corners
+          job.segmentsIncludedCount = 1;
+          job.completeSegmentsIncludedCount = 0;
+          console.log('>>>>>3.1');/////TODO/////
+        } else {
+          // The polyline is across a corner
+          job.segmentsIncludedCount = 2;
+          job.completeSegmentsIncludedCount = 0;
+          console.log('>>>>>3.2');/////TODO/////
+        }
+      } else {
+        job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
+            backSegmentLength + config.epsilon) % hg.HexGrid.config.tileOuterRadius) + 2;
+        job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 2;
+        console.log('>>>>>3.3');/////TODO/////
+      }
     }
   }
 
@@ -3179,30 +3371,60 @@
    * @this LineAnimationJob
    */
   function drawSegments() {
-    var job, i, count, pointsString, points;
+    var job, i, count, polylinePointsIndex, pointsString, gapPoints, polylinePoints, gapPointsIndex;
 
     job = this;
 
-    points = [];
+    gapPoints = [];
 
-    // TODO: job.frontSegmentEndRatio
-
-    for (i = , count = ; i < count; i += 1) {
-      points[] = getCornerGapPoint(job.tiles[], job.corners[], job.directions[]);
+    for (i = 0, count = job.corners.length; i < count; i += 1) {
+      gapPoints[i] = getCornerGapPoint(job.tiles[i], job.corners[i], job.lowerNeighbors[i],
+          job.upperNeighbors[i], job.lowerNeighborCorners[i], job.upperNeighborCorners[i]);
     }
 
-    // TODO: job.backSegmentStartRatio
+    polylinePoints = [];
+    polylinePointsIndex = job.segmentsIncludedCount;
+    gapPointsIndex = job.currentCornerIndex;
+
+    // Add the front-end segment point
+    if (!job.hasReachedEdge) {
+      polylinePoints[polylinePointsIndex] = {
+        x: gapPoints[gapPointsIndex].x * job.frontSegmentEndRatio +
+            gapPoints[gapPointsIndex - 1].x * (1 - job.frontSegmentEndRatio),
+        y: gapPoints[gapPointsIndex].y * job.frontSegmentEndRatio +
+            gapPoints[gapPointsIndex - 1].y * (1 - job.frontSegmentEndRatio)
+      };
+      polylinePointsIndex -= 1;
+      gapPointsIndex -= 1;
+    }
+
+    // Add the internal segment points
+    for (i = 0, count = job.completeSegmentsIncludedCount + 1; i < count;
+         i += 1, polylinePointsIndex -= 1, gapPointsIndex -= 1) {
+      polylinePoints[polylinePointsIndex] = gapPoints[gapPointsIndex];
+    }
+
+    // Add the back-end segment point
+    if (!job.isStarting) {
+      polylinePoints[0] = {
+        x: gapPoints[gapPointsIndex + 1].x * job.backSegmentStartRatio +
+            gapPoints[gapPointsIndex].x * (1 - job.backSegmentStartRatio),
+        y: gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
+            gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
+      }
+    }
 
     // Create the points string
     pointsString = '';
-    for (i = 0, count = points.length; i < count; i += 1) {
-      pointsString += points[i].x + ',' + points[i].y + ' ';
+    for (i = 0, count = polylinePoints.length; i < count; i += 1) {
+      pointsString += polylinePoints[i].x + ',' + polylinePoints[i].y + ' ';
     }
 
     // Update the attributes of the polyline SVG element
     job.polyline.setAttribute('points', pointsString);
-    job.polyline.setAttribute('stroke', 'hsla(' + job.currentHue + ',' + job.currentSaturation +
-        '%,' + job.currentLightness + '%,' + job.currentOpacity + ')');
+    job.polyline.setAttribute('stroke', 'hsl(' + job.currentHue + ',' + job.currentSaturation +
+        '%,' + job.currentLightness + '%)');
+    job.polyline.setAttribute('stroke-opacity', job.currentOpacity);
     job.polyline.setAttribute('stroke-width', job.lineWidth);
   }
 
@@ -3211,26 +3433,38 @@
    *
    * @param {HexTile} tile
    * @param {number} corner
-   * @param {number} direction
+   * @param {Object} lowerNeighbor
+   * @param {Object} upperNeighbor
+   * @param {number} lowerNeighborCorner
+   * @param {number} upperNeighborCorner
    * @returns {{x:number,y:number}}
    */
-  function getCornerGapPoint(tile, corner, direction) {
-    var job, count, xSum, ySum;
+  function getCornerGapPoint(tile, corner, lowerNeighbor, upperNeighbor, lowerNeighborCorner,
+                             upperNeighborCorner) {
+    var count, xSum, ySum;
 
-    count = 1;
-    xSum = ;
-    ySum = ;
-
-    if () {
-      count += 1;
-      xSum += ;
-      ySum += ;
-    }
-
-    if () {
-      count += 1;
-      xSum += ;
-      ySum += ;
+    if (lowerNeighbor) {
+      if (upperNeighbor) {
+        count = 3;
+        xSum = tile.particle.px + lowerNeighbor.tile.particle.px + upperNeighbor.tile.particle.px;
+        ySum = tile.particle.py + lowerNeighbor.tile.particle.py + upperNeighbor.tile.particle.py;
+      } else {
+        count = 2;
+        xSum = tile.vertices[corner * 2] + lowerNeighbor.tile.vertices[lowerNeighborCorner * 2];
+        ySum = tile.vertices[corner * 2 + 1] +
+            lowerNeighbor.tile.vertices[lowerNeighborCorner * 2 + 1];
+      }
+    } else {
+      if (upperNeighbor) {
+        count = 2;
+        xSum = tile.vertices[corner * 2] + upperNeighbor.tile.vertices[upperNeighborCorner * 2];
+        ySum = tile.vertices[corner * 2 + 1] +
+            upperNeighbor.tile.vertices[upperNeighborCorner * 2 + 1];
+      } else {
+        count = 1;
+        xSum = tile.vertices[corner * 2];
+        ySum = tile.vertices[corner * 2 + 1];
+      }
     }
 
     return {
@@ -3255,8 +3489,6 @@
 
     job.startTime = Date.now();
     job.isComplete = false;
-
-    // TODO:
   }
 
   /**
@@ -3271,10 +3503,16 @@
   function update(currentTime, deltaTime) {
     var job = this;
 
-    updateColorValues.call(job, currentTime);
-    updateSegments.call(job, currentTime);
+    job.ellapsedTime = currentTime - job.startTime;
+
+    if (job.ellapsedTime >= job.duration) {
+      handleCompletion.call(job);
+      return;
+    }
+
+    updateColorValues.call(job);
+    updateSegments.call(job);
     drawSegments.call(job);
-    checkForComplete.call(job);
   }
 
   /**
@@ -3283,21 +3521,11 @@
    * @this LineAnimationJob
    */
   function cancel() {
-    var job, i, count;
+    var job;
 
     job = this;
 
-    for (i = 0, count = job.segments.length; i < count; i += 1) {
-      job.grid.svg.removeChild(job.segments[i]);
-    }
-
-    job.tiles = [];
-    job.corners = [];
-    job.directions = [];
-    job.currentCornerIndex = Number.NaN;
-    job.hasReachedEdge = true;
-
-    job.isComplete = true;
+    handleCompletion.call(job);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3317,13 +3545,19 @@
     job.grid = grid;
     job.tiles = [tile];
     job.corners = [corner];
-    job.directions = [direction];
-    job.currentCornerIndex = Number.NaN;
+    job.lowerNeighbors = [];
+    job.upperNeighbors = [];
+    job.lowerNeighborCorners = [];
+    job.upperNeighborCorners = [];
+    job.direction = direction;
+    job.currentCornerIndex = 0;
     job.frontSegmentEndRatio = Number.NaN;
     job.backSegmentStartRatio = Number.NaN;
+    job.latestDirection = direction;
     job.polyline = null;
     job.hasReachedEdge = false;
     job.startTime = 0;
+    job.ellapsedTime = 0;
     job.isComplete = false;
 
     job.startHue = Number.NaN;
@@ -3343,6 +3577,8 @@
     job.endLightness = config.endLightness;
     job.endOpacity = config.endOpacity;
 
+    job.sameDirectionProb = config.sameDirectionProb;
+
     job.currentSaturation = config.startSaturation;
     job.currentLightness = config.startLightness;
     job.currentOpacity = config.startOpacity;
@@ -3352,6 +3588,7 @@
     job.update = update;
     job.cancel = cancel;
 
+    determineNeighbors.call(job);
     createHues.call(job);
     createPolyline.call(job);
 
@@ -3373,30 +3610,30 @@
     // Determine which corner and direction to use based on the selected tile
     if (grid.isVertical) {
       if (!tile.neighbors[4]) { // Left side
-        corner = Math.random() < 0.5 ? 4 : 5;
+        corner = Math.random() < 0.5 ? 0 : 3;
         direction = tile.originalCenterY < grid.centerY ? 2 : 1;
       } else if (!tile.neighbors[1]) { // Right side
-        corner = Math.random() < 0.5 ? 1 : 2;
+        corner = Math.random() < 0.5 ? 0 : 3;
         direction = tile.originalCenterY < grid.centerY ? 4 : 5;
       } else if (!tile.neighbors[0]) { // Top side
-        corner = 0;
+        corner = Math.random() < 0.5 ? 1 : 5;
         direction = 3;
       } else { // Bottom side
-        corner = 3;
+        corner = Math.random() < 0.5 ? 2 : 4;
         direction = 0;
       }
     } else {
       if (!tile.neighbors[0]) { // Top side
-        corner = Math.random() < 0.5 ? 0 : 5;
+        corner = Math.random() < 0.5 ? 1 : 4;
         direction = tile.originalCenterX < grid.centerX ? 2 : 3;
       } else if (!tile.neighbors[3]) { // Bottom side
-        corner = Math.random() < 0.5 ? 2 : 3;
+        corner = Math.random() < 0.5 ? 1 : 4;
         direction = tile.originalCenterX < grid.centerX ? 0 : 5;
       } else if (!tile.neighbors[4]) { // Left side
-        corner = 4;
+        corner = Math.random() < 0.5 ? 3 : 5;
         direction = 1;
       } else { // Right side
-        corner = 1;
+        corner = Math.random() < 0.5 ? 0 : 2;
         direction = 4;
       }
     }
@@ -3440,6 +3677,8 @@
   config.endLightness = 90;
   config.endOpacity = 0;
 
+  config.sameDirectionProb = 0.85;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -3471,6 +3710,8 @@
       job.lineAnimationJobs[i].endSaturation = config.endSaturation;
       job.lineAnimationJobs[i].endLightness = config.endLightness;
       job.lineAnimationJobs[i].endOpacity = config.endOpacity;
+
+      job.lineAnimationJobs[i].sameDirectionProb = config.sameDirectionProb;
       // TODO: add the other radiate-specific line-animation parameters
     }
   }

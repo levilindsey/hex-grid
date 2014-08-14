@@ -24,7 +24,7 @@
   config.endLightness = 90;
   config.endOpacity = 0;
 
-  config.sameDirectionProb = 0.8;
+  config.sameDirectionProb = 0.85;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
