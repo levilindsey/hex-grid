@@ -257,7 +257,8 @@
 
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex, isMarginTile, isBorderTile, config.tileMass);
+            tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isLargerRow,
+            config.tileMass);
 
         if (isBorderTile) {
           grid.borderTiles.push(grid.tiles[tileIndex]);

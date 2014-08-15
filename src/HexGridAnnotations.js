@@ -17,6 +17,14 @@
   config.forceLineLengthMultiplier = 4000;
   config.velocityLineLengthMultiplier = 300;
 
+  config.contentTileHue = 227;
+  config.contentTileSaturation = 50;
+  config.contentTileLightness = 30;
+
+  config.borderTileHue = 227;
+  config.borderTileSaturation = 0;
+  config.borderTileLightness = 30;
+
   config.annotations = {
     'contentTiles': {
       enabled: true,
@@ -67,7 +75,7 @@
       update: updateTileOuterRadii
     },
     'tileIndices': {
-      enabled: false,
+      enabled: true,
       create: createTileIndices,
       destroy: destroyTileIndices,
       update: updateTileIndices
@@ -116,7 +124,7 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue + 80, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+        annotations.grid.tiles[i].setColor(config.contentTileHue, config.contentTileSaturation, config.contentTileLightness);
       }
     }
   }
@@ -132,7 +140,7 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue - 80, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+      annotations.grid.borderTiles[i].setColor(config.borderTileHue, config.borderTileSaturation, config.borderTileLightness);
     }
   }
 

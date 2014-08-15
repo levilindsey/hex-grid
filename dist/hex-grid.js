@@ -257,7 +257,8 @@
 
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex, isMarginTile, isBorderTile, config.tileMass);
+            tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isLargerRow,
+            config.tileMass);
 
         if (isBorderTile) {
           grid.borderTiles.push(grid.tiles[tileIndex]);
@@ -663,6 +664,14 @@
   config.forceLineLengthMultiplier = 4000;
   config.velocityLineLengthMultiplier = 300;
 
+  config.contentTileHue = 227;
+  config.contentTileSaturation = 50;
+  config.contentTileLightness = 30;
+
+  config.borderTileHue = 227;
+  config.borderTileSaturation = 0;
+  config.borderTileLightness = 30;
+
   config.annotations = {
     'contentTiles': {
       enabled: true,
@@ -713,7 +722,7 @@
       update: updateTileOuterRadii
     },
     'tileIndices': {
-      enabled: false,
+      enabled: true,
       create: createTileIndices,
       destroy: destroyTileIndices,
       update: updateTileIndices
@@ -762,7 +771,7 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue + 80, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+        annotations.grid.tiles[i].setColor(config.contentTileHue, config.contentTileSaturation, config.contentTileLightness);
       }
     }
   }
@@ -778,7 +787,7 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue - 80, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+      annotations.grid.borderTiles[i].setColor(config.borderTileHue, config.borderTileSaturation, config.borderTileLightness);
     }
   }
 
@@ -2155,12 +2164,16 @@
    * @param {number} lightness
    * @param {?Object} tileData
    * @param {number} tileIndex
+   * @param {number} rowIndex
+   * @param {number} columnIndex
    * @param {boolean} isMarginTile
    * @param {boolean} isBorderTile
+   * @param {boolean} isInLargerRow
    * @param {number} mass
    */
   function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
-                   tileData, tileIndex, isMarginTile, isBorderTile, mass) {
+                   tileData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
+                   isInLargerRow, mass) {
     var tile = this;
 
     tile.svg = svg;
@@ -2177,8 +2190,11 @@
     tile.tileData = tileData;
     tile.holdsContent = !!tileData;
     tile.index = tileIndex;
+    tile.rowIndex = rowIndex;
+    tile.columnIndex = columnIndex;
     tile.isMarginTile = isMarginTile;
     tile.isBorderTile = isBorderTile;
+    tile.isInLargerRow = isInLargerRow;
     tile.neighbors = null;
     tile.vertices = null;
     tile.vertexDeltas = null;
@@ -3074,22 +3090,25 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
-  var config = {};
+  var NEIGHBOR = 0,
+      LOWER_SELF = 1,
+      UPPER_SELF = 2,
+      config = {};
 
-  config.duration = 3200;
-  config.lineWidth = 16;
-  config.lineLength = 200;
+  config.duration = 4400;
+  config.lineWidth = 26;
+  config.lineLength = 300;
   config.lineSidePeriod = 300; // milliseconds per tile side
 
   config.startSaturation = 100;
   config.startLightness = 70;
-  config.startOpacity = 0.8;
+  config.startOpacity = 1;
 
   config.endSaturation = 50;
-  config.endLightness = 90;
+  config.endLightness = 100;
   config.endOpacity = 0;
 
-  config.sameDirectionProb = 0.3;
+  config.sameDirectionProb = 0.9;
 
 
   config.oppositeDirectionProb = 0;
@@ -3237,86 +3256,92 @@ config.computeDependentValues();
    */
   function chooseNextVertex() {
     var job, cornerConfig, neighborProb, lowerSelfProb, upperSelfProb, random, relativeDirection,
-        absoluteDirection, nextCorner, nextTile;
+        absoluteDirection, nextCorner, nextTile, currentCorner;
 
     job = this;
+    currentCorner = job.corners[job.currentCornerIndex];
 
-    cornerConfig = (job.corners[job.currentCornerIndex] - job.direction + 6) % 6;
+    // The first segment of a line animation is forced to go in a given direction
+    if (job.currentCornerIndex === 0) {
+      relativeDirection = job.forcedInitialRelativeDirection;
+      job.latestDirection = relativeToAbsoluteDirection(relativeDirection, currentCorner);
+    } else {
+      cornerConfig = (currentCorner - job.direction + 6) % 6;
 
-    // Determine relative direction probabilities
-    switch (cornerConfig) {
-      case 0:
-        neighborProb = config.sameDirectionProb;
-        lowerSelfProb = config.distantSidewaysDirectionProb;
-        upperSelfProb = config.distantSidewaysDirectionProb;
-        break;
-      case 1:
-        neighborProb = config.closeSidewaysDirectionProb;
-        lowerSelfProb = config.closeSidewaysDirectionProb;
-        upperSelfProb = config.oppositeDirectionProb;
-        break;
-      case 2:
-        neighborProb = config.distantSidewaysDirectionProb;
-        lowerSelfProb = config.sameDirectionProb;
-        upperSelfProb = config.distantSidewaysDirectionProb;
-        break;
-      case 3:
-        neighborProb = config.oppositeDirectionProb;
-        lowerSelfProb = config.closeSidewaysDirectionProb;
-        upperSelfProb = config.closeSidewaysDirectionProb;
-        break;
-      case 4:
-        neighborProb = config.distantSidewaysDirectionProb;
-        lowerSelfProb = config.distantSidewaysDirectionProb;
-        upperSelfProb = config.sameDirectionProb;
-        break;
-      case 5:
-        neighborProb = config.closeSidewaysDirectionProb;
-        lowerSelfProb = config.oppositeDirectionProb;
-        upperSelfProb = config.closeSidewaysDirectionProb;
-        break;
-      default:
-        throw new Error('Invalid state: cornerConfig=' + cornerConfig);
-    }
-
-    do {
-      random = Math.random();
-      relativeDirection = random < neighborProb ? 0 : random < neighborProb + lowerSelfProb ? 1 : 2;
-
-      switch (relativeDirection) {
-        case 0: // neighbor
-            absoluteDirection = job.corners[job.currentCornerIndex];
+      // Determine relative direction probabilities
+      switch (cornerConfig) {
+        case 0:
+          neighborProb = config.sameDirectionProb;
+          lowerSelfProb = config.distantSidewaysDirectionProb;
+          upperSelfProb = config.distantSidewaysDirectionProb;
           break;
-        case 1: // lower self
-          absoluteDirection = (job.corners[job.currentCornerIndex] + 4) % 6;
+        case 1:
+          neighborProb = config.closeSidewaysDirectionProb;
+          lowerSelfProb = config.closeSidewaysDirectionProb;
+          upperSelfProb = config.oppositeDirectionProb;
           break;
-        case 2: // upper self
-          absoluteDirection = (job.corners[job.currentCornerIndex] + 2) % 6;
+        case 2:
+          neighborProb = config.distantSidewaysDirectionProb;
+          lowerSelfProb = config.sameDirectionProb;
+          upperSelfProb = config.distantSidewaysDirectionProb;
+          break;
+        case 3:
+          neighborProb = config.oppositeDirectionProb;
+          lowerSelfProb = config.closeSidewaysDirectionProb;
+          upperSelfProb = config.closeSidewaysDirectionProb;
+          break;
+        case 4:
+          neighborProb = config.distantSidewaysDirectionProb;
+          lowerSelfProb = config.distantSidewaysDirectionProb;
+          upperSelfProb = config.sameDirectionProb;
+          break;
+        case 5:
+          neighborProb = config.closeSidewaysDirectionProb;
+          lowerSelfProb = config.oppositeDirectionProb;
+          upperSelfProb = config.closeSidewaysDirectionProb;
           break;
         default:
-          throw new Error('Invalid state: relativeDirection=' + relativeDirection);
+          throw new Error('Invalid state: cornerConfig=' + cornerConfig);
       }
-    } while (absoluteDirection === job.latestDirection + 3 % 6);
 
-    job.latestDirection = absoluteDirection;
+      // Determine the next direction to travel
+      do {
+        // Pick a random direction
+        random = Math.random();
+        relativeDirection = random < neighborProb ? NEIGHBOR :
+                random < neighborProb + lowerSelfProb ? LOWER_SELF : UPPER_SELF;
+        absoluteDirection = relativeToAbsoluteDirection(relativeDirection, currentCorner);
+        console.log('r=' + relativeDirection);/////TODO/////
+        console.log('a=' + absoluteDirection);/////TODO/////
+
+        console.log('np=' + neighborProb);/////TODO/////
+        console.log('lsp=' + lowerSelfProb);/////TODO/////
+        console.log('usp=' + upperSelfProb);/////TODO/////
+        console.log('ld=' + job.latestDirection);/////TODO/////
+
+        // Disallow the line from going back the way it just came
+      } while (absoluteDirection === (job.latestDirection + 3) % 6);
+
+      job.latestDirection = absoluteDirection;
+    }
 
     // Determine the next corner configuration
     switch (relativeDirection) {
-      case 0: // neighbor
+      case NEIGHBOR:
         if (job.grid.isVertical) {
-          nextCorner = (job.corners[job.currentCornerIndex] + 1) % 6;
-          nextTile = job.tiles[job.currentCornerIndex].neighbors[(job.corners[job.currentCornerIndex] + 5) % 6].tile;
+          nextCorner = (currentCorner + 1) % 6;
+          nextTile = job.tiles[job.currentCornerIndex].neighbors[(currentCorner + 5) % 6].tile;
         } else {
-          nextCorner = (job.corners[job.currentCornerIndex] + 1) % 6;
-          nextTile = job.tiles[job.currentCornerIndex].neighbors[job.corners[job.currentCornerIndex]].tile;
+          nextCorner = (currentCorner + 1) % 6;
+          nextTile = job.tiles[job.currentCornerIndex].neighbors[currentCorner].tile;
         }
         break;
-      case 1: // lower self
-        nextCorner = (job.corners[job.currentCornerIndex] + 5) % 6;
+      case LOWER_SELF:
+        nextCorner = (currentCorner + 5) % 6;
         nextTile = job.tiles[job.currentCornerIndex];
         break;
-      case 2: // upper self
-        nextCorner = (job.corners[job.currentCornerIndex] + 1) % 6;
+      case UPPER_SELF:
+        nextCorner = (currentCorner + 1) % 6;
         nextTile = job.tiles[job.currentCornerIndex];
         break;
       default:
@@ -3330,6 +3355,26 @@ config.computeDependentValues();
 
     determineNeighbors.call(job);
     checkHasReachedEdge.call(job);
+  }
+
+  /**
+   * Translates the givern relative direction to an absolute direction.
+   *
+   * @param {number} relativeDirection
+   * @param {number} corner
+   * @returns {number}
+   */
+  function relativeToAbsoluteDirection(relativeDirection, corner) {
+    switch (relativeDirection) {
+      case NEIGHBOR:
+        return corner;
+      case LOWER_SELF:
+        return (corner + 4) % 6;
+      case UPPER_SELF:
+        return (corner + 2) % 6;
+      default:
+        throw new Error('Invalid state: relativeDirection=' + relativeDirection);
+    }
   }
 
   /**
@@ -3589,8 +3634,9 @@ config.computeDependentValues();
    * @param {HexTile} tile
    * @param {number} corner
    * @param {number} direction
+   * @param {number} forcedInitialRelativeDirection
    */
-  function LineAnimationJob(grid, tile, corner, direction) {
+  function LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection) {
     var job = this;
 
     job.grid = grid;
@@ -3601,6 +3647,7 @@ config.computeDependentValues();
     job.lowerNeighborCorners = [];
     job.upperNeighborCorners = [];
     job.direction = direction;
+    job.forcedInitialRelativeDirection = forcedInitialRelativeDirection;
     job.currentCornerIndex = 0;
     job.frontSegmentEndRatio = Number.NaN;
     job.backSegmentStartRatio = Number.NaN;
@@ -3653,7 +3700,7 @@ config.computeDependentValues();
    * @param {HexGrid} grid
    */
   function createRandomLineAnimationJob(grid) {
-    var tile, corner, direction;
+    var tile, corner, direction, forcedInitialRelativeDirection;
 
     // Pick a random border tile to start from
     tile = grid.borderTiles[parseInt(Math.random() * grid.borderTiles.length)];
@@ -3661,35 +3708,143 @@ config.computeDependentValues();
     // Determine which corner and direction to use based on the selected tile
     if (grid.isVertical) {
       if (!tile.neighbors[4]) { // Left side
-        corner = Math.random() < 0.5 ? 0 : 3;
+        if (tile.isInLargerRow) {
+          if (Math.random() < 0.5) {
+            corner = 0;
+            forcedInitialRelativeDirection = UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 2;
+          } else {
+            corner = 3;
+            forcedInitialRelativeDirection = LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 1;
+          }
+        } else { // Smaller row
+          if (Math.random() < 0.5) {
+            corner = 4;
+            forcedInitialRelativeDirection = LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 2;
+          } else {
+            corner = 5;
+            forcedInitialRelativeDirection = UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 1;
+          }
+        }
         direction = tile.originalCenterY < grid.centerY ? 2 : 1;
       } else if (!tile.neighbors[1]) { // Right side
-        corner = Math.random() < 0.5 ? 0 : 3;
+        if (tile.isInLargerRow) {
+          if (Math.random() < 0.5) {
+            corner = 0;
+            forcedInitialRelativeDirection = LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 4;
+          } else {
+            corner = 3;
+            forcedInitialRelativeDirection = UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 5;
+          }
+        } else { // Smaller row
+          if (Math.random() < 0.5) {
+            corner = 1;
+            forcedInitialRelativeDirection = LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 5;
+          } else {
+            corner = 2;
+            forcedInitialRelativeDirection = UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 4;
+          }
+        }
         direction = tile.originalCenterY < grid.centerY ? 4 : 5;
       } else if (!tile.neighbors[0]) { // Top side
-        corner = Math.random() < 0.5 ? 1 : 5;
+        if (Math.random() < 0.5) {
+          corner = 1;
+          forcedInitialRelativeDirection = UPPER_SELF;
+        } else {
+          corner = 5;
+          forcedInitialRelativeDirection = LOWER_SELF;
+        }
+        //forcedInitialAbsoluteDirection = 3;
         direction = 3;
       } else { // Bottom side
-        corner = Math.random() < 0.5 ? 2 : 4;
+        if (Math.random() < 0.5) {
+          corner = 2;
+          forcedInitialRelativeDirection = LOWER_SELF;
+        } else {
+          corner = 4;
+          forcedInitialRelativeDirection = UPPER_SELF;
+        }
+        //forcedInitialAbsoluteDirection = 0;
         direction = 0;
       }
-    } else {
+    } else { // Not vertical
       if (!tile.neighbors[0]) { // Top side
-        corner = Math.random() < 0.5 ? 1 : 4;
+        if (tile.rowIndex === 0) { // First row
+          if (Math.random() < 0.5) {
+            corner = 1;
+            forcedInitialRelativeDirection = UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 3;
+          } else {
+            corner = 4;
+            forcedInitialRelativeDirection = LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 2;
+          }
+        } else { // Second row
+          if (Math.random() < 0.5) {
+            corner = 0;
+            forcedInitialRelativeDirection = UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 2;
+          } else {
+            corner = 5;
+            forcedInitialRelativeDirection = LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 3;
+          }
+        }
         direction = tile.originalCenterX < grid.centerX ? 2 : 3;
       } else if (!tile.neighbors[3]) { // Bottom side
-        corner = Math.random() < 0.5 ? 1 : 4;
+        if (tile.rowIndex === grid.rowCount - 1) { // Last row
+          if (Math.random() < 0.5) {
+            corner = 1;
+            forcedInitialRelativeDirection = LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 5;
+          } else {
+            corner = 4;
+            forcedInitialRelativeDirection = UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 0;
+          }
+        } else { // Second-to-last row
+          if (Math.random() < 0.5) {
+            corner = 2;
+            forcedInitialRelativeDirection = LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 0;
+          } else {
+            corner = 3;
+            forcedInitialRelativeDirection = UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 5;
+          }
+        }
         direction = tile.originalCenterX < grid.centerX ? 0 : 5;
       } else if (!tile.neighbors[4]) { // Left side
-        corner = Math.random() < 0.5 ? 3 : 5;
+        if (Math.random() < 0.5) {
+          corner = 3;
+          forcedInitialRelativeDirection = LOWER_SELF;
+        } else {
+          corner = 5;
+          forcedInitialRelativeDirection = UPPER_SELF;
+        }
+        //forcedInitialAbsoluteDirection = 1;
         direction = 1;
       } else { // Right side
-        corner = Math.random() < 0.5 ? 0 : 2;
+        if (Math.random() < 0.5) {
+          corner = 0;
+          forcedInitialRelativeDirection = LOWER_SELF;
+        } else {
+          corner = 2;
+          forcedInitialRelativeDirection = UPPER_SELF;
+        }
+        //forcedInitialAbsoluteDirection = 4;
         direction = 4;
       }
     }
 
-    return new LineAnimationJob(grid, tile, corner, direction);
+    return new LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection);
   }
 
   LineAnimationJob.config = config;

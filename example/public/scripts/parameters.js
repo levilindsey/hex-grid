@@ -218,6 +218,7 @@
     var randomLineAnimationFolder, data;
 
     randomLineAnimationFolder = parentFolder.addFolder('Random Lines');
+    randomLineAnimationFolder.open();
 
     data = {
       'triggerLine': createRandomLineAnimation
@@ -263,7 +264,6 @@
     var waveAnimationFolder;
 
     waveAnimationFolder = parentFolder.addFolder('Wave');
-    waveAnimationFolder.open();
 
     waveAnimationFolder.add(hg.WaveAnimationJob.config, 'period', 1, 10000)
         .onChange(function (value) {
