@@ -145,7 +145,7 @@
     }
     grid.rowCount = rowIndex > grid.rowCount ? rowIndex : grid.rowCount;
 
-    grid.height = (grid.rowCount - 1) * grid.rowDeltaY;
+    grid.height = (grid.rowCount - 2) * grid.rowDeltaY;
   }
 
   /**
@@ -231,6 +231,7 @@
 
     for (rowIndex = 0; rowIndex < rowCount; rowIndex += 1, centerY += grid.rowDeltaY) {
       isOddRow = rowIndex % 2 === 0;
+      isLargerRow = oddRowIsLarger && isOddRow || !oddRowIsLarger && !isOddRow;
 
       if (isOddRow) {
         centerX = grid.oddRowXOffset;
@@ -248,8 +249,11 @@
             columnIndex < grid.evenRowContentStartIndex ||
                 columnIndex > grid.evenRowContentEndIndex;
 
-        isBorderTile = columnIndex === 0 || columnIndex === columnCount - 1 ||
-            rowIndex === 0 || rowIndex === rowCount - 1;
+        isBorderTile = grid.isVertical ?
+            (columnIndex === 0 || columnIndex === columnCount - 1 ||
+              rowIndex === 0 || rowIndex === rowCount - 1) :
+            (rowIndex <= 1 || rowIndex >= rowCount - 2 ||
+                isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1));
 
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
@@ -268,8 +272,6 @@
           }
           contentAreaIndex += 1;
         }
-
-        isLargerRow = oddRowIsLarger && isOddRow || !oddRowIsLarger && !isOddRow;
 
         // Determine the neighbor index offsets for the current tile
         tilesNeighborDeltaIndices[tileIndex] = getNeighborDeltaIndices.call(grid, rowIndex, rowCount,
@@ -611,7 +613,7 @@
 
     grid.svg = null;
     grid.tiles = [];
-    grid.borderTiles = null;
+    grid.borderTiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
     grid.centerX = Number.NaN;

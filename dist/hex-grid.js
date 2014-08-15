@@ -145,7 +145,7 @@
     }
     grid.rowCount = rowIndex > grid.rowCount ? rowIndex : grid.rowCount;
 
-    grid.height = (grid.rowCount - 1) * grid.rowDeltaY;
+    grid.height = (grid.rowCount - 2) * grid.rowDeltaY;
   }
 
   /**
@@ -231,6 +231,7 @@
 
     for (rowIndex = 0; rowIndex < rowCount; rowIndex += 1, centerY += grid.rowDeltaY) {
       isOddRow = rowIndex % 2 === 0;
+      isLargerRow = oddRowIsLarger && isOddRow || !oddRowIsLarger && !isOddRow;
 
       if (isOddRow) {
         centerX = grid.oddRowXOffset;
@@ -248,8 +249,11 @@
             columnIndex < grid.evenRowContentStartIndex ||
                 columnIndex > grid.evenRowContentEndIndex;
 
-        isBorderTile = columnIndex === 0 || columnIndex === columnCount - 1 ||
-            rowIndex === 0 || rowIndex === rowCount - 1;
+        isBorderTile = grid.isVertical ?
+            (columnIndex === 0 || columnIndex === columnCount - 1 ||
+              rowIndex === 0 || rowIndex === rowCount - 1) :
+            (rowIndex <= 1 || rowIndex >= rowCount - 2 ||
+                isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1));
 
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
@@ -268,8 +272,6 @@
           }
           contentAreaIndex += 1;
         }
-
-        isLargerRow = oddRowIsLarger && isOddRow || !oddRowIsLarger && !isOddRow;
 
         // Determine the neighbor index offsets for the current tile
         tilesNeighborDeltaIndices[tileIndex] = getNeighborDeltaIndices.call(grid, rowIndex, rowCount,
@@ -611,7 +613,7 @@
 
     grid.svg = null;
     grid.tiles = [];
-    grid.borderTiles = null;
+    grid.borderTiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
     grid.centerX = Number.NaN;
@@ -666,6 +668,12 @@
       enabled: true,
       create: fillContentTiles,
       destroy: unfillContentTiles,
+      update: function () {/* Do nothing*/}
+    },
+    'borderTiles': {
+      enabled: true,
+      create: fillBorderTiles,
+      destroy: unfillBorderTiles,
       update: function () {/* Do nothing*/}
     },
     'transparentTiles': {
@@ -744,7 +752,7 @@
 
   /**
    * Draws content tiles with a different color.
-   * 
+   *
    * @this HexGridAnnotations
    */
   function fillContentTiles() {
@@ -756,6 +764,21 @@
       if (annotations.grid.tiles[i].holdsContent) {
         annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue + 80, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
       }
+    }
+  }
+
+  /**
+   * Draws border tiles with a different color.
+   *
+   * @this HexGridAnnotations
+   */
+  function fillBorderTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue - 80, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
     }
   }
 
@@ -1013,6 +1036,21 @@
       if (annotations.grid.tiles[i].holdsContent) {
         annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
       }
+    }
+  }
+
+  /**
+   * Draws border tiles with a different color.
+   *
+   * @this HexGridAnnotations
+   */
+  function unfillBorderTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
     }
   }
 
@@ -3039,7 +3077,7 @@
   var config = {};
 
   config.duration = 3200;
-  config.lineWidth = 8;
+  config.lineWidth = 16;
   config.lineLength = 200;
   config.lineSidePeriod = 300; // milliseconds per tile side
 
@@ -3051,7 +3089,7 @@
   config.endLightness = 90;
   config.endOpacity = 0;
 
-  config.sameDirectionProb = 0.7;
+  config.sameDirectionProb = 0.3;
 
 
   config.oppositeDirectionProb = 0;
@@ -3095,7 +3133,7 @@ config.computeDependentValues();
 
     job.polyline = document.createElementNS(hg.util.svgNamespace, 'polyline');
     job.polyline.setAttribute('fill-opacity', '0');
-    job.grid.svg.appendChild(job.polyline);
+    job.grid.svg.insertBefore(job.polyline, job.grid.svg.firstChild);
   }
 
   /**
@@ -3244,7 +3282,20 @@ config.computeDependentValues();
     do {
       random = Math.random();
       relativeDirection = random < neighborProb ? 0 : random < neighborProb + lowerSelfProb ? 1 : 2;
-      absoluteDirection = ;
+
+      switch (relativeDirection) {
+        case 0: // neighbor
+            absoluteDirection = job.corners[job.currentCornerIndex];
+          break;
+        case 1: // lower self
+          absoluteDirection = (job.corners[job.currentCornerIndex] + 4) % 6;
+          break;
+        case 2: // upper self
+          absoluteDirection = (job.corners[job.currentCornerIndex] + 2) % 6;
+          break;
+        default:
+          throw new Error('Invalid state: relativeDirection=' + relativeDirection);
+      }
     } while (absoluteDirection === job.latestDirection + 3 % 6);
 
     job.latestDirection = absoluteDirection;

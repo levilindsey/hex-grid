@@ -24,6 +24,12 @@
       destroy: unfillContentTiles,
       update: function () {/* Do nothing*/}
     },
+    'borderTiles': {
+      enabled: true,
+      create: fillBorderTiles,
+      destroy: unfillBorderTiles,
+      update: function () {/* Do nothing*/}
+    },
     'transparentTiles': {
       enabled: false,
       create: makeTilesTransparent,
@@ -100,7 +106,7 @@
 
   /**
    * Draws content tiles with a different color.
-   * 
+   *
    * @this HexGridAnnotations
    */
   function fillContentTiles() {
@@ -112,6 +118,21 @@
       if (annotations.grid.tiles[i].holdsContent) {
         annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue + 80, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
       }
+    }
+  }
+
+  /**
+   * Draws border tiles with a different color.
+   *
+   * @this HexGridAnnotations
+   */
+  function fillBorderTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue - 80, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
     }
   }
 
@@ -369,6 +390,21 @@
       if (annotations.grid.tiles[i].holdsContent) {
         annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
       }
+    }
+  }
+
+  /**
+   * Draws border tiles with a different color.
+   *
+   * @this HexGridAnnotations
+   */
+  function unfillBorderTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
     }
   }
 

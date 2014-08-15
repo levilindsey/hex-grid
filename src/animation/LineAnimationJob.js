@@ -12,7 +12,7 @@
   var config = {};
 
   config.duration = 3200;
-  config.lineWidth = 8;
+  config.lineWidth = 16;
   config.lineLength = 200;
   config.lineSidePeriod = 300; // milliseconds per tile side
 
@@ -24,7 +24,7 @@
   config.endLightness = 90;
   config.endOpacity = 0;
 
-  config.sameDirectionProb = 0.7;
+  config.sameDirectionProb = 0.3;
 
 
   config.oppositeDirectionProb = 0;
@@ -68,7 +68,7 @@ config.computeDependentValues();
 
     job.polyline = document.createElementNS(hg.util.svgNamespace, 'polyline');
     job.polyline.setAttribute('fill-opacity', '0');
-    job.grid.svg.appendChild(job.polyline);
+    job.grid.svg.insertBefore(job.polyline, job.grid.svg.firstChild);
   }
 
   /**
@@ -217,7 +217,20 @@ config.computeDependentValues();
     do {
       random = Math.random();
       relativeDirection = random < neighborProb ? 0 : random < neighborProb + lowerSelfProb ? 1 : 2;
-      absoluteDirection = ;
+
+      switch (relativeDirection) {
+        case 0: // neighbor
+            absoluteDirection = job.corners[job.currentCornerIndex];
+          break;
+        case 1: // lower self
+          absoluteDirection = (job.corners[job.currentCornerIndex] + 4) % 6;
+          break;
+        case 2: // upper self
+          absoluteDirection = (job.corners[job.currentCornerIndex] + 2) % 6;
+          break;
+        default:
+          throw new Error('Invalid state: relativeDirection=' + relativeDirection);
+      }
     } while (absoluteDirection === job.latestDirection + 3 % 6);
 
     job.latestDirection = absoluteDirection;
