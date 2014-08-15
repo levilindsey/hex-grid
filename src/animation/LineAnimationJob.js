@@ -303,13 +303,16 @@ config.computeDependentValues();
    */
   function updateSegments() {
     var job, distanceTravelled, frontSegmentLength, backSegmentLength, segmentsTouchedCount,
-        distancePastEdge;
+        distancePastEdge, segmentsPastEdgeCount;
 
     job = this;
+
+    // --- Compute some values of the polyline at the current time --- //
 
     distanceTravelled = job.ellapsedTime / job.lineSidePeriod * hg.HexGrid.config.tileOuterRadius;
     segmentsTouchedCount = parseInt(distanceTravelled / hg.HexGrid.config.tileOuterRadius) + 1;
 
+    // Add additional vertices to the polyline as needed
     while (segmentsTouchedCount >= job.corners.length && !job.hasReachedEdge) {
       chooseNextVertex.call(job);
     }
@@ -324,123 +327,79 @@ config.computeDependentValues();
     job.isShort = job.lineLength < hg.HexGrid.config.tileOuterRadius;
     job.isStarting = distanceTravelled < job.lineLength;
 
-//    **;// TODO: what if the segment is both starting AND ending?
-    //   - it seems that I need to instead first set the segment counts, then subtract from them for the various conditions
+    // --- Determine how many segments are included in the polyline --- //
 
-    if (job.isStarting) {
-      // The polyline is starting; the back of the polyline would lie outside the grid
-      job.segmentsIncludedCount = segmentsTouchedCount;
-      job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 1;
-      console.log('>>>>>1.1');/////TODO/////
-    } else if (job.hasReachedEdge) {
-      // The polyline is ending; the front of the polyline would lie outside the grid
-      if (job.isShort) {
-        // The polyline is shorter than a tile side
+    // When the polyline is neither starting nor ending and is not shorter than the length of a
+    // segment, then this is how many segments it includes
+    job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
+        backSegmentLength + config.epsilon) % hg.HexGrid.config.tileOuterRadius) + 2;
+    job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 2;
+
+    // Subtract from the number of included segments depending on current conditions
+    if (job.isShort) {
+      // The polyline is shorter than a tile side
+      job.completeSegmentsIncludedCount = 0;
+
+      if (job.isStarting || job.hasReachedEdge) {
+        // One end of the polyline would lie outside the grid
         job.segmentsIncludedCount = 1;
-        job.completeSegmentsIncludedCount = 0;
-        console.log('>>>>>2.1');/////TODO/////
+        console.log('>>>>>1.1');/////TODO/////
       } else {
-        distancePastEdge = hg.HexGrid.config.tileOuterRadius *
-            (segmentsTouchedCount - job.currentCornerIndex - 1);
-
-        if (distancePastEdge > job.lineLength) {
-          handleCompletion.call(job);
-        }
-
-        job.segmentsIncludedCount =
-            (job.lineLength - distancePastEdge) % hg.HexGrid.config.tileOuterRadius;
-        job.segmentsIncludedCount =
-            job.segmentsIncludedCount < 0 ? 0 : parseInt(job.segmentsIncludedCount) + 1;
-        job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 1;
-        console.log('>>>>>2.2');/////TODO/////
-      }
-    } else {
-      // The polyline is fully within the grid
-      if (job.isShort) {
-        // The polyline is shorter than a tile side
-        // (the test is testing equality, but needs to account for floating point round-off error)
-        if ((distanceTravelled % hg.HexGrid.config.tileOuterRadius) - frontSegmentLength +
-            config.epsilon < config.epsilon * 2) {
+        if (frontSegmentLength - job.lineLength >= 0) {
           // The polyline is between corners
           job.segmentsIncludedCount = 1;
-          job.completeSegmentsIncludedCount = 0;
-          console.log('>>>>>3.1');/////TODO/////
+          console.log('>>>>>1.2');/////TODO/////
         } else {
           // The polyline is across a corner
           job.segmentsIncludedCount = 2;
-          job.completeSegmentsIncludedCount = 0;
-          console.log('>>>>>3.2');/////TODO/////
+          console.log('>>>>>2.3');/////TODO/////
         }
-      } else {
-        job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
-            backSegmentLength + config.epsilon) % hg.HexGrid.config.tileOuterRadius) + 2;
-        job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 2;
-        console.log('>>>>>3.3');/////TODO/////
+      }
+    } else {
+      // The polyline is longer than a tile side
+      console.log('>>>>>2.1');/////TODO/////
+
+      if (job.isStarting) {
+        // The polyline is starting; the back of the polyline would lie outside the grid
+        job.segmentsIncludedCount = segmentsTouchedCount;
+        job.completeSegmentsIncludedCount = segmentsTouchedCount - 1;
+        console.log('>>>>>2.2');/////TODO/////
+      }
+
+      if (job.hasReachedEdge) {
+        // The polyline is ending; the front of the polyline would lie outside the grid
+        segmentsPastEdgeCount = segmentsTouchedCount - job.corners.length;
+        distancePastEdge = segmentsPastEdgeCount * hg.HexGrid.config.tileOuterRadius;
+
+        if (distancePastEdge > job.lineLength) {
+          handleCompletion.call(job);
+          return;
+        }
+
+        job.segmentsIncludedCount -= segmentsPastEdgeCount;
+        job.completeSegmentsIncludedCount -= segmentsPastEdgeCount + 1;
+        console.log('>>>>>2.3');/////TODO/////
       }
     }
   }
 
+
   /**
-   * Updates the actual SVG elements to render the current state of this animation.
+   * Calculates the points in the middle of the gaps between tiles at each known corner.
    *
    * @this LineAnimationJob
    */
-  function drawSegments() {
-    var job, i, count, polylinePointsIndex, pointsString, gapPoints, polylinePoints, gapPointsIndex;
+  function computeCornerGapPoints() {
+    var job, i, count;
 
     job = this;
 
-    gapPoints = [];
+    job.gapPoints = [];
 
     for (i = 0, count = job.corners.length; i < count; i += 1) {
-      gapPoints[i] = getCornerGapPoint(job.tiles[i], job.corners[i], job.lowerNeighbors[i],
+      job.gapPoints[i] = computeCornerGapPoint(job.tiles[i], job.corners[i], job.lowerNeighbors[i],
           job.upperNeighbors[i], job.lowerNeighborCorners[i], job.upperNeighborCorners[i]);
     }
-
-    polylinePoints = [];
-    polylinePointsIndex = job.segmentsIncludedCount;
-    gapPointsIndex = job.currentCornerIndex;
-
-    // Add the front-end segment point
-    if (!job.hasReachedEdge) {
-      polylinePoints[polylinePointsIndex] = {
-        x: gapPoints[gapPointsIndex].x * job.frontSegmentEndRatio +
-            gapPoints[gapPointsIndex - 1].x * (1 - job.frontSegmentEndRatio),
-        y: gapPoints[gapPointsIndex].y * job.frontSegmentEndRatio +
-            gapPoints[gapPointsIndex - 1].y * (1 - job.frontSegmentEndRatio)
-      };
-      polylinePointsIndex -= 1;
-      gapPointsIndex -= 1;
-    }
-
-    // Add the internal segment points
-    for (i = 0, count = job.completeSegmentsIncludedCount + 1; i < count;
-         i += 1, polylinePointsIndex -= 1, gapPointsIndex -= 1) {
-      polylinePoints[polylinePointsIndex] = gapPoints[gapPointsIndex];
-    }
-
-    // Add the back-end segment point
-    if (!job.isStarting) {
-      polylinePoints[0] = {
-        x: gapPoints[gapPointsIndex + 1].x * job.backSegmentStartRatio +
-            gapPoints[gapPointsIndex].x * (1 - job.backSegmentStartRatio),
-        y: gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
-            gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
-      }
-    }
-
-    // Create the points string
-    pointsString = '';
-    for (i = 0, count = polylinePoints.length; i < count; i += 1) {
-      pointsString += polylinePoints[i].x + ',' + polylinePoints[i].y + ' ';
-    }
-
-    // Update the attributes of the polyline SVG element
-    job.polyline.setAttribute('points', pointsString);
-    job.polyline.setAttribute('stroke', 'hsl(' + job.currentHue + ',' + job.currentSaturation +
-        '%,' + job.currentLightness + '%)');
-    job.polyline.setAttribute('stroke-opacity', job.currentOpacity);
-    job.polyline.setAttribute('stroke-width', job.lineWidth);
   }
 
   /**
@@ -454,7 +413,7 @@ config.computeDependentValues();
    * @param {number} upperNeighborCorner
    * @returns {{x:number,y:number}}
    */
-  function getCornerGapPoint(tile, corner, lowerNeighbor, upperNeighbor, lowerNeighborCorner,
+  function computeCornerGapPoint(tile, corner, lowerNeighbor, upperNeighbor, lowerNeighborCorner,
                              upperNeighborCorner) {
     var count, xSum, ySum;
 
@@ -486,6 +445,73 @@ config.computeDependentValues();
       x: xSum / count,
       y: ySum / count
     };
+  }
+
+  /**
+   * Calculates the points of the SVG polyline element.
+   *
+   * @this LineAnimationJob
+   */
+  function computePolylinePoints() {**;// TODO: do we need i and count?
+    var job, gapPointsIndex, polylinePointsIndex;
+
+    job = this;
+
+    job.polylinePoints = [];
+    polylinePointsIndex = job.segmentsIncludedCount;
+    gapPointsIndex = job.currentCornerIndex;
+
+    // Add the front-end segment point
+    if (!job.hasReachedEdge) {
+      job.polylinePoints[polylinePointsIndex] = {
+        x: job.gapPoints[gapPointsIndex].x * job.frontSegmentEndRatio +
+            job.gapPoints[gapPointsIndex - 1].x * (1 - job.frontSegmentEndRatio),
+        y: job.gapPoints[gapPointsIndex].y * job.frontSegmentEndRatio +
+            job.gapPoints[gapPointsIndex - 1].y * (1 - job.frontSegmentEndRatio)
+      };
+      polylinePointsIndex -= 1;
+      gapPointsIndex -= 1;
+    }
+
+    // Add the internal segment points
+    for (i = 0, count = job.completeSegmentsIncludedCount + 1; i < count;
+         i += 1, polylinePointsIndex -= 1, gapPointsIndex -= 1) {
+      job.polylinePoints[polylinePointsIndex] = job.gapPoints[gapPointsIndex];
+    }
+
+    // Add the back-end segment point
+    if (!job.isStarting) {
+      job.polylinePoints[0] = {
+        x: job.gapPoints[gapPointsIndex + 1].x * job.backSegmentStartRatio +
+            job.gapPoints[gapPointsIndex].x * (1 - job.backSegmentStartRatio),
+        y: job.gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
+            job.gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
+      }
+    }
+  }
+
+  /**
+   * Updates the actual SVG elements to render the current state of this animation.
+   *
+   * @this LineAnimationJob
+   */
+  function drawSegments() {
+    var job, i, count, pointsString;
+
+    job = this;
+
+    // Create the points string
+    pointsString = '';
+    for (i = 0, count = job.polylinePoints.length; i < count; i += 1) {
+      pointsString += job.polylinePoints[i].x + ',' + job.polylinePoints[i].y + ' ';
+    }
+
+    // Update the attributes of the polyline SVG element
+    job.polyline.setAttribute('points', pointsString);
+    job.polyline.setAttribute('stroke', 'hsl(' + job.currentHue + ',' + job.currentSaturation +
+        '%,' + job.currentLightness + '%)');
+    job.polyline.setAttribute('stroke-opacity', job.currentOpacity);
+    job.polyline.setAttribute('stroke-width', job.lineWidth);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -527,6 +553,20 @@ config.computeDependentValues();
 
     updateColorValues.call(job);
     updateSegments.call(job);
+    computeCornerGapPoints.call(job);
+    computePolylinePoints.call(job);
+  }
+
+  /**
+   * Draws the current state of this LineAnimationJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LineAnimationJob
+   */
+  function draw() {
+    var job = this;
+
     drawSegments.call(job);
   }
 
@@ -572,6 +612,8 @@ config.computeDependentValues();
     job.backSegmentStartRatio = Number.NaN;
     job.latestDirection = direction;
     job.polyline = null;
+    job.gapPoints = null;
+    job.polylinePoints = null;
     job.hasReachedEdge = false;
     job.startTime = 0;
     job.ellapsedTime = 0;
@@ -599,10 +641,10 @@ config.computeDependentValues();
     job.currentSaturation = config.startSaturation;
     job.currentLightness = config.startLightness;
     job.currentOpacity = config.startOpacity;
-    // TODO: add the other line config params here (this is important so that the radiate job can have its own params)
 
     job.start = start;
     job.update = update;
+    job.draw = draw;
     job.cancel = cancel;
 
     determineNeighbors.call(job);

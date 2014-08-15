@@ -10,7 +10,7 @@
  */
 (function () {
   /**
-   * @typedef {{start: Function, update: Function(number, number), cancel: Function, isComplete: boolean}} AnimationJob
+   * @typedef {{start: Function, update: Function(number, number), draw: Function, cancel: Function, isComplete: boolean}} AnimationJob
    */
 
   var animator = {};
@@ -35,6 +35,7 @@
 
     if (!animator.isPaused) {
       updateJobs(currentTime, deltaTime);
+      drawJobs();
       hg.util.requestAnimationFrame(animationLoop);
     } else {
       animator.isLooping = false;
@@ -87,6 +88,17 @@
     // Stop the animation loop when there are no more jobs to animate
     if (animator.jobs.length === 0) {
       animator.isPaused = true;
+    }
+  }
+
+  /**
+   * Draws all of the active AnimationJobs.
+   */
+  function drawJobs() {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].draw();
     }
   }
 

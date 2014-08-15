@@ -30,19 +30,19 @@
       enabled: true,
       create: fillContentTiles,
       destroy: unfillContentTiles,
-      update: function () {/* Do nothing*/}
+      update: function () {/* Do nothing */}
     },
     'borderTiles': {
       enabled: true,
       create: fillBorderTiles,
       destroy: unfillBorderTiles,
-      update: function () {/* Do nothing*/}
+      update: function () {/* Do nothing */}
     },
     'transparentTiles': {
       enabled: false,
       create: makeTilesTransparent,
       destroy: makeTilesVisible,
-      update: function () {/* Do nothing*/}
+      update: function () {/* Do nothing */}
     },
     'tileAnchorCenters': {
       enabled: true,
@@ -102,7 +102,13 @@
       enabled: false,
       create: drawContentAreaGuideLines,
       destroy: removeContentAreaGuideLines,
-      update:  function () {/* Do nothing*/}
+      update:  function () {/* Do nothing */}
+    },
+    'lineAnimationGapPoints': {
+      enabled: true,
+      create: function () {/* Do nothing */},
+      destroy: destroyLineAnimationGapPoints,
+      update:  updateLineAnimationGapPoints
     }
   };
 
@@ -608,6 +614,21 @@
     annotations.indexTexts = [];
   }
 
+  /**
+   * Destroys the dots at the positions of each corner gap point of each line animation.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyLineAnimationGapPoints() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.lineAnimationGapDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationGapDots[i]);
+    }
+  }
+
   // --------------------------------------------------- //
   // Annotation updating functions
 
@@ -786,6 +807,33 @@
     }
   }
 
+  /**
+   * Draws a dot at the position of each corner gap point of each line animation.
+   *
+   * @this HexGridAnnotations
+   */
+  function updateLineAnimationGapPoints() {
+    var annotations, i, iCount, j, jCount, line;
+
+    annotations = this;
+
+    destroyLineAnimationGapPoints.call(annotations);
+
+    for (i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount; i += 1) {
+      line = annotations.grid.animations.lineAnimations[i];
+
+      for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1) {
+        annotations.lineAnimationGapDots[i] =
+            document.createElementNS(hg.util.svgNamespace, 'circle');
+        annotations.lineAnimationGapDots[i].setAttribute('x', line.gapPoints[j].x);
+        annotations.lineAnimationGapDots[i].setAttribute('y', line.gapPoints[j].y);
+        annotations.lineAnimationGapDots[i].setAttribute('r', '4');
+        annotations.lineAnimationGapDots[i].setAttribute('fill', 'chartreuse');
+        annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[i]);
+      }
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
@@ -890,6 +938,7 @@
     annotations.forceLines = [];
     annotations.velocityLines = [];
     annotations.indexTexts = [];
+    annotations.lineAnimationGapDots = [];
 
     annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
     annotations.update = update;

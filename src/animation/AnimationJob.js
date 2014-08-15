@@ -69,6 +69,19 @@
   }
 
   /**
+   * Draws the current state of this AnimationJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this AnimationJob
+   */
+  function draw() {
+    var job = this;
+
+    // TODO:
+  }
+
+  /**
    * Stops this AnimationJob, and returns the element its original form.
    *
    * @this AnimationJob
@@ -101,6 +114,7 @@
 
     job.start = start;
     job.update = update;
+    job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
 

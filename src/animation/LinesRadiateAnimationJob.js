@@ -59,7 +59,6 @@
       job.lineAnimationJobs[i].endOpacity = config.endOpacity;
 
       job.lineAnimationJobs[i].sameDirectionProb = config.sameDirectionProb;
-      // TODO: add the other radiate-specific line-animation parameters
     }
   }
 
@@ -132,6 +131,23 @@
   }
 
   /**
+   * Draws the current state of this LinesRadiateAnimationJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LinesRadiateAnimationJob
+   */
+  function draw() {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
+      job.lineAnimationJobs[i].draw();
+    }
+  }
+
+  /**
    * Stops this LinesRadiateAnimationJob, and returns the element its original form.
    *
    * @this LinesRadiateAnimationJob
@@ -170,6 +186,7 @@
 
     job.start = start;
     job.update = update;
+    job.draw = draw;
     job.cancel = cancel;
 
     createLineAnimationJobs.call(job);

@@ -112,6 +112,18 @@
   }
 
   /**
+   * Draws the current state of this WaveAnimationJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this WaveAnimationJob
+   */
+  function draw() {
+    var job = this;
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
    * Stops this WaveAnimationJob, and returns the element its original form.
    *
    * @this WaveAnimationJob
@@ -139,6 +151,7 @@
 
     job.start = start;
     job.update = update;
+    job.draw = draw;
     job.cancel = cancel;
     job.init = function () {
       initTileProgressOffsets.call(job);

@@ -68,6 +68,19 @@
   }
 
   /**
+   * Draws the current state of this ShimmerRadiateAnimationJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ShimmerRadiateAnimationJob
+   */
+  function draw() {
+    var job = this;
+
+    // TODO:
+  }
+
+  /**
    * Stops this ShimmerRadiateAnimationJob, and returns the element its original form.
    *
    * @this ShimmerRadiateAnimationJob
@@ -97,6 +110,7 @@
 
     job.start = start;
     job.update = update;
+    job.draw = draw;
     job.cancel = cancel;
 
     console.log('ShimmerRadiateAnimationJob created');

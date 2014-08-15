@@ -29,18 +29,31 @@
    * @returns {number} The ID (actually index) of the new HexGrid.
    */
   function createNewHexGrid(parent, tileData, isVertical) {
-    var grid, waveAnimationJob, index;
+    var grid, index;
 
     grid = new hg.HexGrid(parent, tileData, isVertical);
     controller.grids.push(grid);
     hg.animator.startJob(grid);
     index = controller.grids.length - 1;
 
-    waveAnimationJob = new hg.WaveAnimationJob(grid);
-    controller.waveAnimationJobs.push(waveAnimationJob);
-    restartWaveAnimation(index);
+    createWaveAnimation(index);
 
     return index;
+  }
+
+  /**
+   * Creates a new WaveAnimationJob with the grid at the given index.
+   *
+   * @param {number} gridIndex
+   */
+  function createWaveAnimation(gridIndex) {
+    var job = new hg.WaveAnimationJob(controller.grids[gridIndex]);
+    controller.waveAnimationJobs.push(job);
+    restartWaveAnimation(index);
+
+    controller.grids[gridIndex].animations.waveAnimations =
+        controller.grids[gridIndex].animations.waveAnimations || [];
+    controller.grids[gridIndex].animations.waveAnimations.push(job);
   }
 
   /**
@@ -66,8 +79,18 @@
    * @param {number} tileIndex
    */
   function createLinesRadiateAnimation(gridIndex, tileIndex) {
-//    var job = ;// TODO:
+    var job, i, count;
+
+    job = new hg.LinesRadiateAnimationJob();
+    controller.linesRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
+
+    controller.grids[gridIndex].animations.lineAnimations =
+        controller.grids[gridIndex].animations.lineAnimations || [];
+
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
+      controller.grids[gridIndex].animations.lineAnimations.push(job.lineAnimationJobs[i]);
+    }
   }
 
   /**
@@ -77,7 +100,12 @@
    */
   function createRandomLineAnimation(gridIndex) {
     var job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex]);
+    controller.randomLineAnimationJobs.push(job);
     hg.animator.startJob(job);
+
+    controller.grids[gridIndex].animations.lineAnimations =
+        controller.grids[gridIndex].animations.lineAnimations || [];
+    controller.grids[gridIndex].animations.lineAnimations.push(job);
   }
 
   /**
@@ -88,7 +116,12 @@
    */
   function createShimmerRadiateAnimation(gridIndex, tileIndex) {
 //    var job = ;// TODO:
+    controller.shimmerRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
+
+    controller.grids[gridIndex].animations.shimmerAnimations =
+        controller.grids[gridIndex].animations.shimmerAnimations || [];
+    controller.grids[gridIndex].animations.shimmerAnimations.push(job);
   }
 
   /**
@@ -108,6 +141,9 @@
 
   controller.grids = [];
   controller.waveAnimationJobs = [];
+  controller.linesRadiateAnimationJobs = [];
+  controller.randomLineAnimationJobs = [];
+  controller.shimmerRadiateAnimationJobs = [];
 
   controller.config = config;
 

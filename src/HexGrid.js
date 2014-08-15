@@ -620,6 +620,8 @@
     grid.centerX = Number.NaN;
     grid.centerY = Number.NaN;
 
+    grid.animations = {};
+
     grid.annotations = new hg.HexGridAnnotations(grid);
 
     grid.resize = resize;
