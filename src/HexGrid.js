@@ -572,10 +572,24 @@
 
     for (i = 0, count = grid.tiles.length; i < count; i += 1) {
       grid.tiles[i].update(currentTime, deltaTime);
-      grid.tiles[i].draw();
     }
 
     grid.annotations.update(currentTime, deltaTime);
+  }
+
+  /**
+   * Draws the current state of this AnimationJob.
+   *
+   * @this HexGrid
+   */
+  function draw() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tiles[i].draw();
+    }
   }
 
   /**
@@ -627,6 +641,7 @@
     grid.resize = resize;
     grid.start = start;
     grid.update = update;
+    grid.draw = draw;
     grid.cancel = cancel;
     grid.updateBackgroundColor = updateBackgroundColor;
     grid.updateTileColor = updateTileColor;

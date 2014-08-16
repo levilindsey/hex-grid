@@ -452,7 +452,7 @@ config.computeDependentValues();
    *
    * @this LineAnimationJob
    */
-  function computePolylinePoints() {**;// TODO: do we need i and count?
+  function computePolylinePoints() {//**;// TODO: do we need i and count?
     var job, gapPointsIndex, polylinePointsIndex;
 
     job = this;

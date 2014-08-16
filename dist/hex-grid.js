@@ -572,10 +572,24 @@
 
     for (i = 0, count = grid.tiles.length; i < count; i += 1) {
       grid.tiles[i].update(currentTime, deltaTime);
-      grid.tiles[i].draw();
     }
 
     grid.annotations.update(currentTime, deltaTime);
+  }
+
+  /**
+   * Draws the current state of this AnimationJob.
+   *
+   * @this HexGrid
+   */
+  function draw() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tiles[i].draw();
+    }
   }
 
   /**
@@ -620,11 +634,14 @@
     grid.centerX = Number.NaN;
     grid.centerY = Number.NaN;
 
+    grid.animations = {};
+
     grid.annotations = new hg.HexGridAnnotations(grid);
 
     grid.resize = resize;
     grid.start = start;
     grid.update = update;
+    grid.draw = draw;
     grid.cancel = cancel;
     grid.updateBackgroundColor = updateBackgroundColor;
     grid.updateTileColor = updateTileColor;
@@ -677,19 +694,19 @@
       enabled: true,
       create: fillContentTiles,
       destroy: unfillContentTiles,
-      update: function () {/* Do nothing*/}
+      update: function () {/* Do nothing */}
     },
     'borderTiles': {
       enabled: true,
       create: fillBorderTiles,
       destroy: unfillBorderTiles,
-      update: function () {/* Do nothing*/}
+      update: function () {/* Do nothing */}
     },
     'transparentTiles': {
       enabled: false,
       create: makeTilesTransparent,
       destroy: makeTilesVisible,
-      update: function () {/* Do nothing*/}
+      update: function () {/* Do nothing */}
     },
     'tileAnchorCenters': {
       enabled: true,
@@ -749,7 +766,13 @@
       enabled: false,
       create: drawContentAreaGuideLines,
       destroy: removeContentAreaGuideLines,
-      update:  function () {/* Do nothing*/}
+      update:  function () {/* Do nothing */}
+    },
+    'lineAnimationGapPoints': {
+      enabled: true,
+      create: function () {/* Do nothing */},
+      destroy: destroyLineAnimationGapPoints,
+      update:  updateLineAnimationGapPoints
     }
   };
 
@@ -1255,6 +1278,21 @@
     annotations.indexTexts = [];
   }
 
+  /**
+   * Destroys the dots at the positions of each corner gap point of each line animation.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyLineAnimationGapPoints() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.lineAnimationGapDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationGapDots[i]);
+    }
+  }
+
   // --------------------------------------------------- //
   // Annotation updating functions
 
@@ -1433,6 +1471,36 @@
     }
   }
 
+  /**
+   * Draws a dot at the position of each corner gap point of each line animation.
+   *
+   * @this HexGridAnnotations
+   */
+  function updateLineAnimationGapPoints() {
+    var annotations, i, iCount, j, jCount, line;
+
+    annotations = this;
+
+    destroyLineAnimationGapPoints.call(annotations);
+    annotations.lineAnimationGapDots = [];
+
+    if (annotations.grid.animations.lineAnimations) {
+      for (i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount; i += 1) {
+        line = annotations.grid.animations.lineAnimations[i];
+
+        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1) {
+          annotations.lineAnimationGapDots[i] =
+              document.createElementNS(hg.util.svgNamespace, 'circle');
+          annotations.lineAnimationGapDots[i].setAttribute('x', line.gapPoints[j].x);
+          annotations.lineAnimationGapDots[i].setAttribute('y', line.gapPoints[j].y);
+          annotations.lineAnimationGapDots[i].setAttribute('r', '4');
+          annotations.lineAnimationGapDots[i].setAttribute('fill', 'chartreuse');
+          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[i]);
+        }
+      }
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
@@ -1537,6 +1605,7 @@
     annotations.forceLines = [];
     annotations.velocityLines = [];
     annotations.indexTexts = [];
+    annotations.lineAnimationGapDots = [];
 
     annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
     annotations.update = update;
@@ -2255,18 +2324,31 @@
    * @returns {number} The ID (actually index) of the new HexGrid.
    */
   function createNewHexGrid(parent, tileData, isVertical) {
-    var grid, waveAnimationJob, index;
+    var grid, index;
 
     grid = new hg.HexGrid(parent, tileData, isVertical);
     controller.grids.push(grid);
     hg.animator.startJob(grid);
     index = controller.grids.length - 1;
 
-    waveAnimationJob = new hg.WaveAnimationJob(grid);
-    controller.waveAnimationJobs.push(waveAnimationJob);
-    restartWaveAnimation(index);
+    createWaveAnimation(index);
 
     return index;
+  }
+
+  /**
+   * Creates a new WaveAnimationJob with the grid at the given index.
+   *
+   * @param {number} gridIndex
+   */
+  function createWaveAnimation(gridIndex) {
+    var job = new hg.WaveAnimationJob(controller.grids[gridIndex]);
+    controller.waveAnimationJobs.push(job);
+    restartWaveAnimation(gridIndex);
+
+    controller.grids[gridIndex].animations.waveAnimations =
+        controller.grids[gridIndex].animations.waveAnimations || [];
+    controller.grids[gridIndex].animations.waveAnimations.push(job);
   }
 
   /**
@@ -2292,8 +2374,18 @@
    * @param {number} tileIndex
    */
   function createLinesRadiateAnimation(gridIndex, tileIndex) {
-//    var job = ;// TODO:
+    var job, i, count;
+
+    job = new hg.LinesRadiateAnimationJob();
+    controller.linesRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
+
+    controller.grids[gridIndex].animations.lineAnimations =
+        controller.grids[gridIndex].animations.lineAnimations || [];
+
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
+      controller.grids[gridIndex].animations.lineAnimations.push(job.lineAnimationJobs[i]);
+    }
   }
 
   /**
@@ -2303,7 +2395,12 @@
    */
   function createRandomLineAnimation(gridIndex) {
     var job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex]);
+    controller.randomLineAnimationJobs.push(job);
     hg.animator.startJob(job);
+
+    controller.grids[gridIndex].animations.lineAnimations =
+        controller.grids[gridIndex].animations.lineAnimations || [];
+    controller.grids[gridIndex].animations.lineAnimations.push(job);
   }
 
   /**
@@ -2314,7 +2411,12 @@
    */
   function createShimmerRadiateAnimation(gridIndex, tileIndex) {
 //    var job = ;// TODO:
+    controller.shimmerRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
+
+    controller.grids[gridIndex].animations.shimmerAnimations =
+        controller.grids[gridIndex].animations.shimmerAnimations || [];
+    controller.grids[gridIndex].animations.shimmerAnimations.push(job);
   }
 
   /**
@@ -2334,6 +2436,9 @@
 
   controller.grids = [];
   controller.waveAnimationJobs = [];
+  controller.linesRadiateAnimationJobs = [];
+  controller.randomLineAnimationJobs = [];
+  controller.shimmerRadiateAnimationJobs = [];
 
   controller.config = config;
 
@@ -3034,6 +3139,19 @@
   }
 
   /**
+   * Draws the current state of this AnimationJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this AnimationJob
+   */
+  function draw() {
+    var job = this;
+
+    // TODO:
+  }
+
+  /**
    * Stops this AnimationJob, and returns the element its original form.
    *
    * @this AnimationJob
@@ -3066,6 +3184,7 @@
 
     job.start = start;
     job.update = update;
+    job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
 
@@ -3384,13 +3503,16 @@ config.computeDependentValues();
    */
   function updateSegments() {
     var job, distanceTravelled, frontSegmentLength, backSegmentLength, segmentsTouchedCount,
-        distancePastEdge;
+        distancePastEdge, segmentsPastEdgeCount;
 
     job = this;
+
+    // --- Compute some values of the polyline at the current time --- //
 
     distanceTravelled = job.ellapsedTime / job.lineSidePeriod * hg.HexGrid.config.tileOuterRadius;
     segmentsTouchedCount = parseInt(distanceTravelled / hg.HexGrid.config.tileOuterRadius) + 1;
 
+    // Add additional vertices to the polyline as needed
     while (segmentsTouchedCount >= job.corners.length && !job.hasReachedEdge) {
       chooseNextVertex.call(job);
     }
@@ -3405,123 +3527,79 @@ config.computeDependentValues();
     job.isShort = job.lineLength < hg.HexGrid.config.tileOuterRadius;
     job.isStarting = distanceTravelled < job.lineLength;
 
-//    **;// TODO: what if the segment is both starting AND ending?
-    //   - it seems that I need to instead first set the segment counts, then subtract from them for the various conditions
+    // --- Determine how many segments are included in the polyline --- //
 
-    if (job.isStarting) {
-      // The polyline is starting; the back of the polyline would lie outside the grid
-      job.segmentsIncludedCount = segmentsTouchedCount;
-      job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 1;
-      console.log('>>>>>1.1');/////TODO/////
-    } else if (job.hasReachedEdge) {
-      // The polyline is ending; the front of the polyline would lie outside the grid
-      if (job.isShort) {
-        // The polyline is shorter than a tile side
+    // When the polyline is neither starting nor ending and is not shorter than the length of a
+    // segment, then this is how many segments it includes
+    job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
+        backSegmentLength + config.epsilon) % hg.HexGrid.config.tileOuterRadius) + 2;
+    job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 2;
+
+    // Subtract from the number of included segments depending on current conditions
+    if (job.isShort) {
+      // The polyline is shorter than a tile side
+      job.completeSegmentsIncludedCount = 0;
+
+      if (job.isStarting || job.hasReachedEdge) {
+        // One end of the polyline would lie outside the grid
         job.segmentsIncludedCount = 1;
-        job.completeSegmentsIncludedCount = 0;
-        console.log('>>>>>2.1');/////TODO/////
+        console.log('>>>>>1.1');/////TODO/////
       } else {
-        distancePastEdge = hg.HexGrid.config.tileOuterRadius *
-            (segmentsTouchedCount - job.currentCornerIndex - 1);
-
-        if (distancePastEdge > job.lineLength) {
-          handleCompletion.call(job);
-        }
-
-        job.segmentsIncludedCount =
-            (job.lineLength - distancePastEdge) % hg.HexGrid.config.tileOuterRadius;
-        job.segmentsIncludedCount =
-            job.segmentsIncludedCount < 0 ? 0 : parseInt(job.segmentsIncludedCount) + 1;
-        job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 1;
-        console.log('>>>>>2.2');/////TODO/////
-      }
-    } else {
-      // The polyline is fully within the grid
-      if (job.isShort) {
-        // The polyline is shorter than a tile side
-        // (the test is testing equality, but needs to account for floating point round-off error)
-        if ((distanceTravelled % hg.HexGrid.config.tileOuterRadius) - frontSegmentLength +
-            config.epsilon < config.epsilon * 2) {
+        if (frontSegmentLength - job.lineLength >= 0) {
           // The polyline is between corners
           job.segmentsIncludedCount = 1;
-          job.completeSegmentsIncludedCount = 0;
-          console.log('>>>>>3.1');/////TODO/////
+          console.log('>>>>>1.2');/////TODO/////
         } else {
           // The polyline is across a corner
           job.segmentsIncludedCount = 2;
-          job.completeSegmentsIncludedCount = 0;
-          console.log('>>>>>3.2');/////TODO/////
+          console.log('>>>>>2.3');/////TODO/////
         }
-      } else {
-        job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
-            backSegmentLength + config.epsilon) % hg.HexGrid.config.tileOuterRadius) + 2;
-        job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 2;
-        console.log('>>>>>3.3');/////TODO/////
+      }
+    } else {
+      // The polyline is longer than a tile side
+      console.log('>>>>>2.1');/////TODO/////
+
+      if (job.isStarting) {
+        // The polyline is starting; the back of the polyline would lie outside the grid
+        job.segmentsIncludedCount = segmentsTouchedCount;
+        job.completeSegmentsIncludedCount = segmentsTouchedCount - 1;
+        console.log('>>>>>2.2');/////TODO/////
+      }
+
+      if (job.hasReachedEdge) {
+        // The polyline is ending; the front of the polyline would lie outside the grid
+        segmentsPastEdgeCount = segmentsTouchedCount - job.corners.length;
+        distancePastEdge = segmentsPastEdgeCount * hg.HexGrid.config.tileOuterRadius;
+
+        if (distancePastEdge > job.lineLength) {
+          handleCompletion.call(job);
+          return;
+        }
+
+        job.segmentsIncludedCount -= segmentsPastEdgeCount;
+        job.completeSegmentsIncludedCount -= segmentsPastEdgeCount + 1;
+        console.log('>>>>>2.3');/////TODO/////
       }
     }
   }
 
+
   /**
-   * Updates the actual SVG elements to render the current state of this animation.
+   * Calculates the points in the middle of the gaps between tiles at each known corner.
    *
    * @this LineAnimationJob
    */
-  function drawSegments() {
-    var job, i, count, polylinePointsIndex, pointsString, gapPoints, polylinePoints, gapPointsIndex;
+  function computeCornerGapPoints() {
+    var job, i, count;
 
     job = this;
 
-    gapPoints = [];
+    job.gapPoints = [];
 
     for (i = 0, count = job.corners.length; i < count; i += 1) {
-      gapPoints[i] = getCornerGapPoint(job.tiles[i], job.corners[i], job.lowerNeighbors[i],
+      job.gapPoints[i] = computeCornerGapPoint(job.tiles[i], job.corners[i], job.lowerNeighbors[i],
           job.upperNeighbors[i], job.lowerNeighborCorners[i], job.upperNeighborCorners[i]);
     }
-
-    polylinePoints = [];
-    polylinePointsIndex = job.segmentsIncludedCount;
-    gapPointsIndex = job.currentCornerIndex;
-
-    // Add the front-end segment point
-    if (!job.hasReachedEdge) {
-      polylinePoints[polylinePointsIndex] = {
-        x: gapPoints[gapPointsIndex].x * job.frontSegmentEndRatio +
-            gapPoints[gapPointsIndex - 1].x * (1 - job.frontSegmentEndRatio),
-        y: gapPoints[gapPointsIndex].y * job.frontSegmentEndRatio +
-            gapPoints[gapPointsIndex - 1].y * (1 - job.frontSegmentEndRatio)
-      };
-      polylinePointsIndex -= 1;
-      gapPointsIndex -= 1;
-    }
-
-    // Add the internal segment points
-    for (i = 0, count = job.completeSegmentsIncludedCount + 1; i < count;
-         i += 1, polylinePointsIndex -= 1, gapPointsIndex -= 1) {
-      polylinePoints[polylinePointsIndex] = gapPoints[gapPointsIndex];
-    }
-
-    // Add the back-end segment point
-    if (!job.isStarting) {
-      polylinePoints[0] = {
-        x: gapPoints[gapPointsIndex + 1].x * job.backSegmentStartRatio +
-            gapPoints[gapPointsIndex].x * (1 - job.backSegmentStartRatio),
-        y: gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
-            gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
-      }
-    }
-
-    // Create the points string
-    pointsString = '';
-    for (i = 0, count = polylinePoints.length; i < count; i += 1) {
-      pointsString += polylinePoints[i].x + ',' + polylinePoints[i].y + ' ';
-    }
-
-    // Update the attributes of the polyline SVG element
-    job.polyline.setAttribute('points', pointsString);
-    job.polyline.setAttribute('stroke', 'hsl(' + job.currentHue + ',' + job.currentSaturation +
-        '%,' + job.currentLightness + '%)');
-    job.polyline.setAttribute('stroke-opacity', job.currentOpacity);
-    job.polyline.setAttribute('stroke-width', job.lineWidth);
   }
 
   /**
@@ -3535,7 +3613,7 @@ config.computeDependentValues();
    * @param {number} upperNeighborCorner
    * @returns {{x:number,y:number}}
    */
-  function getCornerGapPoint(tile, corner, lowerNeighbor, upperNeighbor, lowerNeighborCorner,
+  function computeCornerGapPoint(tile, corner, lowerNeighbor, upperNeighbor, lowerNeighborCorner,
                              upperNeighborCorner) {
     var count, xSum, ySum;
 
@@ -3567,6 +3645,73 @@ config.computeDependentValues();
       x: xSum / count,
       y: ySum / count
     };
+  }
+
+  /**
+   * Calculates the points of the SVG polyline element.
+   *
+   * @this LineAnimationJob
+   */
+  function computePolylinePoints() {//**;// TODO: do we need i and count?
+    var job, gapPointsIndex, polylinePointsIndex;
+
+    job = this;
+
+    job.polylinePoints = [];
+    polylinePointsIndex = job.segmentsIncludedCount;
+    gapPointsIndex = job.currentCornerIndex;
+
+    // Add the front-end segment point
+    if (!job.hasReachedEdge) {
+      job.polylinePoints[polylinePointsIndex] = {
+        x: job.gapPoints[gapPointsIndex].x * job.frontSegmentEndRatio +
+            job.gapPoints[gapPointsIndex - 1].x * (1 - job.frontSegmentEndRatio),
+        y: job.gapPoints[gapPointsIndex].y * job.frontSegmentEndRatio +
+            job.gapPoints[gapPointsIndex - 1].y * (1 - job.frontSegmentEndRatio)
+      };
+      polylinePointsIndex -= 1;
+      gapPointsIndex -= 1;
+    }
+
+    // Add the internal segment points
+    for (i = 0, count = job.completeSegmentsIncludedCount + 1; i < count;
+         i += 1, polylinePointsIndex -= 1, gapPointsIndex -= 1) {
+      job.polylinePoints[polylinePointsIndex] = job.gapPoints[gapPointsIndex];
+    }
+
+    // Add the back-end segment point
+    if (!job.isStarting) {
+      job.polylinePoints[0] = {
+        x: job.gapPoints[gapPointsIndex + 1].x * job.backSegmentStartRatio +
+            job.gapPoints[gapPointsIndex].x * (1 - job.backSegmentStartRatio),
+        y: job.gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
+            job.gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
+      }
+    }
+  }
+
+  /**
+   * Updates the actual SVG elements to render the current state of this animation.
+   *
+   * @this LineAnimationJob
+   */
+  function drawSegments() {
+    var job, i, count, pointsString;
+
+    job = this;
+
+    // Create the points string
+    pointsString = '';
+    for (i = 0, count = job.polylinePoints.length; i < count; i += 1) {
+      pointsString += job.polylinePoints[i].x + ',' + job.polylinePoints[i].y + ' ';
+    }
+
+    // Update the attributes of the polyline SVG element
+    job.polyline.setAttribute('points', pointsString);
+    job.polyline.setAttribute('stroke', 'hsl(' + job.currentHue + ',' + job.currentSaturation +
+        '%,' + job.currentLightness + '%)');
+    job.polyline.setAttribute('stroke-opacity', job.currentOpacity);
+    job.polyline.setAttribute('stroke-width', job.lineWidth);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3608,6 +3753,20 @@ config.computeDependentValues();
 
     updateColorValues.call(job);
     updateSegments.call(job);
+    computeCornerGapPoints.call(job);
+    computePolylinePoints.call(job);
+  }
+
+  /**
+   * Draws the current state of this LineAnimationJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LineAnimationJob
+   */
+  function draw() {
+    var job = this;
+
     drawSegments.call(job);
   }
 
@@ -3653,6 +3812,8 @@ config.computeDependentValues();
     job.backSegmentStartRatio = Number.NaN;
     job.latestDirection = direction;
     job.polyline = null;
+    job.gapPoints = null;
+    job.polylinePoints = null;
     job.hasReachedEdge = false;
     job.startTime = 0;
     job.ellapsedTime = 0;
@@ -3680,10 +3841,10 @@ config.computeDependentValues();
     job.currentSaturation = config.startSaturation;
     job.currentLightness = config.startLightness;
     job.currentOpacity = config.startOpacity;
-    // TODO: add the other line config params here (this is important so that the radiate job can have its own params)
 
     job.start = start;
     job.update = update;
+    job.draw = draw;
     job.cancel = cancel;
 
     determineNeighbors.call(job);
@@ -3918,7 +4079,6 @@ config.computeDependentValues();
       job.lineAnimationJobs[i].endOpacity = config.endOpacity;
 
       job.lineAnimationJobs[i].sameDirectionProb = config.sameDirectionProb;
-      // TODO: add the other radiate-specific line-animation parameters
     }
   }
 
@@ -3991,6 +4151,23 @@ config.computeDependentValues();
   }
 
   /**
+   * Draws the current state of this LinesRadiateAnimationJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LinesRadiateAnimationJob
+   */
+  function draw() {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
+      job.lineAnimationJobs[i].draw();
+    }
+  }
+
+  /**
    * Stops this LinesRadiateAnimationJob, and returns the element its original form.
    *
    * @this LinesRadiateAnimationJob
@@ -4029,6 +4206,7 @@ config.computeDependentValues();
 
     job.start = start;
     job.update = update;
+    job.draw = draw;
     job.cancel = cancel;
 
     createLineAnimationJobs.call(job);
@@ -4115,6 +4293,19 @@ config.computeDependentValues();
   }
 
   /**
+   * Draws the current state of this ShimmerRadiateAnimationJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ShimmerRadiateAnimationJob
+   */
+  function draw() {
+    var job = this;
+
+    // TODO:
+  }
+
+  /**
    * Stops this ShimmerRadiateAnimationJob, and returns the element its original form.
    *
    * @this ShimmerRadiateAnimationJob
@@ -4144,6 +4335,7 @@ config.computeDependentValues();
 
     job.start = start;
     job.update = update;
+    job.draw = draw;
     job.cancel = cancel;
 
     console.log('ShimmerRadiateAnimationJob created');
@@ -4272,6 +4464,18 @@ config.computeDependentValues();
   }
 
   /**
+   * Draws the current state of this WaveAnimationJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this WaveAnimationJob
+   */
+  function draw() {
+    var job = this;
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
    * Stops this WaveAnimationJob, and returns the element its original form.
    *
    * @this WaveAnimationJob
@@ -4299,6 +4503,7 @@ config.computeDependentValues();
 
     job.start = start;
     job.update = update;
+    job.draw = draw;
     job.cancel = cancel;
     job.init = function () {
       initTileProgressOffsets.call(job);
@@ -4330,7 +4535,7 @@ config.computeDependentValues();
  */
 (function () {
   /**
-   * @typedef {{start: Function, update: Function(number, number), cancel: Function, isComplete: boolean}} AnimationJob
+   * @typedef {{start: Function, update: Function(number, number), draw: Function, cancel: Function, isComplete: boolean}} AnimationJob
    */
 
   var animator = {};
@@ -4355,6 +4560,7 @@ config.computeDependentValues();
 
     if (!animator.isPaused) {
       updateJobs(currentTime, deltaTime);
+      drawJobs();
       hg.util.requestAnimationFrame(animationLoop);
     } else {
       animator.isLooping = false;
@@ -4407,6 +4613,17 @@ config.computeDependentValues();
     // Stop the animation loop when there are no more jobs to animate
     if (animator.jobs.length === 0) {
       animator.isPaused = true;
+    }
+  }
+
+  /**
+   * Draws all of the active AnimationJobs.
+   */
+  function drawJobs() {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].draw();
     }
   }
 

@@ -49,7 +49,7 @@
   function createWaveAnimation(gridIndex) {
     var job = new hg.WaveAnimationJob(controller.grids[gridIndex]);
     controller.waveAnimationJobs.push(job);
-    restartWaveAnimation(index);
+    restartWaveAnimation(gridIndex);
 
     controller.grids[gridIndex].animations.waveAnimations =
         controller.grids[gridIndex].animations.waveAnimations || [];

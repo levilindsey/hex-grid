@@ -818,18 +818,21 @@
     annotations = this;
 
     destroyLineAnimationGapPoints.call(annotations);
+    annotations.lineAnimationGapDots = [];
 
-    for (i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount; i += 1) {
-      line = annotations.grid.animations.lineAnimations[i];
+    if (annotations.grid.animations.lineAnimations) {
+      for (i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount; i += 1) {
+        line = annotations.grid.animations.lineAnimations[i];
 
-      for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1) {
-        annotations.lineAnimationGapDots[i] =
-            document.createElementNS(hg.util.svgNamespace, 'circle');
-        annotations.lineAnimationGapDots[i].setAttribute('x', line.gapPoints[j].x);
-        annotations.lineAnimationGapDots[i].setAttribute('y', line.gapPoints[j].y);
-        annotations.lineAnimationGapDots[i].setAttribute('r', '4');
-        annotations.lineAnimationGapDots[i].setAttribute('fill', 'chartreuse');
-        annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[i]);
+        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1) {
+          annotations.lineAnimationGapDots[i] =
+              document.createElementNS(hg.util.svgNamespace, 'circle');
+          annotations.lineAnimationGapDots[i].setAttribute('x', line.gapPoints[j].x);
+          annotations.lineAnimationGapDots[i].setAttribute('y', line.gapPoints[j].y);
+          annotations.lineAnimationGapDots[i].setAttribute('r', '4');
+          annotations.lineAnimationGapDots[i].setAttribute('fill', 'chartreuse');
+          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[i]);
+        }
       }
     }
   }
