@@ -43,7 +43,7 @@
       update: function () {/* Do nothing */}
     },
     'cornerTiles': {
-      enabled: true,
+      enabled: false,
       create: fillCornerTiles,
       destroy: unfillCornerTiles,
       update: function () {/* Do nothing */}
@@ -55,7 +55,7 @@
       update: function () {/* Do nothing */}
     },
     'tileAnchorCenters': {
-      enabled: true,
+      enabled: false,
       create: createTileAnchorCenters,
       destroy: destroyTileAnchorCenters,
       update: updateTileAnchorCenters
@@ -91,19 +91,19 @@
       update: updateTileIndices
     },
     'tileForces': {
-      enabled: true,
+      enabled: false,
       create: createTileForces,
       destroy: destroyTileForces,
       update: updateTileForces
     },
     'tileVelocities': {
-      enabled: true,
+      enabled: false,
       create: createTileVelocities,
       destroy: destroyTileVelocities,
       update: updateTileVelocities
     },
     'tileNeighborConnections': {
-      enabled: true,
+      enabled: false,
       create: createTileNeighborConnections,
       destroy: destroyTileNeighborConnections,
       update: updateTileNeighborConnections
@@ -881,7 +881,7 @@
           annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
           annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
           annotations.lineAnimationGapDots[k].setAttribute('r', '4');
-          annotations.lineAnimationGapDots[k].setAttribute('fill', 'chartreuse');
+          annotations.lineAnimationGapDots[k].setAttribute('fill', 'orange');
           annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
         }
       }

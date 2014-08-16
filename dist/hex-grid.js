@@ -713,7 +713,7 @@
       update: function () {/* Do nothing */}
     },
     'cornerTiles': {
-      enabled: true,
+      enabled: false,
       create: fillCornerTiles,
       destroy: unfillCornerTiles,
       update: function () {/* Do nothing */}
@@ -725,7 +725,7 @@
       update: function () {/* Do nothing */}
     },
     'tileAnchorCenters': {
-      enabled: true,
+      enabled: false,
       create: createTileAnchorCenters,
       destroy: destroyTileAnchorCenters,
       update: updateTileAnchorCenters
@@ -761,19 +761,19 @@
       update: updateTileIndices
     },
     'tileForces': {
-      enabled: true,
+      enabled: false,
       create: createTileForces,
       destroy: destroyTileForces,
       update: updateTileForces
     },
     'tileVelocities': {
-      enabled: true,
+      enabled: false,
       create: createTileVelocities,
       destroy: destroyTileVelocities,
       update: updateTileVelocities
     },
     'tileNeighborConnections': {
-      enabled: true,
+      enabled: false,
       create: createTileNeighborConnections,
       destroy: destroyTileNeighborConnections,
       update: updateTileNeighborConnections
@@ -1551,7 +1551,7 @@
           annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
           annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
           annotations.lineAnimationGapDots[k].setAttribute('r', '4');
-          annotations.lineAnimationGapDots[k].setAttribute('fill', 'chartreuse');
+          annotations.lineAnimationGapDots[k].setAttribute('fill', 'orange');
           annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
         }
       }
@@ -3291,21 +3291,22 @@
 
   var config = {};
 
-  config.duration = 4400;
+  config.duration = 2000;
   config.lineWidth = 26;
-  config.lineLength = 300;
-  config.lineSidePeriod = 300; // milliseconds per tile side
+  config.lineLength = 60000;
+  config.lineSidePeriod = 8; // milliseconds per tile side
 
   config.startSaturation = 100;
-  config.startLightness = 70;
-  config.startOpacity = 1;
+  config.startLightness = 100;
+  config.startOpacity = 0.6;
 
   config.endSaturation = 100;
-  config.endLightness = 95;
+  config.endLightness = 60;
   config.endOpacity = 0;
 
-  config.sameDirectionProb = 0.9;
+  config.sameDirectionProb = 0.8;
 
+  // ---  --- //
 
   config.NEIGHBOR = 0;
   config.LOWER_SELF = 1;
@@ -3407,7 +3408,7 @@
    *
    * @this LineAnimationJob
    */
-  function checkHasReachedEdge() {
+  function checkHasAlmostReachedEdge() {
     var job;
 
     job = this;
@@ -3415,9 +3416,9 @@
     if (job.direction === (job.corners[job.currentCornerIndex] + 3) % 6) {
       // When the job is at the opposite corner of a tile from the direction it is headed, then it
       // has not reached the edge
-      job.hasReachedEdge = false;
+      job.hasAlmostReachedEdge = false;
     } else {
-      job.hasReachedEdge = !job.lowerNeighbors[job.currentCornerIndex] ||
+      job.hasAlmostReachedEdge = !job.lowerNeighbors[job.currentCornerIndex] ||
           !job.upperNeighbors[job.currentCornerIndex];
     }
   }
@@ -3556,7 +3557,7 @@
     job.tiles[job.currentCornerIndex] = nextTile;
 
     determineNeighbors.call(job);
-    checkHasReachedEdge.call(job);
+    checkHasAlmostReachedEdge.call(job);
   }
 
   /**
@@ -3593,10 +3594,10 @@
     // --- Compute some values of the polyline at the current time --- //
 
     distanceTravelled = job.ellapsedTime / job.lineSidePeriod * hg.HexGrid.config.tileOuterRadius;
-    segmentsTouchedCount = parseInt(distanceTravelled / hg.HexGrid.config.tileOuterRadius) + 1;
+    segmentsTouchedCount = parseInt(job.ellapsedTime / job.lineSidePeriod) + 1;
 
     // Add additional vertices to the polyline as needed
-    while (segmentsTouchedCount >= job.corners.length && !job.hasReachedEdge) {
+    while (segmentsTouchedCount >= job.corners.length && !job.hasAlmostReachedEdge) {
       chooseNextVertex.call(job);
     }
 
@@ -3610,12 +3611,26 @@
     job.isShort = job.lineLength < hg.HexGrid.config.tileOuterRadius;
     job.isStarting = distanceTravelled < job.lineLength;
 
+    // Check whether the line has reached the edge
+    if (job.hasAlmostReachedEdge && segmentsTouchedCount >= job.corners.length) {
+      job.hasReachedEdge = true;
+    }
+
     // --- Determine how many segments are included in the polyline --- //
 
     // When the polyline is neither starting nor ending and is not shorter than the length of a
     // segment, then this is how many segments it includes
     job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
-        backSegmentLength + config.epsilon) % hg.HexGrid.config.tileOuterRadius) + 2;
+        backSegmentLength - config.epsilon) / hg.HexGrid.config.tileOuterRadius) + 2;
+
+    console.log('>>>>>0.1: job.lineLength='+job.lineLength);/////TODO/////
+    console.log('>>>>>0.1: frontSegmentLength='+frontSegmentLength);/////TODO/////
+    console.log('>>>>>0.1: backSegmentLength='+backSegmentLength);/////TODO/////
+    console.log('>>>>>0.1: job.ellapsedTime='+job.ellapsedTime);/////TODO/////
+    console.log('>>>>>0.1: job.lineSidePeriod='+job.lineSidePeriod);/////TODO/////
+    console.log('>>>>>0.1: hg.HexGrid.config.tileOuterRadius='+hg.HexGrid.config.tileOuterRadius);/////TODO/////
+    console.log('>>>>>0.1: distanceTravelled='+distanceTravelled);/////TODO/////
+    console.log('>>>>>0.1: segmentsTouchedCount='+segmentsTouchedCount);/////TODO/////
 
     // Subtract from the number of included segments depending on current conditions
     if (job.isShort) {
@@ -3648,15 +3663,16 @@
 
       if (job.hasReachedEdge) {
         // The polyline is ending; the front of the polyline would lie outside the grid
-        segmentsPastEdgeCount = segmentsTouchedCount - job.corners.length;
-        distancePastEdge = segmentsPastEdgeCount * hg.HexGrid.config.tileOuterRadius;
+        segmentsPastEdgeCount = segmentsTouchedCount - job.corners.length + 1;
+        distancePastEdge = distanceTravelled - (job.corners.length - 1) *
+            hg.HexGrid.config.tileOuterRadius;
 
         if (distancePastEdge > job.lineLength) {
           handleCompletion.call(job);
         }
 
         job.segmentsIncludedCount -= segmentsPastEdgeCount;
-        console.log('>>>>>2.3');/////TODO/////
+        console.log('>>>>>2.3: segmentsPastEdgeCount='+segmentsPastEdgeCount);/////TODO/////
       }
     }
   }
