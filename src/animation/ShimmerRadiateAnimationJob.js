@@ -65,6 +65,10 @@
     // TODO:
 
     checkForComplete.call(job);
+
+    if (job.isComplete) {
+      job.onComplete(job);
+    }
   }
 
   /**
@@ -91,6 +95,8 @@
     // TODO:
 
     job.isComplete = true;
+
+    job.onComplete(job);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -100,13 +106,16 @@
    * @constructor
    * @global
    * @param {HexGrid} grid
+   * @param {Function} onComplete
    */
-  function ShimmerRadiateAnimationJob(grid) {
+  function ShimmerRadiateAnimationJob(grid, onComplete) {
     var job = this;
 
     job.grid = grid;
     job.startTime = 0;
     job.isComplete = false;
+
+    job.onComplete = onComplete;
 
     job.start = start;
     job.update = update;

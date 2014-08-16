@@ -41,7 +41,8 @@
     job.lineAnimationJobs = [];
 
     for (i = 0; i < 6; i += 1) {
-      job.lineAnimationJobs[i] = new hg.LineAnimationJob(job.grid, job.tile, i, i);
+      job.lineAnimationJobs[i] = new hg.LineAnimationJob(job.grid, job.tile, i, i,
+          hg.LineAnimationJob.config.NEIGHBOR, job.onComplete);
 
       // Replace the line animation's normal parameters with some that are specific to radiating
       // lines
@@ -68,13 +69,13 @@
    * @this LinesRadiateAnimationJob
    */
   function checkForComplete() {
-    var job, i, count;
+    var job, i;
 
     job = this;
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
+    for (i = 0; i < job.lineAnimationJobs.length; i += 1) {
       if (job.lineAnimationJobs[i].isComplete) {
-        job.lineAnimationJobs.splice(i, 1);
+        job.lineAnimationJobs.splice(i--, 1);
       } else {
         return;
       }
@@ -174,8 +175,9 @@
    * @global
    * @param {HexGrid} grid
    * @param {HexTile} tile
+   * @param {Function} onComplete
    */
-  function LinesRadiateAnimationJob(grid, tile) {
+  function LinesRadiateAnimationJob(grid, tile, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -183,6 +185,8 @@
     job.startTime = 0;
     job.isComplete = false;
     job.lineAnimationJobs = null;
+
+    job.onComplete = onComplete;
 
     job.start = start;
     job.update = update;

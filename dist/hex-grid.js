@@ -212,7 +212,7 @@
    */
   function createTiles() {
     var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
-        isMarginTile, isBorderTile, isOddRow, contentAreaIndex, tileDataIndex,
+        isMarginTile, isBorderTile, isCornerTile, isOddRow, contentAreaIndex, tileDataIndex,
         defaultNeighborDeltaIndices, tilesNeighborDeltaIndices, oddRowIsLarger, isLargerRow;
 
     grid = this;
@@ -255,10 +255,16 @@
             (rowIndex <= 1 || rowIndex >= rowCount - 2 ||
                 isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1));
 
+        isCornerTile = isBorderTile && (grid.isVertical ?
+            ((columnIndex === 0 || columnIndex === columnCount - 1) &&
+                (rowIndex === 0 || rowIndex === rowCount - 1)) :
+            ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
+                (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
+
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isLargerRow,
-            config.tileMass);
+            tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
+            isLargerRow, config.tileMass);
 
         if (isBorderTile) {
           grid.borderTiles.push(grid.tiles[tileIndex]);
@@ -685,9 +691,13 @@
   config.contentTileSaturation = 50;
   config.contentTileLightness = 30;
 
-  config.borderTileHue = 227;
+  config.borderTileHue = 267;
   config.borderTileSaturation = 0;
   config.borderTileLightness = 30;
+
+  config.cornerTileHue = 267;
+  config.cornerTileSaturation = 50;
+  config.cornerTileLightness = 30;
 
   config.annotations = {
     'contentTiles': {
@@ -700,6 +710,12 @@
       enabled: true,
       create: fillBorderTiles,
       destroy: unfillBorderTiles,
+      update: function () {/* Do nothing */}
+    },
+    'cornerTiles': {
+      enabled: true,
+      create: fillCornerTiles,
+      destroy: unfillCornerTiles,
       update: function () {/* Do nothing */}
     },
     'transparentTiles': {
@@ -794,7 +810,8 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(config.contentTileHue, config.contentTileSaturation, config.contentTileLightness);
+        annotations.grid.tiles[i].setColor(config.contentTileHue, config.contentTileSaturation,
+            config.contentTileLightness);
       }
     }
   }
@@ -810,7 +827,26 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(config.borderTileHue, config.borderTileSaturation, config.borderTileLightness);
+      annotations.grid.borderTiles[i].setColor(config.borderTileHue, config.borderTileSaturation,
+          config.borderTileLightness);
+    }
+  }
+
+  /**
+   * Draws corner tiles with a different color.
+   *
+   * @this HexGridAnnotations
+   */
+  function fillCornerTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      if (annotations.grid.borderTiles[i].isCornerTile) {
+        annotations.grid.borderTiles[i].setColor(config.cornerTileHue,
+            config.cornerTileSaturation, config.cornerTileLightness);
+      }
     }
   }
 
@@ -1066,7 +1102,8 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+        annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue,
+            hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
       }
     }
   }
@@ -1082,7 +1119,26 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue,
+          hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+    }
+  }
+
+  /**
+   * Draws corner tiles with a different color.
+   *
+   * @this HexGridAnnotations
+   */
+  function unfillCornerTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      if (annotations.grid.borderTiles[i].isCornerTile) {
+        annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue,
+            hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+      }
     }
   }
 
@@ -1477,7 +1533,7 @@
    * @this HexGridAnnotations
    */
   function updateLineAnimationGapPoints() {
-    var annotations, i, iCount, j, jCount, line;
+    var annotations, i, iCount, j, jCount, k, line;
 
     annotations = this;
 
@@ -1485,17 +1541,18 @@
     annotations.lineAnimationGapDots = [];
 
     if (annotations.grid.animations.lineAnimations) {
-      for (i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount; i += 1) {
+      for (k = 0, i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount;
+           i += 1) {
         line = annotations.grid.animations.lineAnimations[i];
 
-        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1) {
-          annotations.lineAnimationGapDots[i] =
+        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
+          annotations.lineAnimationGapDots[k] =
               document.createElementNS(hg.util.svgNamespace, 'circle');
-          annotations.lineAnimationGapDots[i].setAttribute('x', line.gapPoints[j].x);
-          annotations.lineAnimationGapDots[i].setAttribute('y', line.gapPoints[j].y);
-          annotations.lineAnimationGapDots[i].setAttribute('r', '4');
-          annotations.lineAnimationGapDots[i].setAttribute('fill', 'chartreuse');
-          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[i]);
+          annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
+          annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
+          annotations.lineAnimationGapDots[k].setAttribute('r', '4');
+          annotations.lineAnimationGapDots[k].setAttribute('fill', 'chartreuse');
+          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
         }
       }
     }
@@ -2237,12 +2294,13 @@
    * @param {number} columnIndex
    * @param {boolean} isMarginTile
    * @param {boolean} isBorderTile
+   * @param {boolean} isCornerTile
    * @param {boolean} isInLargerRow
    * @param {number} mass
    */
   function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
                    tileData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
-                   isInLargerRow, mass) {
+                   isCornerTile, isInLargerRow, mass) {
     var tile = this;
 
     tile.svg = svg;
@@ -2263,6 +2321,7 @@
     tile.columnIndex = columnIndex;
     tile.isMarginTile = isMarginTile;
     tile.isBorderTile = isBorderTile;
+    tile.isCornerTile = isCornerTile;
     tile.isInLargerRow = isInLargerRow;
     tile.neighbors = null;
     tile.vertices = null;
@@ -2374,17 +2433,23 @@
    * @param {number} tileIndex
    */
   function createLinesRadiateAnimation(gridIndex, tileIndex) {
-    var job, i, count;
+    var job, i, count, grid;
 
-    job = new hg.LinesRadiateAnimationJob();
+    grid = controller.grids[gridIndex];
+
+    job = new hg.LinesRadiateAnimationJob(grid, grid.tiles[tileIndex], onComplete);
     controller.linesRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
-    controller.grids[gridIndex].animations.lineAnimations =
-        controller.grids[gridIndex].animations.lineAnimations || [];
+    grid.animations.lineAnimations = grid.animations.lineAnimations || [];
 
     for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      controller.grids[gridIndex].animations.lineAnimations.push(job.lineAnimationJobs[i]);
+      grid.animations.lineAnimations.push(job.lineAnimationJobs[i]);
+    }
+
+    function onComplete(job) {
+      controller.grids[gridIndex].animations.lineAnimations.splice(
+          controller.grids[gridIndex].animations.lineAnimations.indexOf(job), 1);
     }
   }
 
@@ -2394,13 +2459,19 @@
    * @param {number} gridIndex
    */
   function createRandomLineAnimation(gridIndex) {
-    var job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex]);
+    var job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex],
+        onComplete);
     controller.randomLineAnimationJobs.push(job);
     hg.animator.startJob(job);
 
     controller.grids[gridIndex].animations.lineAnimations =
         controller.grids[gridIndex].animations.lineAnimations || [];
     controller.grids[gridIndex].animations.lineAnimations.push(job);
+
+    function onComplete() {
+      controller.grids[gridIndex].animations.lineAnimations.splice(
+          controller.grids[gridIndex].animations.lineAnimations.indexOf(job), 1);
+    }
   }
 
   /**
@@ -2410,13 +2481,22 @@
    * @param {number} tileIndex
    */
   function createShimmerRadiateAnimation(gridIndex, tileIndex) {
-//    var job = ;// TODO:
+    var job, grid;
+
+    grid = controller.grids[gridIndex];
+
+    job = new hg.ShimmerRadiateAnimationJob(grid, grid.tiles[tileIndex], onComplete);
     controller.shimmerRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
     controller.grids[gridIndex].animations.shimmerAnimations =
         controller.grids[gridIndex].animations.shimmerAnimations || [];
     controller.grids[gridIndex].animations.shimmerAnimations.push(job);
+
+    function onComplete() {
+      controller.grids[gridIndex].animations.shimmerAnimations.splice(
+          controller.grids[gridIndex].animations.shimmerAnimations.indexOf(job), 1);
+    }
   }
 
   /**
@@ -3209,10 +3289,7 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
-  var NEIGHBOR = 0,
-      LOWER_SELF = 1,
-      UPPER_SELF = 2,
-      config = {};
+  var config = {};
 
   config.duration = 4400;
   config.lineWidth = 26;
@@ -3223,12 +3300,16 @@
   config.startLightness = 70;
   config.startOpacity = 1;
 
-  config.endSaturation = 50;
-  config.endLightness = 100;
+  config.endSaturation = 100;
+  config.endLightness = 95;
   config.endOpacity = 0;
 
   config.sameDirectionProb = 0.9;
 
+
+  config.NEIGHBOR = 0;
+  config.LOWER_SELF = 1;
+  config.UPPER_SELF = 2;
 
   config.oppositeDirectionProb = 0;
   config.epsilon = 0.00001;
@@ -3240,7 +3321,7 @@
     config.closeSidewaysDirectionProb = (1 - config.oppositeDirectionProb) / 2;
   };
 
-config.computeDependentValues();
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -3317,6 +3398,8 @@ config.computeDependentValues();
     job.hasReachedEdge = true;
 
     job.isComplete = true;
+
+    job.onComplete(job);
   }
 
   /**
@@ -3427,8 +3510,8 @@ config.computeDependentValues();
       do {
         // Pick a random direction
         random = Math.random();
-        relativeDirection = random < neighborProb ? NEIGHBOR :
-                random < neighborProb + lowerSelfProb ? LOWER_SELF : UPPER_SELF;
+        relativeDirection = random < neighborProb ? config.NEIGHBOR :
+                random < neighborProb + lowerSelfProb ? config.LOWER_SELF : config.UPPER_SELF;
         absoluteDirection = relativeToAbsoluteDirection(relativeDirection, currentCorner);
         console.log('r=' + relativeDirection);/////TODO/////
         console.log('a=' + absoluteDirection);/////TODO/////
@@ -3446,7 +3529,7 @@ config.computeDependentValues();
 
     // Determine the next corner configuration
     switch (relativeDirection) {
-      case NEIGHBOR:
+      case config.NEIGHBOR:
         if (job.grid.isVertical) {
           nextCorner = (currentCorner + 1) % 6;
           nextTile = job.tiles[job.currentCornerIndex].neighbors[(currentCorner + 5) % 6].tile;
@@ -3455,11 +3538,11 @@ config.computeDependentValues();
           nextTile = job.tiles[job.currentCornerIndex].neighbors[currentCorner].tile;
         }
         break;
-      case LOWER_SELF:
+      case config.LOWER_SELF:
         nextCorner = (currentCorner + 5) % 6;
         nextTile = job.tiles[job.currentCornerIndex];
         break;
-      case UPPER_SELF:
+      case config.UPPER_SELF:
         nextCorner = (currentCorner + 1) % 6;
         nextTile = job.tiles[job.currentCornerIndex];
         break;
@@ -3485,11 +3568,11 @@ config.computeDependentValues();
    */
   function relativeToAbsoluteDirection(relativeDirection, corner) {
     switch (relativeDirection) {
-      case NEIGHBOR:
+      case config.NEIGHBOR:
         return corner;
-      case LOWER_SELF:
+      case config.LOWER_SELF:
         return (corner + 4) % 6;
-      case UPPER_SELF:
+      case config.UPPER_SELF:
         return (corner + 2) % 6;
       default:
         throw new Error('Invalid state: relativeDirection=' + relativeDirection);
@@ -3533,12 +3616,10 @@ config.computeDependentValues();
     // segment, then this is how many segments it includes
     job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
         backSegmentLength + config.epsilon) % hg.HexGrid.config.tileOuterRadius) + 2;
-    job.completeSegmentsIncludedCount = job.segmentsIncludedCount - 2;
 
     // Subtract from the number of included segments depending on current conditions
     if (job.isShort) {
       // The polyline is shorter than a tile side
-      job.completeSegmentsIncludedCount = 0;
 
       if (job.isStarting || job.hasReachedEdge) {
         // One end of the polyline would lie outside the grid
@@ -3562,7 +3643,6 @@ config.computeDependentValues();
       if (job.isStarting) {
         // The polyline is starting; the back of the polyline would lie outside the grid
         job.segmentsIncludedCount = segmentsTouchedCount;
-        job.completeSegmentsIncludedCount = segmentsTouchedCount - 1;
         console.log('>>>>>2.2');/////TODO/////
       }
 
@@ -3573,11 +3653,9 @@ config.computeDependentValues();
 
         if (distancePastEdge > job.lineLength) {
           handleCompletion.call(job);
-          return;
         }
 
         job.segmentsIncludedCount -= segmentsPastEdgeCount;
-        job.completeSegmentsIncludedCount -= segmentsPastEdgeCount + 1;
         console.log('>>>>>2.3');/////TODO/////
       }
     }
@@ -3669,13 +3747,18 @@ config.computeDependentValues();
         y: job.gapPoints[gapPointsIndex].y * job.frontSegmentEndRatio +
             job.gapPoints[gapPointsIndex - 1].y * (1 - job.frontSegmentEndRatio)
       };
-      polylinePointsIndex -= 1;
-      gapPointsIndex -= 1;
+    } else {
+      job.polylinePoints[polylinePointsIndex] = {
+        x: job.gapPoints[gapPointsIndex].x,
+        y: job.gapPoints[gapPointsIndex].y
+      };
     }
 
+    polylinePointsIndex -= 1;
+    gapPointsIndex -= 1;
+
     // Add the internal segment points
-    for (i = 0, count = job.completeSegmentsIncludedCount + 1; i < count;
-         i += 1, polylinePointsIndex -= 1, gapPointsIndex -= 1) {
+    for (; polylinePointsIndex > 0; polylinePointsIndex -= 1, gapPointsIndex -= 1) {
       job.polylinePoints[polylinePointsIndex] = job.gapPoints[gapPointsIndex];
     }
 
@@ -3687,6 +3770,11 @@ config.computeDependentValues();
         y: job.gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
             job.gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
       }
+    } else {
+      job.polylinePoints[0] = {
+        x: job.gapPoints[gapPointsIndex].x,
+        y: job.gapPoints[gapPointsIndex].y
+      };
     }
   }
 
@@ -3753,8 +3841,11 @@ config.computeDependentValues();
 
     updateColorValues.call(job);
     updateSegments.call(job);
-    computeCornerGapPoints.call(job);
-    computePolylinePoints.call(job);
+
+    if (!job.isComplete) {
+      computeCornerGapPoints.call(job);
+      computePolylinePoints.call(job);
+    }
   }
 
   /**
@@ -3794,8 +3885,10 @@ config.computeDependentValues();
    * @param {number} corner
    * @param {number} direction
    * @param {number} forcedInitialRelativeDirection
+   * @param {Function} onComplete
    */
-  function LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection) {
+  function LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
+                            onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -3812,7 +3905,7 @@ config.computeDependentValues();
     job.backSegmentStartRatio = Number.NaN;
     job.latestDirection = direction;
     job.polyline = null;
-    job.gapPoints = null;
+    job.gapPoints = [];
     job.polylinePoints = null;
     job.hasReachedEdge = false;
     job.startTime = 0;
@@ -3842,10 +3935,14 @@ config.computeDependentValues();
     job.currentLightness = config.startLightness;
     job.currentOpacity = config.startOpacity;
 
+    job.onComplete = onComplete;
+
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+
+//    **;// TODO: check whether this is given a valid corner configuration (i.e., something the conditions of the createRandomLineAnimationJob function might generate); if not, then call handleCompletion
 
     determineNeighbors.call(job);
     createHues.call(job);
@@ -3859,12 +3956,15 @@ config.computeDependentValues();
    * Creates a LineAnimationJob that is initialized at a tile vertex along the border of the grid.
    *
    * @param {HexGrid} grid
+   * @param {Function} onComplete
    */
-  function createRandomLineAnimationJob(grid) {
+  function createRandomLineAnimationJob(grid, onComplete) {
     var tile, corner, direction, forcedInitialRelativeDirection;
 
-    // Pick a random border tile to start from
-    tile = grid.borderTiles[parseInt(Math.random() * grid.borderTiles.length)];
+    // Pick a random, non-corner, border tile to start from
+    do {
+      tile = grid.borderTiles[parseInt(Math.random() * grid.borderTiles.length)];
+    } while (tile.isCornerTile);
 
     // Determine which corner and direction to use based on the selected tile
     if (grid.isVertical) {
@@ -3872,21 +3972,21 @@ config.computeDependentValues();
         if (tile.isInLargerRow) {
           if (Math.random() < 0.5) {
             corner = 0;
-            forcedInitialRelativeDirection = UPPER_SELF;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
             //forcedInitialAbsoluteDirection = 2;
           } else {
             corner = 3;
-            forcedInitialRelativeDirection = LOWER_SELF;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
             //forcedInitialAbsoluteDirection = 1;
           }
         } else { // Smaller row
           if (Math.random() < 0.5) {
             corner = 4;
-            forcedInitialRelativeDirection = LOWER_SELF;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
             //forcedInitialAbsoluteDirection = 2;
           } else {
             corner = 5;
-            forcedInitialRelativeDirection = UPPER_SELF;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
             //forcedInitialAbsoluteDirection = 1;
           }
         }
@@ -3895,21 +3995,21 @@ config.computeDependentValues();
         if (tile.isInLargerRow) {
           if (Math.random() < 0.5) {
             corner = 0;
-            forcedInitialRelativeDirection = LOWER_SELF;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
             //forcedInitialAbsoluteDirection = 4;
           } else {
             corner = 3;
-            forcedInitialRelativeDirection = UPPER_SELF;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
             //forcedInitialAbsoluteDirection = 5;
           }
         } else { // Smaller row
           if (Math.random() < 0.5) {
             corner = 1;
-            forcedInitialRelativeDirection = LOWER_SELF;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
             //forcedInitialAbsoluteDirection = 5;
           } else {
             corner = 2;
-            forcedInitialRelativeDirection = UPPER_SELF;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
             //forcedInitialAbsoluteDirection = 4;
           }
         }
@@ -3917,20 +4017,20 @@ config.computeDependentValues();
       } else if (!tile.neighbors[0]) { // Top side
         if (Math.random() < 0.5) {
           corner = 1;
-          forcedInitialRelativeDirection = UPPER_SELF;
+          forcedInitialRelativeDirection = config.UPPER_SELF;
         } else {
           corner = 5;
-          forcedInitialRelativeDirection = LOWER_SELF;
+          forcedInitialRelativeDirection = config.LOWER_SELF;
         }
         //forcedInitialAbsoluteDirection = 3;
         direction = 3;
       } else { // Bottom side
         if (Math.random() < 0.5) {
           corner = 2;
-          forcedInitialRelativeDirection = LOWER_SELF;
+          forcedInitialRelativeDirection = config.LOWER_SELF;
         } else {
           corner = 4;
-          forcedInitialRelativeDirection = UPPER_SELF;
+          forcedInitialRelativeDirection = config.UPPER_SELF;
         }
         //forcedInitialAbsoluteDirection = 0;
         direction = 0;
@@ -3940,21 +4040,21 @@ config.computeDependentValues();
         if (tile.rowIndex === 0) { // First row
           if (Math.random() < 0.5) {
             corner = 1;
-            forcedInitialRelativeDirection = UPPER_SELF;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
             //forcedInitialAbsoluteDirection = 3;
           } else {
             corner = 4;
-            forcedInitialRelativeDirection = LOWER_SELF;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
             //forcedInitialAbsoluteDirection = 2;
           }
         } else { // Second row
           if (Math.random() < 0.5) {
             corner = 0;
-            forcedInitialRelativeDirection = UPPER_SELF;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
             //forcedInitialAbsoluteDirection = 2;
           } else {
             corner = 5;
-            forcedInitialRelativeDirection = LOWER_SELF;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
             //forcedInitialAbsoluteDirection = 3;
           }
         }
@@ -3963,21 +4063,21 @@ config.computeDependentValues();
         if (tile.rowIndex === grid.rowCount - 1) { // Last row
           if (Math.random() < 0.5) {
             corner = 1;
-            forcedInitialRelativeDirection = LOWER_SELF;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
             //forcedInitialAbsoluteDirection = 5;
           } else {
             corner = 4;
-            forcedInitialRelativeDirection = UPPER_SELF;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
             //forcedInitialAbsoluteDirection = 0;
           }
         } else { // Second-to-last row
           if (Math.random() < 0.5) {
             corner = 2;
-            forcedInitialRelativeDirection = LOWER_SELF;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
             //forcedInitialAbsoluteDirection = 0;
           } else {
             corner = 3;
-            forcedInitialRelativeDirection = UPPER_SELF;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
             //forcedInitialAbsoluteDirection = 5;
           }
         }
@@ -3985,27 +4085,28 @@ config.computeDependentValues();
       } else if (!tile.neighbors[4]) { // Left side
         if (Math.random() < 0.5) {
           corner = 3;
-          forcedInitialRelativeDirection = LOWER_SELF;
+          forcedInitialRelativeDirection = config.LOWER_SELF;
         } else {
           corner = 5;
-          forcedInitialRelativeDirection = UPPER_SELF;
+          forcedInitialRelativeDirection = config.UPPER_SELF;
         }
         //forcedInitialAbsoluteDirection = 1;
         direction = 1;
       } else { // Right side
         if (Math.random() < 0.5) {
           corner = 0;
-          forcedInitialRelativeDirection = LOWER_SELF;
+          forcedInitialRelativeDirection = config.LOWER_SELF;
         } else {
           corner = 2;
-          forcedInitialRelativeDirection = UPPER_SELF;
+          forcedInitialRelativeDirection = config.UPPER_SELF;
         }
         //forcedInitialAbsoluteDirection = 4;
         direction = 4;
       }
     }
 
-    return new LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection);
+    return new LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
+        onComplete);
   }
 
   LineAnimationJob.config = config;
@@ -4061,7 +4162,8 @@ config.computeDependentValues();
     job.lineAnimationJobs = [];
 
     for (i = 0; i < 6; i += 1) {
-      job.lineAnimationJobs[i] = new hg.LineAnimationJob(job.grid, job.tile, i, i);
+      job.lineAnimationJobs[i] = new hg.LineAnimationJob(job.grid, job.tile, i, i,
+          hg.LineAnimationJob.config.NEIGHBOR, job.onComplete);
 
       // Replace the line animation's normal parameters with some that are specific to radiating
       // lines
@@ -4088,13 +4190,13 @@ config.computeDependentValues();
    * @this LinesRadiateAnimationJob
    */
   function checkForComplete() {
-    var job, i, count;
+    var job, i;
 
     job = this;
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
+    for (i = 0; i < job.lineAnimationJobs.length; i += 1) {
       if (job.lineAnimationJobs[i].isComplete) {
-        job.lineAnimationJobs.splice(i, 1);
+        job.lineAnimationJobs.splice(i--, 1);
       } else {
         return;
       }
@@ -4194,8 +4296,9 @@ config.computeDependentValues();
    * @global
    * @param {HexGrid} grid
    * @param {HexTile} tile
+   * @param {Function} onComplete
    */
-  function LinesRadiateAnimationJob(grid, tile) {
+  function LinesRadiateAnimationJob(grid, tile, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -4203,6 +4306,8 @@ config.computeDependentValues();
     job.startTime = 0;
     job.isComplete = false;
     job.lineAnimationJobs = null;
+
+    job.onComplete = onComplete;
 
     job.start = start;
     job.update = update;
@@ -4290,6 +4395,10 @@ config.computeDependentValues();
     // TODO:
 
     checkForComplete.call(job);
+
+    if (job.isComplete) {
+      job.onComplete(job);
+    }
   }
 
   /**
@@ -4316,6 +4425,8 @@ config.computeDependentValues();
     // TODO:
 
     job.isComplete = true;
+
+    job.onComplete(job);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -4325,13 +4436,16 @@ config.computeDependentValues();
    * @constructor
    * @global
    * @param {HexGrid} grid
+   * @param {Function} onComplete
    */
-  function ShimmerRadiateAnimationJob(grid) {
+  function ShimmerRadiateAnimationJob(grid, onComplete) {
     var job = this;
 
     job.grid = grid;
     job.startTime = 0;
     job.isComplete = false;
+
+    job.onComplete = onComplete;
 
     job.start = start;
     job.update = update;

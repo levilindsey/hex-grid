@@ -470,12 +470,13 @@
    * @param {number} columnIndex
    * @param {boolean} isMarginTile
    * @param {boolean} isBorderTile
+   * @param {boolean} isCornerTile
    * @param {boolean} isInLargerRow
    * @param {number} mass
    */
   function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
                    tileData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
-                   isInLargerRow, mass) {
+                   isCornerTile, isInLargerRow, mass) {
     var tile = this;
 
     tile.svg = svg;
@@ -496,6 +497,7 @@
     tile.columnIndex = columnIndex;
     tile.isMarginTile = isMarginTile;
     tile.isBorderTile = isBorderTile;
+    tile.isCornerTile = isCornerTile;
     tile.isInLargerRow = isInLargerRow;
     tile.neighbors = null;
     tile.vertices = null;

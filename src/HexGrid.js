@@ -212,7 +212,7 @@
    */
   function createTiles() {
     var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
-        isMarginTile, isBorderTile, isOddRow, contentAreaIndex, tileDataIndex,
+        isMarginTile, isBorderTile, isCornerTile, isOddRow, contentAreaIndex, tileDataIndex,
         defaultNeighborDeltaIndices, tilesNeighborDeltaIndices, oddRowIsLarger, isLargerRow;
 
     grid = this;
@@ -255,10 +255,16 @@
             (rowIndex <= 1 || rowIndex >= rowCount - 2 ||
                 isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1));
 
+        isCornerTile = isBorderTile && (grid.isVertical ?
+            ((columnIndex === 0 || columnIndex === columnCount - 1) &&
+                (rowIndex === 0 || rowIndex === rowCount - 1)) :
+            ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
+                (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
+
         grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isLargerRow,
-            config.tileMass);
+            tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
+            isLargerRow, config.tileMass);
 
         if (isBorderTile) {
           grid.borderTiles.push(grid.tiles[tileIndex]);

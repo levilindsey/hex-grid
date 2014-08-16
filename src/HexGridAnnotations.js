@@ -21,9 +21,13 @@
   config.contentTileSaturation = 50;
   config.contentTileLightness = 30;
 
-  config.borderTileHue = 227;
+  config.borderTileHue = 267;
   config.borderTileSaturation = 0;
   config.borderTileLightness = 30;
+
+  config.cornerTileHue = 267;
+  config.cornerTileSaturation = 50;
+  config.cornerTileLightness = 30;
 
   config.annotations = {
     'contentTiles': {
@@ -36,6 +40,12 @@
       enabled: true,
       create: fillBorderTiles,
       destroy: unfillBorderTiles,
+      update: function () {/* Do nothing */}
+    },
+    'cornerTiles': {
+      enabled: true,
+      create: fillCornerTiles,
+      destroy: unfillCornerTiles,
       update: function () {/* Do nothing */}
     },
     'transparentTiles': {
@@ -130,7 +140,8 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(config.contentTileHue, config.contentTileSaturation, config.contentTileLightness);
+        annotations.grid.tiles[i].setColor(config.contentTileHue, config.contentTileSaturation,
+            config.contentTileLightness);
       }
     }
   }
@@ -146,7 +157,26 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(config.borderTileHue, config.borderTileSaturation, config.borderTileLightness);
+      annotations.grid.borderTiles[i].setColor(config.borderTileHue, config.borderTileSaturation,
+          config.borderTileLightness);
+    }
+  }
+
+  /**
+   * Draws corner tiles with a different color.
+   *
+   * @this HexGridAnnotations
+   */
+  function fillCornerTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      if (annotations.grid.borderTiles[i].isCornerTile) {
+        annotations.grid.borderTiles[i].setColor(config.cornerTileHue,
+            config.cornerTileSaturation, config.cornerTileLightness);
+      }
     }
   }
 
@@ -402,7 +432,8 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+        annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue,
+            hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
       }
     }
   }
@@ -418,7 +449,26 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue, hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue,
+          hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+    }
+  }
+
+  /**
+   * Draws corner tiles with a different color.
+   *
+   * @this HexGridAnnotations
+   */
+  function unfillCornerTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      if (annotations.grid.borderTiles[i].isCornerTile) {
+        annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue,
+            hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+      }
     }
   }
 
@@ -813,7 +863,7 @@
    * @this HexGridAnnotations
    */
   function updateLineAnimationGapPoints() {
-    var annotations, i, iCount, j, jCount, line;
+    var annotations, i, iCount, j, jCount, k, line;
 
     annotations = this;
 
@@ -821,17 +871,18 @@
     annotations.lineAnimationGapDots = [];
 
     if (annotations.grid.animations.lineAnimations) {
-      for (i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount; i += 1) {
+      for (k = 0, i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount;
+           i += 1) {
         line = annotations.grid.animations.lineAnimations[i];
 
-        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1) {
-          annotations.lineAnimationGapDots[i] =
+        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
+          annotations.lineAnimationGapDots[k] =
               document.createElementNS(hg.util.svgNamespace, 'circle');
-          annotations.lineAnimationGapDots[i].setAttribute('x', line.gapPoints[j].x);
-          annotations.lineAnimationGapDots[i].setAttribute('y', line.gapPoints[j].y);
-          annotations.lineAnimationGapDots[i].setAttribute('r', '4');
-          annotations.lineAnimationGapDots[i].setAttribute('fill', 'chartreuse');
-          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[i]);
+          annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
+          annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
+          annotations.lineAnimationGapDots[k].setAttribute('r', '4');
+          annotations.lineAnimationGapDots[k].setAttribute('fill', 'chartreuse');
+          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
         }
       }
     }

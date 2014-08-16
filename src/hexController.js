@@ -79,17 +79,23 @@
    * @param {number} tileIndex
    */
   function createLinesRadiateAnimation(gridIndex, tileIndex) {
-    var job, i, count;
+    var job, i, count, grid;
 
-    job = new hg.LinesRadiateAnimationJob();
+    grid = controller.grids[gridIndex];
+
+    job = new hg.LinesRadiateAnimationJob(grid, grid.tiles[tileIndex], onComplete);
     controller.linesRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
-    controller.grids[gridIndex].animations.lineAnimations =
-        controller.grids[gridIndex].animations.lineAnimations || [];
+    grid.animations.lineAnimations = grid.animations.lineAnimations || [];
 
     for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      controller.grids[gridIndex].animations.lineAnimations.push(job.lineAnimationJobs[i]);
+      grid.animations.lineAnimations.push(job.lineAnimationJobs[i]);
+    }
+
+    function onComplete(job) {
+      controller.grids[gridIndex].animations.lineAnimations.splice(
+          controller.grids[gridIndex].animations.lineAnimations.indexOf(job), 1);
     }
   }
 
@@ -99,13 +105,19 @@
    * @param {number} gridIndex
    */
   function createRandomLineAnimation(gridIndex) {
-    var job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex]);
+    var job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex],
+        onComplete);
     controller.randomLineAnimationJobs.push(job);
     hg.animator.startJob(job);
 
     controller.grids[gridIndex].animations.lineAnimations =
         controller.grids[gridIndex].animations.lineAnimations || [];
     controller.grids[gridIndex].animations.lineAnimations.push(job);
+
+    function onComplete() {
+      controller.grids[gridIndex].animations.lineAnimations.splice(
+          controller.grids[gridIndex].animations.lineAnimations.indexOf(job), 1);
+    }
   }
 
   /**
@@ -115,13 +127,22 @@
    * @param {number} tileIndex
    */
   function createShimmerRadiateAnimation(gridIndex, tileIndex) {
-//    var job = ;// TODO:
+    var job, grid;
+
+    grid = controller.grids[gridIndex];
+
+    job = new hg.ShimmerRadiateAnimationJob(grid, grid.tiles[tileIndex], onComplete);
     controller.shimmerRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
     controller.grids[gridIndex].animations.shimmerAnimations =
         controller.grids[gridIndex].animations.shimmerAnimations || [];
     controller.grids[gridIndex].animations.shimmerAnimations.push(job);
+
+    function onComplete() {
+      controller.grids[gridIndex].animations.shimmerAnimations.splice(
+          controller.grids[gridIndex].animations.shimmerAnimations.indexOf(job), 1);
+    }
   }
 
   /**
