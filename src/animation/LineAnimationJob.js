@@ -14,7 +14,7 @@
   config.duration = 2000;
   config.lineWidth = 26;
   config.lineLength = 60000;
-  config.lineSidePeriod = 8; // milliseconds per tile side
+  config.lineSidePeriod = 7; // milliseconds per tile side
 
   config.startSaturation = 100;
   config.startLightness = 100;
@@ -149,16 +149,17 @@
    * @this LineAnimationJob
    */
   function determineNeighbors() {
-    var job, lowerNeigborTileIndex, upperNeigborTileIndex;
+    var job, lowerNeigborTileIndex, upperNeigborTileIndex, currentCorner;
 
     job = this;
+    currentCorner = job.corners[job.currentCornerIndex];
 
     if (job.grid.isVertical) {
-      lowerNeigborTileIndex = (job.corners[job.currentCornerIndex] + 5) % 6;
-      upperNeigborTileIndex = job.corners[job.currentCornerIndex];
+      lowerNeigborTileIndex = (currentCorner + 5) % 6;
+      upperNeigborTileIndex = currentCorner;
     } else {
-      lowerNeigborTileIndex = job.corners[job.currentCornerIndex];
-      upperNeigborTileIndex = (job.corners[job.currentCornerIndex] + 1) % 6;
+      lowerNeigborTileIndex = currentCorner;
+      upperNeigborTileIndex = (currentCorner + 1) % 6;
     }
 
     job.lowerNeighbors[job.currentCornerIndex] =
@@ -166,10 +167,8 @@
     job.upperNeighbors[job.currentCornerIndex] =
         job.tiles[job.currentCornerIndex].neighbors[upperNeigborTileIndex];
 
-    job.lowerNeighborCorners[job.currentCornerIndex] =
-        (job.corners[job.currentCornerIndex] + 1) % 6;
-    job.upperNeighborCorners[job.currentCornerIndex] =
-        (job.corners[job.currentCornerIndex] + 5) % 6;
+    job.lowerNeighborCorners[job.currentCornerIndex] = (currentCorner + 1) % 6;
+    job.upperNeighborCorners[job.currentCornerIndex] = (currentCorner + 5) % 6;
   }
 
   /**
@@ -466,7 +465,7 @@
    *
    * @this LineAnimationJob
    */
-  function computePolylinePoints() {//**;// TODO: do we need i and count?
+  function computePolylinePoints() {
     var job, gapPointsIndex, polylinePointsIndex;
 
     job = this;

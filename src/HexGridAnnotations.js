@@ -31,13 +31,13 @@
 
   config.annotations = {
     'contentTiles': {
-      enabled: true,
+      enabled: false,
       create: fillContentTiles,
       destroy: unfillContentTiles,
       update: function () {/* Do nothing */}
     },
     'borderTiles': {
-      enabled: true,
+      enabled: false,
       create: fillBorderTiles,
       destroy: unfillBorderTiles,
       update: function () {/* Do nothing */}
@@ -115,10 +115,16 @@
       update:  function () {/* Do nothing */}
     },
     'lineAnimationGapPoints': {
-      enabled: true,
+      enabled: false,
       create: function () {/* Do nothing */},
       destroy: destroyLineAnimationGapPoints,
       update:  updateLineAnimationGapPoints
+    },
+    'lineAnimationCornerData': {
+      enabled: false,
+      create: function () {/* Do nothing */},
+      destroy: destroyLineAnimationCornerConfigurations,
+      update:  updateLineAnimationCornerConfigurations
     }
   };
 
@@ -679,6 +685,29 @@
     }
   }
 
+  /**
+   * Destroys annotations describing the corner configurations of each line animation.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyLineAnimationCornerConfigurations() {
+    var annotations, i, count;
+
+    annotations = this;
+**;
+    for (i = 0, count = annotations.lineAnimationSelfCornerDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationSelfCornerDots[i]);
+    }
+
+    for (i = 0, count = annotations.lineAnimationLowerNeighborCornerDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationLowerNeighborCornerDots[i]);
+    }
+
+    for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationUpperNeighborCornerDots[i]);
+    }
+  }
+
   // --------------------------------------------------- //
   // Annotation updating functions
 
@@ -886,6 +915,75 @@
         }
       }
     }
+  }
+
+  /**
+   * Draws some annotations describing the corner configurations of each line animation.
+   *
+   * @this HexGridAnnotations
+   */
+  function updateLineAnimationCornerConfigurations() {// TODO
+    var annotations, i, iCount, j, jCount, k, line;
+
+    annotations = this;
+**;
+    destroyLineAnimationGapPoints.call(annotations);
+    annotations.lineAnimationGapDots = [];
+
+    if (annotations.grid.animations.lineAnimations) {
+      for (k = 0, i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount;
+           i += 1) {
+        line = annotations.grid.animations.lineAnimations[i];
+
+        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
+          annotations.lineAnimationGapDots[k] =
+              document.createElementNS(hg.util.svgNamespace, 'circle');
+          annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
+          annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
+          annotations.lineAnimationGapDots[k].setAttribute('r', '4');
+          annotations.lineAnimationGapDots[k].setAttribute('fill', 'orange');
+          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
+        }
+      }
+    }
+
+//    for (i = 0, count = annotations.lineAnimationSelfCornerDots.length; i < count; i += 1) {
+//      annotations.grid.svg.removeChild(annotations.lineAnimationSelfCornerDots[i]);
+//    }
+//
+//    for (i = 0, count = annotations.lineAnimationLowerNeighborCornerDots.length; i < count; i += 1) {
+//      annotations.grid.svg.removeChild(annotations.lineAnimationLowerNeighborCornerDots[i]);
+//    }
+//
+//    for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length; i < count; i += 1) {
+//      annotations.grid.svg.removeChild(annotations.lineAnimationUpperNeighborCornerDots[i]);
+//    }
+
+//    function () {
+//      if (lowerNeighbor) {
+//        if (upperNeighbor) {
+//          count = 3;
+//          xSum = tile.particle.px + lowerNeighbor.tile.particle.px + upperNeighbor.tile.particle.px;
+//          ySum = tile.particle.py + lowerNeighbor.tile.particle.py + upperNeighbor.tile.particle.py;
+//        } else {
+//          count = 2;
+//          xSum = tile.vertices[corner * 2] + lowerNeighbor.tile.vertices[lowerNeighborCorner * 2];
+//          ySum = tile.vertices[corner * 2 + 1] +
+//              lowerNeighbor.tile.vertices[lowerNeighborCorner * 2 + 1];
+//        }
+//      } else {
+//        if (upperNeighbor) {
+//          count = 2;
+//          xSum = tile.vertices[corner * 2] + upperNeighbor.tile.vertices[upperNeighborCorner * 2];
+//          ySum = tile.vertices[corner * 2 + 1] +
+//              upperNeighbor.tile.vertices[upperNeighborCorner * 2 + 1];
+//        } else {
+//          count = 1;
+//          xSum = tile.vertices[corner * 2];
+//          ySum = tile.vertices[corner * 2 + 1];
+//        }
+//      }
+//    }
   }
 
   // ------------------------------------------------------------------------------------------- //

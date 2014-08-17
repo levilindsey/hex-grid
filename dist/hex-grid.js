@@ -701,13 +701,13 @@
 
   config.annotations = {
     'contentTiles': {
-      enabled: true,
+      enabled: false,
       create: fillContentTiles,
       destroy: unfillContentTiles,
       update: function () {/* Do nothing */}
     },
     'borderTiles': {
-      enabled: true,
+      enabled: false,
       create: fillBorderTiles,
       destroy: unfillBorderTiles,
       update: function () {/* Do nothing */}
@@ -785,10 +785,16 @@
       update:  function () {/* Do nothing */}
     },
     'lineAnimationGapPoints': {
-      enabled: true,
+      enabled: false,
       create: function () {/* Do nothing */},
       destroy: destroyLineAnimationGapPoints,
       update:  updateLineAnimationGapPoints
+    },
+    'lineAnimationCornerData': {
+      enabled: false,
+      create: function () {/* Do nothing */},
+      destroy: destroyLineAnimationCornerConfigurations,
+      update:  updateLineAnimationCornerConfigurations
     }
   };
 
@@ -1349,6 +1355,29 @@
     }
   }
 
+  /**
+   * Destroys annotations describing the corner configurations of each line animation.
+   *
+   * @this HexGridAnnotations
+   */
+  function destroyLineAnimationCornerConfigurations() {
+    var annotations, i, count;
+
+    annotations = this;
+**;
+    for (i = 0, count = annotations.lineAnimationSelfCornerDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationSelfCornerDots[i]);
+    }
+
+    for (i = 0, count = annotations.lineAnimationLowerNeighborCornerDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationLowerNeighborCornerDots[i]);
+    }
+
+    for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationUpperNeighborCornerDots[i]);
+    }
+  }
+
   // --------------------------------------------------- //
   // Annotation updating functions
 
@@ -1556,6 +1585,75 @@
         }
       }
     }
+  }
+
+  /**
+   * Draws some annotations describing the corner configurations of each line animation.
+   *
+   * @this HexGridAnnotations
+   */
+  function updateLineAnimationCornerConfigurations() {// TODO
+    var annotations, i, iCount, j, jCount, k, line;
+
+    annotations = this;
+**;
+    destroyLineAnimationGapPoints.call(annotations);
+    annotations.lineAnimationGapDots = [];
+
+    if (annotations.grid.animations.lineAnimations) {
+      for (k = 0, i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount;
+           i += 1) {
+        line = annotations.grid.animations.lineAnimations[i];
+
+        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
+          annotations.lineAnimationGapDots[k] =
+              document.createElementNS(hg.util.svgNamespace, 'circle');
+          annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
+          annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
+          annotations.lineAnimationGapDots[k].setAttribute('r', '4');
+          annotations.lineAnimationGapDots[k].setAttribute('fill', 'orange');
+          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
+        }
+      }
+    }
+
+//    for (i = 0, count = annotations.lineAnimationSelfCornerDots.length; i < count; i += 1) {
+//      annotations.grid.svg.removeChild(annotations.lineAnimationSelfCornerDots[i]);
+//    }
+//
+//    for (i = 0, count = annotations.lineAnimationLowerNeighborCornerDots.length; i < count; i += 1) {
+//      annotations.grid.svg.removeChild(annotations.lineAnimationLowerNeighborCornerDots[i]);
+//    }
+//
+//    for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length; i < count; i += 1) {
+//      annotations.grid.svg.removeChild(annotations.lineAnimationUpperNeighborCornerDots[i]);
+//    }
+
+//    function () {
+//      if (lowerNeighbor) {
+//        if (upperNeighbor) {
+//          count = 3;
+//          xSum = tile.particle.px + lowerNeighbor.tile.particle.px + upperNeighbor.tile.particle.px;
+//          ySum = tile.particle.py + lowerNeighbor.tile.particle.py + upperNeighbor.tile.particle.py;
+//        } else {
+//          count = 2;
+//          xSum = tile.vertices[corner * 2] + lowerNeighbor.tile.vertices[lowerNeighborCorner * 2];
+//          ySum = tile.vertices[corner * 2 + 1] +
+//              lowerNeighbor.tile.vertices[lowerNeighborCorner * 2 + 1];
+//        }
+//      } else {
+//        if (upperNeighbor) {
+//          count = 2;
+//          xSum = tile.vertices[corner * 2] + upperNeighbor.tile.vertices[upperNeighborCorner * 2];
+//          ySum = tile.vertices[corner * 2 + 1] +
+//              upperNeighbor.tile.vertices[upperNeighborCorner * 2 + 1];
+//        } else {
+//          count = 1;
+//          xSum = tile.vertices[corner * 2];
+//          ySum = tile.vertices[corner * 2 + 1];
+//        }
+//      }
+//    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3294,7 +3392,7 @@
   config.duration = 2000;
   config.lineWidth = 26;
   config.lineLength = 60000;
-  config.lineSidePeriod = 8; // milliseconds per tile side
+  config.lineSidePeriod = 7; // milliseconds per tile side
 
   config.startSaturation = 100;
   config.startLightness = 100;
@@ -3429,16 +3527,17 @@
    * @this LineAnimationJob
    */
   function determineNeighbors() {
-    var job, lowerNeigborTileIndex, upperNeigborTileIndex;
+    var job, lowerNeigborTileIndex, upperNeigborTileIndex, currentCorner;
 
     job = this;
+    currentCorner = job.corners[job.currentCornerIndex];
 
     if (job.grid.isVertical) {
-      lowerNeigborTileIndex = (job.corners[job.currentCornerIndex] + 5) % 6;
-      upperNeigborTileIndex = job.corners[job.currentCornerIndex];
+      lowerNeigborTileIndex = (currentCorner + 5) % 6;
+      upperNeigborTileIndex = currentCorner;
     } else {
-      lowerNeigborTileIndex = job.corners[job.currentCornerIndex];
-      upperNeigborTileIndex = (job.corners[job.currentCornerIndex] + 1) % 6;
+      lowerNeigborTileIndex = currentCorner;
+      upperNeigborTileIndex = (currentCorner + 1) % 6;
     }
 
     job.lowerNeighbors[job.currentCornerIndex] =
@@ -3446,10 +3545,8 @@
     job.upperNeighbors[job.currentCornerIndex] =
         job.tiles[job.currentCornerIndex].neighbors[upperNeigborTileIndex];
 
-    job.lowerNeighborCorners[job.currentCornerIndex] =
-        (job.corners[job.currentCornerIndex] + 1) % 6;
-    job.upperNeighborCorners[job.currentCornerIndex] =
-        (job.corners[job.currentCornerIndex] + 5) % 6;
+    job.lowerNeighborCorners[job.currentCornerIndex] = (currentCorner + 1) % 6;
+    job.upperNeighborCorners[job.currentCornerIndex] = (currentCorner + 5) % 6;
   }
 
   /**
@@ -3746,7 +3843,7 @@
    *
    * @this LineAnimationJob
    */
-  function computePolylinePoints() {//**;// TODO: do we need i and count?
+  function computePolylinePoints() {
     var job, gapPointsIndex, polylinePointsIndex;
 
     job = this;
