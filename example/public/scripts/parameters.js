@@ -230,10 +230,7 @@
 //    });
 
     function createRandomLineAnimation() {
-      setInterval(function () {/////TODO://////
-        hg.controller.createRandomLineAnimation(app.main.gridId);/////TODO://////
-      }, 1000);/////TODO://////
-//      hg.controller.createRandomLineAnimation(app.main.gridId);
+      hg.controller.createRandomLineAnimation(app.main.gridId);
     }
   }
 
