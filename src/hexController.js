@@ -152,7 +152,9 @@
    */
   function resize() {
     controller.grids.forEach(function (grid, index) {
+      hg.animator.cancelAll();
       grid.resize();
+      hg.animator.startJob(grid);
       restartWaveAnimation(index);
     });
   }

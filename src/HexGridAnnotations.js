@@ -121,7 +121,7 @@
       update:  updateLineAnimationGapPoints
     },
     'lineAnimationCornerData': {
-      enabled: false,
+      enabled: true,
       create: function () {/* Do nothing */},
       destroy: destroyLineAnimationCornerConfigurations,
       update:  updateLineAnimationCornerConfigurations
@@ -266,12 +266,12 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileAnchorLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
-      annotations.tileAnchorLines[i].setAttribute('stroke', '#bbbbbb');
+      annotations.tileAnchorLines[i].setAttribute('stroke', '#666666');
       annotations.tileAnchorLines[i].setAttribute('stroke-width', '2');
       annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
       annotations.tileAnchorCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
       annotations.tileAnchorCenters[i].setAttribute('r', '4');
-      annotations.tileAnchorCenters[i].setAttribute('fill', 'white');
+      annotations.tileAnchorCenters[i].setAttribute('fill', '#888888');
       annotations.grid.svg.appendChild(annotations.tileAnchorCenters[i]);
     }
   }
@@ -683,6 +683,8 @@
     for (i = 0, count = annotations.lineAnimationGapDots.length; i < count; i += 1) {
       annotations.grid.svg.removeChild(annotations.lineAnimationGapDots[i]);
     }
+
+    annotations.lineAnimationGapDots = [];
   }
 
   /**
@@ -694,7 +696,7 @@
     var annotations, i, count;
 
     annotations = this;
-**;
+
     for (i = 0, count = annotations.lineAnimationSelfCornerDots.length; i < count; i += 1) {
       annotations.grid.svg.removeChild(annotations.lineAnimationSelfCornerDots[i]);
     }
@@ -706,6 +708,10 @@
     for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length; i < count; i += 1) {
       annotations.grid.svg.removeChild(annotations.lineAnimationUpperNeighborCornerDots[i]);
     }
+
+    annotations.lineAnimationSelfCornerDots = [];
+    annotations.lineAnimationLowerNeighborCornerDots = [];
+    annotations.lineAnimationUpperNeighborCornerDots = [];
   }
 
   // --------------------------------------------------- //
@@ -910,7 +916,7 @@
           annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
           annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
           annotations.lineAnimationGapDots[k].setAttribute('r', '4');
-          annotations.lineAnimationGapDots[k].setAttribute('fill', 'orange');
+          annotations.lineAnimationGapDots[k].setAttribute('fill', 'white');
           annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
         }
       }
@@ -922,68 +928,64 @@
    *
    * @this HexGridAnnotations
    */
-  function updateLineAnimationCornerConfigurations() {// TODO
-    var annotations, i, iCount, j, jCount, k, line;
+  function updateLineAnimationCornerConfigurations() {
+    var annotations, i, iCount, j, jCount, line, pos, dot;
 
     annotations = this;
-**;
-    destroyLineAnimationGapPoints.call(annotations);
-    annotations.lineAnimationGapDots = [];
+
+    destroyLineAnimationCornerConfigurations.call(annotations);
+    annotations.lineAnimationSelfCornerDots = [];
+    annotations.lineAnimationLowerNeighborCornerDots = [];
+    annotations.lineAnimationUpperNeighborCornerDots = [];
 
     if (annotations.grid.animations.lineAnimations) {
-      for (k = 0, i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount;
-           i += 1) {
+      for (i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount; i += 1) {
         line = annotations.grid.animations.lineAnimations[i];
 
-        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
-          annotations.lineAnimationGapDots[k] =
-              document.createElementNS(hg.util.svgNamespace, 'circle');
-          annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
-          annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
-          annotations.lineAnimationGapDots[k].setAttribute('r', '4');
-          annotations.lineAnimationGapDots[k].setAttribute('fill', 'orange');
-          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
+        for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
+          // Self corner: red dot
+          pos = getCornerPosition(line.tiles[j], line.corners[j]);
+          dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+          dot.setAttribute('cx', pos.x);
+          dot.setAttribute('cy', pos.y);
+          dot.setAttribute('r', '3');
+          dot.setAttribute('fill', '#ffaaaa');
+          annotations.grid.svg.appendChild(dot);
+          annotations.lineAnimationSelfCornerDots.push(dot);
+
+          // Lower neighbor corner: green dot
+          if (line.lowerNeighbors[j]) {
+            pos = getCornerPosition(line.lowerNeighbors[j].tile, line.lowerNeighborCorners[j]);
+            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+            dot.setAttribute('cx', pos.x);
+            dot.setAttribute('cy', pos.y);
+            dot.setAttribute('r', '3');
+            dot.setAttribute('fill', '#aaffaa');
+            annotations.grid.svg.appendChild(dot);
+            annotations.lineAnimationLowerNeighborCornerDots.push(dot);
+          }
+
+          // Upper neighbor corner: blue dot
+          if (line.upperNeighbors[j]) {
+            pos = getCornerPosition(line.upperNeighbors[j].tile, line.upperNeighborCorners[j]);
+            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+            dot.setAttribute('cx', pos.x);
+            dot.setAttribute('cy', pos.y);
+            dot.setAttribute('r', '3');
+            dot.setAttribute('fill', '#aaaaff');
+            annotations.grid.svg.appendChild(dot);
+            annotations.lineAnimationUpperNeighborCornerDots.push(dot);
+          }
         }
       }
     }
 
-//    for (i = 0, count = annotations.lineAnimationSelfCornerDots.length; i < count; i += 1) {
-//      annotations.grid.svg.removeChild(annotations.lineAnimationSelfCornerDots[i]);
-//    }
-//
-//    for (i = 0, count = annotations.lineAnimationLowerNeighborCornerDots.length; i < count; i += 1) {
-//      annotations.grid.svg.removeChild(annotations.lineAnimationLowerNeighborCornerDots[i]);
-//    }
-//
-//    for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length; i < count; i += 1) {
-//      annotations.grid.svg.removeChild(annotations.lineAnimationUpperNeighborCornerDots[i]);
-//    }
-
-//    function () {
-//      if (lowerNeighbor) {
-//        if (upperNeighbor) {
-//          count = 3;
-//          xSum = tile.particle.px + lowerNeighbor.tile.particle.px + upperNeighbor.tile.particle.px;
-//          ySum = tile.particle.py + lowerNeighbor.tile.particle.py + upperNeighbor.tile.particle.py;
-//        } else {
-//          count = 2;
-//          xSum = tile.vertices[corner * 2] + lowerNeighbor.tile.vertices[lowerNeighborCorner * 2];
-//          ySum = tile.vertices[corner * 2 + 1] +
-//              lowerNeighbor.tile.vertices[lowerNeighborCorner * 2 + 1];
-//        }
-//      } else {
-//        if (upperNeighbor) {
-//          count = 2;
-//          xSum = tile.vertices[corner * 2] + upperNeighbor.tile.vertices[upperNeighborCorner * 2];
-//          ySum = tile.vertices[corner * 2 + 1] +
-//              upperNeighbor.tile.vertices[upperNeighborCorner * 2 + 1];
-//        } else {
-//          count = 1;
-//          xSum = tile.vertices[corner * 2];
-//          ySum = tile.vertices[corner * 2 + 1];
-//        }
-//      }
-//    }
+    function getCornerPosition(tile, corner) {
+      return {
+        x: tile.vertices[corner * 2],
+        y: tile.vertices[corner * 2 + 1]
+      };
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -1091,6 +1093,9 @@
     annotations.velocityLines = [];
     annotations.indexTexts = [];
     annotations.lineAnimationGapDots = [];
+    annotations.lineAnimationSelfCornerDots = [];
+    annotations.lineAnimationLowerNeighborCornerDots = [];
+    annotations.lineAnimationUpperNeighborCornerDots = [];
 
     annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
     annotations.update = update;

@@ -26,7 +26,7 @@
   config.backgroundHue = 327;
   config.backgroundSaturation = 20;
   config.backgroundLightness = 10;
-  config.tileHue = 147;
+  config.tileHue = 230;//147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
   config.tileOuterRadius = 80;
@@ -791,7 +791,7 @@
       update:  updateLineAnimationGapPoints
     },
     'lineAnimationCornerData': {
-      enabled: false,
+      enabled: true,
       create: function () {/* Do nothing */},
       destroy: destroyLineAnimationCornerConfigurations,
       update:  updateLineAnimationCornerConfigurations
@@ -936,12 +936,12 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileAnchorLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
-      annotations.tileAnchorLines[i].setAttribute('stroke', '#bbbbbb');
+      annotations.tileAnchorLines[i].setAttribute('stroke', '#666666');
       annotations.tileAnchorLines[i].setAttribute('stroke-width', '2');
       annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
       annotations.tileAnchorCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
       annotations.tileAnchorCenters[i].setAttribute('r', '4');
-      annotations.tileAnchorCenters[i].setAttribute('fill', 'white');
+      annotations.tileAnchorCenters[i].setAttribute('fill', '#888888');
       annotations.grid.svg.appendChild(annotations.tileAnchorCenters[i]);
     }
   }
@@ -1353,6 +1353,8 @@
     for (i = 0, count = annotations.lineAnimationGapDots.length; i < count; i += 1) {
       annotations.grid.svg.removeChild(annotations.lineAnimationGapDots[i]);
     }
+
+    annotations.lineAnimationGapDots = [];
   }
 
   /**
@@ -1364,7 +1366,7 @@
     var annotations, i, count;
 
     annotations = this;
-**;
+
     for (i = 0, count = annotations.lineAnimationSelfCornerDots.length; i < count; i += 1) {
       annotations.grid.svg.removeChild(annotations.lineAnimationSelfCornerDots[i]);
     }
@@ -1376,6 +1378,10 @@
     for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length; i < count; i += 1) {
       annotations.grid.svg.removeChild(annotations.lineAnimationUpperNeighborCornerDots[i]);
     }
+
+    annotations.lineAnimationSelfCornerDots = [];
+    annotations.lineAnimationLowerNeighborCornerDots = [];
+    annotations.lineAnimationUpperNeighborCornerDots = [];
   }
 
   // --------------------------------------------------- //
@@ -1580,7 +1586,7 @@
           annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
           annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
           annotations.lineAnimationGapDots[k].setAttribute('r', '4');
-          annotations.lineAnimationGapDots[k].setAttribute('fill', 'orange');
+          annotations.lineAnimationGapDots[k].setAttribute('fill', 'white');
           annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
         }
       }
@@ -1592,68 +1598,64 @@
    *
    * @this HexGridAnnotations
    */
-  function updateLineAnimationCornerConfigurations() {// TODO
-    var annotations, i, iCount, j, jCount, k, line;
+  function updateLineAnimationCornerConfigurations() {
+    var annotations, i, iCount, j, jCount, line, pos, dot;
 
     annotations = this;
-**;
-    destroyLineAnimationGapPoints.call(annotations);
-    annotations.lineAnimationGapDots = [];
+
+    destroyLineAnimationCornerConfigurations.call(annotations);
+    annotations.lineAnimationSelfCornerDots = [];
+    annotations.lineAnimationLowerNeighborCornerDots = [];
+    annotations.lineAnimationUpperNeighborCornerDots = [];
 
     if (annotations.grid.animations.lineAnimations) {
-      for (k = 0, i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount;
-           i += 1) {
+      for (i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount; i += 1) {
         line = annotations.grid.animations.lineAnimations[i];
 
-        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
-          annotations.lineAnimationGapDots[k] =
-              document.createElementNS(hg.util.svgNamespace, 'circle');
-          annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
-          annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
-          annotations.lineAnimationGapDots[k].setAttribute('r', '4');
-          annotations.lineAnimationGapDots[k].setAttribute('fill', 'orange');
-          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
+        for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
+          // Self corner: red dot
+          pos = getCornerPosition(line.tiles[j], line.corners[j]);
+          dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+          dot.setAttribute('cx', pos.x);
+          dot.setAttribute('cy', pos.y);
+          dot.setAttribute('r', '3');
+          dot.setAttribute('fill', '#ffaaaa');
+          annotations.grid.svg.appendChild(dot);
+          annotations.lineAnimationSelfCornerDots.push(dot);
+
+          // Lower neighbor corner: green dot
+          if (line.lowerNeighbors[j]) {
+            pos = getCornerPosition(line.lowerNeighbors[j].tile, line.lowerNeighborCorners[j]);
+            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+            dot.setAttribute('cx', pos.x);
+            dot.setAttribute('cy', pos.y);
+            dot.setAttribute('r', '3');
+            dot.setAttribute('fill', '#aaffaa');
+            annotations.grid.svg.appendChild(dot);
+            annotations.lineAnimationLowerNeighborCornerDots.push(dot);
+          }
+
+          // Upper neighbor corner: blue dot
+          if (line.upperNeighbors[j]) {
+            pos = getCornerPosition(line.upperNeighbors[j].tile, line.upperNeighborCorners[j]);
+            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+            dot.setAttribute('cx', pos.x);
+            dot.setAttribute('cy', pos.y);
+            dot.setAttribute('r', '3');
+            dot.setAttribute('fill', '#aaaaff');
+            annotations.grid.svg.appendChild(dot);
+            annotations.lineAnimationUpperNeighborCornerDots.push(dot);
+          }
         }
       }
     }
 
-//    for (i = 0, count = annotations.lineAnimationSelfCornerDots.length; i < count; i += 1) {
-//      annotations.grid.svg.removeChild(annotations.lineAnimationSelfCornerDots[i]);
-//    }
-//
-//    for (i = 0, count = annotations.lineAnimationLowerNeighborCornerDots.length; i < count; i += 1) {
-//      annotations.grid.svg.removeChild(annotations.lineAnimationLowerNeighborCornerDots[i]);
-//    }
-//
-//    for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length; i < count; i += 1) {
-//      annotations.grid.svg.removeChild(annotations.lineAnimationUpperNeighborCornerDots[i]);
-//    }
-
-//    function () {
-//      if (lowerNeighbor) {
-//        if (upperNeighbor) {
-//          count = 3;
-//          xSum = tile.particle.px + lowerNeighbor.tile.particle.px + upperNeighbor.tile.particle.px;
-//          ySum = tile.particle.py + lowerNeighbor.tile.particle.py + upperNeighbor.tile.particle.py;
-//        } else {
-//          count = 2;
-//          xSum = tile.vertices[corner * 2] + lowerNeighbor.tile.vertices[lowerNeighborCorner * 2];
-//          ySum = tile.vertices[corner * 2 + 1] +
-//              lowerNeighbor.tile.vertices[lowerNeighborCorner * 2 + 1];
-//        }
-//      } else {
-//        if (upperNeighbor) {
-//          count = 2;
-//          xSum = tile.vertices[corner * 2] + upperNeighbor.tile.vertices[upperNeighborCorner * 2];
-//          ySum = tile.vertices[corner * 2 + 1] +
-//              upperNeighbor.tile.vertices[upperNeighborCorner * 2 + 1];
-//        } else {
-//          count = 1;
-//          xSum = tile.vertices[corner * 2];
-//          ySum = tile.vertices[corner * 2 + 1];
-//        }
-//      }
-//    }
+    function getCornerPosition(tile, corner) {
+      return {
+        x: tile.vertices[corner * 2],
+        y: tile.vertices[corner * 2 + 1]
+      };
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -1761,6 +1763,9 @@
     annotations.velocityLines = [];
     annotations.indexTexts = [];
     annotations.lineAnimationGapDots = [];
+    annotations.lineAnimationSelfCornerDots = [];
+    annotations.lineAnimationLowerNeighborCornerDots = [];
+    annotations.lineAnimationUpperNeighborCornerDots = [];
 
     annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
     annotations.update = update;
@@ -1934,8 +1939,7 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
-  var config, deltaTheta, verticalStartTheta, verticalSines, verticalCosines, horizontalSines,
-      horizontalCosines;
+  var config;
 
   config = {};
 
@@ -1978,7 +1982,8 @@
     tile = this;
 
     tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
-    tile.vertices = computeVertices(tile.centerX, tile.centerY, tile.vertexDeltas);
+    tile.vertices = [];
+    updateVertices.call(tile, tile.centerX, tile.centerY);
 
     tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
@@ -2011,6 +2016,24 @@
     tile.particle.forceAccumulatorY = 0;
   }
 
+  /**
+   * Computes and stores the locations of the vertices of the hexagon for this tile.
+   *
+   * @this HexTile
+   * @param {number} centerX
+   * @param {number} centerY
+   */
+  function updateVertices(centerX, centerY) {
+    var tile, trigIndex, coordIndex;
+
+    tile = this;
+
+    for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
+      tile.vertices[coordIndex] = centerX + tile.vertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = centerY + tile.vertexDeltas[coordIndex++];
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -2018,23 +2041,24 @@
    * Initializes some static fields that can be pre-computed.
    */
   function initStaticFields() {
-    var i, theta;
+    var i, theta, deltaTheta, horizontalStartTheta, verticalStartTheta;
 
     deltaTheta = Math.PI / 3;
-    verticalStartTheta = Math.PI / 6;
+    horizontalStartTheta = -deltaTheta;
+    verticalStartTheta = Math.PI / 6 - 2 * deltaTheta;
 
-    horizontalSines = [];
-    horizontalCosines = [];
-    for (i = 0, theta = 0; i < 6; i += 1, theta += deltaTheta) {
-      horizontalSines[i] = Math.sin(theta);
-      horizontalCosines[i] = Math.cos(theta);
+    config.horizontalSines = [];
+    config.horizontalCosines = [];
+    for (i = 0, theta = horizontalStartTheta; i < 6; i += 1, theta += deltaTheta) {
+      config.horizontalSines[i] = Math.sin(theta);
+      config.horizontalCosines[i] = Math.cos(theta);
     }
 
-    verticalSines = [];
-    verticalCosines = [];
+    config.verticalSines = [];
+    config.verticalCosines = [];
     for (i = 0, theta = verticalStartTheta; i < 6; i += 1, theta += deltaTheta) {
-      verticalSines[i] = Math.sin(theta);
-      verticalCosines[i] = Math.cos(theta);
+      config.verticalSines[i] = Math.sin(theta);
+      config.verticalCosines[i] = Math.cos(theta);
     }
   }
 
@@ -2050,11 +2074,11 @@
 
     // Grab the pre-computed sine and cosine values
     if (isVertical) {
-      sines = verticalSines;
-      cosines = verticalCosines;
+      sines = config.verticalSines;
+      cosines = config.verticalCosines;
     } else {
-      sines = horizontalSines;
-      cosines = horizontalCosines;
+      sines = config.horizontalSines;
+      cosines = config.horizontalCosines;
     }
 
     for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
@@ -2065,27 +2089,6 @@
     }
 
     return vertexDeltas;
-  }
-
-  /**
-   * Computes the locations of the vertices of the hexagon described by the given parameters.
-   *
-   * @param {number} centerX
-   * @param {number} centerY
-   * @param {Array.<number>} vertexDeltas
-   * @returns {Array.<number>} The coordinates of the vertices in the form [v1x, v1y, v2x, ...].
-   */
-  function computeVertices(centerX, centerY, vertexDeltas) {
-    var trigIndex, coordIndex, vertices;
-
-    for (trigIndex = 0, coordIndex = 0, vertices = [];
-         trigIndex < 6;
-         trigIndex += 1) {
-      vertices[coordIndex] = centerX + vertexDeltas[coordIndex++];
-      vertices[coordIndex] = centerY + vertexDeltas[coordIndex++];
-    }
-
-    return vertices;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -2322,7 +2325,7 @@
       tile.particle.forceAccumulatorY = 0;
 
       // Compute new vertex locations
-      tile.vertices = computeVertices(tile.particle.px, tile.particle.py, tile.vertexDeltas);
+      updateVertices.call(tile, tile.particle.px, tile.particle.py);
     }
   }
 
@@ -2604,7 +2607,9 @@
    */
   function resize() {
     controller.grids.forEach(function (grid, index) {
+      hg.animator.cancelAll();
       grid.resize();
+      hg.animator.startJob(grid);
       restartWaveAnimation(index);
     });
   }
@@ -3545,8 +3550,8 @@
     job.upperNeighbors[job.currentCornerIndex] =
         job.tiles[job.currentCornerIndex].neighbors[upperNeigborTileIndex];
 
-    job.lowerNeighborCorners[job.currentCornerIndex] = (currentCorner + 1) % 6;
-    job.upperNeighborCorners[job.currentCornerIndex] = (currentCorner + 5) % 6;
+    job.lowerNeighborCorners[job.currentCornerIndex] = (currentCorner + 2) % 6;
+    job.upperNeighborCorners[job.currentCornerIndex] = (currentCorner + 4) % 6;
   }
 
   /**
@@ -4894,6 +4899,15 @@
     removeJob(job);
   }
 
+  /**
+   * Cancels all running animation jobs.
+   */
+  function cancelAll() {
+    while (animator.jobs.length) {
+      cancelJob(animator.jobs[0]);
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this singleton
 
@@ -4903,6 +4917,7 @@
   animator.isPaused = true;
   animator.startJob = startJob;
   animator.cancelJob = cancelJob;
+  animator.cancelAll = cancelAll;
 
   animator.config = config;
 

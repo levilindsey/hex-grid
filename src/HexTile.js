@@ -12,8 +12,7 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
-  var config, deltaTheta, verticalStartTheta, verticalSines, verticalCosines, horizontalSines,
-      horizontalCosines;
+  var config;
 
   config = {};
 
@@ -56,7 +55,8 @@
     tile = this;
 
     tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
-    tile.vertices = computeVertices(tile.centerX, tile.centerY, tile.vertexDeltas);
+    tile.vertices = [];
+    updateVertices.call(tile, tile.centerX, tile.centerY);
 
     tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
@@ -89,6 +89,24 @@
     tile.particle.forceAccumulatorY = 0;
   }
 
+  /**
+   * Computes and stores the locations of the vertices of the hexagon for this tile.
+   *
+   * @this HexTile
+   * @param {number} centerX
+   * @param {number} centerY
+   */
+  function updateVertices(centerX, centerY) {
+    var tile, trigIndex, coordIndex;
+
+    tile = this;
+
+    for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
+      tile.vertices[coordIndex] = centerX + tile.vertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = centerY + tile.vertexDeltas[coordIndex++];
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -96,23 +114,24 @@
    * Initializes some static fields that can be pre-computed.
    */
   function initStaticFields() {
-    var i, theta;
+    var i, theta, deltaTheta, horizontalStartTheta, verticalStartTheta;
 
     deltaTheta = Math.PI / 3;
-    verticalStartTheta = Math.PI / 6;
+    horizontalStartTheta = -deltaTheta;
+    verticalStartTheta = Math.PI / 6 - 2 * deltaTheta;
 
-    horizontalSines = [];
-    horizontalCosines = [];
-    for (i = 0, theta = 0; i < 6; i += 1, theta += deltaTheta) {
-      horizontalSines[i] = Math.sin(theta);
-      horizontalCosines[i] = Math.cos(theta);
+    config.horizontalSines = [];
+    config.horizontalCosines = [];
+    for (i = 0, theta = horizontalStartTheta; i < 6; i += 1, theta += deltaTheta) {
+      config.horizontalSines[i] = Math.sin(theta);
+      config.horizontalCosines[i] = Math.cos(theta);
     }
 
-    verticalSines = [];
-    verticalCosines = [];
+    config.verticalSines = [];
+    config.verticalCosines = [];
     for (i = 0, theta = verticalStartTheta; i < 6; i += 1, theta += deltaTheta) {
-      verticalSines[i] = Math.sin(theta);
-      verticalCosines[i] = Math.cos(theta);
+      config.verticalSines[i] = Math.sin(theta);
+      config.verticalCosines[i] = Math.cos(theta);
     }
   }
 
@@ -128,11 +147,11 @@
 
     // Grab the pre-computed sine and cosine values
     if (isVertical) {
-      sines = verticalSines;
-      cosines = verticalCosines;
+      sines = config.verticalSines;
+      cosines = config.verticalCosines;
     } else {
-      sines = horizontalSines;
-      cosines = horizontalCosines;
+      sines = config.horizontalSines;
+      cosines = config.horizontalCosines;
     }
 
     for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
@@ -143,27 +162,6 @@
     }
 
     return vertexDeltas;
-  }
-
-  /**
-   * Computes the locations of the vertices of the hexagon described by the given parameters.
-   *
-   * @param {number} centerX
-   * @param {number} centerY
-   * @param {Array.<number>} vertexDeltas
-   * @returns {Array.<number>} The coordinates of the vertices in the form [v1x, v1y, v2x, ...].
-   */
-  function computeVertices(centerX, centerY, vertexDeltas) {
-    var trigIndex, coordIndex, vertices;
-
-    for (trigIndex = 0, coordIndex = 0, vertices = [];
-         trigIndex < 6;
-         trigIndex += 1) {
-      vertices[coordIndex] = centerX + vertexDeltas[coordIndex++];
-      vertices[coordIndex] = centerY + vertexDeltas[coordIndex++];
-    }
-
-    return vertices;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -400,7 +398,7 @@
       tile.particle.forceAccumulatorY = 0;
 
       // Compute new vertex locations
-      tile.vertices = computeVertices(tile.particle.px, tile.particle.py, tile.vertexDeltas);
+      updateVertices.call(tile, tile.particle.px, tile.particle.py);
     }
   }
 

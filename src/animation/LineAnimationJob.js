@@ -167,8 +167,8 @@
     job.upperNeighbors[job.currentCornerIndex] =
         job.tiles[job.currentCornerIndex].neighbors[upperNeigborTileIndex];
 
-    job.lowerNeighborCorners[job.currentCornerIndex] = (currentCorner + 1) % 6;
-    job.upperNeighborCorners[job.currentCornerIndex] = (currentCorner + 5) % 6;
+    job.lowerNeighborCorners[job.currentCornerIndex] = (currentCorner + 2) % 6;
+    job.upperNeighborCorners[job.currentCornerIndex] = (currentCorner + 4) % 6;
   }
 
   /**

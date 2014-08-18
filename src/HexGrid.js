@@ -26,7 +26,7 @@
   config.backgroundHue = 327;
   config.backgroundSaturation = 20;
   config.backgroundLightness = 10;
-  config.tileHue = 147;
+  config.tileHue = 230;//147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
   config.tileOuterRadius = 80;

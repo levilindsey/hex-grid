@@ -142,6 +142,15 @@
     removeJob(job);
   }
 
+  /**
+   * Cancels all running animation jobs.
+   */
+  function cancelAll() {
+    while (animator.jobs.length) {
+      cancelJob(animator.jobs[0]);
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this singleton
 
@@ -151,6 +160,7 @@
   animator.isPaused = true;
   animator.startJob = startJob;
   animator.cancelJob = cancelJob;
+  animator.cancelAll = cancelAll;
 
   animator.config = config;
 
