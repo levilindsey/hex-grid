@@ -2538,11 +2538,11 @@
 
     grid = controller.grids[gridIndex];
 
+    grid.animations.lineAnimations = grid.animations.lineAnimations || [];
+
     job = new hg.LinesRadiateAnimationJob(grid, grid.tiles[tileIndex], onComplete);
     controller.linesRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
-
-    grid.animations.lineAnimations = grid.animations.lineAnimations || [];
 
     for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
       grid.animations.lineAnimations.push(job.lineAnimationJobs[i]);
@@ -2560,13 +2560,16 @@
    * @param {number} gridIndex
    */
   function createRandomLineAnimation(gridIndex) {
-    var job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex],
+    var job;
+
+    controller.grids[gridIndex].animations.lineAnimations =
+        controller.grids[gridIndex].animations.lineAnimations || [];
+
+    job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex],
         onComplete);
     controller.randomLineAnimationJobs.push(job);
     hg.animator.startJob(job);
 
-    controller.grids[gridIndex].animations.lineAnimations =
-        controller.grids[gridIndex].animations.lineAnimations || [];
     controller.grids[gridIndex].animations.lineAnimations.push(job);
 
     function onComplete() {
@@ -2586,12 +2589,13 @@
 
     grid = controller.grids[gridIndex];
 
+    controller.grids[gridIndex].animations.shimmerAnimations =
+        controller.grids[gridIndex].animations.shimmerAnimations || [];
+
     job = new hg.ShimmerRadiateAnimationJob(grid, grid.tiles[tileIndex], onComplete);
     controller.shimmerRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
-    controller.grids[gridIndex].animations.shimmerAnimations =
-        controller.grids[gridIndex].animations.shimmerAnimations || [];
     controller.grids[gridIndex].animations.shimmerAnimations.push(job);
 
     function onComplete() {
@@ -3616,13 +3620,6 @@
         relativeDirection = random < neighborProb ? config.NEIGHBOR :
                 random < neighborProb + lowerSelfProb ? config.LOWER_SELF : config.UPPER_SELF;
         absoluteDirection = relativeToAbsoluteDirection(relativeDirection, currentCorner);
-        console.log('r=' + relativeDirection);/////TODO/////
-        console.log('a=' + absoluteDirection);/////TODO/////
-
-        console.log('np=' + neighborProb);/////TODO/////
-        console.log('lsp=' + lowerSelfProb);/////TODO/////
-        console.log('usp=' + upperSelfProb);/////TODO/////
-        console.log('ld=' + job.latestDirection);/////TODO/////
 
         // Disallow the line from going back the way it just came
       } while (absoluteDirection === (job.latestDirection + 3) % 6);
@@ -3725,15 +3722,6 @@
     job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
         backSegmentLength - config.epsilon) / hg.HexGrid.config.tileOuterRadius) + 2;
 
-    console.log('>>>>>0.1: job.lineLength='+job.lineLength);/////TODO/////
-    console.log('>>>>>0.1: frontSegmentLength='+frontSegmentLength);/////TODO/////
-    console.log('>>>>>0.1: backSegmentLength='+backSegmentLength);/////TODO/////
-    console.log('>>>>>0.1: job.ellapsedTime='+job.ellapsedTime);/////TODO/////
-    console.log('>>>>>0.1: job.lineSidePeriod='+job.lineSidePeriod);/////TODO/////
-    console.log('>>>>>0.1: hg.HexGrid.config.tileOuterRadius='+hg.HexGrid.config.tileOuterRadius);/////TODO/////
-    console.log('>>>>>0.1: distanceTravelled='+distanceTravelled);/////TODO/////
-    console.log('>>>>>0.1: segmentsTouchedCount='+segmentsTouchedCount);/////TODO/////
-
     // Subtract from the number of included segments depending on current conditions
     if (job.isShort) {
       // The polyline is shorter than a tile side
@@ -3741,26 +3729,21 @@
       if (job.isStarting || job.hasReachedEdge) {
         // One end of the polyline would lie outside the grid
         job.segmentsIncludedCount = 1;
-        console.log('>>>>>1.1');/////TODO/////
       } else {
         if (frontSegmentLength - job.lineLength >= 0) {
           // The polyline is between corners
           job.segmentsIncludedCount = 1;
-          console.log('>>>>>1.2');/////TODO/////
         } else {
           // The polyline is across a corner
           job.segmentsIncludedCount = 2;
-          console.log('>>>>>2.3');/////TODO/////
         }
       }
     } else {
       // The polyline is longer than a tile side
-      console.log('>>>>>2.1');/////TODO/////
 
       if (job.isStarting) {
         // The polyline is starting; the back of the polyline would lie outside the grid
         job.segmentsIncludedCount = segmentsTouchedCount;
-        console.log('>>>>>2.2');/////TODO/////
       }
 
       if (job.hasReachedEdge) {
@@ -3774,7 +3757,6 @@
         }
 
         job.segmentsIncludedCount -= segmentsPastEdgeCount;
-        console.log('>>>>>2.3: segmentsPastEdgeCount='+segmentsPastEdgeCount);/////TODO/////
       }
     }
   }
@@ -3954,15 +3936,14 @@
 
     if (job.ellapsedTime >= job.duration) {
       handleCompletion.call(job);
-      return;
-    }
+    } else {
+      updateColorValues.call(job);
+      updateSegments.call(job);
 
-    updateColorValues.call(job);
-    updateSegments.call(job);
-
-    if (!job.isComplete) {
-      computeCornerGapPoints.call(job);
-      computePolylinePoints.call(job);
+      if (!job.isComplete) {
+        computeCornerGapPoints.call(job);
+        computePolylinePoints.call(job);
+      }
     }
   }
 
@@ -4004,6 +3985,7 @@
    * @param {number} direction
    * @param {number} forcedInitialRelativeDirection
    * @param {Function} onComplete
+   * @throws {Error}
    */
   function LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
                             onComplete) {
@@ -4060,14 +4042,17 @@
     job.draw = draw;
     job.cancel = cancel;
 
-//    **;// TODO: check whether this is given a valid corner configuration (i.e., something the conditions of the createRandomLineAnimationJob function might generate); if not, then call handleCompletion
+    if (!checkIsValidInitialCornerConfiguration(job)) {
+      throw new Error('LineAnimationJob created with invalid initial corner configuration: ' +
+          'tileIndex=' + tile.index + ', corner=' + corner + ', direction=' + direction);
+    } else {
+      determineNeighbors.call(job);
+      createHues.call(job);
+      createPolyline.call(job);
 
-    determineNeighbors.call(job);
-    createHues.call(job);
-    createPolyline.call(job);
-
-    console.log('LineAnimationJob created: tileIndex=' + tile.index + ', corner=' + corner +
-        ', direction=' + direction);
+      console.log('LineAnimationJob created: tileIndex=' + tile.index + ', corner=' + corner +
+          ', direction=' + direction);
+    }
   }
 
   /**
@@ -4227,6 +4212,239 @@
         onComplete);
   }
 
+  /**
+   * Checks whether the given LineAnimationJob has a valid corner configuration for its initial
+   * position.
+   *
+   * @param {LineAnimationJob} job
+   */
+  function checkIsValidInitialCornerConfiguration(job) {
+    var tile, corner, direction, forcedInitialRelativeDirection, isValidEdgeDirection;
+
+    tile = job.tiles[0];
+    corner = job.corners[0];
+    direction = job.direction;
+    forcedInitialRelativeDirection = job.forcedInitialRelativeDirection;
+
+    if (tile.isCornerTile) {
+      return false;
+    }
+
+    if (tile.isBorderTile) {
+      if (job.grid.isVertical) {
+        if (!tile.neighbors[4]) { // Left side
+          isValidEdgeDirection = direction === 1 || direction === 2;
+
+          if (tile.isInLargerRow) {
+            switch (corner) {
+              case 0:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 1:
+                return true;
+              case 2:
+                return true;
+              case 3:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 4:
+                return false;
+              case 5:
+                return false;
+            }
+          } else {
+            switch (corner) {
+              case 0:
+                return true;
+              case 1:
+                return true;
+              case 2:
+                return true;
+              case 3:
+                return true;
+              case 4:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 5:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+            }
+          }
+        } else if (!tile.neighbors[1]) { // Right side
+          isValidEdgeDirection = direction === 4 || direction === 5;
+
+          if (tile.isInLargerRow) {
+            switch (corner) {
+              case 0:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 1:
+                return false;
+              case 2:
+                return false;
+              case 3:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 4:
+                return true;
+              case 5:
+                return true;
+            }
+          } else { // Smaller row
+            switch (corner) {
+              case 0:
+                return true;
+              case 1:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 2:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 3:
+                return true;
+              case 4:
+                return true;
+              case 5:
+                return true;
+            }
+          }
+        } else if (!tile.neighbors[0]) { // Top side
+          isValidEdgeDirection = direction === 3;
+
+          switch (corner) {
+            case 0:
+              return false;
+            case 1:
+              return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+            case 2:
+              return true;
+            case 3:
+              return true;
+            case 4:
+              return true;
+            case 5:
+              return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+          }
+        } else { // Bottom side
+          isValidEdgeDirection = direction === 0;
+
+          switch (corner) {
+            case 0:
+              return true;
+            case 1:
+              return true;
+            case 2:
+              return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+            case 3:
+              return false;
+            case 4:
+              return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+            case 5:
+              return true;
+          }
+        }
+      } else { // Not vertical
+        if (!tile.neighbors[0]) { // Top side
+          isValidEdgeDirection = direction === 2 || direction === 3;
+
+          if (tile.rowIndex === 0) { // First row
+            switch (corner) {
+              case 0:
+                return false;
+              case 1:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 2:
+                return true;
+              case 3:
+                return true;
+              case 4:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 5:
+                return false;
+            }
+          } else { // Second row
+            switch (corner) {
+              case 0:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 1:
+                return true;
+              case 2:
+                return true;
+              case 3:
+                return true;
+              case 4:
+                return true;
+              case 5:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+            }
+          }
+        } else if (!tile.neighbors[3]) { // Bottom side
+          isValidEdgeDirection = direction === 0 || direction === 5;
+
+          if (tile.rowIndex === job.grid.rowCount - 1) { // Last row
+            switch (corner) {
+              case 0:
+                return true;
+              case 1:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 2:
+                return false;
+              case 3:
+                return false;
+              case 4:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 5:
+                return true;
+            }
+          } else { // Second-to-last row
+            switch (corner) {
+              case 0:
+                return true;
+              case 1:
+                return true;
+              case 2:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 3:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 4:
+                return true;
+              case 5:
+                return true;
+            }
+          }
+        } else if (!tile.neighbors[4]) { // Left side
+          isValidEdgeDirection = direction === 1;
+
+          switch (corner) {
+            case 0:
+              return true;
+            case 1:
+              return true;
+            case 2:
+              return true;
+            case 3:
+              return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+            case 4:
+              return false;
+            case 5:
+              return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+          }
+        } else { // Right side
+          isValidEdgeDirection = direction === 4;
+
+          switch (corner) {
+            case 0:
+              return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+            case 1:
+              return false;
+            case 2:
+              return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+            case 3:
+              return true;
+            case 4:
+              return true;
+            case 5:
+              return true;
+          }
+        }
+      }
+    }
+
+    return true;
+  }
+
   LineAnimationJob.config = config;
   LineAnimationJob.createRandomLineAnimationJob = createRandomLineAnimationJob;
 
@@ -4250,17 +4468,17 @@
 
   var config = {};
 
-  config.duration = 900;
-  config.lineWidth = 6;
-  config.lineLength = 140;
-  config.lineSidePeriod = 200; // milliseconds per tile side
+  config.duration = 1400;
+  config.lineWidth = 7;
+  config.lineLength = 600;
+  config.lineSidePeriod = 100; // milliseconds per tile side
 
   config.startSaturation = 100;
-  config.startLightness = 70;
+  config.startLightness = 100;
   config.startOpacity = 0.8;
 
-  config.endSaturation = 50;
-  config.endLightness = 90;
+  config.endSaturation = 100;
+  config.endLightness = 70;
   config.endOpacity = 0;
 
   config.sameDirectionProb = 0.85;
@@ -4274,31 +4492,38 @@
    * @this LinesRadiateAnimationJob
    */
   function createLineAnimationJobs() {
-    var job, i;
+    var job, i, line;
 
     job = this;
     job.lineAnimationJobs = [];
 
     for (i = 0; i < 6; i += 1) {
-      job.lineAnimationJobs[i] = new hg.LineAnimationJob(job.grid, job.tile, i, i,
-          hg.LineAnimationJob.config.NEIGHBOR, job.onComplete);
+      try {
+        line = new hg.LineAnimationJob(job.grid, job.tile, i, i,
+            hg.LineAnimationJob.config.NEIGHBOR, job.onComplete);
+      } catch (error) {
+        console.log(error.message);
+        continue;
+      }
+
+      job.lineAnimationJobs.push(line);
 
       // Replace the line animation's normal parameters with some that are specific to radiating
       // lines
-      job.lineAnimationJobs[i].duration = config.duration;
-      job.lineAnimationJobs[i].lineWidth = config.lineWidth;
-      job.lineAnimationJobs[i].lineLength = config.lineLength;
-      job.lineAnimationJobs[i].lineSidePeriod = config.lineSidePeriod;
+      line.duration = config.duration;
+      line.lineWidth = config.lineWidth;
+      line.lineLength = config.lineLength;
+      line.lineSidePeriod = config.lineSidePeriod;
 
-      job.lineAnimationJobs[i].startSaturation = config.startSaturation;
-      job.lineAnimationJobs[i].startLightness = config.startLightness;
-      job.lineAnimationJobs[i].startOpacity = config.startOpacity;
+      line.startSaturation = config.startSaturation;
+      line.startLightness = config.startLightness;
+      line.startOpacity = config.startOpacity;
 
-      job.lineAnimationJobs[i].endSaturation = config.endSaturation;
-      job.lineAnimationJobs[i].endLightness = config.endLightness;
-      job.lineAnimationJobs[i].endOpacity = config.endOpacity;
+      line.endSaturation = config.endSaturation;
+      line.endLightness = config.endLightness;
+      line.endOpacity = config.endOpacity;
 
-      job.lineAnimationJobs[i].sameDirectionProb = config.sameDirectionProb;
+      line.sameDirectionProb = config.sameDirectionProb;
     }
   }
 
@@ -4365,6 +4590,12 @@
 
     for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
       job.lineAnimationJobs[i].update(currentTime, deltaTime);
+
+      if (job.lineAnimationJobs[i].isComplete) {
+        job.lineAnimationJobs.splice(i, 1);
+        i--;
+        count--;
+      }
     }
 
     checkForComplete.call(job);

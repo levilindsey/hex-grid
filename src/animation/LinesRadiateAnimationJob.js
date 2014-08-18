@@ -11,17 +11,17 @@
 
   var config = {};
 
-  config.duration = 900;
-  config.lineWidth = 6;
-  config.lineLength = 140;
-  config.lineSidePeriod = 200; // milliseconds per tile side
+  config.duration = 1400;
+  config.lineWidth = 7;
+  config.lineLength = 600;
+  config.lineSidePeriod = 100; // milliseconds per tile side
 
   config.startSaturation = 100;
-  config.startLightness = 70;
+  config.startLightness = 100;
   config.startOpacity = 0.8;
 
-  config.endSaturation = 50;
-  config.endLightness = 90;
+  config.endSaturation = 100;
+  config.endLightness = 70;
   config.endOpacity = 0;
 
   config.sameDirectionProb = 0.85;
@@ -35,31 +35,38 @@
    * @this LinesRadiateAnimationJob
    */
   function createLineAnimationJobs() {
-    var job, i;
+    var job, i, line;
 
     job = this;
     job.lineAnimationJobs = [];
 
     for (i = 0; i < 6; i += 1) {
-      job.lineAnimationJobs[i] = new hg.LineAnimationJob(job.grid, job.tile, i, i,
-          hg.LineAnimationJob.config.NEIGHBOR, job.onComplete);
+      try {
+        line = new hg.LineAnimationJob(job.grid, job.tile, i, i,
+            hg.LineAnimationJob.config.NEIGHBOR, job.onComplete);
+      } catch (error) {
+        console.log(error.message);
+        continue;
+      }
+
+      job.lineAnimationJobs.push(line);
 
       // Replace the line animation's normal parameters with some that are specific to radiating
       // lines
-      job.lineAnimationJobs[i].duration = config.duration;
-      job.lineAnimationJobs[i].lineWidth = config.lineWidth;
-      job.lineAnimationJobs[i].lineLength = config.lineLength;
-      job.lineAnimationJobs[i].lineSidePeriod = config.lineSidePeriod;
+      line.duration = config.duration;
+      line.lineWidth = config.lineWidth;
+      line.lineLength = config.lineLength;
+      line.lineSidePeriod = config.lineSidePeriod;
 
-      job.lineAnimationJobs[i].startSaturation = config.startSaturation;
-      job.lineAnimationJobs[i].startLightness = config.startLightness;
-      job.lineAnimationJobs[i].startOpacity = config.startOpacity;
+      line.startSaturation = config.startSaturation;
+      line.startLightness = config.startLightness;
+      line.startOpacity = config.startOpacity;
 
-      job.lineAnimationJobs[i].endSaturation = config.endSaturation;
-      job.lineAnimationJobs[i].endLightness = config.endLightness;
-      job.lineAnimationJobs[i].endOpacity = config.endOpacity;
+      line.endSaturation = config.endSaturation;
+      line.endLightness = config.endLightness;
+      line.endOpacity = config.endOpacity;
 
-      job.lineAnimationJobs[i].sameDirectionProb = config.sameDirectionProb;
+      line.sameDirectionProb = config.sameDirectionProb;
     }
   }
 
@@ -126,6 +133,12 @@
 
     for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
       job.lineAnimationJobs[i].update(currentTime, deltaTime);
+
+      if (job.lineAnimationJobs[i].isComplete) {
+        job.lineAnimationJobs.splice(i, 1);
+        i--;
+        count--;
+      }
     }
 
     checkForComplete.call(job);

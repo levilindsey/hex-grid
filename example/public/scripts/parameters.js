@@ -195,6 +195,7 @@
     var linesRadiateAnimationFolder, data;
 
     linesRadiateAnimationFolder = parentFolder.addFolder('Radiating Lines');
+    linesRadiateAnimationFolder.open();
 
     data = {
       'triggerLinesRadiate': createRandomLinesRadiateAnimation
@@ -218,7 +219,6 @@
     var randomLineAnimationFolder, data;
 
     randomLineAnimationFolder = parentFolder.addFolder('Random Lines');
-    randomLineAnimationFolder.open();
 
     data = {
       'triggerLine': createRandomLineAnimation

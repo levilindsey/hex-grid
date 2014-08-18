@@ -83,11 +83,11 @@
 
     grid = controller.grids[gridIndex];
 
+    grid.animations.lineAnimations = grid.animations.lineAnimations || [];
+
     job = new hg.LinesRadiateAnimationJob(grid, grid.tiles[tileIndex], onComplete);
     controller.linesRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
-
-    grid.animations.lineAnimations = grid.animations.lineAnimations || [];
 
     for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
       grid.animations.lineAnimations.push(job.lineAnimationJobs[i]);
@@ -105,13 +105,16 @@
    * @param {number} gridIndex
    */
   function createRandomLineAnimation(gridIndex) {
-    var job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex],
+    var job;
+
+    controller.grids[gridIndex].animations.lineAnimations =
+        controller.grids[gridIndex].animations.lineAnimations || [];
+
+    job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex],
         onComplete);
     controller.randomLineAnimationJobs.push(job);
     hg.animator.startJob(job);
 
-    controller.grids[gridIndex].animations.lineAnimations =
-        controller.grids[gridIndex].animations.lineAnimations || [];
     controller.grids[gridIndex].animations.lineAnimations.push(job);
 
     function onComplete() {
@@ -131,12 +134,13 @@
 
     grid = controller.grids[gridIndex];
 
+    controller.grids[gridIndex].animations.shimmerAnimations =
+        controller.grids[gridIndex].animations.shimmerAnimations || [];
+
     job = new hg.ShimmerRadiateAnimationJob(grid, grid.tiles[tileIndex], onComplete);
     controller.shimmerRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
-    controller.grids[gridIndex].animations.shimmerAnimations =
-        controller.grids[gridIndex].animations.shimmerAnimations || [];
     controller.grids[gridIndex].animations.shimmerAnimations.push(job);
 
     function onComplete() {
