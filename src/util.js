@@ -557,7 +557,7 @@
     var temp = (2 - hsv.s) * hsv.v;
     return {
       h: hsv.h,
-      s: hsv.s * hsv.v / (temp < 1 ? temp : 1.9999999 - temp),
+      s: hsv.s * hsv.v / (temp < 1 ? temp : 2.00000001 - temp),
       l: temp * 0.5
     };
   }

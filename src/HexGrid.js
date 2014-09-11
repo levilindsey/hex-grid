@@ -463,6 +463,8 @@
     while (svg.firstChild) {
       svg.removeChild(svg.firstChild);
     }
+
+    grid.svg.appendChild(grid.svgDefs);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -633,6 +635,7 @@
     grid.isComplete = false;
 
     grid.svg = null;
+    grid.svgDefs = null;
     grid.tiles = [];
     grid.borderTiles = [];
     grid.originalContentInnerIndices = null;

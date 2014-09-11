@@ -35,6 +35,8 @@
   config.oppositeDirectionProb = 0;
   config.epsilon = 0.00001;
 
+  config.haveDefinedLineBlur = false;
+
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -46,6 +48,34 @@
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
+
+  /**
+   * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
+   */
+  function defineLineBlur() {
+    var job, filter, feOffset, feGaussianBlur, feBlend;
+
+    job = this;
+
+    filter = document.createElementNS(hg.util.svgNamespace, 'filter');
+
+    feOffset = document.createElementNS(hg.util.svgNamespace, 'feOffset');
+    filter.append(feOffset);
+
+    feGaussianBlur = document.createElementNS(hg.util.svgNamespace, 'feGaussianBlur');
+    filter.append(feGaussianBlur);
+
+    feBlend = document.createElementNS(hg.util.svgNamespace, 'feBlend');
+    filter.append(feBlend);
+
+//    <filter id="f2" x="0" y="0" width="200%" height="200%">
+//      <feOffset result="offOut" in="SourceGraphic" dx="20" dy="20" />
+//      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="10" />
+//      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+//    </filter>
+
+    job.grid.svgDefs.append(filter);
+  }
 
   /**
    * Creates the start and end hue for the line of this animation.
@@ -444,13 +474,24 @@
    * @this LineAnimationJob
    */
   function computePolylinePoints() {
-    var job, gapPointsIndex, polylinePointsIndex;
+    var job, gapPointsIndex, polylinePointsIndex, stopIndex;
 
     job = this;
 
     job.polylinePoints = [];
-    polylinePointsIndex = job.segmentsIncludedCount;
     gapPointsIndex = job.currentCornerIndex;
+
+    if (job.extraStartPoint && job.isStarting) {
+      // Add the extra, forced initial point (this is useful for making radiating lines actually
+      // start from the center of the tile and not show any gap around the corners of the tile)
+      job.polylinePoints[0] = job.extraStartPoint;
+
+      polylinePointsIndex = job.segmentsIncludedCount + 1;
+      stopIndex = 1;
+    } else {
+      polylinePointsIndex = job.segmentsIncludedCount;
+      stopIndex = 0;
+    }
 
     // Add the front-end segment point
     if (!job.hasReachedEdge) {
@@ -471,20 +512,20 @@
     gapPointsIndex -= 1;
 
     // Add the internal segment points
-    for (; polylinePointsIndex > 0; polylinePointsIndex -= 1, gapPointsIndex -= 1) {
+    for (; polylinePointsIndex > stopIndex; polylinePointsIndex -= 1, gapPointsIndex -= 1) {
       job.polylinePoints[polylinePointsIndex] = job.gapPoints[gapPointsIndex];
     }
 
     // Add the back-end segment point
     if (!job.isStarting) {
-      job.polylinePoints[0] = {
+      job.polylinePoints[polylinePointsIndex] = {
         x: job.gapPoints[gapPointsIndex + 1].x * job.backSegmentStartRatio +
             job.gapPoints[gapPointsIndex].x * (1 - job.backSegmentStartRatio),
         y: job.gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
             job.gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
       }
     } else {
-      job.polylinePoints[0] = {
+      job.polylinePoints[polylinePointsIndex] = {
         x: job.gapPoints[gapPointsIndex].x,
         y: job.gapPoints[gapPointsIndex].y
       };
@@ -598,10 +639,11 @@
    * @param {number} direction
    * @param {number} forcedInitialRelativeDirection
    * @param {Function} onComplete
+   * @param {{x:number,y:number}} extraStartPoint
    * @throws {Error}
    */
   function LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
-                            onComplete) {
+                            onComplete, extraStartPoint) {
     var job = this;
 
     job.grid = grid;
@@ -613,6 +655,7 @@
     job.upperNeighborCorners = [];
     job.direction = direction;
     job.forcedInitialRelativeDirection = forcedInitialRelativeDirection;
+    job.extraStartPoint = extraStartPoint;
     job.currentCornerIndex = 0;
     job.frontSegmentEndRatio = Number.NaN;
     job.backSegmentStartRatio = Number.NaN;
@@ -654,6 +697,10 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+
+    if (!config.haveDefinedLineBlur) {
+      defineLineBlur.call(job);
+    }
 
     if (!checkIsValidInitialCornerConfiguration(job)) {
       throw new Error('LineAnimationJob created with invalid initial corner configuration: ' +
@@ -822,7 +869,7 @@
     }
 
     return new LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
-        onComplete);
+        onComplete, null);
   }
 
   /**

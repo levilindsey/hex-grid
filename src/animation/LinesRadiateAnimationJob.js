@@ -43,9 +43,9 @@
     for (i = 0; i < 6; i += 1) {
       try {
         line = new hg.LineAnimationJob(job.grid, job.tile, i, i,
-            hg.LineAnimationJob.config.NEIGHBOR, job.onComplete);
+            hg.LineAnimationJob.config.NEIGHBOR, job.onComplete, job.extraStartPoint);
       } catch (error) {
-        console.log(error.message);
+        console.debug(error.message);
         continue;
       }
 
@@ -131,6 +131,10 @@
 
     job = this;
 
+    // Update the extra point
+    job.extraStartPoint.x = job.tile.particle.px;
+    job.extraStartPoint.y = job.tile.particle.py;
+
     for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
       job.lineAnimationJobs[i].update(currentTime, deltaTime);
 
@@ -195,6 +199,7 @@
 
     job.grid = grid;
     job.tile = tile;
+    job.extraStartPoint = { x: tile.particle.px, y: tile.particle.py };
     job.startTime = 0;
     job.isComplete = false;
     job.lineAnimationJobs = null;

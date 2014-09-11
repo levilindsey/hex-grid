@@ -17,7 +17,7 @@
   config.forceLineLengthMultiplier = 4000;
   config.velocityLineLengthMultiplier = 300;
 
-  config.contentTileHue = 227;
+  config.contentTileHue = 187;
   config.contentTileSaturation = 50;
   config.contentTileLightness = 30;
 
@@ -121,7 +121,7 @@
       update:  updateLineAnimationGapPoints
     },
     'lineAnimationCornerData': {
-      enabled: true,
+      enabled: false,
       create: function () {/* Do nothing */},
       destroy: destroyLineAnimationCornerConfigurations,
       update:  updateLineAnimationCornerConfigurations

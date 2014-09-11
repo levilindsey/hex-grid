@@ -15,8 +15,7 @@ gulp.task('scripts', function () {
       .pipe(plugins.rename({ suffix: '.min' }))
       .pipe(plugins.uglify())
       .pipe(gulp.dest(distPath))
-      .pipe(plugins.filesize())
-      .pipe(plugins.notify({ message: 'scripts task complete' }));
+      .pipe(plugins.filesize());
 //      .pipe(plugins.livereload());
 });
 
