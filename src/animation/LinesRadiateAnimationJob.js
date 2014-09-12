@@ -12,9 +12,9 @@
   var config = {};
 
   config.duration = 1400;
-  config.lineWidth = 7;
-  config.lineLength = 600;
-  config.lineSidePeriod = 100; // milliseconds per tile side
+  config.lineWidth = 9;
+  config.lineLength = 1000;
+  config.lineSidePeriod = 50; // milliseconds per tile side
 
   config.startSaturation = 100;
   config.startLightness = 100;

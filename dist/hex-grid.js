@@ -3416,6 +3416,9 @@
 
   config.sameDirectionProb = 0.8;
 
+  config.blurStdDeviation = 2;
+  config.isBlurOn = false;
+
   // ---  --- //
 
   config.NEIGHBOR = 0;
@@ -3426,6 +3429,7 @@
   config.epsilon = 0.00001;
 
   config.haveDefinedLineBlur = false;
+  config.filterId = 'polyline-filter';
 
   //  --- Dependent parameters --- //
 
@@ -3447,24 +3451,31 @@
 
     job = this;
 
+    // Create the elements
+
     filter = document.createElementNS(hg.util.svgNamespace, 'filter');
+    job.grid.svgDefs.appendChild(filter);
 
     feOffset = document.createElementNS(hg.util.svgNamespace, 'feOffset');
-    filter.append(feOffset);
+    filter.appendChild(feOffset);
 
     feGaussianBlur = document.createElementNS(hg.util.svgNamespace, 'feGaussianBlur');
-    filter.append(feGaussianBlur);
+    filter.appendChild(feGaussianBlur);
 
     feBlend = document.createElementNS(hg.util.svgNamespace, 'feBlend');
-    filter.append(feBlend);
+    filter.appendChild(feBlend);
 
-//    <filter id="f2" x="0" y="0" width="200%" height="200%">
-//      <feOffset result="offOut" in="SourceGraphic" dx="20" dy="20" />
-//      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="10" />
-//      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-//    </filter>
+    // Define the blur
 
-    job.grid.svgDefs.append(filter);
+    filter.setAttribute('id', config.filterId);
+    filter.setAttribute('x', '-10%');
+    filter.setAttribute('y', '-10%');
+    filter.setAttribute('width', '120%');
+    filter.setAttribute('height', '120%');
+
+    feGaussianBlur.setAttribute('in', 'SourceGraphic');
+    feGaussianBlur.setAttribute('result', 'blurOut');
+    feGaussianBlur.setAttribute('stdDeviation', config.blurStdDeviation);
   }
 
   /**
@@ -3492,8 +3503,13 @@
     job = this;
 
     job.polyline = document.createElementNS(hg.util.svgNamespace, 'polyline');
-    job.polyline.setAttribute('fill-opacity', '0');
     job.grid.svg.insertBefore(job.polyline, job.grid.svg.firstChild);
+
+    job.polyline.setAttribute('fill-opacity', '0');
+
+    if (config.isBlurOn) {
+      job.polyline.setAttribute('filter', 'url(#' + config.filterId + ')');
+    }
   }
 
   /**
@@ -4519,9 +4535,9 @@
   var config = {};
 
   config.duration = 1400;
-  config.lineWidth = 7;
-  config.lineLength = 600;
-  config.lineSidePeriod = 100; // milliseconds per tile side
+  config.lineWidth = 9;
+  config.lineLength = 1000;
+  config.lineSidePeriod = 50; // milliseconds per tile side
 
   config.startSaturation = 100;
   config.startLightness = 100;

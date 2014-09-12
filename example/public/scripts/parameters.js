@@ -224,6 +224,8 @@
       'triggerLine': createRandomLineAnimation
     };
 
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'isBlurOn');
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'blurStdDeviation', 0, 80);
     randomLineAnimationFolder.add(data, 'triggerLine');
 //    randomLineAnimationFolder.add(hg.RandomLinesAnimationJob.config, '').onChange(function (value) {
 //      // TODO:
