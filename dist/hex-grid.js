@@ -3625,7 +3625,7 @@
       // Determine relative direction probabilities
       switch (cornerConfig) {
         case 0:
-          neighborProb = config.sameDirectionProb;
+          neighborProb = job.sameDirectionProb;
           lowerSelfProb = config.distantSidewaysDirectionProb;
           upperSelfProb = config.distantSidewaysDirectionProb;
           break;
@@ -3636,7 +3636,7 @@
           break;
         case 2:
           neighborProb = config.distantSidewaysDirectionProb;
-          lowerSelfProb = config.sameDirectionProb;
+          lowerSelfProb = job.sameDirectionProb;
           upperSelfProb = config.distantSidewaysDirectionProb;
           break;
         case 3:
@@ -3647,7 +3647,7 @@
         case 4:
           neighborProb = config.distantSidewaysDirectionProb;
           lowerSelfProb = config.distantSidewaysDirectionProb;
-          upperSelfProb = config.sameDirectionProb;
+          upperSelfProb = job.sameDirectionProb;
           break;
         case 5:
           neighborProb = config.closeSidewaysDirectionProb;

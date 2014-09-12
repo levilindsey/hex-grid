@@ -201,9 +201,23 @@
       'triggerLinesRadiate': createRandomLinesRadiateAnimation
     };
 
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'duration', 100, 20000);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'lineWidth', 1, 100);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'lineLength', 10, 60000);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'lineSidePeriod', 5, 500);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'startSaturation', 0, 100);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'startLightness', 0, 100);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'startOpacity', 0, 1);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'endSaturation', 0, 100);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'endLightness', 0, 100);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'endOpacity', 0, 1);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'sameDirectionProb', 0, 1);
+
     linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'isBlurOn');
     linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'blurStdDeviation', 0, 80);
+
     linesRadiateAnimationFolder.add(data, 'triggerLinesRadiate');
+
 //    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, '').onChange(function (value) {
 //      // TODO:
 //    });
@@ -226,9 +240,23 @@
       'triggerLine': createRandomLineAnimation
     };
 
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'duration', 100, 20000);
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'lineWidth', 1, 100);
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'lineLength', 10, 60000);
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'lineSidePeriod', 5, 500);
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'startSaturation', 0, 100);
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'startLightness', 0, 100);
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'startOpacity', 0, 1);
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'endSaturation', 0, 100);
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'endLightness', 0, 100);
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'endOpacity', 0, 1);
+    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'sameDirectionProb', 0, 1);
+
     randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'isBlurOn');
     randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'blurStdDeviation', 0, 80);
+
     randomLineAnimationFolder.add(data, 'triggerLine');
+
 //    randomLineAnimationFolder.add(hg.RandomLinesAnimationJob.config, '').onChange(function (value) {
 //      // TODO:
 //    });
