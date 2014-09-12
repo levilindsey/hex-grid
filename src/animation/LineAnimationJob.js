@@ -39,7 +39,7 @@
   config.epsilon = 0.00001;
 
   config.haveDefinedLineBlur = false;
-  config.filterId = 'polyline-filter';
+  config.filterId = 'random-line-filter';
 
   //  --- Dependent parameters --- //
 
@@ -57,7 +57,7 @@
    * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
    */
   function defineLineBlur() {
-    var job, filter, feOffset, feGaussianBlur, feBlend;
+    var job, filter, feGaussianBlur;
 
     job = this;
 
@@ -66,14 +66,8 @@
     filter = document.createElementNS(hg.util.svgNamespace, 'filter');
     job.grid.svgDefs.appendChild(filter);
 
-    feOffset = document.createElementNS(hg.util.svgNamespace, 'feOffset');
-    filter.appendChild(feOffset);
-
     feGaussianBlur = document.createElementNS(hg.util.svgNamespace, 'feGaussianBlur');
     filter.appendChild(feGaussianBlur);
-
-    feBlend = document.createElementNS(hg.util.svgNamespace, 'feBlend');
-    filter.appendChild(feBlend);
 
     // Define the blur
 
@@ -85,7 +79,9 @@
 
     feGaussianBlur.setAttribute('in', 'SourceGraphic');
     feGaussianBlur.setAttribute('result', 'blurOut');
-    feGaussianBlur.setAttribute('stdDeviation', config.blurStdDeviation);
+
+    job.filter = filter;
+    job.feGaussianBlur = feGaussianBlur;
   }
 
   /**
@@ -610,6 +606,8 @@
       updateColorValues.call(job);
       updateSegments.call(job);
 
+      job.feGaussianBlur.setAttribute('stdDeviation', job.blurStdDeviation);
+
       if (!job.isComplete) {
         computeCornerGapPoints.call(job);
         computePolylinePoints.call(job);
@@ -702,6 +700,9 @@
     job.endOpacity = config.endOpacity;
 
     job.sameDirectionProb = config.sameDirectionProb;
+
+    job.blurStdDeviation = config.blurStdDeviation;
+    job.isBlurOn = config.isBlurOn;
 
     job.currentSaturation = config.startSaturation;
     job.currentLightness = config.startLightness;

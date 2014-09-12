@@ -3429,7 +3429,7 @@
   config.epsilon = 0.00001;
 
   config.haveDefinedLineBlur = false;
-  config.filterId = 'polyline-filter';
+  config.filterId = 'random-line-filter';
 
   //  --- Dependent parameters --- //
 
@@ -3447,7 +3447,7 @@
    * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
    */
   function defineLineBlur() {
-    var job, filter, feOffset, feGaussianBlur, feBlend;
+    var job, filter, feGaussianBlur;
 
     job = this;
 
@@ -3456,14 +3456,8 @@
     filter = document.createElementNS(hg.util.svgNamespace, 'filter');
     job.grid.svgDefs.appendChild(filter);
 
-    feOffset = document.createElementNS(hg.util.svgNamespace, 'feOffset');
-    filter.appendChild(feOffset);
-
     feGaussianBlur = document.createElementNS(hg.util.svgNamespace, 'feGaussianBlur');
     filter.appendChild(feGaussianBlur);
-
-    feBlend = document.createElementNS(hg.util.svgNamespace, 'feBlend');
-    filter.appendChild(feBlend);
 
     // Define the blur
 
@@ -3475,7 +3469,9 @@
 
     feGaussianBlur.setAttribute('in', 'SourceGraphic');
     feGaussianBlur.setAttribute('result', 'blurOut');
-    feGaussianBlur.setAttribute('stdDeviation', config.blurStdDeviation);
+
+    job.filter = filter;
+    job.feGaussianBlur = feGaussianBlur;
   }
 
   /**
@@ -4000,6 +3996,8 @@
       updateColorValues.call(job);
       updateSegments.call(job);
 
+      job.feGaussianBlur.setAttribute('stdDeviation', job.blurStdDeviation);
+
       if (!job.isComplete) {
         computeCornerGapPoints.call(job);
         computePolylinePoints.call(job);
@@ -4092,6 +4090,9 @@
     job.endOpacity = config.endOpacity;
 
     job.sameDirectionProb = config.sameDirectionProb;
+
+    job.blurStdDeviation = config.blurStdDeviation;
+    job.isBlurOn = config.isBlurOn;
 
     job.currentSaturation = config.startSaturation;
     job.currentLightness = config.startLightness;
@@ -4549,8 +4550,46 @@
 
   config.sameDirectionProb = 0.85;
 
+  config.blurStdDeviation = 2;
+  config.isBlurOn = false;
+
+  // ---  --- //
+
+  config.haveDefinedLineBlur = false;
+  config.filterId = 'random-line-filter';
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
+
+  /**
+   * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
+   */
+  function defineLineBlur() {
+    var job, filter, feGaussianBlur;
+
+    job = this;
+
+    // Create the elements
+
+    filter = document.createElementNS(hg.util.svgNamespace, 'filter');
+    job.grid.svgDefs.appendChild(filter);
+
+    feGaussianBlur = document.createElementNS(hg.util.svgNamespace, 'feGaussianBlur');
+    filter.appendChild(feGaussianBlur);
+
+    // Define the blur
+
+    filter.setAttribute('id', config.filterId);
+    filter.setAttribute('x', '-10%');
+    filter.setAttribute('y', '-10%');
+    filter.setAttribute('width', '120%');
+    filter.setAttribute('height', '120%');
+
+    feGaussianBlur.setAttribute('in', 'SourceGraphic');
+    feGaussianBlur.setAttribute('result', 'blurOut');
+
+    job.feGaussianBlur = feGaussianBlur;
+  }
 
   /**
    * Creates the individual LineAnimationJobs that comprise this LinesRadiateAnimationJob.
@@ -4590,6 +4629,16 @@
       line.endOpacity = config.endOpacity;
 
       line.sameDirectionProb = config.sameDirectionProb;
+
+      line.filterId = config.filterId;
+      line.blurStdDeviation = config.blurStdDeviation;
+      line.isBlurOn = config.isBlurOn;
+
+      if (config.isBlurOn) {
+        line.polyline.setAttribute('filter', 'url(#' + config.filterId + ')');
+      } else {
+        line.polyline.setAttribute('filter', 'none');
+      }
     }
   }
 
@@ -4668,6 +4717,8 @@
       }
     }
 
+    job.feGaussianBlur.setAttribute('stdDeviation', config.blurStdDeviation);
+
     checkForComplete.call(job);
   }
 
@@ -4733,6 +4784,10 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+
+    if (!config.haveDefinedLineBlur) {
+      defineLineBlur.call(job);
+    }
 
     createLineAnimationJobs.call(job);
 

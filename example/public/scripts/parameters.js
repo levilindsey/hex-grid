@@ -201,6 +201,8 @@
       'triggerLinesRadiate': createRandomLinesRadiateAnimation
     };
 
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'isBlurOn');
+    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'blurStdDeviation', 0, 80);
     linesRadiateAnimationFolder.add(data, 'triggerLinesRadiate');
 //    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, '').onChange(function (value) {
 //      // TODO:
