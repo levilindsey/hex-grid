@@ -770,7 +770,7 @@
       angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       colorString = 'hsl(' + angle + ',' +
-          distance / hg.WaveAnimationJob.config.displacementWavelength * 100 + '%,80%)';
+          distance / hg.DisplacementWaveAnimationJob.config.displacementWavelength * 100 + '%,80%)';
 
       annotations.tileDisplacementCircles[i].setAttribute('fill', colorString);
       annotations.tileDisplacementCircles[i]

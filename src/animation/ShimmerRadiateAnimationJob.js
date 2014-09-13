@@ -11,8 +11,43 @@
 
   var config = {};
 
+  config.shimmerSpeed = 200; // pixels / millisecond
+  config.shimmerWaveWidth = 400;
+  config.duration = 1000;
+
+  config.startHue = 120;
+  config.startSaturation = 50;
+  config.startLightness = 100;
+  config.endOpacity = 1;
+
+  config.endHue = 360;
+  config.endSaturation = 50;
+  config.endLightness = 100;
+  config.endOpacity = 0;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
+
+  /**
+   * Calculates the distance from each tile in the grid to the starting point of this
+   * ShimmerRadiateAnimationJob.
+   *
+   * This cheats by only calculating the distance to the tiles' original center. This allows us to
+   * not need to re-calculate tile distances during each time step.
+   *
+   * @this ShimmerRadiateAnimationJob
+   */
+  function calculateTileDistances() {
+    var job, i, count, deltaX, deltaY;
+
+    job = this;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      deltaX = job.grid.tiles[i].originalCenterX - job.startPoint.x;
+      deltaY = job.grid.tiles[i].originalCenterY - job.startPoint.y;
+      job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
+  }
 
   /**
    * Checks whether this job is complete. If so, a flag is set and a callback is called.
@@ -22,7 +57,7 @@
   function checkForComplete() {
     var job = this;
 
-    // TODO:
+    // TODO: two conditions: no tiles are in range any more; the duration value is past the threshold
 //    if (???) {
 //      console.log('ShimmerRadiateAnimationJob completed');
 //
@@ -46,8 +81,6 @@
 
     job.startTime = Date.now();
     job.isComplete = false;
-
-    // TODO:
   }
 
   /**
@@ -60,9 +93,25 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job = this;
+    var job;
+
+    job = this;
 
     // TODO:
+
+//    config.shimmerSpeed = 200; // pixels / millisecond
+//    config.shimmerWaveWidth = 400;
+//    config.duration = 1000;
+//
+//    config.startHue = 120;
+//    config.startSaturation = 50;
+//    config.startLightness = 100;
+//    config.endOpacity = 1;
+//
+//    config.endHue = 360;
+//    config.endSaturation = 50;
+//    config.endLightness = 100;
+//    config.endOpacity = 0;
 
     checkForComplete.call(job);
 
@@ -79,9 +128,11 @@
    * @this ShimmerRadiateAnimationJob
    */
   function draw() {
-    var job = this;
+    var job;
 
-    // TODO:
+    job = this;
+
+    // TODO: will need to blend these color values with those of the tiles;
   }
 
   /**
@@ -92,11 +143,7 @@
   function cancel() {
     var job = this;
 
-    // TODO:
-
     job.isComplete = true;
-
-    job.onComplete(job);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -105,22 +152,24 @@
   /**
    * @constructor
    * @global
+   * @param {{x:number,y:number}} startPoint
    * @param {HexGrid} grid
-   * @param {Function} onComplete
    */
-  function ShimmerRadiateAnimationJob(grid, onComplete) {
+  function ShimmerRadiateAnimationJob(startPoint, grid) {
     var job = this;
 
     job.grid = grid;
+    job.startPoint = startPoint;
+    job.tileDistances = [];
     job.startTime = 0;
     job.isComplete = false;
-
-    job.onComplete = onComplete;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+
+    calculateTileDistances.call(job);
 
     console.log('ShimmerRadiateAnimationJob created');
   }

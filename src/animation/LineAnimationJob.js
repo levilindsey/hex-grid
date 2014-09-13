@@ -55,6 +55,8 @@
 
   /**
    * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
+   *
+   * @this LineAnimationJob
    */
   function defineLineBlur() {
     var job, filter, feGaussianBlur;

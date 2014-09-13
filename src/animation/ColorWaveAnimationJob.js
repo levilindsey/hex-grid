@@ -1,11 +1,11 @@
 'use strict';
 
 /**
- * This module defines a constructor for WaveAnimationJob objects.
+ * This module defines a constructor for ColorWaveAnimationJob objects.
  *
- * WaveAnimationJob objects animate the tiles of a HexGrid in order to create a wave motion.
+ * ColorWaveAnimationJob objects animate the tiles of a HexGrid in order to create a wave motion.
  *
- * @module WaveAnimationJob
+ * @module ColorWaveAnimationJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -14,15 +14,16 @@
   var config = {};
 
   config.period = 3200;
-  config.tileDeltaX = -15;
-  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
   config.wavelength = 1800;
-  config.originX = 0;
-  config.originY = 0;
+  config.originX = 2000;
+  config.originY = 2000;
 
-  config.displacementWavelength =
-      Math.sqrt(config.tileDeltaX * config.tileDeltaX +
-          config.tileDeltaY * config.tileDeltaY);
+  // Amplitude (will range from negative to positive)
+  config.deltaHue = 120;
+  config.deltaSaturation = 100;
+  config.deltaLightness = 65;
+
+  config.opacity = 0.3;
 
   config.halfPeriod = config.period / 2;
 
@@ -32,12 +33,14 @@
   /**
    * Calculates a wave offset value for each tile according to their positions in the grid.
    *
-   * @this WaveAnimationJob
+   * @this ColorWaveAnimationJob
    */
   function initTileProgressOffsets() {
     var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
 
     job = this;
+
+    **;
 
     halfWaveProgressWavelength = config.wavelength / 2;
 
@@ -56,7 +59,7 @@
   /**
    * Updates the animation progress of the given tile.
    *
-   * @this WaveAnimationJob
+   * @this ColorWaveAnimationJob
    * @param {number} progress
    * @param {HexTile} tile
    */
@@ -64,6 +67,8 @@
     var job, tileProgress;
 
     job = this;
+
+    **;
 
     tileProgress =
         Math.sin(((((progress + 1 + tile.waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
@@ -79,9 +84,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this WaveAnimationJob as started.
+   * Sets this ColorWaveAnimationJob as started.
    *
-   * @this WaveAnimationJob
+   * @this ColorWaveAnimationJob
    */
   function start() {
     var job = this;
@@ -91,11 +96,11 @@
   }
 
   /**
-   * Updates the animation progress of this WaveAnimationJob to match the given time.
+   * Updates the animation progress of this ColorWaveAnimationJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this WaveAnimationJob
+   * @this ColorWaveAnimationJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -112,21 +117,22 @@
   }
 
   /**
-   * Draws the current state of this WaveAnimationJob.
+   * Draws the current state of this ColorWaveAnimationJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this WaveAnimationJob
+   * @this ColorWaveAnimationJob
    */
   function draw() {
     var job = this;
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+
+    **;
   }
 
   /**
-   * Stops this WaveAnimationJob, and returns the element its original form.
+   * Stops this ColorWaveAnimationJob, and returns the element its original form.
    *
-   * @this WaveAnimationJob
+   * @this ColorWaveAnimationJob
    */
   function cancel() {
     var job = this;
@@ -142,7 +148,7 @@
    * @global
    * @param {HexGrid} grid
    */
-  function WaveAnimationJob(grid) {
+  function ColorWaveAnimationJob(grid) {
     var job = this;
 
     job.grid = grid;
@@ -159,14 +165,14 @@
 
     job.init();
 
-    console.log('WaveAnimationJob created');
+    console.log('ColorWaveAnimationJob created');
   }
 
-  WaveAnimationJob.config = config;
+  ColorWaveAnimationJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.WaveAnimationJob = WaveAnimationJob;
+  window.hg.ColorWaveAnimationJob = ColorWaveAnimationJob;
 
-  console.log('WaveAnimationJob module loaded');
+  console.log('ColorWaveAnimationJob module loaded');
 })();

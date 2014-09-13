@@ -36,33 +36,65 @@
     hg.animator.startJob(grid);
     index = controller.grids.length - 1;
 
-    createWaveAnimation(index);
+    createDisplacementWaveAnimation(index);
+    createColorWaveAnimation(index);
 
     return index;
   }
 
   /**
-   * Creates a new WaveAnimationJob with the grid at the given index.
+   * Creates a new DisplacementWaveAnimationJob with the grid at the given index.
    *
    * @param {number} gridIndex
    */
-  function createWaveAnimation(gridIndex) {
-    var job = new hg.WaveAnimationJob(controller.grids[gridIndex]);
-    controller.waveAnimationJobs.push(job);
-    restartWaveAnimation(gridIndex);
+  function createDisplacementWaveAnimation(gridIndex) {
+    var job = new hg.DisplacementWaveAnimationJob(controller.grids[gridIndex]);
+    controller.displacementWaveAnimationJobs.push(job);
+    restartDisplacementWaveAnimation(gridIndex);
 
-    controller.grids[gridIndex].animations.waveAnimations =
-        controller.grids[gridIndex].animations.waveAnimations || [];
-    controller.grids[gridIndex].animations.waveAnimations.push(job);
+    controller.grids[gridIndex].animations.displacementWaveAnimations =
+        controller.grids[gridIndex].animations.displacementWaveAnimations || [];
+    controller.grids[gridIndex].animations.displacementWaveAnimations.push(job);
   }
 
   /**
-   * Restarts the WaveAnimationJob at the given index.
+   * Creates a new ColorWaveAnimationJob with the grid at the given index.
+   *
+   * @param {number} gridIndex
+   */
+  function createColorWaveAnimation(gridIndex) {
+    var job = new hg.ColorWaveAnimationJob(controller.grids[gridIndex]);
+    controller.colorWaveAnimationJobs.push(job);
+    restartColorWaveAnimation(gridIndex);
+
+    controller.grids[gridIndex].animations.colorWaveAnimations =
+        controller.grids[gridIndex].animations.colorWaveAnimations || [];
+    controller.grids[gridIndex].animations.colorWaveAnimations.push(job);
+  }
+
+  /**
+   * Restarts the DisplacementWaveAnimationJob at the given index.
    *
    * @param {number} index
    */
-  function restartWaveAnimation(index) {
-    var job = controller.waveAnimationJobs[index];
+  function restartDisplacementWaveAnimation(index) {
+    var job = controller.displacementWaveAnimationJobs[index];
+
+    if (!job.isComplete) {
+      hg.animator.cancelJob(job);
+    }
+
+    job.init();
+    hg.animator.startJob(job);
+  }
+
+  /**
+   * Restarts the ColorWaveAnimationJob at the given index.
+   *
+   * @param {number} index
+   */
+  function restartColorWaveAnimation(index) {
+    var job = controller.colorWaveAnimationJobs[index];
 
     if (!job.isComplete) {
       hg.animator.cancelJob(job);
@@ -159,7 +191,8 @@
       hg.animator.cancelAll();
       grid.resize();
       hg.animator.startJob(grid);
-      restartWaveAnimation(index);
+      restartDisplacementWaveAnimation(index);
+      restartColorWaveAnimation(index);
     });
   }
 
@@ -167,7 +200,8 @@
   // Expose this singleton
 
   controller.grids = [];
-  controller.waveAnimationJobs = [];
+  controller.displacementWaveAnimationJobs = [];
+  controller.colorWaveAnimationJobs = [];
   controller.linesRadiateAnimationJobs = [];
   controller.randomLineAnimationJobs = [];
   controller.shimmerRadiateAnimationJobs = [];
@@ -175,7 +209,8 @@
   controller.config = config;
 
   controller.createNewHexGrid = createNewHexGrid;
-  controller.restartWaveAnimation = restartWaveAnimation;
+  controller.restartDisplacementWaveAnimation = restartDisplacementWaveAnimation;
+  controller.restartColorWaveAnimation = restartColorWaveAnimation;
   controller.createLinesRadiateAnimation = createLinesRadiateAnimation;
   controller.createRandomLineAnimation = createRandomLineAnimation;
   controller.createShimmerRadiateAnimation = createShimmerRadiateAnimation;
