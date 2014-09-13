@@ -12,7 +12,7 @@
   var config = {};
 
   config.duration = 1400;
-  config.lineWidth = 9;
+  config.lineWidth = 20;
   config.lineLength = 1000;
   config.lineSidePeriod = 50; // milliseconds per tile side
 

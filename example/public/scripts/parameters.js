@@ -319,7 +319,7 @@
   function initDisplacementWaveAnimationFolder(parentFolder) {
     var displacementWaveAnimationFolder;
 
-    displacementWaveAnimationFolder = parentFolder.addFolder('Wave');
+    displacementWaveAnimationFolder = parentFolder.addFolder('Displacement Wave');
 
     displacementWaveAnimationFolder.add(hg.DisplacementWaveAnimationJob.config, 'period', 1, 10000)
         .onChange(function (value) {
@@ -354,7 +354,7 @@
       l: hg.ColorWaveAnimationJob.config.deltaLightness * 0.01
     });
 
-    colorWaveAnimationFolder = parentFolder.addFolder('Wave');
+    colorWaveAnimationFolder = parentFolder.addFolder('Color Wave');
 
     colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'period', 1, 10000)
         .onChange(function (value) {
@@ -372,14 +372,9 @@
         .onChange(function () {
           hg.controller.restartColorWaveAnimation(app.main.gridId);
         });
-    colorWaveAnimationFolder.addColor(colors, 'deltaColor')
-        .onChange(function () {
-          var color = hg.util.hsvToHsl(colors.deltaColor);
-
-          hg.ColorWaveAnimationJob.config.deltaHue = color.h;
-          hg.ColorWaveAnimationJob.config.deltaSaturation = color.s * 100;
-          hg.ColorWaveAnimationJob.config.deltaLightness = color.l * 100;
-        });
+    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaHue', 0, 360);
+    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaSaturation', 0, 100);
+    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaLightness', 0, 100);
     colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'opacity', 0, 1);
   }
 

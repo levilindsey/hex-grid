@@ -18,7 +18,7 @@
   config.startHue = 120;
   config.startSaturation = 50;
   config.startLightness = 100;
-  config.endOpacity = 1;
+  config.startOpacity = 1;
 
   config.endHue = 360;
   config.endSaturation = 50;

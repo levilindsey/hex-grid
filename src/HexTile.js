@@ -61,9 +61,8 @@
     tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
 
-    setVertices.call(tile, tile.vertices);
-
-    setColor.call(tile, tile.hue, tile.saturation, tile.lightness);
+    // Set the color and vertices
+    draw.call(tile);
   }
 
   /**
@@ -224,24 +223,6 @@
   }
 
   /**
-   * Sets this tile's vertex coordinates.
-   *
-   * @this HexTile
-   * @param {Array.<number>} vertices
-   */
-  function setVertices(vertices) {
-    var tile, i, pointsString;
-
-    tile = this;
-
-    for (i = 0, pointsString = ''; i < 12;) {
-      pointsString += vertices[i++] + ',' + vertices[i++] + ' ';
-    }
-
-    tile.element.setAttribute('points', pointsString);
-  }
-
-  /**
    * Sets this tile's color values.
    *
    * @this HexTile
@@ -250,10 +231,15 @@
    * @param {number} lightness
    */
   function setColor(hue, saturation, lightness) {
-    var tile, colorString;
-    tile = this;
-    colorString = 'hsl(' + hue + ',' + saturation + '%,' + lightness + '%)';
-    tile.element.setAttribute('fill', colorString);
+    var tile = this;
+
+    tile.originalHue = hue;
+    tile.originalSaturation = saturation;
+    tile.originalLightness = lightness;
+    
+    tile.currentHue = hue;
+    tile.currentSaturation = saturation;
+    tile.currentLightness = lightness;
   }
 
   /**
@@ -408,11 +394,24 @@
    * @this HexTile
    */
   function draw() {
-    var tile;
+    var tile, i, pointsString, colorString;
 
     tile = this;
 
-    setVertices.call(tile, tile.vertices);
+    // --- Set the vertices --- //
+
+    for (i = 0, pointsString = ''; i < 12;) {
+      pointsString += tile.vertices[i++] + ',' + tile.vertices[i++] + ' ';
+    }
+
+    tile.element.setAttribute('points', pointsString);
+
+    // --- Set the color --- //
+
+    colorString = 'hsl(' + tile.currentHue + ',' +
+        tile.currentSaturation + '%,' +
+        tile.currentLightness + '%)';
+    tile.element.setAttribute('fill', colorString);
   }
 
   /**
@@ -485,9 +484,14 @@
     tile.originalCenterY = centerY;
     tile.outerRadius = outerRadius;
     tile.isVertical = isVertical;
-    tile.hue = hue;
-    tile.saturation = saturation;
-    tile.lightness = lightness;
+
+    tile.originalHue = hue;
+    tile.originalSaturation = saturation;
+    tile.originalLightness = lightness;
+    tile.currentHue = hue;
+    tile.currentSaturation = saturation;
+    tile.currentLightness = lightness;
+
     tile.tileData = tileData;
     tile.holdsContent = !!tileData;
     tile.index = tileIndex;
@@ -497,6 +501,7 @@
     tile.isBorderTile = isBorderTile;
     tile.isCornerTile = isCornerTile;
     tile.isInLargerRow = isInLargerRow;
+
     tile.neighbors = null;
     tile.vertices = null;
     tile.vertexDeltas = null;
@@ -505,7 +510,6 @@
     tile.setContent = setContent;
     tile.setNeighborTiles = setNeighborTiles;
     tile.setColor = setColor;
-    tile.setVertices = setVertices;
     tile.update = update;
     tile.draw = draw;
     tile.applyExternalForce = applyExternalForce;

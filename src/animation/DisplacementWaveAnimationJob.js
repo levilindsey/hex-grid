@@ -38,6 +38,7 @@
     job = this;
 
     halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsets = [];
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
@@ -46,32 +47,28 @@
       deltaY = tile.originalCenterY - config.originY;
       length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
-      tile.waveProgressOffset = -(length % config.wavelength - halfWaveProgressWavelength)
+      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
           / halfWaveProgressWavelength;
     }
   }
 
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
   /**
    * Updates the animation progress of the given tile.
    *
-   * @this DisplacementWaveAnimationJob
    * @param {number} progress
    * @param {HexTile} tile
+   * @param {number} waveProgressOffset
    */
-  function updateTile(progress, tile) {
-    var job, tileProgress;
-
-    job = this;
-
-    tileProgress =
-        Math.sin(((((progress + 1 + tile.waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+  function updateTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
     tile.centerX = tile.originalCenterX + config.tileDeltaX * tileProgress;
     tile.centerY = tile.originalCenterY + config.tileDeltaY * tileProgress;
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
 
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
@@ -105,7 +102,7 @@
     progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      updateTile.call(job, progress, job.grid.tiles[i]);
+      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
     }
   }
 
@@ -117,7 +114,6 @@
    * @this DisplacementWaveAnimationJob
    */
   function draw() {
-    var job = this;
     // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
@@ -144,6 +140,7 @@
     var job = this;
 
     job.grid = grid;
+    job.waveProgressOffsets = null;
     job.startTime = 0;
     job.isComplete = false;
 

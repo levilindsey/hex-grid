@@ -25,7 +25,7 @@ exports.init = function (server) {
  * @param {Object} res
  */
 function handleHomeRequest(req, res) {
-  res.sendfile(config.viewsPath + '/index.html');
+  res.sendfile(config.publicPath + '/index.html');
 }
 
 /**

@@ -13,17 +13,17 @@
 
   var config = {};
 
-  config.period = 3200;
-  config.wavelength = 1800;
-  config.originX = 2000;
-  config.originY = 2000;
+  config.period = 1000;
+  config.wavelength = 600;
+  config.originX = -100;
+  config.originY = 1400;
 
   // Amplitude (will range from negative to positive)
-  config.deltaHue = 120;
-  config.deltaSaturation = 100;
-  config.deltaLightness = 65;
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 5;
 
-  config.opacity = 0.3;
+  config.opacity = 0.5;
 
   config.halfPeriod = config.period / 2;
 
@@ -40,9 +40,8 @@
 
     job = this;
 
-    **;
-
     halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsets = [];
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
@@ -51,34 +50,32 @@
       deltaY = tile.originalCenterY - config.originY;
       length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
-      tile.waveProgressOffset = -(length % config.wavelength - halfWaveProgressWavelength)
+      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
           / halfWaveProgressWavelength;
     }
   }
 
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
   /**
    * Updates the animation progress of the given tile.
    *
-   * @this ColorWaveAnimationJob
    * @param {number} progress
    * @param {HexTile} tile
+   * @param {number} waveProgressOffset
    */
-  function updateTile(progress, tile) {
-    var job, tileProgress;
+  function updateTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    job = this;
-
-    **;
-
-    tileProgress =
-        Math.sin(((((progress + 1 + tile.waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
-
-    tile.centerX = tile.originalCenterX + config.tileDeltaX * tileProgress;
-    tile.centerY = tile.originalCenterY + config.tileDeltaY * tileProgress;
+    tile.currentHue = tile.originalHue +
+        config.deltaHue * tileProgress * config.opacity;
+    tile.currentSaturation = tile.originalSaturation +
+        config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentLightness = tile.originalLightness +
+        config.deltaLightness * tileProgress * config.opacity;
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
 
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
@@ -112,7 +109,7 @@
     progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      updateTile.call(job, progress, job.grid.tiles[i]);
+      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
     }
   }
 
@@ -124,9 +121,7 @@
    * @this ColorWaveAnimationJob
    */
   function draw() {
-    var job = this;
-
-    **;
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
@@ -152,6 +147,7 @@
     var job = this;
 
     job.grid = grid;
+    job.waveProgressOffsets = null;
     job.startTime = 0;
     job.isComplete = false;
 
