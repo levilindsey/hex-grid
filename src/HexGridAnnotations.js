@@ -213,24 +213,26 @@
     annotations.contentAreaGuideLines = [];
 
     line = document.createElementNS(hg.util.svgNamespace, 'line');
+    annotations.grid.svg.appendChild(line);
+    annotations.contentAreaGuideLines[0] = line;
+
     line.setAttribute('x1', annotations.grid.contentAreaLeft);
     line.setAttribute('y1', 0);
     line.setAttribute('x2', annotations.grid.contentAreaLeft);
     line.setAttribute('y2', annotations.grid.height);
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
-    annotations.grid.svg.appendChild(line);
-    annotations.contentAreaGuideLines[0] = line;
 
     line = document.createElementNS(hg.util.svgNamespace, 'line');
+    annotations.grid.svg.appendChild(line);
+    annotations.contentAreaGuideLines[1] = line;
+
     line.setAttribute('x1', annotations.grid.contentAreaRight);
     line.setAttribute('y1', 0);
     line.setAttribute('x2', annotations.grid.contentAreaRight);
     line.setAttribute('y2', annotations.grid.height);
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
-    annotations.grid.svg.appendChild(line);
-    annotations.contentAreaGuideLines[1] = line;
   }
 
   /**
@@ -246,9 +248,10 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileParticleCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileParticleCenters[i]);
+
       annotations.tileParticleCenters[i].setAttribute('r', '4');
       annotations.tileParticleCenters[i].setAttribute('fill', 'gray');
-      annotations.grid.svg.appendChild(annotations.tileParticleCenters[i]);
     }
   }
 
@@ -266,13 +269,16 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileAnchorLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
+
       annotations.tileAnchorLines[i].setAttribute('stroke', '#666666');
       annotations.tileAnchorLines[i].setAttribute('stroke-width', '2');
-      annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
+
       annotations.tileAnchorCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileAnchorCenters[i]);
+
       annotations.tileAnchorCenters[i].setAttribute('r', '4');
       annotations.tileAnchorCenters[i].setAttribute('fill', '#888888');
-      annotations.grid.svg.appendChild(annotations.tileAnchorCenters[i]);
     }
   }
 
@@ -290,10 +296,11 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileDisplacementCircles[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileDisplacementCircles[i]);
+
       annotations.tileDisplacementCircles[i].setAttribute('r', '80');
       annotations.tileDisplacementCircles[i].setAttribute('opacity', '0.4');
       annotations.tileDisplacementCircles[i].setAttribute('fill', 'white');
-      annotations.grid.svg.appendChild(annotations.tileDisplacementCircles[i]);
     }
   }
 
@@ -310,10 +317,11 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileInnerRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileInnerRadii[i]);
+
       annotations.tileInnerRadii[i].setAttribute('stroke', 'blue');
       annotations.tileInnerRadii[i].setAttribute('stroke-width', '1');
       annotations.tileInnerRadii[i].setAttribute('fill', 'transparent');
-      annotations.grid.svg.appendChild(annotations.tileInnerRadii[i]);
     }
   }
 
@@ -330,10 +338,11 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileOuterRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
+
       annotations.tileOuterRadii[i].setAttribute('stroke', 'green');
       annotations.tileOuterRadii[i].setAttribute('stroke-width', '1');
       annotations.tileOuterRadii[i].setAttribute('fill', 'transparent');
-      annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
     }
   }
 
@@ -357,9 +366,10 @@
 
         if (neighbor) {
           annotations.neighborLines[i][j] = document.createElementNS(hg.util.svgNamespace, 'line');
+          annotations.grid.svg.appendChild(annotations.neighborLines[i][j]);
+
           annotations.neighborLines[i][j].setAttribute('stroke', 'purple');
           annotations.neighborLines[i][j].setAttribute('stroke-width', '1');
-          annotations.grid.svg.appendChild(annotations.neighborLines[i][j]);
         }
       }
     }
@@ -378,9 +388,10 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.forceLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.grid.svg.appendChild(annotations.forceLines[i]);
+
       annotations.forceLines[i].setAttribute('stroke', 'orange');
       annotations.forceLines[i].setAttribute('stroke-width', '2');
-      annotations.grid.svg.appendChild(annotations.forceLines[i]);
     }
   }
 
@@ -397,9 +408,10 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.velocityLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.grid.svg.appendChild(annotations.velocityLines[i]);
+
       annotations.velocityLines[i].setAttribute('stroke', 'red');
       annotations.velocityLines[i].setAttribute('stroke-width', '2');
-      annotations.grid.svg.appendChild(annotations.velocityLines[i]);
     }
   }
 
@@ -416,10 +428,11 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.indexTexts[i] = document.createElementNS(hg.util.svgNamespace, 'text');
-      annotations.indexTexts[i].setAttribute('font-size', '16');
-      annotations.indexTexts[i].setAttribute('fill', 'black');
       annotations.indexTexts[i].innerHTML = annotations.grid.tiles[i].index;
       annotations.grid.svg.appendChild(annotations.indexTexts[i]);
+
+      annotations.indexTexts[i].setAttribute('font-size', '16');
+      annotations.indexTexts[i].setAttribute('fill', 'black');
     }
   }
 
@@ -767,10 +780,12 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalCenterX;
       deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalCenterY;
+
       angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
       colorString = 'hsl(' + angle + ',' +
-          distance / hg.DisplacementWaveAnimationJob.config.displacementWavelength * 100 + '%,80%)';
+          distance / hg.DisplacementWaveAnimationJob.config.displacementAmplitude * 100 + '%,80%)';
 
       annotations.tileDisplacementCircles[i].setAttribute('fill', colorString);
       annotations.tileDisplacementCircles[i]

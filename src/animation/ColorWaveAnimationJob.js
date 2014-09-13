@@ -25,7 +25,13 @@
 
   config.opacity = 0.5;
 
-  config.halfPeriod = config.period / 2;
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.halfPeriod = config.period / 2;
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -156,6 +162,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.init = function () {
+      config.computeDependentValues();
       initTileProgressOffsets.call(job);
     };
 

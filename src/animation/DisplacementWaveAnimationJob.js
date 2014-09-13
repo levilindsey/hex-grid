@@ -22,7 +22,17 @@
   config.tileDeltaX = -15;
   config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
 
-  config.halfPeriod = config.period / 2;
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.halfPeriod = config.period / 2;
+
+    config.displacementAmplitude =
+        Math.sqrt(config.tileDeltaX * config.tileDeltaX +
+            config.tileDeltaY * config.tileDeltaY);
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -149,6 +159,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.init = function () {
+      config.computeDependentValues();
       initTileProgressOffsets.call(job);
     };
 
