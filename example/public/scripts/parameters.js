@@ -175,12 +175,12 @@
 
     hexTileFolder = parentFolder.addFolder('Tiles');
 
-    hexTileFolder.add(hg.HexTile.config, 'dragCoeff', 0.000001, 0.999999);
-    hexTileFolder.add(hg.HexTile.config, 'neighborSpringCoeff', 0.000001, 0.009999);
+    hexTileFolder.add(hg.HexTile.config, 'dragCoeff', 0.000001, 0.1);
+    hexTileFolder.add(hg.HexTile.config, 'neighborSpringCoeff', 0.000001, 0.0001);
     hexTileFolder.add(hg.HexTile.config, 'neighborDampingCoeff', 0.000001, 0.009999);
-    hexTileFolder.add(hg.HexTile.config, 'innerAnchorSpringCoeff', 0.000001, 0.009999);
+    hexTileFolder.add(hg.HexTile.config, 'innerAnchorSpringCoeff', 0.000001, 0.0001);
     hexTileFolder.add(hg.HexTile.config, 'innerAnchorDampingCoeff', 0.000001, 0.009999);
-    hexTileFolder.add(hg.HexTile.config, 'borderAnchorSpringCoeff', 0.000001, 0.009999);
+    hexTileFolder.add(hg.HexTile.config, 'borderAnchorSpringCoeff', 0.000001, 0.0001);
     hexTileFolder.add(hg.HexTile.config, 'borderAnchorDampingCoeff', 0.000001, 0.009999);
     hexTileFolder.add(hg.HexTile.config, 'forceSuppressionLowerThreshold', 0.000001, 0.009999);
     hexTileFolder.add(hg.HexTile.config, 'velocitySuppressionLowerThreshold', 0.000001, 0.009999);
