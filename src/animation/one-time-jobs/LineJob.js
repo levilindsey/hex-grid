@@ -1,9 +1,13 @@
 'use strict';
 
 /**
- * This module defines a constructor for LineAnimationJob objects.
+ * @typedef {AnimationJob} LineJob
+ */
+
+/**
+ * This module defines a constructor for LineJob objects.
  *
- * @module LineAnimationJob
+ * @module LineJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -56,7 +60,7 @@
   /**
    * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function defineLineBlur() {
     var job, filter, feGaussianBlur;
@@ -89,7 +93,7 @@
   /**
    * Creates the start and end hue for the line of this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function createHues() {
     var job;
@@ -103,7 +107,7 @@
   /**
    * Creates the polyline SVG element that is used to render this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function createPolyline() {
     var job;
@@ -123,7 +127,7 @@
   /**
    * Updates the color values of the line of this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function updateColorValues() {
     var job, progress, oneMinusProgress;
@@ -142,14 +146,14 @@
   /**
    * Updates the state of this job to handle its completion.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function handleCompletion() {
     var job;
 
     job = this;
 
-    console.log('LineAnimationJob completed');
+    console.log('LineJob completed');
 
     if (job.polyline) {
       job.grid.svg.removeChild(job.polyline);
@@ -168,9 +172,9 @@
   }
 
   /**
-   * Determines whether this LineAnimationJob has reached the edge of the grid.
+   * Determines whether this LineJob has reached the edge of the grid.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function checkHasAlmostReachedEdge() {
     var job;
@@ -190,7 +194,7 @@
   /**
    * Determines the neighbors of this job's current tile at the current corner.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function determineNeighbors() {
     var job, lowerNeigborTileIndex, upperNeigborTileIndex, currentCorner;
@@ -218,7 +222,7 @@
   /**
    * Returns the next vertex in the path of this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function chooseNextVertex() {
     var job, cornerConfig, neighborProb, lowerSelfProb, upperSelfProb, random, relativeDirection,
@@ -339,7 +343,7 @@
   /**
    * Updates the parameters of the segments of this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function updateSegments() {
     var job, distanceTravelled, frontSegmentLength, backSegmentLength, segmentsTouchedCount,
@@ -349,7 +353,7 @@
 
     // --- Compute some values of the polyline at the current time --- //
 
-    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * hg.HexGrid.config.tileOuterRadius;
+    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * hg.Grid.config.tileOuterRadius;
     segmentsTouchedCount = parseInt(job.ellapsedTime / job.lineSidePeriod) + 1;
 
     // Add additional vertices to the polyline as needed
@@ -357,14 +361,14 @@
       chooseNextVertex.call(job);
     }
 
-    frontSegmentLength = distanceTravelled % hg.HexGrid.config.tileOuterRadius;
+    frontSegmentLength = distanceTravelled % hg.Grid.config.tileOuterRadius;
     backSegmentLength = (job.lineLength - frontSegmentLength +
-        hg.HexGrid.config.tileOuterRadius) % hg.HexGrid.config.tileOuterRadius;
+        hg.Grid.config.tileOuterRadius) % hg.Grid.config.tileOuterRadius;
 
-    job.frontSegmentEndRatio = frontSegmentLength / hg.HexGrid.config.tileOuterRadius;
-    job.backSegmentStartRatio = 1 - (backSegmentLength / hg.HexGrid.config.tileOuterRadius);
+    job.frontSegmentEndRatio = frontSegmentLength / hg.Grid.config.tileOuterRadius;
+    job.backSegmentStartRatio = 1 - (backSegmentLength / hg.Grid.config.tileOuterRadius);
 
-    job.isShort = job.lineLength < hg.HexGrid.config.tileOuterRadius;
+    job.isShort = job.lineLength < hg.Grid.config.tileOuterRadius;
     job.isStarting = distanceTravelled < job.lineLength;
 
     // Check whether the line has reached the edge
@@ -377,7 +381,7 @@
     // When the polyline is neither starting nor ending and is not shorter than the length of a
     // segment, then this is how many segments it includes
     job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
-        backSegmentLength - config.epsilon) / hg.HexGrid.config.tileOuterRadius) + 2;
+        backSegmentLength - config.epsilon) / hg.Grid.config.tileOuterRadius) + 2;
 
     // Subtract from the number of included segments depending on current conditions
     if (job.isShort) {
@@ -407,7 +411,7 @@
         // The polyline is ending; the front of the polyline would lie outside the grid
         segmentsPastEdgeCount = segmentsTouchedCount - job.corners.length + 1;
         distancePastEdge = distanceTravelled - (job.corners.length - 1) *
-            hg.HexGrid.config.tileOuterRadius;
+            hg.Grid.config.tileOuterRadius;
 
         if (distancePastEdge > job.lineLength) {
           handleCompletion.call(job);
@@ -422,7 +426,7 @@
   /**
    * Calculates the points in the middle of the gaps between tiles at each known corner.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function computeCornerGapPoints() {
     var job, i, count;
@@ -440,7 +444,7 @@
   /**
    * Calculates the point in the middle of the gap between tiles at the given corner.
    *
-   * @param {HexTile} tile
+   * @param {Tile} tile
    * @param {number} corner
    * @param {Object} lowerNeighbor
    * @param {Object} upperNeighbor
@@ -485,7 +489,7 @@
   /**
    * Calculates the points of the SVG polyline element.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function computePolylinePoints() {
     var job, gapPointsIndex, polylinePointsIndex, stopIndex;
@@ -549,7 +553,7 @@
   /**
    * Updates the actual SVG elements to render the current state of this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function drawSegments() {
     var job, i, count, pointsString;
@@ -577,9 +581,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this LineAnimationJob as started.
+   * Sets this LineJob as started.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function start() {
     var job = this;
@@ -589,11 +593,11 @@
   }
 
   /**
-   * Updates the animation progress of this LineAnimationJob to match the given time.
+   * Updates the animation progress of this LineJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -618,11 +622,11 @@
   }
 
   /**
-   * Draws the current state of this LineAnimationJob.
+   * Draws the current state of this LineJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function draw() {
     var job = this;
@@ -631,9 +635,9 @@
   }
 
   /**
-   * Stops this LineAnimationJob, and returns the element its original form.
+   * Stops this LineJob, and returns the element its original form.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function cancel() {
     var job;
@@ -649,8 +653,8 @@
   /**
    * @constructor
    * @global
-   * @param {HexGrid} grid
-   * @param {HexTile} tile
+   * @param {Grid} grid
+   * @param {Tile} tile
    * @param {number} corner
    * @param {number} direction
    * @param {number} forcedInitialRelativeDirection
@@ -658,7 +662,7 @@
    * @param {{x:number,y:number}} extraStartPoint
    * @throws {Error}
    */
-  function LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
+  function LineJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
                             onComplete, extraStartPoint) {
     var job = this;
 
@@ -722,22 +726,22 @@
     }
 
     if (!checkIsValidInitialCornerConfiguration(job)) {
-      throw new Error('LineAnimationJob created with invalid initial corner configuration: ' +
+      throw new Error('LineJob created with invalid initial corner configuration: ' +
           'tileIndex=' + tile.index + ', corner=' + corner + ', direction=' + direction);
     } else {
       determineNeighbors.call(job);
       createHues.call(job);
       createPolyline.call(job);
 
-      console.log('LineAnimationJob created: tileIndex=' + tile.index + ', corner=' + corner +
+      console.log('LineJob created: tileIndex=' + tile.index + ', corner=' + corner +
           ', direction=' + direction);
     }
   }
 
   /**
-   * Creates a LineAnimationJob that is initialized at a tile vertex along the border of the grid.
+   * Creates a LineJob that is initialized at a tile vertex along the border of the grid.
    *
-   * @param {HexGrid} grid
+   * @param {Grid} grid
    * @param {Function} onComplete
    */
   function createRandomLineAnimationJob(grid, onComplete) {
@@ -887,15 +891,15 @@
       }
     }
 
-    return new LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
+    return new LineJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
         onComplete, null);
   }
 
   /**
-   * Checks whether the given LineAnimationJob has a valid corner configuration for its initial
+   * Checks whether the given LineJob has a valid corner configuration for its initial
    * position.
    *
-   * @param {LineAnimationJob} job
+   * @param {LineJob} job
    */
   function checkIsValidInitialCornerConfiguration(job) {
     var tile, corner, direction, forcedInitialRelativeDirection, isValidEdgeDirection;
@@ -1124,12 +1128,12 @@
     return true;
   }
 
-  LineAnimationJob.config = config;
-  LineAnimationJob.createRandomLineAnimationJob = createRandomLineAnimationJob;
+  LineJob.config = config;
+  LineJob.createRandomLineAnimationJob = createRandomLineAnimationJob;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.LineAnimationJob = LineAnimationJob;
+  window.hg.LineJob = LineJob;
 
-  console.log('LineAnimationJob module loaded');
+  console.log('LineJob module loaded');
 })();

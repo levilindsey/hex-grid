@@ -1,11 +1,13 @@
 'use strict';
 
-// TODO: remove this module after basing some other animation job implementations off of it
+/**
+ * @typedef {AnimationJob} ClosePostJob
+ */
 
 /**
- * This module defines a constructor for AnimationJob objects.
+ * This module defines a constructor for ClosePostJob objects.
  *
- * @module AnimationJob
+ * @module ClosePostJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -24,7 +26,7 @@
 
     // TODO:
 //    if (???) {
-//      console.log('AnimationJob completed');
+//      console.log('ClosePostJob completed');
 //
 //      job.isComplete = true;
 //      job.onComplete(true);
@@ -38,9 +40,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this AnimationJob as started.
+   * Sets this ClosePostJob as started.
    *
-   * @this AnimationJob
+   * @this ClosePostJob
    */
   function start() {
     var job = this;
@@ -52,11 +54,11 @@
   }
 
   /**
-   * Updates the animation progress of this AnimationJob to match the given time.
+   * Updates the animation progress of this ClosePostJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this AnimationJob
+   * @this ClosePostJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -69,11 +71,11 @@
   }
 
   /**
-   * Draws the current state of this AnimationJob.
+   * Draws the current state of this ClosePostJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this AnimationJob
+   * @this ClosePostJob
    */
   function draw() {
     var job = this;
@@ -82,9 +84,9 @@
   }
 
   /**
-   * Stops this AnimationJob, and returns the element its original form.
+   * Stops this ClosePostJob, and returns the element its original form.
    *
-   * @this AnimationJob
+   * @this ClosePostJob
    */
   function cancel() {
     var job = this;
@@ -102,10 +104,10 @@
   /**
    * @constructor
    * @global
-   * @param {HexGrid} grid
+   * @param {Grid} grid
    * @param {Function} onComplete
    */
-  function AnimationJob(grid, onComplete) {
+  function ClosePostJob(grid, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -118,12 +120,12 @@
     job.cancel = cancel;
     job.onComplete = onComplete;
 
-    console.log('AnimationJob created');
+    console.log('ClosePostJob created');
   }
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.AnimationJob = AnimationJob;
+  window.hg.ClosePostJob = ClosePostJob;
 
-  console.log('AnimationJob module loaded');
+  console.log('ClosePostJob module loaded');
 })();

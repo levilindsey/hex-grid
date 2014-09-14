@@ -1,11 +1,11 @@
 'use strict';
 
 /**
- * This module defines a constructor for HexInput objects.
+ * This module defines a constructor for Input objects.
  *
- * HexInput objects handle the user-input logic for a HexGrid.
+ * Input objects handle the user-input logic for a Grid.
  *
- * @module HexInput
+ * @module Input
  */
 (function () {
   var config = {};
@@ -19,7 +19,7 @@
   /**
    * Adds event listeners for mouse and touch events for the grid.
    *
-   * @this HexInput
+   * @this Input
    */
   function addPointerEventListeners() {
     var input;
@@ -57,7 +57,7 @@
    * Checks whether the given point intersects with the same tile that was intersected during the
    * last movement event.
    *
-   * @this HexInput
+   * @this Input
    * @param {number} x
    * @param {number} y
    */
@@ -72,7 +72,7 @@
   /**
    * Checks whether the given point intersects with any tile in the grid.
    *
-   * @this HexInput
+   * @this Input
    * @param {number} x
    * @param {number} y
    */
@@ -93,7 +93,7 @@
   /**
    * Checks whether the given point intersects with the given tile.
    *
-   * @param {HexTile} tile
+   * @param {Tile} tile
    * @param {number} x
    * @param {number} y
    */
@@ -105,7 +105,7 @@
   /**
    * Checks whether the given point intersects with the bounding box of the given tile.
    *
-   * @param {HexTile} tile
+   * @param {Tile} tile
    * @param {number} x
    * @param {number} y
    */
@@ -122,9 +122,9 @@
   /**
    * @constructor
    * @global
-   * @param {HexInput} grid
+   * @param {Input} grid
    */
-  function HexInput(grid) {
+  function Input(grid) {
     var input = this;
 
     input.grid = grid;
@@ -132,11 +132,11 @@
     addPointerEventListeners.call(input);
   }
 
-  HexInput.config = config;
+  Input.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.HexInput = HexInput;
+  window.hg.Input = Input;
 
-  console.log('HexInput module loaded');
+  console.log('Input module loaded');
 })();

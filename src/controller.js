@@ -21,17 +21,17 @@
   // Public static functions
 
   /**
-   * Creates a HexGrid object and registers it with the animator.
+   * Creates a Grid object and registers it with the animator.
    *
    * @param {HTMLElement} parent
    * @param {Array.<Object>} tileData
    * @param {boolean} isVertical
-   * @returns {number} The ID (actually index) of the new HexGrid.
+   * @returns {number} The ID (actually index) of the new Grid.
    */
   function createNewHexGrid(parent, tileData, isVertical) {
-    var grid, index;
+    var grid, index, annotations;
 
-    grid = new hg.HexGrid(parent, tileData, isVertical);
+    grid = new hg.Grid(parent, tileData, isVertical);
     controller.grids.push(grid);
     hg.animator.startJob(grid);
     index = controller.grids.length - 1;
@@ -41,16 +41,20 @@
     createColorWaveAnimation(index);
     createDisplacementWaveAnimation(index);
 
+    annotations = grid.annotations;
+    hg.animator.startJob(annotations);
+    controller.annotations.push(annotations);
+
     return index;
   }
 
   /**
-   * Creates a new ColorResetAnimationJob with the grid at the given index.
+   * Creates a new ColorResetJob with the grid at the given index.
    *
    * @param {number} gridIndex
    */
   function createColorResetAnimation(gridIndex) {
-    var job = new hg.ColorResetAnimationJob(controller.grids[gridIndex]);
+    var job = new hg.ColorResetJob(controller.grids[gridIndex]);
     controller.colorResetAnimationJobs.push(job);
     restartColorResetAnimation(gridIndex);
 
@@ -60,12 +64,12 @@
   }
 
   /**
-   * Creates a new ColorShiftAnimationJob with the grid at the given index.
+   * Creates a new ColorShiftJob with the grid at the given index.
    *
    * @param {number} gridIndex
    */
   function createColorShiftAnimation(gridIndex) {
-    var job = new hg.ColorShiftAnimationJob(controller.grids[gridIndex]);
+    var job = new hg.ColorShiftJob(controller.grids[gridIndex]);
     controller.colorShiftAnimationJobs.push(job);
     restartColorShiftAnimation(gridIndex);
 
@@ -75,12 +79,12 @@
   }
 
   /**
-   * Creates a new ColorWaveAnimationJob with the grid at the given index.
+   * Creates a new ColorWaveJob with the grid at the given index.
    *
    * @param {number} gridIndex
    */
   function createColorWaveAnimation(gridIndex) {
-    var job = new hg.ColorWaveAnimationJob(controller.grids[gridIndex]);
+    var job = new hg.ColorWaveJob(controller.grids[gridIndex]);
     controller.colorWaveAnimationJobs.push(job);
     restartColorWaveAnimation(gridIndex);
 
@@ -90,12 +94,12 @@
   }
 
   /**
-   * Creates a new DisplacementWaveAnimationJob with the grid at the given index.
+   * Creates a new DisplacementWaveJob with the grid at the given index.
    *
    * @param {number} gridIndex
    */
   function createDisplacementWaveAnimation(gridIndex) {
-    var job = new hg.DisplacementWaveAnimationJob(controller.grids[gridIndex]);
+    var job = new hg.DisplacementWaveJob(controller.grids[gridIndex]);
     controller.displacementWaveAnimationJobs.push(job);
     restartDisplacementWaveAnimation(gridIndex);
 
@@ -105,7 +109,7 @@
   }
 
   /**
-   * Restarts the ColorResetAnimationJob at the given index.
+   * Restarts the ColorResetJob at the given index.
    *
    * @param {number} index
    */
@@ -121,7 +125,7 @@
   }
 
   /**
-   * Restarts the ColorShiftAnimationJob at the given index.
+   * Restarts the ColorShiftJob at the given index.
    *
    * @param {number} index
    */
@@ -137,7 +141,7 @@
   }
 
   /**
-   * Restarts the ColorWaveAnimationJob at the given index.
+   * Restarts the ColorWaveJob at the given index.
    *
    * @param {number} index
    */
@@ -153,7 +157,7 @@
   }
 
   /**
-   * Restarts the DisplacementWaveAnimationJob at the given index.
+   * Restarts the DisplacementWaveJob at the given index.
    *
    * @param {number} index
    */
@@ -169,7 +173,7 @@
   }
 
   /**
-   * Creates a new LinesRadiateAnimationJob based off the tile at the given index.
+   * Creates a new LinesRadiateJob based off the tile at the given index.
    *
    * @param {number} gridIndex
    * @param {number} tileIndex
@@ -181,7 +185,7 @@
 
     grid.animations.lineAnimations = grid.animations.lineAnimations || [];
 
-    job = new hg.LinesRadiateAnimationJob(grid, grid.tiles[tileIndex], onComplete);
+    job = new hg.LinesRadiateJob(grid, grid.tiles[tileIndex], onComplete);
     controller.linesRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
@@ -206,7 +210,7 @@
     controller.grids[gridIndex].animations.lineAnimations =
         controller.grids[gridIndex].animations.lineAnimations || [];
 
-    job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex],
+    job = hg.LineJob.createRandomLineAnimationJob(controller.grids[gridIndex],
         onComplete);
     controller.randomLineAnimationJobs.push(job);
     hg.animator.startJob(job);
@@ -220,7 +224,7 @@
   }
 
   /**
-   * Creates a new ShimmerRadiateAnimationJob based off the tile at the given index.
+   * Creates a new ShimmerRadiateJob based off the tile at the given index.
    *
    * @param {number} gridIndex
    * @param {number} tileIndex
@@ -238,7 +242,7 @@
       y: grid.tiles[tileIndex].originalCenterY
     };
 
-    job = new hg.ShimmerRadiateAnimationJob(startPoint, grid, onComplete);
+    job = new hg.ShimmerRadiateJob(startPoint, grid, onComplete);
     controller.shimmerRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
@@ -264,6 +268,7 @@
       restartColorWaveAnimation(index);
       restartDisplacementWaveAnimation(index);
       hg.animator.startJob(grid);
+      hg.animator.startJob(controller.annotations[index]);
     });
   }
 
@@ -271,6 +276,7 @@
   // Expose this singleton
 
   controller.grids = [];
+  controller.annotations = [];
   controller.colorResetAnimationJobs = [];
   controller.colorShiftAnimationJobs = [];
   controller.displacementWaveAnimationJobs = [];

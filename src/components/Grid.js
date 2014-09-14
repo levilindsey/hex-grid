@@ -1,12 +1,16 @@
 'use strict';
 
 /**
- * This module defines a constructor for HexGrid objects.
+ * @typedef {AnimationJob} Grid
+ */
+
+/**
+ * This module defines a constructor for Grid objects.
  *
- * HexGrid objects define a collection of hexagonal tiles which animate and display dynamic,
+ * Grid objects define a collection of hexagonal tiles which animate and display dynamic,
  * textual content.
  *
- * @module HexGrid
+ * @module Grid
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -62,7 +66,7 @@
    * - the vertical and horizontal displacement between neighbor tiles
    * - the horizontal positions of the first tiles in even and odd rows
    *
-   * @this HexGrid
+   * @this Grid
    */
   function computeGridParameters() {
     var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex, i, count,
@@ -152,7 +156,7 @@
    * Calculates the tile indices within the content area column that will represent tiles with
    * content.
    *
-   * @this HexGrid
+   * @this Grid
    */
   function computeContentIndices() {
     var grid, i, j, count, tilesRepresentation;
@@ -186,7 +190,7 @@
   /**
    * Creates the SVG element for the grid.
    *
-   * @this HexGrid
+   * @this Grid
    */
   function createSvg() {
     var grid;
@@ -208,7 +212,7 @@
   /**
    * Creates the tile elements for the grid.
    *
-   * @this HexGrid
+   * @this Grid
    */
   function createTiles() {
     var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
@@ -261,7 +265,7 @@
             ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
                 (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
 
-        grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
+        grid.tiles[tileIndex] = new hg.Tile(grid.svg, centerX, centerY, config.tileOuterRadius,
             grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
             tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
             isLargerRow, config.tileMass);
@@ -292,7 +296,7 @@
   /**
    * Connects each tile with references to its neighbors.
    *
-   * @this HexGrid
+   * @this Grid
    * @param {Array.<Array.<number>>} tilesNeighborDeltaIndices
    */
   function setNeighborTiles(tilesNeighborDeltaIndices) {
@@ -319,7 +323,7 @@
    *
    * NaN is used to represent the tile not having a neighbor on that side.
    *
-   * @this HexGrid
+   * @this Grid
    * @param {number} rowIndex
    * @param {number} rowCount
    * @param {number} columnIndex
@@ -416,7 +420,7 @@
   /**
    * Calculates the index offsets of the neighbors of a tile.
    *
-   * @this HexGrid
+   * @this Grid
    * @returns {Array.<number>}
    */
   function getDefaultNeighborDeltaIndices() {
@@ -450,7 +454,7 @@
   /**
    * Removes all content from the SVG.
    *
-   * @this HexGrid
+   * @this Grid
    */
   function clearSvg() {
     var grid, svg;
@@ -478,7 +482,7 @@
   function logGridInfo() {
     var grid = this;
 
-    console.log('// --- HexGrid Info: ------- //');
+    console.log('// --- Grid Info: ------- //');
     console.log('// - Tile count=' + grid.tiles.length);
     console.log('// - Row count=' + grid.rowCount);
     console.log('// - Odd row tile count=' + grid.oddRowTileCount);
@@ -492,7 +496,7 @@
   /**
    * Computes spatial parameters of the tiles in this grid.
    *
-   * @this HexGrid
+   * @this Grid
    */
   function resize() {
     var grid;
@@ -513,7 +517,7 @@
   /**
    * Sets the color of this grid's background.
    *
-   * @this HexGrid
+   * @this Grid
    */
   function updateBackgroundColor() {
     var grid;
@@ -527,7 +531,7 @@
   /**
    * Sets the color of this grid's tiles.
    *
-   * @this HexGrid
+   * @this Grid
    */
   function updateTileColor() {
     var grid, i, count;
@@ -542,7 +546,7 @@
   /**
    * Sets the mass of this grid's tiles.
    *
-   * @this HexGrid
+   * @this Grid
    * @param {number} mass
    */
   function updateTileMass(mass) {
@@ -558,7 +562,7 @@
   /**
    * Sets this AnimationJob as started.
    *
-   * @this HexGrid
+   * @this Grid
    */
   function start() {
     var grid = this;
@@ -569,7 +573,7 @@
   /**
    * Updates the animation progress of this AnimationJob to match the given time.
    *
-   * @this HexGrid
+   * @this Grid
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -581,14 +585,12 @@
     for (i = 0, count = grid.tiles.length; i < count; i += 1) {
       grid.tiles[i].update(currentTime, deltaTime);
     }
-
-    grid.annotations.update(currentTime, deltaTime);
   }
 
   /**
    * Draws the current state of this AnimationJob.
    *
-   * @this HexGrid
+   * @this Grid
    */
   function draw() {
     var grid, i, count;
@@ -603,7 +605,7 @@
   /**
    * Stops this AnimationJob, and returns the element to its original form.
    *
-   * @this HexGrid
+   * @this Grid
    */
   function cancel() {
     var grid = this;
@@ -623,7 +625,7 @@
    * @param {Array.<Object>} tileData
    * @param {boolean} [isVertical]
    */
-  function HexGrid(parent, tileData, isVertical) {
+  function Grid(parent, tileData, isVertical) {
     var grid = this;
 
     grid.parent = parent;
@@ -645,7 +647,7 @@
 
     grid.animations = {};
 
-    grid.annotations = new hg.HexGridAnnotations(grid);
+    grid.annotations = new hg.Annotations(grid);
 
     grid.resize = resize;
     grid.start = start;
@@ -662,11 +664,11 @@
     resize.call(grid);
   }
 
-  HexGrid.config = config;
+  Grid.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.HexGrid = HexGrid;
+  window.hg.Grid = Grid;
 
-  console.log('HexGrid module loaded');
+  console.log('Grid module loaded');
 })();

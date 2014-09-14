@@ -1,11 +1,13 @@
 'use strict';
 
 /**
- * This module defines a constructor for ColorShiftAnimationJob objects.
+ * @typedef {AnimationJob} ShimmerHoverJob
+ */
+
+/**
+ * This module defines a constructor for ShimmerHoverJob objects.
  *
- * ColorShiftAnimationJob objects animate the colors of the tiles in a random fashion.
- *
- * @module ColorShiftAnimationJob
+ * @module ShimmerHoverJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -13,18 +15,23 @@
 
   var config = {};
 
-  // TODO:
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    // TODO:
-  };
-
-  config.computeDependentValues();
-
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   */
+  function checkForComplete() {
+    var job = this;
+
+    // TODO:
+//    if (???) {
+//      console.log('ShimmerHoverJob completed');
+//
+//      job.isComplete = true;
+//      job.onComplete(true);
+//    }
+  }
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -33,52 +40,60 @@
   // Public dynamic functions
 
   /**
-   * Sets this ColorShiftAnimationJob as started.
+   * Sets this ShimmerHoverJob as started.
    *
-   * @this ColorShiftAnimationJob
+   * @this ShimmerHoverJob
    */
   function start() {
     var job = this;
 
     job.startTime = Date.now();
     job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this ColorShiftAnimationJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorShiftAnimationJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job;
-
-    job = this;
 
     // TODO:
   }
 
   /**
-   * Draws the current state of this ColorShiftAnimationJob.
+   * Updates the animation progress of this ShimmerHoverJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ColorShiftAnimationJob
+   * @this ShimmerHoverJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
    */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  function update(currentTime, deltaTime) {
+    var job = this;
+
+    // TODO:
+
+    checkForComplete.call(job);
   }
 
   /**
-   * Stops this ColorShiftAnimationJob.
+   * Draws the current state of this ShimmerHoverJob.
    *
-   * @this ColorShiftAnimationJob
+   * This should be called from the overall animation loop.
+   *
+   * @this ShimmerHoverJob
+   */
+  function draw() {
+    var job = this;
+
+    // TODO:
+  }
+
+  /**
+   * Stops this ShimmerHoverJob, and returns the element its original form.
+   *
+   * @this ShimmerHoverJob
    */
   function cancel() {
     var job = this;
+
+    // TODO:
+
+    job.onComplete(false);
 
     job.isComplete = true;
   }
@@ -89,9 +104,10 @@
   /**
    * @constructor
    * @global
-   * @param {HexGrid} grid
+   * @param {Grid} grid
+   * @param {Function} onComplete
    */
-  function ColorShiftAnimationJob(grid) {
+  function ShimmerHoverJob(grid, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -102,20 +118,14 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-    };
+    job.onComplete = onComplete;
 
-    job.init();
-
-    console.log('ColorShiftAnimationJob created');
+    console.log('ShimmerHoverJob created');
   }
-
-  ColorShiftAnimationJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.ColorShiftAnimationJob = ColorShiftAnimationJob;
+  window.hg.ShimmerHoverJob = ShimmerHoverJob;
 
-  console.log('ColorShiftAnimationJob module loaded');
+  console.log('ShimmerHoverJob module loaded');
 })();

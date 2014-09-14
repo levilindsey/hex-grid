@@ -1,12 +1,16 @@
 'use strict';
 
 /**
- * This module defines a constructor for HexGridAnnotations objects.
+ * @typedef {AnimationJob} Annotations
+ */
+
+/**
+ * This module defines a constructor for Annotations objects.
  *
- * HexGridAnnotations objects creates and modifies visual representations of various aspects of a
- * HexGrid. This can be very useful for testing purposes.
+ * Annotations objects creates and modifies visual representations of various aspects of a
+ * Grid. This can be very useful for testing purposes.
  *
- * @module HexGridAnnotations
+ * @module Annotations
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -137,7 +141,7 @@
   /**
    * Draws content tiles with a different color.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function fillContentTiles() {
     var annotations, i, count;
@@ -155,7 +159,7 @@
   /**
    * Draws border tiles with a different color.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function fillBorderTiles() {
     var annotations, i, count;
@@ -171,7 +175,7 @@
   /**
    * Draws corner tiles with a different color.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function fillCornerTiles() {
     var annotations, i, count;
@@ -189,7 +193,7 @@
   /**
    * Draws all of the tiles as transparent.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function makeTilesTransparent() {
     var annotations, i, count;
@@ -204,7 +208,7 @@
   /**
    * Draws vertical guidelines along the left and right sides of the main content area.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function drawContentAreaGuideLines() {
     var annotations, line;
@@ -238,7 +242,7 @@
   /**
    * Creates a dot at the center of each tile at its current position.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function createTileParticleCenters() {
     var annotations, i, count;
@@ -258,7 +262,7 @@
   /**
    * Creates a dot at the center of each tile at its anchor position.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function createTileAnchorCenters() {
     var annotations, i, count;
@@ -286,7 +290,7 @@
    * Creates a circle over each tile at its anchor position, which will be used to show colors
    * that indicate its displacement from its original position.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function createTileDisplacementColors() {
     var annotations, i, count;
@@ -307,7 +311,7 @@
   /**
    * Creates the inner radius of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function createTileInnerRadii() {
     var annotations, i, count;
@@ -328,7 +332,7 @@
   /**
    * Creates the outer radius of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function createTileOuterRadii() {
     var annotations, i, count;
@@ -349,7 +353,7 @@
   /**
    * Creates lines connecting each tile to each of its neighbors.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function createTileNeighborConnections() {
     var annotations, i, j, iCount, jCount, tile, neighbor;
@@ -378,7 +382,7 @@
   /**
    * Creates lines representing the cumulative force acting on each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function createTileForces() {
     var annotations, i, count;
@@ -398,7 +402,7 @@
   /**
    * Creates lines representing the velocity of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function createTileVelocities() {
     var annotations, i, count;
@@ -418,7 +422,7 @@
   /**
    * Creates the index of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function createTileIndices() {
     var annotations, i, count;
@@ -442,7 +446,7 @@
   /**
    * Draws content tiles with a different color.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function unfillContentTiles() {
     var annotations, i, count;
@@ -451,8 +455,8 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue,
-            hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+        annotations.grid.tiles[i].setColor(hg.Grid.config.tileHue,
+            hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
       }
     }
   }
@@ -460,7 +464,7 @@
   /**
    * Draws border tiles with a different color.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function unfillBorderTiles() {
     var annotations, i, count;
@@ -468,15 +472,15 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue,
-          hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+      annotations.grid.borderTiles[i].setColor(hg.Grid.config.tileHue,
+          hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
     }
   }
 
   /**
    * Draws corner tiles with a different color.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function unfillCornerTiles() {
     var annotations, i, count;
@@ -485,8 +489,8 @@
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
       if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue,
-            hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
+        annotations.grid.borderTiles[i].setColor(hg.Grid.config.tileHue,
+            hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
       }
     }
   }
@@ -494,7 +498,7 @@
   /**
    * Draws all of the tiles as transparent.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function makeTilesVisible() {
     var annotations, i, count;
@@ -509,7 +513,7 @@
   /**
    * Draws vertical guidelines along the left and right sides of the main content area.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function removeContentAreaGuideLines() {
     var annotations, i, count;
@@ -526,7 +530,7 @@
   /**
    * Destroys a dot at the center of each tile at its current position.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyTileParticleCenters() {
     var annotations, i, count;
@@ -543,7 +547,7 @@
   /**
    * Destroys a dot at the center of each tile at its anchor position.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyTileAnchorCenters() {
     var annotations, i, count;
@@ -563,7 +567,7 @@
    * Destroys a circle over each tile at its anchor position, which will be used to show colors
    * that indicate its displacement from its original position.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyTileDisplacementColors() {
     var annotations, i, count;
@@ -580,7 +584,7 @@
   /**
    * Destroys the inner radius of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyTileInnerRadii() {
     var annotations, i, count;
@@ -597,7 +601,7 @@
   /**
    * Destroys the outer radius of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyTileOuterRadii() {
     var annotations, i, count;
@@ -614,7 +618,7 @@
   /**
    * Destroys lines connecting each tile to each of its neighbors.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyTileNeighborConnections() {
     var annotations, i, j, iCount, jCount;
@@ -635,7 +639,7 @@
   /**
    * Destroys lines representing the cumulative force acting on each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyTileForces() {
     var annotations, i, count;
@@ -652,7 +656,7 @@
   /**
    * Destroys lines representing the velocity of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyTileVelocities() {
     var annotations, i, count;
@@ -669,7 +673,7 @@
   /**
    * Destroys the index of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyTileIndices() {
     var annotations, i, count;
@@ -686,7 +690,7 @@
   /**
    * Destroys the dots at the positions of each corner gap point of each line animation.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyLineAnimationGapPoints() {
     var annotations, i, count;
@@ -703,7 +707,7 @@
   /**
    * Destroys annotations describing the corner configurations of each line animation.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyLineAnimationCornerConfigurations() {
     var annotations, i, count;
@@ -733,7 +737,7 @@
   /**
    * Updates a dot at the center of each tile at its current position.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function updateTileParticleCenters() {
     var annotations, i, count;
@@ -749,7 +753,7 @@
   /**
    * Updates a dot at the center of each tile at its anchor position.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function updateTileAnchorCenters() {
     var annotations, i, count;
@@ -770,7 +774,7 @@
    * Updates the color of a circle over each tile at its anchor position according to its
    * displacement from its original position.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function updateTileDisplacementColors() {
     var annotations, i, count, deltaX, deltaY, angle, distance, colorString;
@@ -785,7 +789,7 @@
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
       colorString = 'hsl(' + angle + ',' +
-          distance / hg.DisplacementWaveAnimationJob.config.displacementAmplitude * 100 + '%,80%)';
+          distance / hg.DisplacementWaveJob.config.displacementAmplitude * 100 + '%,80%)';
 
       annotations.tileDisplacementCircles[i].setAttribute('fill', colorString);
       annotations.tileDisplacementCircles[i]
@@ -798,7 +802,7 @@
   /**
    * Updates the inner radius of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function updateTileInnerRadii() {
     var annotations, i, count;
@@ -808,14 +812,14 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileInnerRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
       annotations.tileInnerRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
-      annotations.tileInnerRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius * hg.HexGrid.config.sqrtThreeOverTwo);
+      annotations.tileInnerRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius * hg.Grid.config.sqrtThreeOverTwo);
     }
   }
 
   /**
    * Updates the outer radius of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function updateTileOuterRadii() {
     var annotations, i, count;
@@ -832,7 +836,7 @@
   /**
    * Updates lines connecting each tile to each of its neighbors.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function updateTileNeighborConnections() {
     var annotations, i, j, iCount, jCount, tile, neighbor;
@@ -858,7 +862,7 @@
   /**
    * Updates lines representing the cumulative force acting on each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function updateTileForces() {
     var annotations, i, count;
@@ -876,7 +880,7 @@
   /**
    * Updates lines representing the velocity of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function updateTileVelocities() {
     var annotations, i, count;
@@ -894,7 +898,7 @@
   /**
    * Updates the index of each tile.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function updateTileIndices() {
     var annotations, i, count;
@@ -910,7 +914,7 @@
   /**
    * Draws a dot at the position of each corner gap point of each line animation.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function updateLineAnimationGapPoints() {
     var annotations, i, iCount, j, jCount, k, line;
@@ -941,7 +945,7 @@
   /**
    * Draws some annotations describing the corner configurations of each line animation.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function updateLineAnimationCornerConfigurations() {
     var annotations, i, iCount, j, jCount, line, pos, dot;
@@ -1007,28 +1011,9 @@
   // Public dynamic functions
 
   /**
-   * Updates the animation progress of this AnimationJob to match the given time.
-   *
-   * @this HexGridAnnotations
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var annotations, key;
-
-    annotations = this;
-
-    for (key in annotations.annotations) {
-      if (annotations.annotations[key].enabled) {
-        annotations.annotations[key].update.call(annotations);
-      }
-    }
-  }
-
-  /**
    * Toggles whether the given annotation is enabled.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    * @param {string} annotation
    * @param {boolean} enabled
    * @throws {Error}
@@ -1051,7 +1036,7 @@
    * Computes spatial parameters of the tile annotations and creates SVG elements to represent
    * these annotations.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function createAnnotations() {
     var annotations, key;
@@ -1068,7 +1053,7 @@
   /**
    * Destroys the SVG elements used to represent grid annotations.
    *
-   * @this HexGridAnnotations
+   * @this Annotations
    */
   function destroyAnnotations() {
     var annotations, key;
@@ -1080,6 +1065,56 @@
     }
   }
 
+  /**
+   * Sets this AnimationJob as started.
+   *
+   * @this Annotations
+   */
+  function start() {
+    var grid = this;
+
+    grid.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this AnimationJob to match the given time.
+   *
+   * @this Annotations
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var annotations, key;
+
+    annotations = this;
+
+    for (key in annotations.annotations) {
+      if (annotations.annotations[key].enabled) {
+        annotations.annotations[key].update.call(annotations);
+      }
+    }
+  }
+
+  /**
+   * Draws the current state of this AnimationJob.
+   *
+   * @this Annotations
+   */
+  function draw() {
+    // TODO: is there any of the update logic that should instead be handled here?
+  }
+
+  /**
+   * Stops this AnimationJob, and returns the element to its original form.
+   *
+   * @this Annotations
+   */
+  function cancel() {
+    var grid = this;
+
+    grid.isComplete = true;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -1088,12 +1123,14 @@
 
   /**
    * @constructor
-   * @param {HexGrid} grid
+   * @param {Grid} grid
    */
-  function HexGridAnnotations(grid) {
+  function Annotations(grid) {
     var annotations = this;
 
     annotations.grid = grid;
+    annotations.startTime = 0;
+    annotations.isComplete = false;
     annotations.annotations = hg.util.shallowCopy(config.annotations);
 
     annotations.contentAreaGuideLines = [];
@@ -1113,16 +1150,20 @@
     annotations.lineAnimationUpperNeighborCornerDots = [];
 
     annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
-    annotations.update = update;
     annotations.createAnnotations = createAnnotations;
     annotations.destroyAnnotations = destroyAnnotations;
+
+    annotations.start = start;
+    annotations.update = update;
+    annotations.draw = draw;
+    annotations.cancel = cancel;
   }
 
-  HexGridAnnotations.config = config;
+  Annotations.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.HexGridAnnotations = HexGridAnnotations;
+  window.hg.Annotations = Annotations;
 
-  console.log('HexGridAnnotations module loaded');
+  console.log('Annotations module loaded');
 })();

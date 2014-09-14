@@ -13,6 +13,9 @@
    * @typedef {{start: Function, update: Function(number, number), draw: Function, cancel: Function, isComplete: boolean}} AnimationJob
    */
 
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
   var animator = {};
   var config = {};
 

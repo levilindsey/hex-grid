@@ -32,7 +32,7 @@
     // --- Miscellaneous grid properties --- //
 
     miscellaneousFolder = gui.addFolder('Misc');
-//    miscellaneousFolder.open();
+    miscellaneousFolder.open();// TODO: remove me
 
     initAnnotationsFolder(miscellaneousFolder);
     initGridFolder(miscellaneousFolder);
@@ -42,7 +42,7 @@
     // --- Animation properties --- //
 
     animationsFolder = gui.addFolder('Animations');
-    animationsFolder.open();
+//    animationsFolder.open();// TODO: remove me
 
     initLinesRadiateAnimationFolder(animationsFolder);
     initRandomLineAnimationFolder(animationsFolder);
@@ -64,37 +64,37 @@
 
     colors = {};
     colors.backgroundColor = hg.util.hslToHsv({
-      h: hg.HexGrid.config.backgroundHue,
-      s: hg.HexGrid.config.backgroundSaturation * 0.01,
-      l: hg.HexGrid.config.backgroundLightness * 0.01
+      h: hg.Grid.config.backgroundHue,
+      s: hg.Grid.config.backgroundSaturation * 0.01,
+      l: hg.Grid.config.backgroundLightness * 0.01
     });
     colors.tileColor = hg.util.hslToHsv({
-      h: hg.HexGrid.config.tileHue,
-      s: hg.HexGrid.config.tileSaturation * 0.01,
-      l: hg.HexGrid.config.tileLightness * 0.01
+      h: hg.Grid.config.tileHue,
+      s: hg.Grid.config.tileSaturation * 0.01,
+      l: hg.Grid.config.tileLightness * 0.01
     });
 
     gridFolder.add(hg.controller.grids[app.main.gridId], 'isVertical')
         .onChange(function () {
           hg.controller.resize();
         });
-    gridFolder.add(hg.HexGrid.config, 'tileOuterRadius', 10, 400)
+    gridFolder.add(hg.Grid.config, 'tileOuterRadius', 10, 400)
         .onChange(function () {
-          hg.HexGrid.config.computeDependentValues();
+          hg.Grid.config.computeDependentValues();
           hg.controller.resize();
         });
-    gridFolder.add(hg.HexGrid.config, 'tileGap', -50, 100)
+    gridFolder.add(hg.Grid.config, 'tileGap', -50, 100)
         .onChange(function () {
-          hg.HexGrid.config.computeDependentValues();
+          hg.Grid.config.computeDependentValues();
           hg.controller.resize();
         });
     gridFolder.addColor(colors, 'backgroundColor')
         .onChange(function () {
           var color = hg.util.hsvToHsl(colors.backgroundColor);
 
-          hg.HexGrid.config.backgroundHue = color.h;
-          hg.HexGrid.config.backgroundSaturation = color.s * 100;
-          hg.HexGrid.config.backgroundLightness = color.l * 100;
+          hg.Grid.config.backgroundHue = color.h;
+          hg.Grid.config.backgroundSaturation = color.s * 100;
+          hg.Grid.config.backgroundLightness = color.l * 100;
 
           hg.controller.grids[app.main.gridId].updateBackgroundColor();
         });
@@ -102,35 +102,35 @@
         .onChange(function () {
           var color = hg.util.hsvToHsl(colors.tileColor);
 
-          hg.HexGrid.config.tileHue = color.h;
-          hg.HexGrid.config.tileSaturation = color.s * 100;
-          hg.HexGrid.config.tileLightness = color.l * 100;
+          hg.Grid.config.tileHue = color.h;
+          hg.Grid.config.tileSaturation = color.s * 100;
+          hg.Grid.config.tileLightness = color.l * 100;
 
           hg.controller.grids[app.main.gridId].updateTileColor();
-          if (hg.HexGridAnnotations.config.annotations['contentTiles'].enabled) {
+          if (hg.Annotations.config.annotations['contentTiles'].enabled) {
             hg.controller.grids[app.main.gridId].annotations.toggleAnnotationEnabled('contentTiles', true);
           }
         });
-    gridFolder.add(hg.HexGrid.config, 'firstRowYOffset', -100, 100)
+    gridFolder.add(hg.Grid.config, 'firstRowYOffset', -100, 100)
         .onChange(function () {
-          hg.HexGrid.config.computeDependentValues();
+          hg.Grid.config.computeDependentValues();
           hg.controller.resize();
         });
-    gridFolder.add(hg.HexGrid.config, 'contentStartingRowIndex', 0, 4).step(1)
+    gridFolder.add(hg.Grid.config, 'contentStartingRowIndex', 0, 4).step(1)
         .onChange(function () {
-          hg.HexGrid.config.computeDependentValues();
+          hg.Grid.config.computeDependentValues();
           hg.controller.grids[app.main.gridId].computeContentIndices();
           hg.controller.resize();
         });
-    gridFolder.add(hg.HexGrid.config, 'targetContentAreaWidth', 500, 1500)
+    gridFolder.add(hg.Grid.config, 'targetContentAreaWidth', 500, 1500)
         .onChange(function () {
-          hg.HexGrid.config.computeDependentValues();
+          hg.Grid.config.computeDependentValues();
           hg.controller.grids[app.main.gridId].computeContentIndices();
           hg.controller.resize();
         });
-    gridFolder.add(hg.HexGrid.config, 'contentDensity', 0.1, 1.0)
+    gridFolder.add(hg.Grid.config, 'contentDensity', 0.1, 1.0)
         .onChange(function () {
-          hg.HexGrid.config.computeDependentValues();
+          hg.Grid.config.computeDependentValues();
           hg.controller.grids[app.main.gridId].computeContentIndices();
           hg.controller.resize();
         });
@@ -144,9 +144,9 @@
 
     annotationsFolder = parentFolder.addFolder('Annotations');
 
-    for (key in hg.HexGridAnnotations.config.annotations) {
+    for (key in hg.Annotations.config.annotations) {
       data = {};
-      data[key] = hg.HexGridAnnotations.config.annotations[key].enabled;
+      data[key] = hg.Annotations.config.annotations[key].enabled;
 
       annotationsFolder.add(data, key).onChange(function (value) {
         hg.controller.grids[app.main.gridId].annotations.toggleAnnotationEnabled(this.property, value);
@@ -163,7 +163,7 @@
     inputFolder = parentFolder.addFolder('Input');
     inputFolder.open();// TODO: remove me
 
-//    inputFolder.add(hg.HexInput.config, '').onChange(function (value) {
+//    inputFolder.add(hg.Input.config, '').onChange(function (value) {
 //      // TODO:
 //    });
   }
@@ -176,16 +176,16 @@
 
     tileFolder = parentFolder.addFolder('Tiles');
 
-    tileFolder.add(hg.HexTile.config, 'dragCoeff', 0.000001, 0.1);
-    tileFolder.add(hg.HexTile.config, 'neighborSpringCoeff', 0.000001, 0.0001);
-    tileFolder.add(hg.HexTile.config, 'neighborDampingCoeff', 0.000001, 0.009999);
-    tileFolder.add(hg.HexTile.config, 'innerAnchorSpringCoeff', 0.000001, 0.0001);
-    tileFolder.add(hg.HexTile.config, 'innerAnchorDampingCoeff', 0.000001, 0.009999);
-    tileFolder.add(hg.HexTile.config, 'borderAnchorSpringCoeff', 0.000001, 0.0001);
-    tileFolder.add(hg.HexTile.config, 'borderAnchorDampingCoeff', 0.000001, 0.009999);
-    tileFolder.add(hg.HexTile.config, 'forceSuppressionLowerThreshold', 0.000001, 0.009999);
-    tileFolder.add(hg.HexTile.config, 'velocitySuppressionLowerThreshold', 0.000001, 0.009999);
-    tileFolder.add(hg.HexGrid.config, 'tileMass', 0.1, 10)
+    tileFolder.add(hg.Tile.config, 'dragCoeff', 0.000001, 0.1);
+    tileFolder.add(hg.Tile.config, 'neighborSpringCoeff', 0.000001, 0.0001);
+    tileFolder.add(hg.Tile.config, 'neighborDampingCoeff', 0.000001, 0.009999);
+    tileFolder.add(hg.Tile.config, 'innerAnchorSpringCoeff', 0.000001, 0.0001);
+    tileFolder.add(hg.Tile.config, 'innerAnchorDampingCoeff', 0.000001, 0.009999);
+    tileFolder.add(hg.Tile.config, 'borderAnchorSpringCoeff', 0.000001, 0.0001);
+    tileFolder.add(hg.Tile.config, 'borderAnchorDampingCoeff', 0.000001, 0.009999);
+    tileFolder.add(hg.Tile.config, 'forceSuppressionLowerThreshold', 0.000001, 0.009999);
+    tileFolder.add(hg.Tile.config, 'velocitySuppressionLowerThreshold', 0.000001, 0.009999);
+    tileFolder.add(hg.Grid.config, 'tileMass', 0.1, 10)
         .onChange(function (value) {
           hg.controller.grids[app.main.gridId].updateTileMass(value);
         });
@@ -205,20 +205,20 @@
 
     linesRadiateAnimationFolder.add(data, 'triggerLinesRadiate');
 
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'duration', 100, 20000);
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'lineWidth', 1, 100);
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'lineLength', 10, 60000);
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'lineSidePeriod', 5, 500);
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'startSaturation', 0, 100);
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'startLightness', 0, 100);
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'startOpacity', 0, 1);
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'endSaturation', 0, 100);
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'endLightness', 0, 100);
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'endOpacity', 0, 1);
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'sameDirectionProb', 0, 1);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'duration', 100, 20000);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'lineWidth', 1, 100);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'lineLength', 10, 60000);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'lineSidePeriod', 5, 500);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'startSaturation', 0, 100);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'startLightness', 0, 100);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'startOpacity', 0, 1);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'endSaturation', 0, 100);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'endLightness', 0, 100);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'endOpacity', 0, 1);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'sameDirectionProb', 0, 1);
 
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'isBlurOn');
-    linesRadiateAnimationFolder.add(hg.LinesRadiateAnimationJob.config, 'blurStdDeviation', 0, 80);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'isBlurOn');
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'blurStdDeviation', 0, 80);
 
     function createRandomLinesRadiateAnimation() {
       var tileIndex = parseInt(Math.random() * hg.controller.grids[app.main.gridId].tiles.length);
@@ -240,20 +240,20 @@
 
     randomLineAnimationFolder.add(data, 'triggerLine');
 
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'duration', 100, 20000);
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'lineWidth', 1, 100);
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'lineLength', 10, 60000);
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'lineSidePeriod', 5, 500);
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'startSaturation', 0, 100);
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'startLightness', 0, 100);
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'startOpacity', 0, 1);
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'endSaturation', 0, 100);
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'endLightness', 0, 100);
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'endOpacity', 0, 1);
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'sameDirectionProb', 0, 1);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'duration', 100, 20000);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'lineWidth', 1, 100);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'lineLength', 10, 60000);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'lineSidePeriod', 5, 500);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'startSaturation', 0, 100);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'startLightness', 0, 100);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'startOpacity', 0, 1);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'endSaturation', 0, 100);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'endLightness', 0, 100);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'endOpacity', 0, 1);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'sameDirectionProb', 0, 1);
 
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'isBlurOn');
-    randomLineAnimationFolder.add(hg.LineAnimationJob.config, 'blurStdDeviation', 0, 80);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'isBlurOn');
+    randomLineAnimationFolder.add(hg.LineJob.config, 'blurStdDeviation', 0, 80);
 
     function createRandomLineAnimation() {
       hg.controller.createRandomLineAnimation(app.main.gridId);
@@ -268,9 +268,9 @@
 
     colors = [];
     colors.deltaColor = hg.util.hslToHsv({
-      h: hg.ShimmerRadiateAnimationJob.config.deltaHue,
-      s: hg.ShimmerRadiateAnimationJob.config.deltaSaturation * 0.01,
-      l: hg.ShimmerRadiateAnimationJob.config.deltaLightness * 0.01
+      h: hg.ShimmerRadiateJob.config.deltaHue,
+      s: hg.ShimmerRadiateJob.config.deltaSaturation * 0.01,
+      l: hg.ShimmerRadiateJob.config.deltaLightness * 0.01
     });
 
     shimmerRadiateAnimationFolder = parentFolder.addFolder('Radiating Shimmer');
@@ -281,18 +281,18 @@
 
     shimmerRadiateAnimationFolder.add(data, 'triggerShimmerRadiate');
 
-    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, 'shimmerSpeed', 0.1, 10);
-    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, 'shimmerWaveWidth', 1, 2000);
-    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, 'duration', 10, 10000);
+    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateJob.config, 'shimmerSpeed', 0.1, 10);
+    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateJob.config, 'shimmerWaveWidth', 1, 2000);
+    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateJob.config, 'duration', 10, 10000);
     shimmerRadiateAnimationFolder.addColor(colors, 'deltaColor')
         .onChange(function () {
           var color = hg.util.hsvToHsl(colors.deltaColor);
 
-          hg.ShimmerRadiateAnimationJob.config.deltaHue = color.h;
-          hg.ShimmerRadiateAnimationJob.config.deltaSaturation = color.s * 100;
-          hg.ShimmerRadiateAnimationJob.config.deltaLightness = color.l * 100;
+          hg.ShimmerRadiateJob.config.deltaHue = color.h;
+          hg.ShimmerRadiateJob.config.deltaSaturation = color.s * 100;
+          hg.ShimmerRadiateJob.config.deltaLightness = color.l * 100;
         });
-    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, 'opacity', 0, 1);
+    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateJob.config, 'opacity', 0, 1);
 
     function createRandomShimmerRadiateAnimation() {
       var tileIndex = parseInt(Math.random() * hg.controller.grids[app.main.gridId].tiles.length);
@@ -318,26 +318,26 @@
   function initColorWaveAnimationFolder(parentFolder) {
     var colorWaveAnimationFolder = parentFolder.addFolder('Color Wave');
 
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'period', 1, 10000)
+    colorWaveAnimationFolder.add(hg.ColorWaveJob.config, 'period', 1, 10000)
         .onChange(function (value) {
-          hg.ColorWaveAnimationJob.config.halfPeriod = value / 2;
+          hg.ColorWaveJob.config.halfPeriod = value / 2;
         });
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'wavelength', 1, 4000)
+    colorWaveAnimationFolder.add(hg.ColorWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
           hg.controller.restartColorWaveAnimation(app.main.gridId);
         });
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'originX', -500, 3000)
+    colorWaveAnimationFolder.add(hg.ColorWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
           hg.controller.restartColorWaveAnimation(app.main.gridId);
         });
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'originY', -500, 3000)
+    colorWaveAnimationFolder.add(hg.ColorWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
           hg.controller.restartColorWaveAnimation(app.main.gridId);
         });
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaHue', 0, 360);
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaSaturation', 0, 100);
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaLightness', 0, 100);
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'opacity', 0, 1);
+    colorWaveAnimationFolder.add(hg.ColorWaveJob.config, 'deltaHue', 0, 360);
+    colorWaveAnimationFolder.add(hg.ColorWaveJob.config, 'deltaSaturation', 0, 100);
+    colorWaveAnimationFolder.add(hg.ColorWaveJob.config, 'deltaLightness', 0, 100);
+    colorWaveAnimationFolder.add(hg.ColorWaveJob.config, 'opacity', 0, 1);
   }
 
   /**
@@ -348,24 +348,24 @@
 
     displacementWaveAnimationFolder = parentFolder.addFolder('Displacement Wave');
 
-    displacementWaveAnimationFolder.add(hg.DisplacementWaveAnimationJob.config, 'period', 1, 10000)
+    displacementWaveAnimationFolder.add(hg.DisplacementWaveJob.config, 'period', 1, 10000)
         .onChange(function (value) {
-          hg.DisplacementWaveAnimationJob.config.halfPeriod = value / 2;
+          hg.DisplacementWaveJob.config.halfPeriod = value / 2;
         });
-    displacementWaveAnimationFolder.add(hg.DisplacementWaveAnimationJob.config, 'wavelength', 1, 4000)
+    displacementWaveAnimationFolder.add(hg.DisplacementWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
           hg.controller.restartDisplacementWaveAnimation(app.main.gridId);
         });
-    displacementWaveAnimationFolder.add(hg.DisplacementWaveAnimationJob.config, 'originX', -500, 3000)
+    displacementWaveAnimationFolder.add(hg.DisplacementWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
           hg.controller.restartDisplacementWaveAnimation(app.main.gridId);
         });
-    displacementWaveAnimationFolder.add(hg.DisplacementWaveAnimationJob.config, 'originY', -500, 3000)
+    displacementWaveAnimationFolder.add(hg.DisplacementWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
           hg.controller.restartDisplacementWaveAnimation(app.main.gridId);
         });
-    displacementWaveAnimationFolder.add(hg.DisplacementWaveAnimationJob.config, 'tileDeltaX', -300, 300);
-    displacementWaveAnimationFolder.add(hg.DisplacementWaveAnimationJob.config, 'tileDeltaY', -300, 300);
+    displacementWaveAnimationFolder.add(hg.DisplacementWaveJob.config, 'tileDeltaX', -300, 300);
+    displacementWaveAnimationFolder.add(hg.DisplacementWaveJob.config, 'tileDeltaY', -300, 300);
   }
 
   console.log('parameters module loaded');

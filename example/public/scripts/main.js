@@ -17,7 +17,7 @@
   window.addEventListener('load', initHexGrid, false);
 
   /**
-   * This is the event handler for the completion of the DOM loading. This creates the HexGrid
+   * This is the event handler for the completion of the DOM loading. This creates the Grid
    * within the body element.
    */
   function initHexGrid() {

@@ -1,2483 +1,6 @@
 'use strict';
 
 /**
- * This module defines a constructor for HexGrid objects.
- *
- * HexGrid objects define a collection of hexagonal tiles which animate and display dynamic,
- * textual content.
- *
- * @module HexGrid
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  // TODO:
-  // - update the tile radius and the targetContentAreaWidth with the screen width
-  //   - we should always have the same number of content tiles in a given row
-
-  // TODO:
-  // - give tiles references to their next DOM sibling
-  //   - this will be important for maintaining correct z-indices when removing/adding
-
-  var config = {};
-
-  config.targetContentAreaWidth = 800;
-  config.backgroundHue = 327;
-  config.backgroundSaturation = 20;
-  config.backgroundLightness = 10;
-  config.tileHue = 230;//147;
-  config.tileSaturation = 50;
-  config.tileLightness = 30;
-  config.tileOuterRadius = 80;
-  config.tileGap = 12;
-  config.contentStartingRowIndex = 2;
-  config.firstRowYOffset = config.tileOuterRadius * -0.8;
-  config.contentDensity = 0.6;
-  config.tileMass = 1;
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
-    config.twoOverSqrtThree = 2 / Math.sqrt(3);
-
-    config.tileInnerRadius = config.tileOuterRadius * config.sqrtThreeOverTwo;
-
-    config.tileShortLengthWithGap = config.tileInnerRadius * 2 + config.tileGap;
-    config.tileLongLengthWithGap =
-        config.tileOuterRadius * 2 + config.tileGap * config.twoOverSqrtThree;
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Computes various parameters of the grid. These include:
-   *
-   * - row count
-   * - number of tiles in even and odd rows
-   * - the vertical and horizontal displacement between neighbor tiles
-   * - the horizontal positions of the first tiles in even and odd rows
-   *
-   * @this HexGrid
-   */
-  function computeGridParameters() {
-    var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex, i, count,
-        emptyRowsContentTileCount, minInnerTileCount;
-
-    grid = this;
-
-    parentHalfWidth = grid.parent.clientWidth * 0.5;
-    parentHeight = grid.parent.clientHeight;
-
-    grid.centerX = parentHalfWidth;
-    grid.centerY = parentHeight * 0.5;
-
-    grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
-        grid.parent.clientWidth : config.targetContentAreaWidth;
-
-    if (grid.isVertical) {
-      grid.rowDeltaY = config.tileOuterRadius * 1.5 + config.tileGap * config.sqrtThreeOverTwo;
-      grid.tileDeltaX = config.tileShortLengthWithGap;
-
-      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (config.tileInnerRadius + config.tileGap)) / config.tileShortLengthWithGap) * 2 + 1;
-      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (config.tileShortLengthWithGap + config.tileGap * 0.5)) / config.tileShortLengthWithGap) * 2 + 2;
-
-      grid.oddRowXOffset = parentHalfWidth - config.tileShortLengthWithGap * (grid.oddRowTileCount - 1) / 2;
-
-      grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileOuterRadius * 2 + config.tileGap * Math.sqrt(3))) / grid.rowDeltaY) + 2;
-    } else {
-      grid.rowDeltaY = config.tileInnerRadius + config.tileGap * 0.5;
-      grid.tileDeltaX = config.tileOuterRadius * 3 + config.tileGap * Math.sqrt(3);
-
-      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX - config.tileOuterRadius)) / grid.tileDeltaX) * 2 + 1;
-      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX + (config.tileGap * config.sqrtThreeOverTwo) + config.tileOuterRadius * 0.5)) / grid.tileDeltaX) * 2 + 2;
-
-      grid.oddRowXOffset = parentHalfWidth - grid.tileDeltaX * (grid.oddRowTileCount - 1) / 2;
-
-      grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileInnerRadius * 3 + config.tileGap * 2)) / grid.rowDeltaY) + 4;
-    }
-
-    grid.evenRowXOffset = grid.oddRowXOffset +
-        (grid.evenRowTileCount > grid.oddRowTileCount ? -1 : 1) * grid.tileDeltaX * 0.5;
-
-    // --- Row inner content information --- //
-
-    grid.contentAreaLeft = parentHalfWidth - grid.actualContentAreaWidth * 0.5;
-    grid.contentAreaRight = grid.contentAreaLeft + grid.actualContentAreaWidth;
-
-    if (grid.isVertical) {
-      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileInnerRadius)) / grid.tileDeltaX);
-      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileInnerRadius)) / grid.tileDeltaX);
-    } else {
-      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileOuterRadius)) / grid.tileDeltaX);
-      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileOuterRadius)) / grid.tileDeltaX);
-    }
-
-    grid.oddRowContentTileCount = grid.oddRowTileCount - grid.oddRowContentStartIndex * 2;
-    grid.evenRowContentTileCount = grid.evenRowTileCount - grid.evenRowContentStartIndex * 2;
-
-    grid.oddRowContentEndIndex = grid.oddRowContentStartIndex + grid.oddRowContentTileCount - 1;
-    grid.evenRowContentEndIndex = grid.evenRowContentStartIndex + grid.evenRowContentTileCount - 1;
-
-    // Update the content inner indices to account for empty rows at the start of the grid
-    grid.actualContentInnerIndices = [];
-    emptyRowsContentTileCount = Math.ceil(config.contentStartingRowIndex / 2) * grid.oddRowContentTileCount +
-        Math.floor(config.contentStartingRowIndex / 2) * grid.evenRowContentTileCount;
-    for (i = 0, count = grid.originalContentInnerIndices.length; i < count; i += 1) {
-      grid.actualContentInnerIndices[i] = grid.originalContentInnerIndices[i] + emptyRowsContentTileCount;
-    }
-
-    grid.innerIndexOfLastContentTile = grid.actualContentInnerIndices[grid.actualContentInnerIndices.length - 1];
-
-    // Add empty rows at the end of the grid
-    minInnerTileCount = emptyRowsContentTileCount + grid.innerIndexOfLastContentTile + 1;
-    innerContentCount = 0;
-    rowIndex = 0;
-
-    while (minInnerTileCount > innerContentCount) {
-      innerContentCount += rowIndex % 2 === 0 ?
-          grid.oddRowContentTileCount : grid.evenRowContentTileCount;
-      rowIndex += 1;
-    }
-    grid.rowCount = rowIndex > grid.rowCount ? rowIndex : grid.rowCount;
-
-    grid.height = (grid.rowCount - 2) * grid.rowDeltaY;
-  }
-
-  /**
-   * Calculates the tile indices within the content area column that will represent tiles with
-   * content.
-   *
-   * @this HexGrid
-   */
-  function computeContentIndices() {
-    var grid, i, j, count, tilesRepresentation;
-
-    grid = this;
-
-    // Use 1s to represent the tiles that hold data
-    tilesRepresentation = [];
-    count = grid.tileData.length;
-    for (i = 0; i < count; i += 1) {
-      tilesRepresentation[i] = 1;
-    }
-
-    // Use 0s to represent the empty tiles
-    count = (1 / config.contentDensity) * grid.tileData.length;
-    for (i = grid.tileData.length; i < count; i += 1) {
-      tilesRepresentation[i] = 0;
-    }
-
-    tilesRepresentation = hg.util.shuffle(tilesRepresentation);
-
-    // Record the resulting indices of the elements representing tile content
-    grid.originalContentInnerIndices = [];
-    for (i = 0, j = 0, count = tilesRepresentation.length; i < count; i += 1) {
-      if (tilesRepresentation[i]) {
-        grid.originalContentInnerIndices[j++] = i;
-      }
-    }
-  }
-
-  /**
-   * Creates the SVG element for the grid.
-   *
-   * @this HexGrid
-   */
-  function createSvg() {
-    var grid;
-
-    grid = this;
-
-    grid.svg = document.createElementNS(hg.util.svgNamespace, 'svg');
-    grid.svg.style.display = 'block';
-    grid.svg.style.position = 'relative';
-    grid.svg.style.width = '100%';
-    grid.svg.style.zIndex = '2147483647';
-    updateBackgroundColor.call(grid);
-    grid.parent.appendChild(grid.svg);
-
-    grid.svgDefs = document.createElementNS(hg.util.svgNamespace, 'defs');
-    grid.svg.appendChild(grid.svgDefs);
-  }
-
-  /**
-   * Creates the tile elements for the grid.
-   *
-   * @this HexGrid
-   */
-  function createTiles() {
-    var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
-        isMarginTile, isBorderTile, isCornerTile, isOddRow, contentAreaIndex, tileDataIndex,
-        defaultNeighborDeltaIndices, tilesNeighborDeltaIndices, oddRowIsLarger, isLargerRow;
-
-    grid = this;
-
-    grid.tiles = [];
-    grid.borderTiles = [];
-    tileIndex = 0;
-    contentAreaIndex = 0;
-    tileDataIndex = 0;
-    centerY = config.firstRowYOffset;
-    rowCount = grid.rowCount;
-    tilesNeighborDeltaIndices = [];
-
-    defaultNeighborDeltaIndices = getDefaultNeighborDeltaIndices.call(grid);
-    oddRowIsLarger = grid.oddRowTileCount > grid.evenRowTileCount;
-
-    for (rowIndex = 0; rowIndex < rowCount; rowIndex += 1, centerY += grid.rowDeltaY) {
-      isOddRow = rowIndex % 2 === 0;
-      isLargerRow = oddRowIsLarger && isOddRow || !oddRowIsLarger && !isOddRow;
-
-      if (isOddRow) {
-        centerX = grid.oddRowXOffset;
-        columnCount = grid.oddRowTileCount;
-      } else {
-        centerX = grid.evenRowXOffset;
-        columnCount = grid.evenRowTileCount;
-      }
-
-      for (columnIndex = 0; columnIndex < columnCount;
-           tileIndex += 1, columnIndex += 1, centerX += grid.tileDeltaX) {
-        isMarginTile = isOddRow ?
-            columnIndex < grid.oddRowContentStartIndex ||
-                columnIndex > grid.oddRowContentEndIndex :
-            columnIndex < grid.evenRowContentStartIndex ||
-                columnIndex > grid.evenRowContentEndIndex;
-
-        isBorderTile = grid.isVertical ?
-            (columnIndex === 0 || columnIndex === columnCount - 1 ||
-              rowIndex === 0 || rowIndex === rowCount - 1) :
-            (rowIndex <= 1 || rowIndex >= rowCount - 2 ||
-                isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1));
-
-        isCornerTile = isBorderTile && (grid.isVertical ?
-            ((columnIndex === 0 || columnIndex === columnCount - 1) &&
-                (rowIndex === 0 || rowIndex === rowCount - 1)) :
-            ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
-                (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
-
-        grid.tiles[tileIndex] = new hg.HexTile(grid.svg, centerX, centerY, config.tileOuterRadius,
-            grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
-            isLargerRow, config.tileMass);
-
-        if (isBorderTile) {
-          grid.borderTiles.push(grid.tiles[tileIndex]);
-        }
-
-        // Is the current tile within the content column?
-        if (!isMarginTile) {
-          // Does the current tile get to hold content?
-          if (contentAreaIndex === grid.actualContentInnerIndices[tileDataIndex]) {
-            grid.tiles[tileIndex].setContent(grid.tileData[tileDataIndex]);
-            tileDataIndex += 1;
-          }
-          contentAreaIndex += 1;
-        }
-
-        // Determine the neighbor index offsets for the current tile
-        tilesNeighborDeltaIndices[tileIndex] = getNeighborDeltaIndices.call(grid, rowIndex, rowCount,
-            columnIndex, columnCount, isLargerRow, defaultNeighborDeltaIndices);
-      }
-    }
-
-    setNeighborTiles.call(grid, tilesNeighborDeltaIndices);
-  }
-
-  /**
-   * Connects each tile with references to its neighbors.
-   *
-   * @this HexGrid
-   * @param {Array.<Array.<number>>} tilesNeighborDeltaIndices
-   */
-  function setNeighborTiles(tilesNeighborDeltaIndices) {
-    var grid, i, j, iCount, jCount, neighbors;
-
-    grid = this;
-
-    neighbors = [];
-
-    // Give each tile references to each of its neighbors
-    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
-      // Get the neighbors around the current tile
-      for (j = 0, jCount = 6; j < jCount; j += 1) {
-        neighbors[j] = !isNaN(tilesNeighborDeltaIndices[i][j]) ?
-            grid.tiles[i + tilesNeighborDeltaIndices[i][j]] : null;
-      }
-
-      grid.tiles[i].setNeighborTiles(neighbors);
-    }
-  }
-
-  /**
-   * Get the actual neighbor index offsets for the tile described by the given parameters.
-   *
-   * NaN is used to represent the tile not having a neighbor on that side.
-   *
-   * @this HexGrid
-   * @param {number} rowIndex
-   * @param {number} rowCount
-   * @param {number} columnIndex
-   * @param {number} columnCount
-   * @param {boolean} isLargerRow
-   * @param {Array.<number>} defaultNeighborDeltaIndices
-   * @returns {Array.<number>}
-   */
-  function getNeighborDeltaIndices(rowIndex, rowCount, columnIndex, columnCount, isLargerRow,
-                                   defaultNeighborDeltaIndices) {
-    var grid, neighborDeltaIndices;
-
-    grid = this;
-
-    neighborDeltaIndices = defaultNeighborDeltaIndices.slice(0);
-
-    // Remove neighbor indices according to the tile's position in the grid
-    if (grid.isVertical) {
-      // Is this the row with more or fewer tiles?
-      if (isLargerRow) {
-        // Is this the first column?
-        if (columnIndex === 0) {
-          neighborDeltaIndices[3] = Number.NaN;
-          neighborDeltaIndices[4] = Number.NaN;
-          neighborDeltaIndices[5] = Number.NaN;
-        }
-
-        // Is this the last column?
-        if (columnIndex === columnCount - 1) {
-          neighborDeltaIndices[0] = Number.NaN;
-          neighborDeltaIndices[1] = Number.NaN;
-          neighborDeltaIndices[2] = Number.NaN;
-        }
-      } else {
-        // Is this the first column?
-        if (columnIndex === 0) {
-          neighborDeltaIndices[4] = Number.NaN;
-        }
-
-        // Is this the last column?
-        if (columnIndex === columnCount - 1) {
-          neighborDeltaIndices[1] = Number.NaN;
-        }
-      }
-
-      // Is this the first row?
-      if (rowIndex === 0) {
-        neighborDeltaIndices[0] = Number.NaN;
-        neighborDeltaIndices[5] = Number.NaN;
-      }
-
-      // Is this the last row?
-      if (rowIndex === rowCount - 1) {
-        neighborDeltaIndices[2] = Number.NaN;
-        neighborDeltaIndices[3] = Number.NaN;
-      }
-    } else {
-      if (isLargerRow) {
-        // Is this the first column?
-        if (columnIndex === 0) {
-          neighborDeltaIndices[4] = Number.NaN;
-          neighborDeltaIndices[5] = Number.NaN;
-        }
-
-        // Is this the last column?
-        if (columnIndex === columnCount - 1) {
-          neighborDeltaIndices[1] = Number.NaN;
-          neighborDeltaIndices[2] = Number.NaN;
-        }
-      }
-
-      // Is this the first or second row?
-      if (rowIndex ===0) {
-        neighborDeltaIndices[0] = Number.NaN;
-        neighborDeltaIndices[1] = Number.NaN;
-        neighborDeltaIndices[5] = Number.NaN;
-      } else if (rowIndex === 1) {
-        neighborDeltaIndices[0] = Number.NaN;
-      }
-
-      // Is this the last or second-to-last row?
-      if (rowIndex === rowCount - 1) {
-        neighborDeltaIndices[2] = Number.NaN;
-        neighborDeltaIndices[3] = Number.NaN;
-        neighborDeltaIndices[4] = Number.NaN;
-      } else if (rowIndex === rowCount - 2) {
-        neighborDeltaIndices[3] = Number.NaN;
-      }
-    }
-
-    return neighborDeltaIndices;
-  }
-
-  /**
-   * Calculates the index offsets of the neighbors of a tile.
-   *
-   * @this HexGrid
-   * @returns {Array.<number>}
-   */
-  function getDefaultNeighborDeltaIndices() {
-    var grid, maxColumnCount, neighborDeltaIndices;
-
-    grid = this;
-    neighborDeltaIndices = [];
-    maxColumnCount = grid.oddRowTileCount > grid.evenRowTileCount ?
-        grid.oddRowTileCount : grid.evenRowTileCount;
-
-    // Neighbor delta indices are dependent on current screen dimensions
-    if (grid.isVertical) {
-      neighborDeltaIndices[0] = -maxColumnCount + 1; // top-right
-      neighborDeltaIndices[1] = 1; // right
-      neighborDeltaIndices[2] = maxColumnCount; // bottom-right
-      neighborDeltaIndices[3] = maxColumnCount - 1; // bottom-left
-      neighborDeltaIndices[4] = -1; // left
-      neighborDeltaIndices[5] = -maxColumnCount; // top-left
-    } else {
-      neighborDeltaIndices[0] = -maxColumnCount * 2 + 1; // top
-      neighborDeltaIndices[1] = -maxColumnCount + 1; // top-right
-      neighborDeltaIndices[2] = maxColumnCount; // bottom-right
-      neighborDeltaIndices[3] = maxColumnCount * 2 - 1; // bottom
-      neighborDeltaIndices[4] = maxColumnCount - 1; // bottom-left
-      neighborDeltaIndices[5] = -maxColumnCount; // top-left
-    }
-
-    return neighborDeltaIndices;
-  }
-
-  /**
-   * Removes all content from the SVG.
-   *
-   * @this HexGrid
-   */
-  function clearSvg() {
-    var grid, svg;
-
-    grid = this;
-    svg = grid.svg;
-
-    grid.annotations.destroyAnnotations.call(grid.annotations);
-
-    while (svg.firstChild) {
-      svg.removeChild(svg.firstChild);
-    }
-
-    grid.svg.appendChild(grid.svgDefs);
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Prints to the console some information about this grid.
-   *
-   * This is useful for testing purposes.
-   */
-  function logGridInfo() {
-    var grid = this;
-
-    console.log('// --- HexGrid Info: ------- //');
-    console.log('// - Tile count=' + grid.tiles.length);
-    console.log('// - Row count=' + grid.rowCount);
-    console.log('// - Odd row tile count=' + grid.oddRowTileCount);
-    console.log('// - Even row tile count=' + grid.evenRowTileCount);
-    console.log('// ------------------------- //');
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Computes spatial parameters of the tiles in this grid.
-   *
-   * @this HexGrid
-   */
-  function resize() {
-    var grid;
-
-    grid = this;
-
-    clearSvg.call(grid);
-    computeGridParameters.call(grid);
-    createTiles.call(grid);
-
-    grid.svg.style.height = grid.height + 'px';
-
-    grid.annotations.createAnnotations();
-
-    logGridInfo.call(grid);
-  }
-
-  /**
-   * Sets the color of this grid's background.
-   *
-   * @this HexGrid
-   */
-  function updateBackgroundColor() {
-    var grid;
-
-    grid = this;
-
-    grid.svg.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
-        config.backgroundSaturation + '%,' + config.backgroundLightness + '%)';
-  }
-
-  /**
-   * Sets the color of this grid's tiles.
-   *
-   * @this HexGrid
-   */
-  function updateTileColor() {
-    var grid, i, count;
-
-    grid = this;
-
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
-    }
-  }
-
-  /**
-   * Sets the mass of this grid's tiles.
-   *
-   * @this HexGrid
-   * @param {number} mass
-   */
-  function updateTileMass(mass) {
-    var grid, i, count;
-
-    grid = this;
-
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].particle.m = mass;
-    }
-  }
-
-  /**
-   * Sets this AnimationJob as started.
-   *
-   * @this HexGrid
-   */
-  function start() {
-    var grid = this;
-
-    grid.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this AnimationJob to match the given time.
-   *
-   * @this HexGrid
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var grid, i, count;
-
-    grid = this;
-
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].update(currentTime, deltaTime);
-    }
-
-    grid.annotations.update(currentTime, deltaTime);
-  }
-
-  /**
-   * Draws the current state of this AnimationJob.
-   *
-   * @this HexGrid
-   */
-  function draw() {
-    var grid, i, count;
-
-    grid = this;
-
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].draw();
-    }
-  }
-
-  /**
-   * Stops this AnimationJob, and returns the element to its original form.
-   *
-   * @this HexGrid
-   */
-  function cancel() {
-    var grid = this;
-
-    // TODO:
-
-    grid.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @global
-   * @constructor
-   * @param {HTMLElement} parent
-   * @param {Array.<Object>} tileData
-   * @param {boolean} [isVertical]
-   */
-  function HexGrid(parent, tileData, isVertical) {
-    var grid = this;
-
-    grid.parent = parent;
-    grid.tileData = tileData;
-    grid.isVertical = isVertical;
-
-    grid.actualContentAreaWidth = config.targetContentAreaWidth;
-
-    grid.isComplete = false;
-
-    grid.svg = null;
-    grid.svgDefs = null;
-    grid.tiles = [];
-    grid.borderTiles = [];
-    grid.originalContentInnerIndices = null;
-    grid.innerIndexOfLastContentTile = null;
-    grid.centerX = Number.NaN;
-    grid.centerY = Number.NaN;
-
-    grid.animations = {};
-
-    grid.annotations = new hg.HexGridAnnotations(grid);
-
-    grid.resize = resize;
-    grid.start = start;
-    grid.update = update;
-    grid.draw = draw;
-    grid.cancel = cancel;
-    grid.updateBackgroundColor = updateBackgroundColor;
-    grid.updateTileColor = updateTileColor;
-    grid.updateTileMass = updateTileMass;
-    grid.computeContentIndices = computeContentIndices;
-
-    createSvg.call(grid);
-    computeContentIndices.call(grid);
-    resize.call(grid);
-  }
-
-  HexGrid.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.HexGrid = HexGrid;
-
-  console.log('HexGrid module loaded');
-})();
-
-'use strict';
-
-/**
- * This module defines a constructor for HexGridAnnotations objects.
- *
- * HexGridAnnotations objects creates and modifies visual representations of various aspects of a
- * HexGrid. This can be very useful for testing purposes.
- *
- * @module HexGridAnnotations
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  config.forceLineLengthMultiplier = 4000;
-  config.velocityLineLengthMultiplier = 300;
-
-  config.contentTileHue = 187;
-  config.contentTileSaturation = 50;
-  config.contentTileLightness = 30;
-
-  config.borderTileHue = 267;
-  config.borderTileSaturation = 0;
-  config.borderTileLightness = 30;
-
-  config.cornerTileHue = 267;
-  config.cornerTileSaturation = 50;
-  config.cornerTileLightness = 30;
-
-  config.annotations = {
-    'contentTiles': {
-      enabled: false,
-      create: fillContentTiles,
-      destroy: unfillContentTiles,
-      update: function () {/* Do nothing */}
-    },
-    'borderTiles': {
-      enabled: false,
-      create: fillBorderTiles,
-      destroy: unfillBorderTiles,
-      update: function () {/* Do nothing */}
-    },
-    'cornerTiles': {
-      enabled: false,
-      create: fillCornerTiles,
-      destroy: unfillCornerTiles,
-      update: function () {/* Do nothing */}
-    },
-    'transparentTiles': {
-      enabled: false,
-      create: makeTilesTransparent,
-      destroy: makeTilesVisible,
-      update: function () {/* Do nothing */}
-    },
-    'tileAnchorCenters': {
-      enabled: false,
-      create: createTileAnchorCenters,
-      destroy: destroyTileAnchorCenters,
-      update: updateTileAnchorCenters
-    },
-    'tileParticleCenters': {
-      enabled: false,
-      create: createTileParticleCenters,
-      destroy: destroyTileParticleCenters,
-      update: updateTileParticleCenters
-    },
-    'tileDisplacementColors': {
-      enabled: false,
-      create: createTileDisplacementColors,
-      destroy: destroyTileDisplacementColors,
-      update: updateTileDisplacementColors
-    },
-    'tileInnerRadii': {
-      enabled: false,
-      create: createTileInnerRadii,
-      destroy: destroyTileInnerRadii,
-      update: updateTileInnerRadii
-    },
-    'tileOuterRadii': {
-      enabled: false,
-      create: createTileOuterRadii,
-      destroy: destroyTileOuterRadii,
-      update: updateTileOuterRadii
-    },
-    'tileIndices': {
-      enabled: true,
-      create: createTileIndices,
-      destroy: destroyTileIndices,
-      update: updateTileIndices
-    },
-    'tileForces': {
-      enabled: false,
-      create: createTileForces,
-      destroy: destroyTileForces,
-      update: updateTileForces
-    },
-    'tileVelocities': {
-      enabled: false,
-      create: createTileVelocities,
-      destroy: destroyTileVelocities,
-      update: updateTileVelocities
-    },
-    'tileNeighborConnections': {
-      enabled: false,
-      create: createTileNeighborConnections,
-      destroy: destroyTileNeighborConnections,
-      update: updateTileNeighborConnections
-    },
-    'contentAreaGuidelines': {
-      enabled: false,
-      create: drawContentAreaGuideLines,
-      destroy: removeContentAreaGuideLines,
-      update:  function () {/* Do nothing */}
-    },
-    'lineAnimationGapPoints': {
-      enabled: false,
-      create: function () {/* Do nothing */},
-      destroy: destroyLineAnimationGapPoints,
-      update:  updateLineAnimationGapPoints
-    },
-    'lineAnimationCornerData': {
-      enabled: false,
-      create: function () {/* Do nothing */},
-      destroy: destroyLineAnimationCornerConfigurations,
-      update:  updateLineAnimationCornerConfigurations
-    }
-  };
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  // --------------------------------------------------- //
-  // Annotation creation functions
-
-  /**
-   * Draws content tiles with a different color.
-   *
-   * @this HexGridAnnotations
-   */
-  function fillContentTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(config.contentTileHue, config.contentTileSaturation,
-            config.contentTileLightness);
-      }
-    }
-  }
-
-  /**
-   * Draws border tiles with a different color.
-   *
-   * @this HexGridAnnotations
-   */
-  function fillBorderTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(config.borderTileHue, config.borderTileSaturation,
-          config.borderTileLightness);
-    }
-  }
-
-  /**
-   * Draws corner tiles with a different color.
-   *
-   * @this HexGridAnnotations
-   */
-  function fillCornerTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.borderTiles[i].setColor(config.cornerTileHue,
-            config.cornerTileSaturation, config.cornerTileLightness);
-      }
-    }
-  }
-
-  /**
-   * Draws all of the tiles as transparent.
-   *
-   * @this HexGridAnnotations
-   */
-  function makeTilesTransparent() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.grid.tiles[i].element.setAttribute('opacity', '0');
-    }
-  }
-
-  /**
-   * Draws vertical guidelines along the left and right sides of the main content area.
-   *
-   * @this HexGridAnnotations
-   */
-  function drawContentAreaGuideLines() {
-    var annotations, line;
-
-    annotations = this;
-    annotations.contentAreaGuideLines = [];
-
-    line = document.createElementNS(hg.util.svgNamespace, 'line');
-    annotations.grid.svg.appendChild(line);
-    annotations.contentAreaGuideLines[0] = line;
-
-    line.setAttribute('x1', annotations.grid.contentAreaLeft);
-    line.setAttribute('y1', 0);
-    line.setAttribute('x2', annotations.grid.contentAreaLeft);
-    line.setAttribute('y2', annotations.grid.height);
-    line.setAttribute('stroke', 'red');
-    line.setAttribute('stroke-width', '2');
-
-    line = document.createElementNS(hg.util.svgNamespace, 'line');
-    annotations.grid.svg.appendChild(line);
-    annotations.contentAreaGuideLines[1] = line;
-
-    line.setAttribute('x1', annotations.grid.contentAreaRight);
-    line.setAttribute('y1', 0);
-    line.setAttribute('x2', annotations.grid.contentAreaRight);
-    line.setAttribute('y2', annotations.grid.height);
-    line.setAttribute('stroke', 'red');
-    line.setAttribute('stroke-width', '2');
-  }
-
-  /**
-   * Creates a dot at the center of each tile at its current position.
-   *
-   * @this HexGridAnnotations
-   */
-  function createTileParticleCenters() {
-    var annotations, i, count;
-
-    annotations = this;
-    annotations.tileParticleCenters = [];
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileParticleCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
-      annotations.grid.svg.appendChild(annotations.tileParticleCenters[i]);
-
-      annotations.tileParticleCenters[i].setAttribute('r', '4');
-      annotations.tileParticleCenters[i].setAttribute('fill', 'gray');
-    }
-  }
-
-  /**
-   * Creates a dot at the center of each tile at its anchor position.
-   *
-   * @this HexGridAnnotations
-   */
-  function createTileAnchorCenters() {
-    var annotations, i, count;
-
-    annotations = this;
-    annotations.tileAnchorLines = [];
-    annotations.tileAnchorCenters = [];
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileAnchorLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
-      annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
-
-      annotations.tileAnchorLines[i].setAttribute('stroke', '#666666');
-      annotations.tileAnchorLines[i].setAttribute('stroke-width', '2');
-
-      annotations.tileAnchorCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
-      annotations.grid.svg.appendChild(annotations.tileAnchorCenters[i]);
-
-      annotations.tileAnchorCenters[i].setAttribute('r', '4');
-      annotations.tileAnchorCenters[i].setAttribute('fill', '#888888');
-    }
-  }
-
-  /**
-   * Creates a circle over each tile at its anchor position, which will be used to show colors
-   * that indicate its displacement from its original position.
-   *
-   * @this HexGridAnnotations
-   */
-  function createTileDisplacementColors() {
-    var annotations, i, count;
-
-    annotations = this;
-    annotations.tileDisplacementCircles = [];
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileDisplacementCircles[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
-      annotations.grid.svg.appendChild(annotations.tileDisplacementCircles[i]);
-
-      annotations.tileDisplacementCircles[i].setAttribute('r', '80');
-      annotations.tileDisplacementCircles[i].setAttribute('opacity', '0.4');
-      annotations.tileDisplacementCircles[i].setAttribute('fill', 'white');
-    }
-  }
-
-  /**
-   * Creates the inner radius of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function createTileInnerRadii() {
-    var annotations, i, count;
-
-    annotations = this;
-    annotations.tileInnerRadii = [];
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileInnerRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
-      annotations.grid.svg.appendChild(annotations.tileInnerRadii[i]);
-
-      annotations.tileInnerRadii[i].setAttribute('stroke', 'blue');
-      annotations.tileInnerRadii[i].setAttribute('stroke-width', '1');
-      annotations.tileInnerRadii[i].setAttribute('fill', 'transparent');
-    }
-  }
-
-  /**
-   * Creates the outer radius of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function createTileOuterRadii() {
-    var annotations, i, count;
-
-    annotations = this;
-    annotations.tileOuterRadii = [];
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileOuterRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
-      annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
-
-      annotations.tileOuterRadii[i].setAttribute('stroke', 'green');
-      annotations.tileOuterRadii[i].setAttribute('stroke-width', '1');
-      annotations.tileOuterRadii[i].setAttribute('fill', 'transparent');
-    }
-  }
-
-  /**
-   * Creates lines connecting each tile to each of its neighbors.
-   *
-   * @this HexGridAnnotations
-   */
-  function createTileNeighborConnections() {
-    var annotations, i, j, iCount, jCount, tile, neighbor;
-
-    annotations = this;
-    annotations.neighborLines = [];
-
-    for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
-      tile = annotations.grid.tiles[i];
-      annotations.neighborLines[i] = [];
-
-      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
-        neighbor = tile.neighbors[j];
-
-        if (neighbor) {
-          annotations.neighborLines[i][j] = document.createElementNS(hg.util.svgNamespace, 'line');
-          annotations.grid.svg.appendChild(annotations.neighborLines[i][j]);
-
-          annotations.neighborLines[i][j].setAttribute('stroke', 'purple');
-          annotations.neighborLines[i][j].setAttribute('stroke-width', '1');
-        }
-      }
-    }
-  }
-
-  /**
-   * Creates lines representing the cumulative force acting on each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function createTileForces() {
-    var annotations, i, count;
-
-    annotations = this;
-    annotations.forceLines = [];
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.forceLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
-      annotations.grid.svg.appendChild(annotations.forceLines[i]);
-
-      annotations.forceLines[i].setAttribute('stroke', 'orange');
-      annotations.forceLines[i].setAttribute('stroke-width', '2');
-    }
-  }
-
-  /**
-   * Creates lines representing the velocity of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function createTileVelocities() {
-    var annotations, i, count;
-
-    annotations = this;
-    annotations.velocityLines = [];
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.velocityLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
-      annotations.grid.svg.appendChild(annotations.velocityLines[i]);
-
-      annotations.velocityLines[i].setAttribute('stroke', 'red');
-      annotations.velocityLines[i].setAttribute('stroke-width', '2');
-    }
-  }
-
-  /**
-   * Creates the index of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function createTileIndices() {
-    var annotations, i, count;
-
-    annotations = this;
-    annotations.indexTexts = [];
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.indexTexts[i] = document.createElementNS(hg.util.svgNamespace, 'text');
-      annotations.indexTexts[i].innerHTML = annotations.grid.tiles[i].index;
-      annotations.grid.svg.appendChild(annotations.indexTexts[i]);
-
-      annotations.indexTexts[i].setAttribute('font-size', '16');
-      annotations.indexTexts[i].setAttribute('fill', 'black');
-    }
-  }
-
-  // --------------------------------------------------- //
-  // Annotation destruction functions
-
-  /**
-   * Draws content tiles with a different color.
-   *
-   * @this HexGridAnnotations
-   */
-  function unfillContentTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(hg.HexGrid.config.tileHue,
-            hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
-      }
-    }
-  }
-
-  /**
-   * Draws border tiles with a different color.
-   *
-   * @this HexGridAnnotations
-   */
-  function unfillBorderTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue,
-          hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
-    }
-  }
-
-  /**
-   * Draws corner tiles with a different color.
-   *
-   * @this HexGridAnnotations
-   */
-  function unfillCornerTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.borderTiles[i].setColor(hg.HexGrid.config.tileHue,
-            hg.HexGrid.config.tileSaturation, hg.HexGrid.config.tileLightness);
-      }
-    }
-  }
-
-  /**
-   * Draws all of the tiles as transparent.
-   *
-   * @this HexGridAnnotations
-   */
-  function makeTilesVisible() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.grid.tiles[i].element.setAttribute('opacity', '1');
-    }
-  }
-
-  /**
-   * Draws vertical guidelines along the left and right sides of the main content area.
-   *
-   * @this HexGridAnnotations
-   */
-  function removeContentAreaGuideLines() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.contentAreaGuideLines.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.contentAreaGuideLines[i]);
-    }
-
-    annotations.contentAreaGuideLines = [];
-  }
-
-  /**
-   * Destroys a dot at the center of each tile at its current position.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyTileParticleCenters() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.tileParticleCenters.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.tileParticleCenters[i]);
-    }
-
-    annotations.tileParticleCenters = [];
-  }
-
-  /**
-   * Destroys a dot at the center of each tile at its anchor position.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyTileAnchorCenters() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.tileAnchorLines.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.tileAnchorLines[i]);
-      annotations.grid.svg.removeChild(annotations.tileAnchorCenters[i]);
-    }
-
-    annotations.tileAnchorLines = [];
-    annotations.tileAnchorCenters = [];
-  }
-
-  /**
-   * Destroys a circle over each tile at its anchor position, which will be used to show colors
-   * that indicate its displacement from its original position.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyTileDisplacementColors() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.tileDisplacementCircles.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.tileDisplacementCircles[i]);
-    }
-
-    annotations.tileDisplacementCircles = [];
-  }
-
-  /**
-   * Destroys the inner radius of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyTileInnerRadii() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.tileInnerRadii.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.tileInnerRadii[i]);
-    }
-
-    annotations.tileInnerRadii = [];
-  }
-
-  /**
-   * Destroys the outer radius of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyTileOuterRadii() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.tileOuterRadii.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.tileOuterRadii[i]);
-    }
-
-    annotations.tileOuterRadii = [];
-  }
-
-  /**
-   * Destroys lines connecting each tile to each of its neighbors.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyTileNeighborConnections() {
-    var annotations, i, j, iCount, jCount;
-
-    annotations = this;
-
-    for (i = 0, iCount = annotations.neighborLines.length; i < iCount; i += 1) {
-      for (j = 0, jCount = annotations.neighborLines[i].length; j < jCount; j += 1) {
-        if (annotations.neighborLines[i][j]) {
-          annotations.grid.svg.removeChild(annotations.neighborLines[i][j]);
-        }
-      }
-    }
-
-    annotations.neighborLines = [];
-  }
-
-  /**
-   * Destroys lines representing the cumulative force acting on each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyTileForces() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.forceLines.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.forceLines[i]);
-    }
-
-    annotations.forceLines = [];
-  }
-
-  /**
-   * Destroys lines representing the velocity of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyTileVelocities() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.velocityLines.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.velocityLines[i]);
-    }
-
-    annotations.velocityLines = [];
-  }
-
-  /**
-   * Destroys the index of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyTileIndices() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.indexTexts.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.indexTexts[i]);
-    }
-
-    annotations.indexTexts = [];
-  }
-
-  /**
-   * Destroys the dots at the positions of each corner gap point of each line animation.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyLineAnimationGapPoints() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.lineAnimationGapDots.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.lineAnimationGapDots[i]);
-    }
-
-    annotations.lineAnimationGapDots = [];
-  }
-
-  /**
-   * Destroys annotations describing the corner configurations of each line animation.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyLineAnimationCornerConfigurations() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.lineAnimationSelfCornerDots.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.lineAnimationSelfCornerDots[i]);
-    }
-
-    for (i = 0, count = annotations.lineAnimationLowerNeighborCornerDots.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.lineAnimationLowerNeighborCornerDots[i]);
-    }
-
-    for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length; i < count; i += 1) {
-      annotations.grid.svg.removeChild(annotations.lineAnimationUpperNeighborCornerDots[i]);
-    }
-
-    annotations.lineAnimationSelfCornerDots = [];
-    annotations.lineAnimationLowerNeighborCornerDots = [];
-    annotations.lineAnimationUpperNeighborCornerDots = [];
-  }
-
-  // --------------------------------------------------- //
-  // Annotation updating functions
-
-  /**
-   * Updates a dot at the center of each tile at its current position.
-   *
-   * @this HexGridAnnotations
-   */
-  function updateTileParticleCenters() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileParticleCenters[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
-      annotations.tileParticleCenters[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
-    }
-  }
-
-  /**
-   * Updates a dot at the center of each tile at its anchor position.
-   *
-   * @this HexGridAnnotations
-   */
-  function updateTileAnchorCenters() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileAnchorLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
-      annotations.tileAnchorLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].centerX);
-      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].centerY);
-      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].centerX);
-      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].centerY);
-    }
-  }
-
-  /**
-   * Updates the color of a circle over each tile at its anchor position according to its
-   * displacement from its original position.
-   *
-   * @this HexGridAnnotations
-   */
-  function updateTileDisplacementColors() {
-    var annotations, i, count, deltaX, deltaY, angle, distance, colorString;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalCenterX;
-      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalCenterY;
-
-      angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
-      distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-      colorString = 'hsl(' + angle + ',' +
-          distance / hg.DisplacementWaveAnimationJob.config.displacementAmplitude * 100 + '%,80%)';
-
-      annotations.tileDisplacementCircles[i].setAttribute('fill', colorString);
-      annotations.tileDisplacementCircles[i]
-          .setAttribute('cx', annotations.grid.tiles[i].particle.px);
-      annotations.tileDisplacementCircles[i]
-          .setAttribute('cy', annotations.grid.tiles[i].particle.py);
-    }
-  }
-
-  /**
-   * Updates the inner radius of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function updateTileInnerRadii() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileInnerRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
-      annotations.tileInnerRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
-      annotations.tileInnerRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius * hg.HexGrid.config.sqrtThreeOverTwo);
-    }
-  }
-
-  /**
-   * Updates the outer radius of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function updateTileOuterRadii() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileOuterRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
-      annotations.tileOuterRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
-      annotations.tileOuterRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius);
-    }
-  }
-
-  /**
-   * Updates lines connecting each tile to each of its neighbors.
-   *
-   * @this HexGridAnnotations
-   */
-  function updateTileNeighborConnections() {
-    var annotations, i, j, iCount, jCount, tile, neighbor;
-
-    annotations = this;
-
-    for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
-      tile = annotations.grid.tiles[i];
-
-      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
-        neighbor = tile.neighbors[j];
-
-        if (neighbor) {
-          annotations.neighborLines[i][j].setAttribute('x1', tile.particle.px);
-          annotations.neighborLines[i][j].setAttribute('y1', tile.particle.py);
-          annotations.neighborLines[i][j].setAttribute('x2', neighbor.tile.particle.px);
-          annotations.neighborLines[i][j].setAttribute('y2', neighbor.tile.particle.py);
-        }
-      }
-    }
-  }
-
-  /**
-   * Updates lines representing the cumulative force acting on each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function updateTileForces() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.forceLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
-      annotations.forceLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.forceLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px + annotations.grid.tiles[i].particle.fx * config.forceLineLengthMultiplier);
-      annotations.forceLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py + annotations.grid.tiles[i].particle.fy * config.forceLineLengthMultiplier);
-    }
-  }
-
-  /**
-   * Updates lines representing the velocity of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function updateTileVelocities() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.velocityLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
-      annotations.velocityLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.velocityLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px + annotations.grid.tiles[i].particle.vx * config.velocityLineLengthMultiplier);
-      annotations.velocityLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py + annotations.grid.tiles[i].particle.vy * config.velocityLineLengthMultiplier);
-    }
-  }
-
-  /**
-   * Updates the index of each tile.
-   *
-   * @this HexGridAnnotations
-   */
-  function updateTileIndices() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.indexTexts[i].setAttribute('x', annotations.grid.tiles[i].particle.px - 10);
-      annotations.indexTexts[i].setAttribute('y', annotations.grid.tiles[i].particle.py + 6);
-    }
-  }
-
-  /**
-   * Draws a dot at the position of each corner gap point of each line animation.
-   *
-   * @this HexGridAnnotations
-   */
-  function updateLineAnimationGapPoints() {
-    var annotations, i, iCount, j, jCount, k, line;
-
-    annotations = this;
-
-    destroyLineAnimationGapPoints.call(annotations);
-    annotations.lineAnimationGapDots = [];
-
-    if (annotations.grid.animations.lineAnimations) {
-      for (k = 0, i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount;
-           i += 1) {
-        line = annotations.grid.animations.lineAnimations[i];
-
-        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
-          annotations.lineAnimationGapDots[k] =
-              document.createElementNS(hg.util.svgNamespace, 'circle');
-          annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
-          annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
-          annotations.lineAnimationGapDots[k].setAttribute('r', '4');
-          annotations.lineAnimationGapDots[k].setAttribute('fill', 'white');
-          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
-        }
-      }
-    }
-  }
-
-  /**
-   * Draws some annotations describing the corner configurations of each line animation.
-   *
-   * @this HexGridAnnotations
-   */
-  function updateLineAnimationCornerConfigurations() {
-    var annotations, i, iCount, j, jCount, line, pos, dot;
-
-    annotations = this;
-
-    destroyLineAnimationCornerConfigurations.call(annotations);
-    annotations.lineAnimationSelfCornerDots = [];
-    annotations.lineAnimationLowerNeighborCornerDots = [];
-    annotations.lineAnimationUpperNeighborCornerDots = [];
-
-    if (annotations.grid.animations.lineAnimations) {
-      for (i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount; i += 1) {
-        line = annotations.grid.animations.lineAnimations[i];
-
-        for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
-          // Self corner: red dot
-          pos = getCornerPosition(line.tiles[j], line.corners[j]);
-          dot = document.createElementNS(hg.util.svgNamespace, 'circle');
-          dot.setAttribute('cx', pos.x);
-          dot.setAttribute('cy', pos.y);
-          dot.setAttribute('r', '3');
-          dot.setAttribute('fill', '#ffaaaa');
-          annotations.grid.svg.appendChild(dot);
-          annotations.lineAnimationSelfCornerDots.push(dot);
-
-          // Lower neighbor corner: green dot
-          if (line.lowerNeighbors[j]) {
-            pos = getCornerPosition(line.lowerNeighbors[j].tile, line.lowerNeighborCorners[j]);
-            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
-            dot.setAttribute('cx', pos.x);
-            dot.setAttribute('cy', pos.y);
-            dot.setAttribute('r', '3');
-            dot.setAttribute('fill', '#aaffaa');
-            annotations.grid.svg.appendChild(dot);
-            annotations.lineAnimationLowerNeighborCornerDots.push(dot);
-          }
-
-          // Upper neighbor corner: blue dot
-          if (line.upperNeighbors[j]) {
-            pos = getCornerPosition(line.upperNeighbors[j].tile, line.upperNeighborCorners[j]);
-            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
-            dot.setAttribute('cx', pos.x);
-            dot.setAttribute('cy', pos.y);
-            dot.setAttribute('r', '3');
-            dot.setAttribute('fill', '#aaaaff');
-            annotations.grid.svg.appendChild(dot);
-            annotations.lineAnimationUpperNeighborCornerDots.push(dot);
-          }
-        }
-      }
-    }
-
-    function getCornerPosition(tile, corner) {
-      return {
-        x: tile.vertices[corner * 2],
-        y: tile.vertices[corner * 2 + 1]
-      };
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Updates the animation progress of this AnimationJob to match the given time.
-   *
-   * @this HexGridAnnotations
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var annotations, key;
-
-    annotations = this;
-
-    for (key in annotations.annotations) {
-      if (annotations.annotations[key].enabled) {
-        annotations.annotations[key].update.call(annotations);
-      }
-    }
-  }
-
-  /**
-   * Toggles whether the given annotation is enabled.
-   *
-   * @this HexGridAnnotations
-   * @param {string} annotation
-   * @param {boolean} enabled
-   * @throws {Error}
-   */
-  function toggleAnnotationEnabled(annotation, enabled) {
-    var annotations;
-
-    annotations = this;
-
-    annotations.annotations[annotation].enabled = enabled;
-
-    if (enabled) {
-      annotations.annotations[annotation].create.call(annotations);
-    } else {
-      annotations.annotations[annotation].destroy.call(annotations);
-    }
-  }
-
-  /**
-   * Computes spatial parameters of the tile annotations and creates SVG elements to represent
-   * these annotations.
-   *
-   * @this HexGridAnnotations
-   */
-  function createAnnotations() {
-    var annotations, key;
-
-    annotations = this;
-
-    for (key in annotations.annotations) {
-      if (annotations.annotations[key].enabled) {
-        annotations.annotations[key].create.call(annotations);
-      }
-    }
-  }
-
-  /**
-   * Destroys the SVG elements used to represent grid annotations.
-   *
-   * @this HexGridAnnotations
-   */
-  function destroyAnnotations() {
-    var annotations, key;
-
-    annotations = this;
-
-    for (key in annotations.annotations) {
-      annotations.annotations[key].destroy.call(annotations);
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @param {HexGrid} grid
-   */
-  function HexGridAnnotations(grid) {
-    var annotations = this;
-
-    annotations.grid = grid;
-    annotations.annotations = hg.util.shallowCopy(config.annotations);
-
-    annotations.contentAreaGuideLines = [];
-    annotations.tileParticleCenters = [];
-    annotations.tileAnchorLines = [];
-    annotations.tileAnchorCenters = [];
-    annotations.tileDisplacementCircles = [];
-    annotations.tileInnerRadii = [];
-    annotations.tileOuterRadii = [];
-    annotations.neighborLines = [];
-    annotations.forceLines = [];
-    annotations.velocityLines = [];
-    annotations.indexTexts = [];
-    annotations.lineAnimationGapDots = [];
-    annotations.lineAnimationSelfCornerDots = [];
-    annotations.lineAnimationLowerNeighborCornerDots = [];
-    annotations.lineAnimationUpperNeighborCornerDots = [];
-
-    annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
-    annotations.update = update;
-    annotations.createAnnotations = createAnnotations;
-    annotations.destroyAnnotations = destroyAnnotations;
-  }
-
-  HexGridAnnotations.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.HexGridAnnotations = HexGridAnnotations;
-
-  console.log('HexGridAnnotations module loaded');
-})();
-
-'use strict';
-
-/**
- * This module defines a constructor for HexInput objects.
- *
- * HexInput objects handle the user-input logic for a HexGrid.
- *
- * @module HexInput
- */
-(function () {
-  var config = {};
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Adds event listeners for mouse and touch events for the grid.
-   *
-   * @this HexInput
-   */
-  function addPointerEventListeners() {
-    var input;
-
-    input = this;
-
-    document.addEventListener('mouseout', handlePointerOut, false);
-    document.addEventListener('mousemove', handlePointerMove, false);
-    document.addEventListener('mousedown', handlePointerDown, false);
-    document.addEventListener('mouseup', handlePointerUp, false);
-    // TODO: add touch support
-
-    function handlePointerOut(event) {
-      if (!event.toElement && !event.relatedTarget) {
-        // TODO: handle the mouse out event
-      }
-    }
-
-    function handlePointerMove(event) {
-      // TODO:
-    }
-
-    function handlePointerDown(event) {
-      // TODO:
-    }
-
-    function handlePointerUp(event) {
-      // TODO:
-    }
-
-    // TODO:
-  }
-
-  /**
-   * Checks whether the given point intersects with the same tile that was intersected during the
-   * last movement event.
-   *
-   * @this HexInput
-   * @param {number} x
-   * @param {number} y
-   */
-  function checkOldTileIntersection(x, y) {
-    var input;
-
-    input = this;
-
-    // TODO:
-  }
-
-  /**
-   * Checks whether the given point intersects with any tile in the grid.
-   *
-   * @this HexInput
-   * @param {number} x
-   * @param {number} y
-   */
-  function checkNewTileIntersection(x, y) {
-    var input;
-
-    input = this;
-
-    // TODO:
-    // - pre-compute the start and end x and y coordinates of each column and row
-    // - this function then simply loops over these until finding the one or two rows and columns that the point intersects
-    // - then there are at most four tiles to actually check for intersection within
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Checks whether the given point intersects with the given tile.
-   *
-   * @param {HexTile} tile
-   * @param {number} x
-   * @param {number} y
-   */
-  function checkTileIntersection(tile, x, y) {
-    return checkTileBoundingBoxIntersection(tile, x, y) &&
-        util.isPointInsidePolyline(x, y, tile.vertices, false);
-  }
-
-  /**
-   * Checks whether the given point intersects with the bounding box of the given tile.
-   *
-   * @param {HexTile} tile
-   * @param {number} x
-   * @param {number} y
-   */
-  function checkTileBoundingBoxIntersection(tile, x, y) {
-    // TODO:
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {HexInput} grid
-   */
-  function HexInput(grid) {
-    var input = this;
-
-    input.grid = grid;
-
-    addPointerEventListeners.call(input);
-  }
-
-  HexInput.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.HexInput = HexInput;
-
-  console.log('HexInput module loaded');
-})();
-
-'use strict';
-
-/**
- * This module defines a constructor for HexTile objects.
- *
- * HexTile objects handle the particle logic and the hexagon SVG-shape logic for a single
- * hexagonal tile within a HexGrid.
- *
- * @module HexTile
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config;
-
-  config = {};
-
-  // TODO: play with these
-  config.dragCoeff = 0.01;
-
-  config.neighborSpringCoeff = 0.00001;
-  config.neighborDampingCoeff = 0.001;
-
-  config.innerAnchorSpringCoeff = 0.00004;
-  config.innerAnchorDampingCoeff = 0.001;
-
-  config.borderAnchorSpringCoeff = 0.00004;
-  config.borderAnchorDampingCoeff = 0.001;
-
-  config.forceSuppressionLowerThreshold = 0.0005;
-  config.velocitySuppressionLowerThreshold = 0.0005;
-  // TODO: add similar, upper thresholds
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    config.forceSuppressionThresholdNegative = -config.forceSuppressionLowerThreshold;
-    config.velocitySuppressionThresholdNegative = -config.velocitySuppressionLowerThreshold;
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Creates the polygon element for this tile.
-   *
-   * @this HexTile
-   */
-  function createElement() {
-    var tile;
-
-    tile = this;
-
-    tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
-    tile.vertices = [];
-    updateVertices.call(tile, tile.centerX, tile.centerY);
-
-    tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
-    tile.svg.appendChild(tile.element);
-
-    // Set the color and vertices
-    draw.call(tile);
-  }
-
-  /**
-   * Creates the particle properties for this tile.
-   *
-   * @this HexTile
-   * @param {number} mass
-   */
-  function createParticle(mass) {
-    var tile;
-
-    tile = this;
-
-    tile.particle = {};
-    tile.particle.px = tile.centerX;
-    tile.particle.py = tile.centerY;
-    tile.particle.vx = 0;
-    tile.particle.vy = 0;
-    tile.particle.fx = 0;
-    tile.particle.fy = 0;
-    tile.particle.m = mass;
-    tile.particle.forceAccumulatorX = 0;
-    tile.particle.forceAccumulatorY = 0;
-  }
-
-  /**
-   * Computes and stores the locations of the vertices of the hexagon for this tile.
-   *
-   * @this HexTile
-   * @param {number} centerX
-   * @param {number} centerY
-   */
-  function updateVertices(centerX, centerY) {
-    var tile, trigIndex, coordIndex;
-
-    tile = this;
-
-    for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
-      tile.vertices[coordIndex] = centerX + tile.vertexDeltas[coordIndex++];
-      tile.vertices[coordIndex] = centerY + tile.vertexDeltas[coordIndex++];
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Initializes some static fields that can be pre-computed.
-   */
-  function initStaticFields() {
-    var i, theta, deltaTheta, horizontalStartTheta, verticalStartTheta;
-
-    deltaTheta = Math.PI / 3;
-    horizontalStartTheta = -deltaTheta;
-    verticalStartTheta = Math.PI / 6 - 2 * deltaTheta;
-
-    config.horizontalSines = [];
-    config.horizontalCosines = [];
-    for (i = 0, theta = horizontalStartTheta; i < 6; i += 1, theta += deltaTheta) {
-      config.horizontalSines[i] = Math.sin(theta);
-      config.horizontalCosines[i] = Math.cos(theta);
-    }
-
-    config.verticalSines = [];
-    config.verticalCosines = [];
-    for (i = 0, theta = verticalStartTheta; i < 6; i += 1, theta += deltaTheta) {
-      config.verticalSines[i] = Math.sin(theta);
-      config.verticalCosines[i] = Math.cos(theta);
-    }
-  }
-
-  /**
-   * Computes the offsets of the vertices from the center of the hexagon.
-   *
-   * @param {number} radius
-   * @param {boolean} isVertical
-   * @returns {Array.<number>}
-   */
-  function computeVertexDeltas(radius, isVertical) {
-    var trigIndex, coordIndex, sines, cosines, vertexDeltas;
-
-    // Grab the pre-computed sine and cosine values
-    if (isVertical) {
-      sines = config.verticalSines;
-      cosines = config.verticalCosines;
-    } else {
-      sines = config.horizontalSines;
-      cosines = config.horizontalCosines;
-    }
-
-    for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
-        trigIndex < 6;
-        trigIndex += 1) {
-      vertexDeltas[coordIndex++] = radius * cosines[trigIndex];
-      vertexDeltas[coordIndex++] = radius * sines[trigIndex];
-    }
-
-    return vertexDeltas;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this tile's content.
-   *
-   * @this HexTile
-   * @param {?Object} tileData
-   */
-  function setContent(tileData) {
-    var tile = this;
-
-    tile.tileData = tileData;
-    tile.holdsContent = !!tileData;
-  }
-
-  /**
-   * Sets this tile's neighbor tiles.
-   *
-   * @this HexTile
-   * @param {Array.<HexTile>} neighborTiles
-   */
-  function setNeighborTiles(neighborTiles) {
-    var tile, i, iCount, j, jCount, neighborTile, deltaX, deltaY;
-
-    tile = this;
-
-    tile.neighbors = [];
-
-    for (i = 0, iCount = neighborTiles.length; i < iCount; i += 1) {
-      neighborTile = neighborTiles[i];
-
-      if (neighborTile) {
-        deltaX = tile.centerX - neighborTile.centerX;
-        deltaY = tile.centerY - neighborTile.centerY;
-
-        tile.neighbors[i] = {
-          tile: neighborTile,
-          restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-          neighborsRelationshipObj: null,
-          springForceX: 0,
-          springForceY: 0
-        };
-
-        // Give neighbor tiles references to each others' relationship object
-        if (neighborTile.neighbors) {
-          for (j = 0, jCount = neighborTile.neighbors.length; j < jCount; j += 1) {
-            if (neighborTile.neighbors[j] && neighborTile.neighbors[j].tile === tile) {
-              tile.neighbors[i].neighborsRelationshipObj = neighborTile.neighbors[j];
-              neighborTile.neighbors[j].neighborsRelationshipObj = tile.neighbors[i];
-            }
-          }
-        }
-      } else {
-        tile.neighbors[i] = null;
-      }
-    }
-  }
-
-  /**
-   * Sets this tile's color values.
-   *
-   * @this HexTile
-   * @param {number} hue
-   * @param {number} saturation
-   * @param {number} lightness
-   */
-  function setColor(hue, saturation, lightness) {
-    var tile = this;
-
-    tile.originalHue = hue;
-    tile.originalSaturation = saturation;
-    tile.originalLightness = lightness;
-    
-    tile.currentHue = hue;
-    tile.currentSaturation = saturation;
-    tile.currentLightness = lightness;
-  }
-
-  /**
-   * Update the state of this tile particle for the current time step.
-   *
-   * @this HexTile
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var tile, i, count, neighbor, lx, ly, lDotX, lDotY, dotProd, length, temp, springForceX,
-        springForceY;
-
-    tile = this;
-
-    if (!tile.particle.isFixed) {
-      // --- Accumulate forces --- //
-
-      // --- Drag force --- //
-      tile.particle.forceAccumulatorX += -config.dragCoeff * tile.particle.vx;
-      tile.particle.forceAccumulatorY += -config.dragCoeff * tile.particle.vy;
-
-      // --- Spring forces from neighbor tiles --- //
-      for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
-        neighbor = tile.neighbors[i];
-
-        if (neighbor) {
-          if (neighbor.springForceX) {
-            tile.particle.forceAccumulatorX += neighbor.springForceX;
-            tile.particle.forceAccumulatorY += neighbor.springForceY;
-
-            neighbor.springForceX = 0;
-            neighbor.springForceY = 0;
-          } else {
-            lx = neighbor.tile.particle.px - tile.particle.px;
-            ly = neighbor.tile.particle.py - tile.particle.py;
-            lDotX = neighbor.tile.particle.vx - tile.particle.vx;
-            lDotY = neighbor.tile.particle.vy - tile.particle.vy;
-            dotProd = lx * lDotX + ly * lDotY;
-            length = Math.sqrt(lx * lx + ly * ly);
-
-            temp = (config.neighborSpringCoeff * (length - neighbor.restLength) +
-                config.neighborDampingCoeff * dotProd / length) / length;
-            springForceX = lx * temp;
-            springForceY = ly * temp;
-
-            tile.particle.forceAccumulatorX += springForceX;
-            tile.particle.forceAccumulatorY += springForceY;
-
-            neighbor.neighborsRelationshipObj.springForceX = -springForceX;
-            neighbor.neighborsRelationshipObj.springForceY = -springForceY;
-          }
-        }
-      }
-
-      // --- Spring forces from anchor point --- //
-
-      lx = tile.centerX - tile.particle.px;
-      ly = tile.centerY - tile.particle.py;
-      length = Math.sqrt(lx * lx + ly * ly);
-
-      if (length > 0) {
-        lDotX = -tile.particle.vx;
-        lDotY = -tile.particle.vy;
-        dotProd = lx * lDotX + ly * lDotY;
-
-        if (tile.isBorderTile) {
-          temp = (config.borderAnchorSpringCoeff * length + config.borderAnchorDampingCoeff *
-              dotProd / length) / length;
-        } else {
-          temp = (config.innerAnchorSpringCoeff * length + config.innerAnchorDampingCoeff *
-              dotProd / length) / length;
-        }
-
-        springForceX = lx * temp;
-        springForceY = ly * temp;
-
-        tile.particle.forceAccumulatorX += springForceX;
-        tile.particle.forceAccumulatorY += springForceY;
-      }
-
-      // --- Update particle state --- //
-
-      tile.particle.fx = tile.particle.forceAccumulatorX / tile.particle.m * deltaTime;
-      tile.particle.fy = tile.particle.forceAccumulatorY / tile.particle.m * deltaTime;
-      tile.particle.px += tile.particle.vx * deltaTime;
-      tile.particle.py += tile.particle.vy * deltaTime;
-      tile.particle.vx += tile.particle.fx;
-      tile.particle.vy += tile.particle.fy;
-
-      ////////////////////////////////////////////////////////////////////////////////////
-      // TODO: remove me!
-      var ap = tile.particle,
-          apx = ap.px,
-          apy = ap.py,
-          avx = ap.vx,
-          avy = ap.vy,
-          afx = ap.fx,
-          afy = ap.fy,
-          afAccx = ap.forceAccumulatorX,
-          afAccy = ap.forceAccumulatorY;
-      if (tile.index === 0) {
-        //console.log('tile 0!');
-      }
-      if (isNaN(tile.particle.px)) {
-        console.log('tile.particle.px=' + tile.particle.px);
-      }
-      if (isNaN(tile.particle.py)) {
-        console.log('tile.particle.py=' + tile.particle.py);
-      }
-      if (isNaN(tile.particle.vx)) {
-        console.log('tile.particle.vx=' + tile.particle.vx);
-      }
-      if (isNaN(tile.particle.vy)) {
-        console.log('tile.particle.vy=' + tile.particle.vy);
-      }
-      if (isNaN(tile.particle.fx)) {
-        console.log('tile.particle.fx=' + tile.particle.fx);
-      }
-      if (isNaN(tile.particle.fy)) {
-        console.log('tile.particle.fy=' + tile.particle.fy);
-      }
-      // TODO: remove me!
-      ////////////////////////////////////////////////////////////////////////////////////
-
-      // Kill all velocities and forces below a threshold
-      tile.particle.fx = tile.particle.fx < config.forceSuppressionLowerThreshold &&
-          tile.particle.fx > config.forceSuppressionThresholdNegative ?
-          0 : tile.particle.fx;
-      tile.particle.fy = tile.particle.fy < config.forceSuppressionLowerThreshold &&
-          tile.particle.fy > config.forceSuppressionThresholdNegative ?
-          0 : tile.particle.fy;
-      tile.particle.vx = tile.particle.vx < config.velocitySuppressionLowerThreshold &&
-          tile.particle.vx > config.velocitySuppressionThresholdNegative ?
-          0 : tile.particle.vx;
-      tile.particle.vy = tile.particle.vy < config.velocitySuppressionLowerThreshold &&
-          tile.particle.vy > config.velocitySuppressionThresholdNegative ?
-          0 : tile.particle.vy;
-
-      // Reset force accumulator for next time step
-      tile.particle.forceAccumulatorX = 0;
-      tile.particle.forceAccumulatorY = 0;
-
-      // Compute new vertex locations
-      updateVertices.call(tile, tile.particle.px, tile.particle.py);
-    }
-  }
-
-  /**
-   * Update the SVG attributes for this tile to match its current particle state.
-   *
-   * @this HexTile
-   */
-  function draw() {
-    var tile, i, pointsString, colorString;
-
-    tile = this;
-
-    // --- Set the vertices --- //
-
-    for (i = 0, pointsString = ''; i < 12;) {
-      pointsString += tile.vertices[i++] + ',' + tile.vertices[i++] + ' ';
-    }
-
-    tile.element.setAttribute('points', pointsString);
-
-    // --- Set the color --- //
-
-    colorString = 'hsl(' + tile.currentHue + ',' +
-        tile.currentSaturation + '%,' +
-        tile.currentLightness + '%)';
-    tile.element.setAttribute('fill', colorString);
-  }
-
-  /**
-   * Adds the given force, which will take effect during the next call to update.
-   *
-   * @this HexTile
-   * @param {number} fx
-   * @param {number} fy
-   */
-  function applyExternalForce(fx, fy) {
-    var tile;
-
-    tile = this;
-
-    tile.particle.forceAccumulatorX += fx;
-    tile.particle.forceAccumulatorY += fy;
-  }
-
-  /**
-   * Fixes the position of this tile to the given coordinates.
-   *
-   * @this HexTile
-   * @param {number} px
-   * @param {number} py
-   */
-  function fixPosition(px, py) {
-    var tile;
-
-    tile = this;
-
-    tile.particle.isFixed = true;
-    tile.particle.px = px;
-    tile.particle.py = py;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {HTMLElement} svg
-   * @param {number} centerX
-   * @param {number} centerY
-   * @param {number} outerRadius
-   * @param {boolean} isVertical
-   * @param {number} hue
-   * @param {number} saturation
-   * @param {number} lightness
-   * @param {?Object} tileData
-   * @param {number} tileIndex
-   * @param {number} rowIndex
-   * @param {number} columnIndex
-   * @param {boolean} isMarginTile
-   * @param {boolean} isBorderTile
-   * @param {boolean} isCornerTile
-   * @param {boolean} isInLargerRow
-   * @param {number} mass
-   */
-  function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
-                   tileData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
-                   isCornerTile, isInLargerRow, mass) {
-    var tile = this;
-
-    tile.svg = svg;
-    tile.element = null;
-    tile.centerX = centerX;
-    tile.centerY = centerY;
-    tile.originalCenterX = centerX;
-    tile.originalCenterY = centerY;
-    tile.outerRadius = outerRadius;
-    tile.isVertical = isVertical;
-
-    tile.originalHue = hue;
-    tile.originalSaturation = saturation;
-    tile.originalLightness = lightness;
-    tile.currentHue = hue;
-    tile.currentSaturation = saturation;
-    tile.currentLightness = lightness;
-
-    tile.tileData = tileData;
-    tile.holdsContent = !!tileData;
-    tile.index = tileIndex;
-    tile.rowIndex = rowIndex;
-    tile.columnIndex = columnIndex;
-    tile.isMarginTile = isMarginTile;
-    tile.isBorderTile = isBorderTile;
-    tile.isCornerTile = isCornerTile;
-    tile.isInLargerRow = isInLargerRow;
-
-    tile.neighbors = null;
-    tile.vertices = null;
-    tile.vertexDeltas = null;
-    tile.particle = null;
-
-    tile.setContent = setContent;
-    tile.setNeighborTiles = setNeighborTiles;
-    tile.setColor = setColor;
-    tile.update = update;
-    tile.draw = draw;
-    tile.applyExternalForce = applyExternalForce;
-    tile.fixPosition = fixPosition;
-
-    createElement.call(tile);
-    createParticle.call(tile, mass);
-  }
-
-  HexTile.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.HexTile = HexTile;
-
-  initStaticFields();
-
-  console.log('HexTile module loaded');
-})();
-
-'use strict';
-
-/**
  * This module defines a singleton that helps coordinate the various components of the hex-grid
  * package.
  *
@@ -2498,17 +21,17 @@
   // Public static functions
 
   /**
-   * Creates a HexGrid object and registers it with the animator.
+   * Creates a Grid object and registers it with the animator.
    *
    * @param {HTMLElement} parent
    * @param {Array.<Object>} tileData
    * @param {boolean} isVertical
-   * @returns {number} The ID (actually index) of the new HexGrid.
+   * @returns {number} The ID (actually index) of the new Grid.
    */
   function createNewHexGrid(parent, tileData, isVertical) {
-    var grid, index;
+    var grid, index, annotations;
 
-    grid = new hg.HexGrid(parent, tileData, isVertical);
+    grid = new hg.Grid(parent, tileData, isVertical);
     controller.grids.push(grid);
     hg.animator.startJob(grid);
     index = controller.grids.length - 1;
@@ -2518,16 +41,20 @@
     createColorWaveAnimation(index);
     createDisplacementWaveAnimation(index);
 
+    annotations = grid.annotations;
+    hg.animator.startJob(annotations);
+    controller.annotations.push(annotations);
+
     return index;
   }
 
   /**
-   * Creates a new ColorResetAnimationJob with the grid at the given index.
+   * Creates a new ColorResetJob with the grid at the given index.
    *
    * @param {number} gridIndex
    */
   function createColorResetAnimation(gridIndex) {
-    var job = new hg.ColorResetAnimationJob(controller.grids[gridIndex]);
+    var job = new hg.ColorResetJob(controller.grids[gridIndex]);
     controller.colorResetAnimationJobs.push(job);
     restartColorResetAnimation(gridIndex);
 
@@ -2537,12 +64,12 @@
   }
 
   /**
-   * Creates a new ColorShiftAnimationJob with the grid at the given index.
+   * Creates a new ColorShiftJob with the grid at the given index.
    *
    * @param {number} gridIndex
    */
   function createColorShiftAnimation(gridIndex) {
-    var job = new hg.ColorShiftAnimationJob(controller.grids[gridIndex]);
+    var job = new hg.ColorShiftJob(controller.grids[gridIndex]);
     controller.colorShiftAnimationJobs.push(job);
     restartColorShiftAnimation(gridIndex);
 
@@ -2552,12 +79,12 @@
   }
 
   /**
-   * Creates a new ColorWaveAnimationJob with the grid at the given index.
+   * Creates a new ColorWaveJob with the grid at the given index.
    *
    * @param {number} gridIndex
    */
   function createColorWaveAnimation(gridIndex) {
-    var job = new hg.ColorWaveAnimationJob(controller.grids[gridIndex]);
+    var job = new hg.ColorWaveJob(controller.grids[gridIndex]);
     controller.colorWaveAnimationJobs.push(job);
     restartColorWaveAnimation(gridIndex);
 
@@ -2567,12 +94,12 @@
   }
 
   /**
-   * Creates a new DisplacementWaveAnimationJob with the grid at the given index.
+   * Creates a new DisplacementWaveJob with the grid at the given index.
    *
    * @param {number} gridIndex
    */
   function createDisplacementWaveAnimation(gridIndex) {
-    var job = new hg.DisplacementWaveAnimationJob(controller.grids[gridIndex]);
+    var job = new hg.DisplacementWaveJob(controller.grids[gridIndex]);
     controller.displacementWaveAnimationJobs.push(job);
     restartDisplacementWaveAnimation(gridIndex);
 
@@ -2582,7 +109,7 @@
   }
 
   /**
-   * Restarts the ColorResetAnimationJob at the given index.
+   * Restarts the ColorResetJob at the given index.
    *
    * @param {number} index
    */
@@ -2598,7 +125,7 @@
   }
 
   /**
-   * Restarts the ColorShiftAnimationJob at the given index.
+   * Restarts the ColorShiftJob at the given index.
    *
    * @param {number} index
    */
@@ -2614,7 +141,7 @@
   }
 
   /**
-   * Restarts the ColorWaveAnimationJob at the given index.
+   * Restarts the ColorWaveJob at the given index.
    *
    * @param {number} index
    */
@@ -2630,7 +157,7 @@
   }
 
   /**
-   * Restarts the DisplacementWaveAnimationJob at the given index.
+   * Restarts the DisplacementWaveJob at the given index.
    *
    * @param {number} index
    */
@@ -2646,7 +173,7 @@
   }
 
   /**
-   * Creates a new LinesRadiateAnimationJob based off the tile at the given index.
+   * Creates a new LinesRadiateJob based off the tile at the given index.
    *
    * @param {number} gridIndex
    * @param {number} tileIndex
@@ -2658,7 +185,7 @@
 
     grid.animations.lineAnimations = grid.animations.lineAnimations || [];
 
-    job = new hg.LinesRadiateAnimationJob(grid, grid.tiles[tileIndex], onComplete);
+    job = new hg.LinesRadiateJob(grid, grid.tiles[tileIndex], onComplete);
     controller.linesRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
@@ -2683,7 +210,7 @@
     controller.grids[gridIndex].animations.lineAnimations =
         controller.grids[gridIndex].animations.lineAnimations || [];
 
-    job = hg.LineAnimationJob.createRandomLineAnimationJob(controller.grids[gridIndex],
+    job = hg.LineJob.createRandomLineAnimationJob(controller.grids[gridIndex],
         onComplete);
     controller.randomLineAnimationJobs.push(job);
     hg.animator.startJob(job);
@@ -2697,7 +224,7 @@
   }
 
   /**
-   * Creates a new ShimmerRadiateAnimationJob based off the tile at the given index.
+   * Creates a new ShimmerRadiateJob based off the tile at the given index.
    *
    * @param {number} gridIndex
    * @param {number} tileIndex
@@ -2715,7 +242,7 @@
       y: grid.tiles[tileIndex].originalCenterY
     };
 
-    job = new hg.ShimmerRadiateAnimationJob(startPoint, grid, onComplete);
+    job = new hg.ShimmerRadiateJob(startPoint, grid, onComplete);
     controller.shimmerRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
@@ -2741,6 +268,7 @@
       restartColorWaveAnimation(index);
       restartDisplacementWaveAnimation(index);
       hg.animator.startJob(grid);
+      hg.animator.startJob(controller.annotations[index]);
     });
   }
 
@@ -2748,6 +276,7 @@
   // Expose this singleton
 
   controller.grids = [];
+  controller.annotations = [];
   controller.colorResetAnimationJobs = [];
   controller.colorShiftAnimationJobs = [];
   controller.displacementWaveAnimationJobs = [];
@@ -3388,12 +917,2710 @@
 
 'use strict';
 
-// TODO: remove this module after basing some other animation job implementations off of it
+/**
+ * This module defines a singleton for animating things.
+ *
+ * The animator singleton handles the animation loop for the application and updates all
+ * registered AnimationJobs during each animation frame.
+ *
+ * @module animator
+ */
+(function () {
+  /**
+   * @typedef {{start: Function, update: Function(number, number), draw: Function, cancel: Function, isComplete: boolean}} AnimationJob
+   */
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var animator = {};
+  var config = {};
+
+  config.deltaTimeUpperThreshold = 200;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * This is the animation loop that drives all of the animation.
+   */
+  function animationLoop() {
+    var currentTime, deltaTime;
+
+    currentTime = Date.now();
+    deltaTime = currentTime - animator.previousTime;
+    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
+        config.deltaTimeUpperThreshold : deltaTime;
+    animator.isLooping = true;
+
+    if (!animator.isPaused) {
+      updateJobs(currentTime, deltaTime);
+      drawJobs();
+      hg.util.requestAnimationFrame(animationLoop);
+    } else {
+      animator.isLooping = false;
+    }
+
+    animator.previousTime = currentTime;
+  }
+
+  /**
+   * Updates all of the active AnimationJobs.
+   *
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function updateJobs(currentTime, deltaTime) {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].update(currentTime, deltaTime);
+
+      // Remove jobs from the list after they are complete
+      if (animator.jobs[i].isComplete) {
+        removeJob(animator.jobs[i], i);
+        i--;
+        count--;
+      }
+    }
+  }
+
+  /**
+   * Removes the given job from the collection of active, animating jobs.
+   *
+   * @param {AnimationJob} job
+   * @param {number} [index]
+   */
+  function removeJob(job, index) {
+    var count;
+
+    if (typeof index === 'number') {
+      animator.jobs.splice(index, 1);
+    } else {
+      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
+        if (animator.jobs[index] === job) {
+          animator.jobs.splice(index, 1);
+          break;
+        }
+      }
+    }
+
+    // Stop the animation loop when there are no more jobs to animate
+    if (animator.jobs.length === 0) {
+      animator.isPaused = true;
+    }
+  }
+
+  /**
+   * Draws all of the active AnimationJobs.
+   */
+  function drawJobs() {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].draw();
+    }
+  }
+
+  /**
+   * Starts the animation loop if it is not already running
+   */
+  function startAnimationLoop() {
+    animator.isPaused = false;
+    if (!animator.isLooping) {
+      animator.previousTime = Date.now();
+      animationLoop();
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Starts the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function startJob(job) {
+    console.log('AnimationJob starting: ' + job.constructor.name);
+
+    job.start();
+    animator.jobs.push(job);
+
+    startAnimationLoop();
+  }
+
+  /**
+   * Cancels the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function cancelJob(job) {
+    console.log('AnimationJob cancelling: ' + job.constructor.name);
+
+    job.cancel();
+    removeJob(job);
+  }
+
+  /**
+   * Cancels all running animation jobs.
+   */
+  function cancelAll() {
+    while (animator.jobs.length) {
+      cancelJob(animator.jobs[0]);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  animator.jobs = [];
+  animator.previousTime = Date.now();
+  animator.isLooping = false;
+  animator.isPaused = true;
+  animator.startJob = startJob;
+  animator.cancelJob = cancelJob;
+  animator.cancelAll = cancelAll;
+
+  animator.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.animator = animator;
+
+  console.log('animator module loaded');
+})();
+
+'use strict';
 
 /**
- * This module defines a constructor for AnimationJob objects.
+ * @typedef {AnimationJob} Annotations
+ */
+
+/**
+ * This module defines a constructor for Annotations objects.
  *
- * @module AnimationJob
+ * Annotations objects creates and modifies visual representations of various aspects of a
+ * Grid. This can be very useful for testing purposes.
+ *
+ * @module Annotations
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.forceLineLengthMultiplier = 4000;
+  config.velocityLineLengthMultiplier = 300;
+
+  config.contentTileHue = 187;
+  config.contentTileSaturation = 50;
+  config.contentTileLightness = 30;
+
+  config.borderTileHue = 267;
+  config.borderTileSaturation = 0;
+  config.borderTileLightness = 30;
+
+  config.cornerTileHue = 267;
+  config.cornerTileSaturation = 50;
+  config.cornerTileLightness = 30;
+
+  config.annotations = {
+    'contentTiles': {
+      enabled: false,
+      create: fillContentTiles,
+      destroy: unfillContentTiles,
+      update: function () {/* Do nothing */}
+    },
+    'borderTiles': {
+      enabled: false,
+      create: fillBorderTiles,
+      destroy: unfillBorderTiles,
+      update: function () {/* Do nothing */}
+    },
+    'cornerTiles': {
+      enabled: false,
+      create: fillCornerTiles,
+      destroy: unfillCornerTiles,
+      update: function () {/* Do nothing */}
+    },
+    'transparentTiles': {
+      enabled: false,
+      create: makeTilesTransparent,
+      destroy: makeTilesVisible,
+      update: function () {/* Do nothing */}
+    },
+    'tileAnchorCenters': {
+      enabled: false,
+      create: createTileAnchorCenters,
+      destroy: destroyTileAnchorCenters,
+      update: updateTileAnchorCenters
+    },
+    'tileParticleCenters': {
+      enabled: false,
+      create: createTileParticleCenters,
+      destroy: destroyTileParticleCenters,
+      update: updateTileParticleCenters
+    },
+    'tileDisplacementColors': {
+      enabled: false,
+      create: createTileDisplacementColors,
+      destroy: destroyTileDisplacementColors,
+      update: updateTileDisplacementColors
+    },
+    'tileInnerRadii': {
+      enabled: false,
+      create: createTileInnerRadii,
+      destroy: destroyTileInnerRadii,
+      update: updateTileInnerRadii
+    },
+    'tileOuterRadii': {
+      enabled: false,
+      create: createTileOuterRadii,
+      destroy: destroyTileOuterRadii,
+      update: updateTileOuterRadii
+    },
+    'tileIndices': {
+      enabled: true,
+      create: createTileIndices,
+      destroy: destroyTileIndices,
+      update: updateTileIndices
+    },
+    'tileForces': {
+      enabled: false,
+      create: createTileForces,
+      destroy: destroyTileForces,
+      update: updateTileForces
+    },
+    'tileVelocities': {
+      enabled: false,
+      create: createTileVelocities,
+      destroy: destroyTileVelocities,
+      update: updateTileVelocities
+    },
+    'tileNeighborConnections': {
+      enabled: false,
+      create: createTileNeighborConnections,
+      destroy: destroyTileNeighborConnections,
+      update: updateTileNeighborConnections
+    },
+    'contentAreaGuidelines': {
+      enabled: false,
+      create: drawContentAreaGuideLines,
+      destroy: removeContentAreaGuideLines,
+      update:  function () {/* Do nothing */}
+    },
+    'lineAnimationGapPoints': {
+      enabled: false,
+      create: function () {/* Do nothing */},
+      destroy: destroyLineAnimationGapPoints,
+      update:  updateLineAnimationGapPoints
+    },
+    'lineAnimationCornerData': {
+      enabled: false,
+      create: function () {/* Do nothing */},
+      destroy: destroyLineAnimationCornerConfigurations,
+      update:  updateLineAnimationCornerConfigurations
+    }
+  };
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  // --------------------------------------------------- //
+  // Annotation creation functions
+
+  /**
+   * Draws content tiles with a different color.
+   *
+   * @this Annotations
+   */
+  function fillContentTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      if (annotations.grid.tiles[i].holdsContent) {
+        annotations.grid.tiles[i].setColor(config.contentTileHue, config.contentTileSaturation,
+            config.contentTileLightness);
+      }
+    }
+  }
+
+  /**
+   * Draws border tiles with a different color.
+   *
+   * @this Annotations
+   */
+  function fillBorderTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      annotations.grid.borderTiles[i].setColor(config.borderTileHue, config.borderTileSaturation,
+          config.borderTileLightness);
+    }
+  }
+
+  /**
+   * Draws corner tiles with a different color.
+   *
+   * @this Annotations
+   */
+  function fillCornerTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      if (annotations.grid.borderTiles[i].isCornerTile) {
+        annotations.grid.borderTiles[i].setColor(config.cornerTileHue,
+            config.cornerTileSaturation, config.cornerTileLightness);
+      }
+    }
+  }
+
+  /**
+   * Draws all of the tiles as transparent.
+   *
+   * @this Annotations
+   */
+  function makeTilesTransparent() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.grid.tiles[i].element.setAttribute('opacity', '0');
+    }
+  }
+
+  /**
+   * Draws vertical guidelines along the left and right sides of the main content area.
+   *
+   * @this Annotations
+   */
+  function drawContentAreaGuideLines() {
+    var annotations, line;
+
+    annotations = this;
+    annotations.contentAreaGuideLines = [];
+
+    line = document.createElementNS(hg.util.svgNamespace, 'line');
+    annotations.grid.svg.appendChild(line);
+    annotations.contentAreaGuideLines[0] = line;
+
+    line.setAttribute('x1', annotations.grid.contentAreaLeft);
+    line.setAttribute('y1', 0);
+    line.setAttribute('x2', annotations.grid.contentAreaLeft);
+    line.setAttribute('y2', annotations.grid.height);
+    line.setAttribute('stroke', 'red');
+    line.setAttribute('stroke-width', '2');
+
+    line = document.createElementNS(hg.util.svgNamespace, 'line');
+    annotations.grid.svg.appendChild(line);
+    annotations.contentAreaGuideLines[1] = line;
+
+    line.setAttribute('x1', annotations.grid.contentAreaRight);
+    line.setAttribute('y1', 0);
+    line.setAttribute('x2', annotations.grid.contentAreaRight);
+    line.setAttribute('y2', annotations.grid.height);
+    line.setAttribute('stroke', 'red');
+    line.setAttribute('stroke-width', '2');
+  }
+
+  /**
+   * Creates a dot at the center of each tile at its current position.
+   *
+   * @this Annotations
+   */
+  function createTileParticleCenters() {
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.tileParticleCenters = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileParticleCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileParticleCenters[i]);
+
+      annotations.tileParticleCenters[i].setAttribute('r', '4');
+      annotations.tileParticleCenters[i].setAttribute('fill', 'gray');
+    }
+  }
+
+  /**
+   * Creates a dot at the center of each tile at its anchor position.
+   *
+   * @this Annotations
+   */
+  function createTileAnchorCenters() {
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.tileAnchorLines = [];
+    annotations.tileAnchorCenters = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileAnchorLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
+
+      annotations.tileAnchorLines[i].setAttribute('stroke', '#666666');
+      annotations.tileAnchorLines[i].setAttribute('stroke-width', '2');
+
+      annotations.tileAnchorCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileAnchorCenters[i]);
+
+      annotations.tileAnchorCenters[i].setAttribute('r', '4');
+      annotations.tileAnchorCenters[i].setAttribute('fill', '#888888');
+    }
+  }
+
+  /**
+   * Creates a circle over each tile at its anchor position, which will be used to show colors
+   * that indicate its displacement from its original position.
+   *
+   * @this Annotations
+   */
+  function createTileDisplacementColors() {
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.tileDisplacementCircles = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileDisplacementCircles[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileDisplacementCircles[i]);
+
+      annotations.tileDisplacementCircles[i].setAttribute('r', '80');
+      annotations.tileDisplacementCircles[i].setAttribute('opacity', '0.4');
+      annotations.tileDisplacementCircles[i].setAttribute('fill', 'white');
+    }
+  }
+
+  /**
+   * Creates the inner radius of each tile.
+   *
+   * @this Annotations
+   */
+  function createTileInnerRadii() {
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.tileInnerRadii = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileInnerRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileInnerRadii[i]);
+
+      annotations.tileInnerRadii[i].setAttribute('stroke', 'blue');
+      annotations.tileInnerRadii[i].setAttribute('stroke-width', '1');
+      annotations.tileInnerRadii[i].setAttribute('fill', 'transparent');
+    }
+  }
+
+  /**
+   * Creates the outer radius of each tile.
+   *
+   * @this Annotations
+   */
+  function createTileOuterRadii() {
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.tileOuterRadii = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileOuterRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
+
+      annotations.tileOuterRadii[i].setAttribute('stroke', 'green');
+      annotations.tileOuterRadii[i].setAttribute('stroke-width', '1');
+      annotations.tileOuterRadii[i].setAttribute('fill', 'transparent');
+    }
+  }
+
+  /**
+   * Creates lines connecting each tile to each of its neighbors.
+   *
+   * @this Annotations
+   */
+  function createTileNeighborConnections() {
+    var annotations, i, j, iCount, jCount, tile, neighbor;
+
+    annotations = this;
+    annotations.neighborLines = [];
+
+    for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
+      tile = annotations.grid.tiles[i];
+      annotations.neighborLines[i] = [];
+
+      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
+        neighbor = tile.neighbors[j];
+
+        if (neighbor) {
+          annotations.neighborLines[i][j] = document.createElementNS(hg.util.svgNamespace, 'line');
+          annotations.grid.svg.appendChild(annotations.neighborLines[i][j]);
+
+          annotations.neighborLines[i][j].setAttribute('stroke', 'purple');
+          annotations.neighborLines[i][j].setAttribute('stroke-width', '1');
+        }
+      }
+    }
+  }
+
+  /**
+   * Creates lines representing the cumulative force acting on each tile.
+   *
+   * @this Annotations
+   */
+  function createTileForces() {
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.forceLines = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.forceLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.grid.svg.appendChild(annotations.forceLines[i]);
+
+      annotations.forceLines[i].setAttribute('stroke', 'orange');
+      annotations.forceLines[i].setAttribute('stroke-width', '2');
+    }
+  }
+
+  /**
+   * Creates lines representing the velocity of each tile.
+   *
+   * @this Annotations
+   */
+  function createTileVelocities() {
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.velocityLines = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.velocityLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.grid.svg.appendChild(annotations.velocityLines[i]);
+
+      annotations.velocityLines[i].setAttribute('stroke', 'red');
+      annotations.velocityLines[i].setAttribute('stroke-width', '2');
+    }
+  }
+
+  /**
+   * Creates the index of each tile.
+   *
+   * @this Annotations
+   */
+  function createTileIndices() {
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.indexTexts = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.indexTexts[i] = document.createElementNS(hg.util.svgNamespace, 'text');
+      annotations.indexTexts[i].innerHTML = annotations.grid.tiles[i].index;
+      annotations.grid.svg.appendChild(annotations.indexTexts[i]);
+
+      annotations.indexTexts[i].setAttribute('font-size', '16');
+      annotations.indexTexts[i].setAttribute('fill', 'black');
+    }
+  }
+
+  // --------------------------------------------------- //
+  // Annotation destruction functions
+
+  /**
+   * Draws content tiles with a different color.
+   *
+   * @this Annotations
+   */
+  function unfillContentTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      if (annotations.grid.tiles[i].holdsContent) {
+        annotations.grid.tiles[i].setColor(hg.Grid.config.tileHue,
+            hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
+      }
+    }
+  }
+
+  /**
+   * Draws border tiles with a different color.
+   *
+   * @this Annotations
+   */
+  function unfillBorderTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      annotations.grid.borderTiles[i].setColor(hg.Grid.config.tileHue,
+          hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
+    }
+  }
+
+  /**
+   * Draws corner tiles with a different color.
+   *
+   * @this Annotations
+   */
+  function unfillCornerTiles() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
+      if (annotations.grid.borderTiles[i].isCornerTile) {
+        annotations.grid.borderTiles[i].setColor(hg.Grid.config.tileHue,
+            hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
+      }
+    }
+  }
+
+  /**
+   * Draws all of the tiles as transparent.
+   *
+   * @this Annotations
+   */
+  function makeTilesVisible() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.grid.tiles[i].element.setAttribute('opacity', '1');
+    }
+  }
+
+  /**
+   * Draws vertical guidelines along the left and right sides of the main content area.
+   *
+   * @this Annotations
+   */
+  function removeContentAreaGuideLines() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.contentAreaGuideLines.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.contentAreaGuideLines[i]);
+    }
+
+    annotations.contentAreaGuideLines = [];
+  }
+
+  /**
+   * Destroys a dot at the center of each tile at its current position.
+   *
+   * @this Annotations
+   */
+  function destroyTileParticleCenters() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.tileParticleCenters.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.tileParticleCenters[i]);
+    }
+
+    annotations.tileParticleCenters = [];
+  }
+
+  /**
+   * Destroys a dot at the center of each tile at its anchor position.
+   *
+   * @this Annotations
+   */
+  function destroyTileAnchorCenters() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.tileAnchorLines.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.tileAnchorLines[i]);
+      annotations.grid.svg.removeChild(annotations.tileAnchorCenters[i]);
+    }
+
+    annotations.tileAnchorLines = [];
+    annotations.tileAnchorCenters = [];
+  }
+
+  /**
+   * Destroys a circle over each tile at its anchor position, which will be used to show colors
+   * that indicate its displacement from its original position.
+   *
+   * @this Annotations
+   */
+  function destroyTileDisplacementColors() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.tileDisplacementCircles.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.tileDisplacementCircles[i]);
+    }
+
+    annotations.tileDisplacementCircles = [];
+  }
+
+  /**
+   * Destroys the inner radius of each tile.
+   *
+   * @this Annotations
+   */
+  function destroyTileInnerRadii() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.tileInnerRadii.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.tileInnerRadii[i]);
+    }
+
+    annotations.tileInnerRadii = [];
+  }
+
+  /**
+   * Destroys the outer radius of each tile.
+   *
+   * @this Annotations
+   */
+  function destroyTileOuterRadii() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.tileOuterRadii.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.tileOuterRadii[i]);
+    }
+
+    annotations.tileOuterRadii = [];
+  }
+
+  /**
+   * Destroys lines connecting each tile to each of its neighbors.
+   *
+   * @this Annotations
+   */
+  function destroyTileNeighborConnections() {
+    var annotations, i, j, iCount, jCount;
+
+    annotations = this;
+
+    for (i = 0, iCount = annotations.neighborLines.length; i < iCount; i += 1) {
+      for (j = 0, jCount = annotations.neighborLines[i].length; j < jCount; j += 1) {
+        if (annotations.neighborLines[i][j]) {
+          annotations.grid.svg.removeChild(annotations.neighborLines[i][j]);
+        }
+      }
+    }
+
+    annotations.neighborLines = [];
+  }
+
+  /**
+   * Destroys lines representing the cumulative force acting on each tile.
+   *
+   * @this Annotations
+   */
+  function destroyTileForces() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.forceLines.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.forceLines[i]);
+    }
+
+    annotations.forceLines = [];
+  }
+
+  /**
+   * Destroys lines representing the velocity of each tile.
+   *
+   * @this Annotations
+   */
+  function destroyTileVelocities() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.velocityLines.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.velocityLines[i]);
+    }
+
+    annotations.velocityLines = [];
+  }
+
+  /**
+   * Destroys the index of each tile.
+   *
+   * @this Annotations
+   */
+  function destroyTileIndices() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.indexTexts.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.indexTexts[i]);
+    }
+
+    annotations.indexTexts = [];
+  }
+
+  /**
+   * Destroys the dots at the positions of each corner gap point of each line animation.
+   *
+   * @this Annotations
+   */
+  function destroyLineAnimationGapPoints() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.lineAnimationGapDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationGapDots[i]);
+    }
+
+    annotations.lineAnimationGapDots = [];
+  }
+
+  /**
+   * Destroys annotations describing the corner configurations of each line animation.
+   *
+   * @this Annotations
+   */
+  function destroyLineAnimationCornerConfigurations() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.lineAnimationSelfCornerDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationSelfCornerDots[i]);
+    }
+
+    for (i = 0, count = annotations.lineAnimationLowerNeighborCornerDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationLowerNeighborCornerDots[i]);
+    }
+
+    for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length; i < count; i += 1) {
+      annotations.grid.svg.removeChild(annotations.lineAnimationUpperNeighborCornerDots[i]);
+    }
+
+    annotations.lineAnimationSelfCornerDots = [];
+    annotations.lineAnimationLowerNeighborCornerDots = [];
+    annotations.lineAnimationUpperNeighborCornerDots = [];
+  }
+
+  // --------------------------------------------------- //
+  // Annotation updating functions
+
+  /**
+   * Updates a dot at the center of each tile at its current position.
+   *
+   * @this Annotations
+   */
+  function updateTileParticleCenters() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileParticleCenters[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
+      annotations.tileParticleCenters[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
+    }
+  }
+
+  /**
+   * Updates a dot at the center of each tile at its anchor position.
+   *
+   * @this Annotations
+   */
+  function updateTileAnchorCenters() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileAnchorLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
+      annotations.tileAnchorLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
+      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].centerX);
+      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].centerY);
+      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].centerX);
+      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].centerY);
+    }
+  }
+
+  /**
+   * Updates the color of a circle over each tile at its anchor position according to its
+   * displacement from its original position.
+   *
+   * @this Annotations
+   */
+  function updateTileDisplacementColors() {
+    var annotations, i, count, deltaX, deltaY, angle, distance, colorString;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalCenterX;
+      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalCenterY;
+
+      angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
+      distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      colorString = 'hsl(' + angle + ',' +
+          distance / hg.DisplacementWaveJob.config.displacementAmplitude * 100 + '%,80%)';
+
+      annotations.tileDisplacementCircles[i].setAttribute('fill', colorString);
+      annotations.tileDisplacementCircles[i]
+          .setAttribute('cx', annotations.grid.tiles[i].particle.px);
+      annotations.tileDisplacementCircles[i]
+          .setAttribute('cy', annotations.grid.tiles[i].particle.py);
+    }
+  }
+
+  /**
+   * Updates the inner radius of each tile.
+   *
+   * @this Annotations
+   */
+  function updateTileInnerRadii() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileInnerRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
+      annotations.tileInnerRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
+      annotations.tileInnerRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius * hg.Grid.config.sqrtThreeOverTwo);
+    }
+  }
+
+  /**
+   * Updates the outer radius of each tile.
+   *
+   * @this Annotations
+   */
+  function updateTileOuterRadii() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileOuterRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
+      annotations.tileOuterRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
+      annotations.tileOuterRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius);
+    }
+  }
+
+  /**
+   * Updates lines connecting each tile to each of its neighbors.
+   *
+   * @this Annotations
+   */
+  function updateTileNeighborConnections() {
+    var annotations, i, j, iCount, jCount, tile, neighbor;
+
+    annotations = this;
+
+    for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
+      tile = annotations.grid.tiles[i];
+
+      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
+        neighbor = tile.neighbors[j];
+
+        if (neighbor) {
+          annotations.neighborLines[i][j].setAttribute('x1', tile.particle.px);
+          annotations.neighborLines[i][j].setAttribute('y1', tile.particle.py);
+          annotations.neighborLines[i][j].setAttribute('x2', neighbor.tile.particle.px);
+          annotations.neighborLines[i][j].setAttribute('y2', neighbor.tile.particle.py);
+        }
+      }
+    }
+  }
+
+  /**
+   * Updates lines representing the cumulative force acting on each tile.
+   *
+   * @this Annotations
+   */
+  function updateTileForces() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.forceLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
+      annotations.forceLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
+      annotations.forceLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px + annotations.grid.tiles[i].particle.fx * config.forceLineLengthMultiplier);
+      annotations.forceLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py + annotations.grid.tiles[i].particle.fy * config.forceLineLengthMultiplier);
+    }
+  }
+
+  /**
+   * Updates lines representing the velocity of each tile.
+   *
+   * @this Annotations
+   */
+  function updateTileVelocities() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.velocityLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
+      annotations.velocityLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
+      annotations.velocityLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px + annotations.grid.tiles[i].particle.vx * config.velocityLineLengthMultiplier);
+      annotations.velocityLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py + annotations.grid.tiles[i].particle.vy * config.velocityLineLengthMultiplier);
+    }
+  }
+
+  /**
+   * Updates the index of each tile.
+   *
+   * @this Annotations
+   */
+  function updateTileIndices() {
+    var annotations, i, count;
+
+    annotations = this;
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.indexTexts[i].setAttribute('x', annotations.grid.tiles[i].particle.px - 10);
+      annotations.indexTexts[i].setAttribute('y', annotations.grid.tiles[i].particle.py + 6);
+    }
+  }
+
+  /**
+   * Draws a dot at the position of each corner gap point of each line animation.
+   *
+   * @this Annotations
+   */
+  function updateLineAnimationGapPoints() {
+    var annotations, i, iCount, j, jCount, k, line;
+
+    annotations = this;
+
+    destroyLineAnimationGapPoints.call(annotations);
+    annotations.lineAnimationGapDots = [];
+
+    if (annotations.grid.animations.lineAnimations) {
+      for (k = 0, i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount;
+           i += 1) {
+        line = annotations.grid.animations.lineAnimations[i];
+
+        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
+          annotations.lineAnimationGapDots[k] =
+              document.createElementNS(hg.util.svgNamespace, 'circle');
+          annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
+          annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
+          annotations.lineAnimationGapDots[k].setAttribute('r', '4');
+          annotations.lineAnimationGapDots[k].setAttribute('fill', 'white');
+          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
+        }
+      }
+    }
+  }
+
+  /**
+   * Draws some annotations describing the corner configurations of each line animation.
+   *
+   * @this Annotations
+   */
+  function updateLineAnimationCornerConfigurations() {
+    var annotations, i, iCount, j, jCount, line, pos, dot;
+
+    annotations = this;
+
+    destroyLineAnimationCornerConfigurations.call(annotations);
+    annotations.lineAnimationSelfCornerDots = [];
+    annotations.lineAnimationLowerNeighborCornerDots = [];
+    annotations.lineAnimationUpperNeighborCornerDots = [];
+
+    if (annotations.grid.animations.lineAnimations) {
+      for (i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount; i += 1) {
+        line = annotations.grid.animations.lineAnimations[i];
+
+        for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
+          // Self corner: red dot
+          pos = getCornerPosition(line.tiles[j], line.corners[j]);
+          dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+          dot.setAttribute('cx', pos.x);
+          dot.setAttribute('cy', pos.y);
+          dot.setAttribute('r', '3');
+          dot.setAttribute('fill', '#ffaaaa');
+          annotations.grid.svg.appendChild(dot);
+          annotations.lineAnimationSelfCornerDots.push(dot);
+
+          // Lower neighbor corner: green dot
+          if (line.lowerNeighbors[j]) {
+            pos = getCornerPosition(line.lowerNeighbors[j].tile, line.lowerNeighborCorners[j]);
+            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+            dot.setAttribute('cx', pos.x);
+            dot.setAttribute('cy', pos.y);
+            dot.setAttribute('r', '3');
+            dot.setAttribute('fill', '#aaffaa');
+            annotations.grid.svg.appendChild(dot);
+            annotations.lineAnimationLowerNeighborCornerDots.push(dot);
+          }
+
+          // Upper neighbor corner: blue dot
+          if (line.upperNeighbors[j]) {
+            pos = getCornerPosition(line.upperNeighbors[j].tile, line.upperNeighborCorners[j]);
+            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+            dot.setAttribute('cx', pos.x);
+            dot.setAttribute('cy', pos.y);
+            dot.setAttribute('r', '3');
+            dot.setAttribute('fill', '#aaaaff');
+            annotations.grid.svg.appendChild(dot);
+            annotations.lineAnimationUpperNeighborCornerDots.push(dot);
+          }
+        }
+      }
+    }
+
+    function getCornerPosition(tile, corner) {
+      return {
+        x: tile.vertices[corner * 2],
+        y: tile.vertices[corner * 2 + 1]
+      };
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Toggles whether the given annotation is enabled.
+   *
+   * @this Annotations
+   * @param {string} annotation
+   * @param {boolean} enabled
+   * @throws {Error}
+   */
+  function toggleAnnotationEnabled(annotation, enabled) {
+    var annotations;
+
+    annotations = this;
+
+    annotations.annotations[annotation].enabled = enabled;
+
+    if (enabled) {
+      annotations.annotations[annotation].create.call(annotations);
+    } else {
+      annotations.annotations[annotation].destroy.call(annotations);
+    }
+  }
+
+  /**
+   * Computes spatial parameters of the tile annotations and creates SVG elements to represent
+   * these annotations.
+   *
+   * @this Annotations
+   */
+  function createAnnotations() {
+    var annotations, key;
+
+    annotations = this;
+
+    for (key in annotations.annotations) {
+      if (annotations.annotations[key].enabled) {
+        annotations.annotations[key].create.call(annotations);
+      }
+    }
+  }
+
+  /**
+   * Destroys the SVG elements used to represent grid annotations.
+   *
+   * @this Annotations
+   */
+  function destroyAnnotations() {
+    var annotations, key;
+
+    annotations = this;
+
+    for (key in annotations.annotations) {
+      annotations.annotations[key].destroy.call(annotations);
+    }
+  }
+
+  /**
+   * Sets this AnimationJob as started.
+   *
+   * @this Annotations
+   */
+  function start() {
+    var grid = this;
+
+    grid.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this AnimationJob to match the given time.
+   *
+   * @this Annotations
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var annotations, key;
+
+    annotations = this;
+
+    for (key in annotations.annotations) {
+      if (annotations.annotations[key].enabled) {
+        annotations.annotations[key].update.call(annotations);
+      }
+    }
+  }
+
+  /**
+   * Draws the current state of this AnimationJob.
+   *
+   * @this Annotations
+   */
+  function draw() {
+    // TODO: is there any of the update logic that should instead be handled here?
+  }
+
+  /**
+   * Stops this AnimationJob, and returns the element to its original form.
+   *
+   * @this Annotations
+   */
+  function cancel() {
+    var grid = this;
+
+    grid.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @param {Grid} grid
+   */
+  function Annotations(grid) {
+    var annotations = this;
+
+    annotations.grid = grid;
+    annotations.startTime = 0;
+    annotations.isComplete = false;
+    annotations.annotations = hg.util.shallowCopy(config.annotations);
+
+    annotations.contentAreaGuideLines = [];
+    annotations.tileParticleCenters = [];
+    annotations.tileAnchorLines = [];
+    annotations.tileAnchorCenters = [];
+    annotations.tileDisplacementCircles = [];
+    annotations.tileInnerRadii = [];
+    annotations.tileOuterRadii = [];
+    annotations.neighborLines = [];
+    annotations.forceLines = [];
+    annotations.velocityLines = [];
+    annotations.indexTexts = [];
+    annotations.lineAnimationGapDots = [];
+    annotations.lineAnimationSelfCornerDots = [];
+    annotations.lineAnimationLowerNeighborCornerDots = [];
+    annotations.lineAnimationUpperNeighborCornerDots = [];
+
+    annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
+    annotations.createAnnotations = createAnnotations;
+    annotations.destroyAnnotations = destroyAnnotations;
+
+    annotations.start = start;
+    annotations.update = update;
+    annotations.draw = draw;
+    annotations.cancel = cancel;
+  }
+
+  Annotations.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.Annotations = Annotations;
+
+  console.log('Annotations module loaded');
+})();
+
+'use strict';
+
+/**
+ * @typedef {AnimationJob} Grid
+ */
+
+/**
+ * This module defines a constructor for Grid objects.
+ *
+ * Grid objects define a collection of hexagonal tiles which animate and display dynamic,
+ * textual content.
+ *
+ * @module Grid
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  // TODO:
+  // - update the tile radius and the targetContentAreaWidth with the screen width
+  //   - we should always have the same number of content tiles in a given row
+
+  // TODO:
+  // - give tiles references to their next DOM sibling
+  //   - this will be important for maintaining correct z-indices when removing/adding
+
+  var config = {};
+
+  config.targetContentAreaWidth = 800;
+  config.backgroundHue = 327;
+  config.backgroundSaturation = 20;
+  config.backgroundLightness = 10;
+  config.tileHue = 230;//147;
+  config.tileSaturation = 50;
+  config.tileLightness = 30;
+  config.tileOuterRadius = 80;
+  config.tileGap = 12;
+  config.contentStartingRowIndex = 2;
+  config.firstRowYOffset = config.tileOuterRadius * -0.8;
+  config.contentDensity = 0.6;
+  config.tileMass = 1;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.sqrtThreeOverTwo = Math.sqrt(3) / 2;
+    config.twoOverSqrtThree = 2 / Math.sqrt(3);
+
+    config.tileInnerRadius = config.tileOuterRadius * config.sqrtThreeOverTwo;
+
+    config.tileShortLengthWithGap = config.tileInnerRadius * 2 + config.tileGap;
+    config.tileLongLengthWithGap =
+        config.tileOuterRadius * 2 + config.tileGap * config.twoOverSqrtThree;
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Computes various parameters of the grid. These include:
+   *
+   * - row count
+   * - number of tiles in even and odd rows
+   * - the vertical and horizontal displacement between neighbor tiles
+   * - the horizontal positions of the first tiles in even and odd rows
+   *
+   * @this Grid
+   */
+  function computeGridParameters() {
+    var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex, i, count,
+        emptyRowsContentTileCount, minInnerTileCount;
+
+    grid = this;
+
+    parentHalfWidth = grid.parent.clientWidth * 0.5;
+    parentHeight = grid.parent.clientHeight;
+
+    grid.centerX = parentHalfWidth;
+    grid.centerY = parentHeight * 0.5;
+
+    grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
+        grid.parent.clientWidth : config.targetContentAreaWidth;
+
+    if (grid.isVertical) {
+      grid.rowDeltaY = config.tileOuterRadius * 1.5 + config.tileGap * config.sqrtThreeOverTwo;
+      grid.tileDeltaX = config.tileShortLengthWithGap;
+
+      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (config.tileInnerRadius + config.tileGap)) / config.tileShortLengthWithGap) * 2 + 1;
+      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (config.tileShortLengthWithGap + config.tileGap * 0.5)) / config.tileShortLengthWithGap) * 2 + 2;
+
+      grid.oddRowXOffset = parentHalfWidth - config.tileShortLengthWithGap * (grid.oddRowTileCount - 1) / 2;
+
+      grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileOuterRadius * 2 + config.tileGap * Math.sqrt(3))) / grid.rowDeltaY) + 2;
+    } else {
+      grid.rowDeltaY = config.tileInnerRadius + config.tileGap * 0.5;
+      grid.tileDeltaX = config.tileOuterRadius * 3 + config.tileGap * Math.sqrt(3);
+
+      grid.oddRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX - config.tileOuterRadius)) / grid.tileDeltaX) * 2 + 1;
+      grid.evenRowTileCount = Math.ceil((parentHalfWidth - (grid.tileDeltaX + (config.tileGap * config.sqrtThreeOverTwo) + config.tileOuterRadius * 0.5)) / grid.tileDeltaX) * 2 + 2;
+
+      grid.oddRowXOffset = parentHalfWidth - grid.tileDeltaX * (grid.oddRowTileCount - 1) / 2;
+
+      grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileInnerRadius * 3 + config.tileGap * 2)) / grid.rowDeltaY) + 4;
+    }
+
+    grid.evenRowXOffset = grid.oddRowXOffset +
+        (grid.evenRowTileCount > grid.oddRowTileCount ? -1 : 1) * grid.tileDeltaX * 0.5;
+
+    // --- Row inner content information --- //
+
+    grid.contentAreaLeft = parentHalfWidth - grid.actualContentAreaWidth * 0.5;
+    grid.contentAreaRight = grid.contentAreaLeft + grid.actualContentAreaWidth;
+
+    if (grid.isVertical) {
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileInnerRadius)) / grid.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileInnerRadius)) / grid.tileDeltaX);
+    } else {
+      grid.oddRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.oddRowXOffset - config.tileOuterRadius)) / grid.tileDeltaX);
+      grid.evenRowContentStartIndex = Math.ceil((grid.contentAreaLeft - (grid.evenRowXOffset - config.tileOuterRadius)) / grid.tileDeltaX);
+    }
+
+    grid.oddRowContentTileCount = grid.oddRowTileCount - grid.oddRowContentStartIndex * 2;
+    grid.evenRowContentTileCount = grid.evenRowTileCount - grid.evenRowContentStartIndex * 2;
+
+    grid.oddRowContentEndIndex = grid.oddRowContentStartIndex + grid.oddRowContentTileCount - 1;
+    grid.evenRowContentEndIndex = grid.evenRowContentStartIndex + grid.evenRowContentTileCount - 1;
+
+    // Update the content inner indices to account for empty rows at the start of the grid
+    grid.actualContentInnerIndices = [];
+    emptyRowsContentTileCount = Math.ceil(config.contentStartingRowIndex / 2) * grid.oddRowContentTileCount +
+        Math.floor(config.contentStartingRowIndex / 2) * grid.evenRowContentTileCount;
+    for (i = 0, count = grid.originalContentInnerIndices.length; i < count; i += 1) {
+      grid.actualContentInnerIndices[i] = grid.originalContentInnerIndices[i] + emptyRowsContentTileCount;
+    }
+
+    grid.innerIndexOfLastContentTile = grid.actualContentInnerIndices[grid.actualContentInnerIndices.length - 1];
+
+    // Add empty rows at the end of the grid
+    minInnerTileCount = emptyRowsContentTileCount + grid.innerIndexOfLastContentTile + 1;
+    innerContentCount = 0;
+    rowIndex = 0;
+
+    while (minInnerTileCount > innerContentCount) {
+      innerContentCount += rowIndex % 2 === 0 ?
+          grid.oddRowContentTileCount : grid.evenRowContentTileCount;
+      rowIndex += 1;
+    }
+    grid.rowCount = rowIndex > grid.rowCount ? rowIndex : grid.rowCount;
+
+    grid.height = (grid.rowCount - 2) * grid.rowDeltaY;
+  }
+
+  /**
+   * Calculates the tile indices within the content area column that will represent tiles with
+   * content.
+   *
+   * @this Grid
+   */
+  function computeContentIndices() {
+    var grid, i, j, count, tilesRepresentation;
+
+    grid = this;
+
+    // Use 1s to represent the tiles that hold data
+    tilesRepresentation = [];
+    count = grid.tileData.length;
+    for (i = 0; i < count; i += 1) {
+      tilesRepresentation[i] = 1;
+    }
+
+    // Use 0s to represent the empty tiles
+    count = (1 / config.contentDensity) * grid.tileData.length;
+    for (i = grid.tileData.length; i < count; i += 1) {
+      tilesRepresentation[i] = 0;
+    }
+
+    tilesRepresentation = hg.util.shuffle(tilesRepresentation);
+
+    // Record the resulting indices of the elements representing tile content
+    grid.originalContentInnerIndices = [];
+    for (i = 0, j = 0, count = tilesRepresentation.length; i < count; i += 1) {
+      if (tilesRepresentation[i]) {
+        grid.originalContentInnerIndices[j++] = i;
+      }
+    }
+  }
+
+  /**
+   * Creates the SVG element for the grid.
+   *
+   * @this Grid
+   */
+  function createSvg() {
+    var grid;
+
+    grid = this;
+
+    grid.svg = document.createElementNS(hg.util.svgNamespace, 'svg');
+    grid.svg.style.display = 'block';
+    grid.svg.style.position = 'relative';
+    grid.svg.style.width = '100%';
+    grid.svg.style.zIndex = '2147483647';
+    updateBackgroundColor.call(grid);
+    grid.parent.appendChild(grid.svg);
+
+    grid.svgDefs = document.createElementNS(hg.util.svgNamespace, 'defs');
+    grid.svg.appendChild(grid.svgDefs);
+  }
+
+  /**
+   * Creates the tile elements for the grid.
+   *
+   * @this Grid
+   */
+  function createTiles() {
+    var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
+        isMarginTile, isBorderTile, isCornerTile, isOddRow, contentAreaIndex, tileDataIndex,
+        defaultNeighborDeltaIndices, tilesNeighborDeltaIndices, oddRowIsLarger, isLargerRow;
+
+    grid = this;
+
+    grid.tiles = [];
+    grid.borderTiles = [];
+    tileIndex = 0;
+    contentAreaIndex = 0;
+    tileDataIndex = 0;
+    centerY = config.firstRowYOffset;
+    rowCount = grid.rowCount;
+    tilesNeighborDeltaIndices = [];
+
+    defaultNeighborDeltaIndices = getDefaultNeighborDeltaIndices.call(grid);
+    oddRowIsLarger = grid.oddRowTileCount > grid.evenRowTileCount;
+
+    for (rowIndex = 0; rowIndex < rowCount; rowIndex += 1, centerY += grid.rowDeltaY) {
+      isOddRow = rowIndex % 2 === 0;
+      isLargerRow = oddRowIsLarger && isOddRow || !oddRowIsLarger && !isOddRow;
+
+      if (isOddRow) {
+        centerX = grid.oddRowXOffset;
+        columnCount = grid.oddRowTileCount;
+      } else {
+        centerX = grid.evenRowXOffset;
+        columnCount = grid.evenRowTileCount;
+      }
+
+      for (columnIndex = 0; columnIndex < columnCount;
+           tileIndex += 1, columnIndex += 1, centerX += grid.tileDeltaX) {
+        isMarginTile = isOddRow ?
+            columnIndex < grid.oddRowContentStartIndex ||
+                columnIndex > grid.oddRowContentEndIndex :
+            columnIndex < grid.evenRowContentStartIndex ||
+                columnIndex > grid.evenRowContentEndIndex;
+
+        isBorderTile = grid.isVertical ?
+            (columnIndex === 0 || columnIndex === columnCount - 1 ||
+              rowIndex === 0 || rowIndex === rowCount - 1) :
+            (rowIndex <= 1 || rowIndex >= rowCount - 2 ||
+                isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1));
+
+        isCornerTile = isBorderTile && (grid.isVertical ?
+            ((columnIndex === 0 || columnIndex === columnCount - 1) &&
+                (rowIndex === 0 || rowIndex === rowCount - 1)) :
+            ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
+                (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
+
+        grid.tiles[tileIndex] = new hg.Tile(grid.svg, centerX, centerY, config.tileOuterRadius,
+            grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
+            tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
+            isLargerRow, config.tileMass);
+
+        if (isBorderTile) {
+          grid.borderTiles.push(grid.tiles[tileIndex]);
+        }
+
+        // Is the current tile within the content column?
+        if (!isMarginTile) {
+          // Does the current tile get to hold content?
+          if (contentAreaIndex === grid.actualContentInnerIndices[tileDataIndex]) {
+            grid.tiles[tileIndex].setContent(grid.tileData[tileDataIndex]);
+            tileDataIndex += 1;
+          }
+          contentAreaIndex += 1;
+        }
+
+        // Determine the neighbor index offsets for the current tile
+        tilesNeighborDeltaIndices[tileIndex] = getNeighborDeltaIndices.call(grid, rowIndex, rowCount,
+            columnIndex, columnCount, isLargerRow, defaultNeighborDeltaIndices);
+      }
+    }
+
+    setNeighborTiles.call(grid, tilesNeighborDeltaIndices);
+  }
+
+  /**
+   * Connects each tile with references to its neighbors.
+   *
+   * @this Grid
+   * @param {Array.<Array.<number>>} tilesNeighborDeltaIndices
+   */
+  function setNeighborTiles(tilesNeighborDeltaIndices) {
+    var grid, i, j, iCount, jCount, neighbors;
+
+    grid = this;
+
+    neighbors = [];
+
+    // Give each tile references to each of its neighbors
+    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
+      // Get the neighbors around the current tile
+      for (j = 0, jCount = 6; j < jCount; j += 1) {
+        neighbors[j] = !isNaN(tilesNeighborDeltaIndices[i][j]) ?
+            grid.tiles[i + tilesNeighborDeltaIndices[i][j]] : null;
+      }
+
+      grid.tiles[i].setNeighborTiles(neighbors);
+    }
+  }
+
+  /**
+   * Get the actual neighbor index offsets for the tile described by the given parameters.
+   *
+   * NaN is used to represent the tile not having a neighbor on that side.
+   *
+   * @this Grid
+   * @param {number} rowIndex
+   * @param {number} rowCount
+   * @param {number} columnIndex
+   * @param {number} columnCount
+   * @param {boolean} isLargerRow
+   * @param {Array.<number>} defaultNeighborDeltaIndices
+   * @returns {Array.<number>}
+   */
+  function getNeighborDeltaIndices(rowIndex, rowCount, columnIndex, columnCount, isLargerRow,
+                                   defaultNeighborDeltaIndices) {
+    var grid, neighborDeltaIndices;
+
+    grid = this;
+
+    neighborDeltaIndices = defaultNeighborDeltaIndices.slice(0);
+
+    // Remove neighbor indices according to the tile's position in the grid
+    if (grid.isVertical) {
+      // Is this the row with more or fewer tiles?
+      if (isLargerRow) {
+        // Is this the first column?
+        if (columnIndex === 0) {
+          neighborDeltaIndices[3] = Number.NaN;
+          neighborDeltaIndices[4] = Number.NaN;
+          neighborDeltaIndices[5] = Number.NaN;
+        }
+
+        // Is this the last column?
+        if (columnIndex === columnCount - 1) {
+          neighborDeltaIndices[0] = Number.NaN;
+          neighborDeltaIndices[1] = Number.NaN;
+          neighborDeltaIndices[2] = Number.NaN;
+        }
+      } else {
+        // Is this the first column?
+        if (columnIndex === 0) {
+          neighborDeltaIndices[4] = Number.NaN;
+        }
+
+        // Is this the last column?
+        if (columnIndex === columnCount - 1) {
+          neighborDeltaIndices[1] = Number.NaN;
+        }
+      }
+
+      // Is this the first row?
+      if (rowIndex === 0) {
+        neighborDeltaIndices[0] = Number.NaN;
+        neighborDeltaIndices[5] = Number.NaN;
+      }
+
+      // Is this the last row?
+      if (rowIndex === rowCount - 1) {
+        neighborDeltaIndices[2] = Number.NaN;
+        neighborDeltaIndices[3] = Number.NaN;
+      }
+    } else {
+      if (isLargerRow) {
+        // Is this the first column?
+        if (columnIndex === 0) {
+          neighborDeltaIndices[4] = Number.NaN;
+          neighborDeltaIndices[5] = Number.NaN;
+        }
+
+        // Is this the last column?
+        if (columnIndex === columnCount - 1) {
+          neighborDeltaIndices[1] = Number.NaN;
+          neighborDeltaIndices[2] = Number.NaN;
+        }
+      }
+
+      // Is this the first or second row?
+      if (rowIndex ===0) {
+        neighborDeltaIndices[0] = Number.NaN;
+        neighborDeltaIndices[1] = Number.NaN;
+        neighborDeltaIndices[5] = Number.NaN;
+      } else if (rowIndex === 1) {
+        neighborDeltaIndices[0] = Number.NaN;
+      }
+
+      // Is this the last or second-to-last row?
+      if (rowIndex === rowCount - 1) {
+        neighborDeltaIndices[2] = Number.NaN;
+        neighborDeltaIndices[3] = Number.NaN;
+        neighborDeltaIndices[4] = Number.NaN;
+      } else if (rowIndex === rowCount - 2) {
+        neighborDeltaIndices[3] = Number.NaN;
+      }
+    }
+
+    return neighborDeltaIndices;
+  }
+
+  /**
+   * Calculates the index offsets of the neighbors of a tile.
+   *
+   * @this Grid
+   * @returns {Array.<number>}
+   */
+  function getDefaultNeighborDeltaIndices() {
+    var grid, maxColumnCount, neighborDeltaIndices;
+
+    grid = this;
+    neighborDeltaIndices = [];
+    maxColumnCount = grid.oddRowTileCount > grid.evenRowTileCount ?
+        grid.oddRowTileCount : grid.evenRowTileCount;
+
+    // Neighbor delta indices are dependent on current screen dimensions
+    if (grid.isVertical) {
+      neighborDeltaIndices[0] = -maxColumnCount + 1; // top-right
+      neighborDeltaIndices[1] = 1; // right
+      neighborDeltaIndices[2] = maxColumnCount; // bottom-right
+      neighborDeltaIndices[3] = maxColumnCount - 1; // bottom-left
+      neighborDeltaIndices[4] = -1; // left
+      neighborDeltaIndices[5] = -maxColumnCount; // top-left
+    } else {
+      neighborDeltaIndices[0] = -maxColumnCount * 2 + 1; // top
+      neighborDeltaIndices[1] = -maxColumnCount + 1; // top-right
+      neighborDeltaIndices[2] = maxColumnCount; // bottom-right
+      neighborDeltaIndices[3] = maxColumnCount * 2 - 1; // bottom
+      neighborDeltaIndices[4] = maxColumnCount - 1; // bottom-left
+      neighborDeltaIndices[5] = -maxColumnCount; // top-left
+    }
+
+    return neighborDeltaIndices;
+  }
+
+  /**
+   * Removes all content from the SVG.
+   *
+   * @this Grid
+   */
+  function clearSvg() {
+    var grid, svg;
+
+    grid = this;
+    svg = grid.svg;
+
+    grid.annotations.destroyAnnotations.call(grid.annotations);
+
+    while (svg.firstChild) {
+      svg.removeChild(svg.firstChild);
+    }
+
+    grid.svg.appendChild(grid.svgDefs);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * Prints to the console some information about this grid.
+   *
+   * This is useful for testing purposes.
+   */
+  function logGridInfo() {
+    var grid = this;
+
+    console.log('// --- Grid Info: ------- //');
+    console.log('// - Tile count=' + grid.tiles.length);
+    console.log('// - Row count=' + grid.rowCount);
+    console.log('// - Odd row tile count=' + grid.oddRowTileCount);
+    console.log('// - Even row tile count=' + grid.evenRowTileCount);
+    console.log('// ------------------------- //');
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Computes spatial parameters of the tiles in this grid.
+   *
+   * @this Grid
+   */
+  function resize() {
+    var grid;
+
+    grid = this;
+
+    clearSvg.call(grid);
+    computeGridParameters.call(grid);
+    createTiles.call(grid);
+
+    grid.svg.style.height = grid.height + 'px';
+
+    grid.annotations.createAnnotations();
+
+    logGridInfo.call(grid);
+  }
+
+  /**
+   * Sets the color of this grid's background.
+   *
+   * @this Grid
+   */
+  function updateBackgroundColor() {
+    var grid;
+
+    grid = this;
+
+    grid.svg.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
+        config.backgroundSaturation + '%,' + config.backgroundLightness + '%)';
+  }
+
+  /**
+   * Sets the color of this grid's tiles.
+   *
+   * @this Grid
+   */
+  function updateTileColor() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+    }
+  }
+
+  /**
+   * Sets the mass of this grid's tiles.
+   *
+   * @this Grid
+   * @param {number} mass
+   */
+  function updateTileMass(mass) {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tiles[i].particle.m = mass;
+    }
+  }
+
+  /**
+   * Sets this AnimationJob as started.
+   *
+   * @this Grid
+   */
+  function start() {
+    var grid = this;
+
+    grid.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this AnimationJob to match the given time.
+   *
+   * @this Grid
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tiles[i].update(currentTime, deltaTime);
+    }
+  }
+
+  /**
+   * Draws the current state of this AnimationJob.
+   *
+   * @this Grid
+   */
+  function draw() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
+      grid.tiles[i].draw();
+    }
+  }
+
+  /**
+   * Stops this AnimationJob, and returns the element to its original form.
+   *
+   * @this Grid
+   */
+  function cancel() {
+    var grid = this;
+
+    // TODO:
+
+    grid.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @global
+   * @constructor
+   * @param {HTMLElement} parent
+   * @param {Array.<Object>} tileData
+   * @param {boolean} [isVertical]
+   */
+  function Grid(parent, tileData, isVertical) {
+    var grid = this;
+
+    grid.parent = parent;
+    grid.tileData = tileData;
+    grid.isVertical = isVertical;
+
+    grid.actualContentAreaWidth = config.targetContentAreaWidth;
+
+    grid.isComplete = false;
+
+    grid.svg = null;
+    grid.svgDefs = null;
+    grid.tiles = [];
+    grid.borderTiles = [];
+    grid.originalContentInnerIndices = null;
+    grid.innerIndexOfLastContentTile = null;
+    grid.centerX = Number.NaN;
+    grid.centerY = Number.NaN;
+
+    grid.animations = {};
+
+    grid.annotations = new hg.Annotations(grid);
+
+    grid.resize = resize;
+    grid.start = start;
+    grid.update = update;
+    grid.draw = draw;
+    grid.cancel = cancel;
+    grid.updateBackgroundColor = updateBackgroundColor;
+    grid.updateTileColor = updateTileColor;
+    grid.updateTileMass = updateTileMass;
+    grid.computeContentIndices = computeContentIndices;
+
+    createSvg.call(grid);
+    computeContentIndices.call(grid);
+    resize.call(grid);
+  }
+
+  Grid.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.Grid = Grid;
+
+  console.log('Grid module loaded');
+})();
+
+'use strict';
+
+/**
+ * This module defines a constructor for Input objects.
+ *
+ * Input objects handle the user-input logic for a Grid.
+ *
+ * @module Input
+ */
+(function () {
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Adds event listeners for mouse and touch events for the grid.
+   *
+   * @this Input
+   */
+  function addPointerEventListeners() {
+    var input;
+
+    input = this;
+
+    document.addEventListener('mouseout', handlePointerOut, false);
+    document.addEventListener('mousemove', handlePointerMove, false);
+    document.addEventListener('mousedown', handlePointerDown, false);
+    document.addEventListener('mouseup', handlePointerUp, false);
+    // TODO: add touch support
+
+    function handlePointerOut(event) {
+      if (!event.toElement && !event.relatedTarget) {
+        // TODO: handle the mouse out event
+      }
+    }
+
+    function handlePointerMove(event) {
+      // TODO:
+    }
+
+    function handlePointerDown(event) {
+      // TODO:
+    }
+
+    function handlePointerUp(event) {
+      // TODO:
+    }
+
+    // TODO:
+  }
+
+  /**
+   * Checks whether the given point intersects with the same tile that was intersected during the
+   * last movement event.
+   *
+   * @this Input
+   * @param {number} x
+   * @param {number} y
+   */
+  function checkOldTileIntersection(x, y) {
+    var input;
+
+    input = this;
+
+    // TODO:
+  }
+
+  /**
+   * Checks whether the given point intersects with any tile in the grid.
+   *
+   * @this Input
+   * @param {number} x
+   * @param {number} y
+   */
+  function checkNewTileIntersection(x, y) {
+    var input;
+
+    input = this;
+
+    // TODO:
+    // - pre-compute the start and end x and y coordinates of each column and row
+    // - this function then simply loops over these until finding the one or two rows and columns that the point intersects
+    // - then there are at most four tiles to actually check for intersection within
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * Checks whether the given point intersects with the given tile.
+   *
+   * @param {Tile} tile
+   * @param {number} x
+   * @param {number} y
+   */
+  function checkTileIntersection(tile, x, y) {
+    return checkTileBoundingBoxIntersection(tile, x, y) &&
+        util.isPointInsidePolyline(x, y, tile.vertices, false);
+  }
+
+  /**
+   * Checks whether the given point intersects with the bounding box of the given tile.
+   *
+   * @param {Tile} tile
+   * @param {number} x
+   * @param {number} y
+   */
+  function checkTileBoundingBoxIntersection(tile, x, y) {
+    // TODO:
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Input} grid
+   */
+  function Input(grid) {
+    var input = this;
+
+    input.grid = grid;
+
+    addPointerEventListeners.call(input);
+  }
+
+  Input.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.Input = Input;
+
+  console.log('Input module loaded');
+})();
+
+'use strict';
+
+/**
+ * This module defines a constructor for Tile objects.
+ *
+ * Tile objects handle the particle logic and the hexagon SVG-shape logic for a single
+ * hexagonal tile within a Grid.
+ *
+ * @module Tile
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config;
+
+  config = {};
+
+  // TODO: play with these
+  config.dragCoeff = 0.01;
+
+  config.neighborSpringCoeff = 0.00001;
+  config.neighborDampingCoeff = 0.001;
+
+  config.innerAnchorSpringCoeff = 0.00004;
+  config.innerAnchorDampingCoeff = 0.001;
+
+  config.borderAnchorSpringCoeff = 0.00004;
+  config.borderAnchorDampingCoeff = 0.001;
+
+  config.forceSuppressionLowerThreshold = 0.0005;
+  config.velocitySuppressionLowerThreshold = 0.0005;
+  // TODO: add similar, upper thresholds
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.forceSuppressionThresholdNegative = -config.forceSuppressionLowerThreshold;
+    config.velocitySuppressionThresholdNegative = -config.velocitySuppressionLowerThreshold;
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Creates the polygon element for this tile.
+   *
+   * @this Tile
+   */
+  function createElement() {
+    var tile;
+
+    tile = this;
+
+    tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.vertices = [];
+    updateVertices.call(tile, tile.centerX, tile.centerY);
+
+    tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
+    tile.svg.appendChild(tile.element);
+
+    // Set the color and vertices
+    draw.call(tile);
+  }
+
+  /**
+   * Creates the particle properties for this tile.
+   *
+   * @this Tile
+   * @param {number} mass
+   */
+  function createParticle(mass) {
+    var tile;
+
+    tile = this;
+
+    tile.particle = {};
+    tile.particle.px = tile.centerX;
+    tile.particle.py = tile.centerY;
+    tile.particle.vx = 0;
+    tile.particle.vy = 0;
+    tile.particle.fx = 0;
+    tile.particle.fy = 0;
+    tile.particle.m = mass;
+    tile.particle.forceAccumulatorX = 0;
+    tile.particle.forceAccumulatorY = 0;
+  }
+
+  /**
+   * Computes and stores the locations of the vertices of the hexagon for this tile.
+   *
+   * @this Tile
+   * @param {number} centerX
+   * @param {number} centerY
+   */
+  function updateVertices(centerX, centerY) {
+    var tile, trigIndex, coordIndex;
+
+    tile = this;
+
+    for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
+      tile.vertices[coordIndex] = centerX + tile.vertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = centerY + tile.vertexDeltas[coordIndex++];
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * Initializes some static fields that can be pre-computed.
+   */
+  function initStaticFields() {
+    var i, theta, deltaTheta, horizontalStartTheta, verticalStartTheta;
+
+    deltaTheta = Math.PI / 3;
+    horizontalStartTheta = -deltaTheta;
+    verticalStartTheta = Math.PI / 6 - 2 * deltaTheta;
+
+    config.horizontalSines = [];
+    config.horizontalCosines = [];
+    for (i = 0, theta = horizontalStartTheta; i < 6; i += 1, theta += deltaTheta) {
+      config.horizontalSines[i] = Math.sin(theta);
+      config.horizontalCosines[i] = Math.cos(theta);
+    }
+
+    config.verticalSines = [];
+    config.verticalCosines = [];
+    for (i = 0, theta = verticalStartTheta; i < 6; i += 1, theta += deltaTheta) {
+      config.verticalSines[i] = Math.sin(theta);
+      config.verticalCosines[i] = Math.cos(theta);
+    }
+  }
+
+  /**
+   * Computes the offsets of the vertices from the center of the hexagon.
+   *
+   * @param {number} radius
+   * @param {boolean} isVertical
+   * @returns {Array.<number>}
+   */
+  function computeVertexDeltas(radius, isVertical) {
+    var trigIndex, coordIndex, sines, cosines, vertexDeltas;
+
+    // Grab the pre-computed sine and cosine values
+    if (isVertical) {
+      sines = config.verticalSines;
+      cosines = config.verticalCosines;
+    } else {
+      sines = config.horizontalSines;
+      cosines = config.horizontalCosines;
+    }
+
+    for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
+        trigIndex < 6;
+        trigIndex += 1) {
+      vertexDeltas[coordIndex++] = radius * cosines[trigIndex];
+      vertexDeltas[coordIndex++] = radius * sines[trigIndex];
+    }
+
+    return vertexDeltas;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this tile's content.
+   *
+   * @this Tile
+   * @param {?Object} tileData
+   */
+  function setContent(tileData) {
+    var tile = this;
+
+    tile.tileData = tileData;
+    tile.holdsContent = !!tileData;
+  }
+
+  /**
+   * Sets this tile's neighbor tiles.
+   *
+   * @this Tile
+   * @param {Array.<Tile>} neighborTiles
+   */
+  function setNeighborTiles(neighborTiles) {
+    var tile, i, iCount, j, jCount, neighborTile, deltaX, deltaY;
+
+    tile = this;
+
+    tile.neighbors = [];
+
+    for (i = 0, iCount = neighborTiles.length; i < iCount; i += 1) {
+      neighborTile = neighborTiles[i];
+
+      if (neighborTile) {
+        deltaX = tile.centerX - neighborTile.centerX;
+        deltaY = tile.centerY - neighborTile.centerY;
+
+        tile.neighbors[i] = {
+          tile: neighborTile,
+          restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+          neighborsRelationshipObj: null,
+          springForceX: 0,
+          springForceY: 0
+        };
+
+        // Give neighbor tiles references to each others' relationship object
+        if (neighborTile.neighbors) {
+          for (j = 0, jCount = neighborTile.neighbors.length; j < jCount; j += 1) {
+            if (neighborTile.neighbors[j] && neighborTile.neighbors[j].tile === tile) {
+              tile.neighbors[i].neighborsRelationshipObj = neighborTile.neighbors[j];
+              neighborTile.neighbors[j].neighborsRelationshipObj = tile.neighbors[i];
+            }
+          }
+        }
+      } else {
+        tile.neighbors[i] = null;
+      }
+    }
+  }
+
+  /**
+   * Sets this tile's color values.
+   *
+   * @this Tile
+   * @param {number} hue
+   * @param {number} saturation
+   * @param {number} lightness
+   */
+  function setColor(hue, saturation, lightness) {
+    var tile = this;
+
+    tile.originalHue = hue;
+    tile.originalSaturation = saturation;
+    tile.originalLightness = lightness;
+    
+    tile.currentHue = hue;
+    tile.currentSaturation = saturation;
+    tile.currentLightness = lightness;
+  }
+
+  /**
+   * Update the state of this tile particle for the current time step.
+   *
+   * @this Tile
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var tile, i, count, neighbor, lx, ly, lDotX, lDotY, dotProd, length, temp, springForceX,
+        springForceY;
+
+    tile = this;
+
+    if (!tile.particle.isFixed) {
+      // --- Accumulate forces --- //
+
+      // --- Drag force --- //
+      tile.particle.forceAccumulatorX += -config.dragCoeff * tile.particle.vx;
+      tile.particle.forceAccumulatorY += -config.dragCoeff * tile.particle.vy;
+
+      // --- Spring forces from neighbor tiles --- //
+      for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
+        neighbor = tile.neighbors[i];
+
+        if (neighbor) {
+          if (neighbor.springForceX) {
+            tile.particle.forceAccumulatorX += neighbor.springForceX;
+            tile.particle.forceAccumulatorY += neighbor.springForceY;
+
+            neighbor.springForceX = 0;
+            neighbor.springForceY = 0;
+          } else {
+            lx = neighbor.tile.particle.px - tile.particle.px;
+            ly = neighbor.tile.particle.py - tile.particle.py;
+            lDotX = neighbor.tile.particle.vx - tile.particle.vx;
+            lDotY = neighbor.tile.particle.vy - tile.particle.vy;
+            dotProd = lx * lDotX + ly * lDotY;
+            length = Math.sqrt(lx * lx + ly * ly);
+
+            temp = (config.neighborSpringCoeff * (length - neighbor.restLength) +
+                config.neighborDampingCoeff * dotProd / length) / length;
+            springForceX = lx * temp;
+            springForceY = ly * temp;
+
+            tile.particle.forceAccumulatorX += springForceX;
+            tile.particle.forceAccumulatorY += springForceY;
+
+            neighbor.neighborsRelationshipObj.springForceX = -springForceX;
+            neighbor.neighborsRelationshipObj.springForceY = -springForceY;
+          }
+        }
+      }
+
+      // --- Spring forces from anchor point --- //
+
+      lx = tile.centerX - tile.particle.px;
+      ly = tile.centerY - tile.particle.py;
+      length = Math.sqrt(lx * lx + ly * ly);
+
+      if (length > 0) {
+        lDotX = -tile.particle.vx;
+        lDotY = -tile.particle.vy;
+        dotProd = lx * lDotX + ly * lDotY;
+
+        if (tile.isBorderTile) {
+          temp = (config.borderAnchorSpringCoeff * length + config.borderAnchorDampingCoeff *
+              dotProd / length) / length;
+        } else {
+          temp = (config.innerAnchorSpringCoeff * length + config.innerAnchorDampingCoeff *
+              dotProd / length) / length;
+        }
+
+        springForceX = lx * temp;
+        springForceY = ly * temp;
+
+        tile.particle.forceAccumulatorX += springForceX;
+        tile.particle.forceAccumulatorY += springForceY;
+      }
+
+      // --- Update particle state --- //
+
+      tile.particle.fx = tile.particle.forceAccumulatorX / tile.particle.m * deltaTime;
+      tile.particle.fy = tile.particle.forceAccumulatorY / tile.particle.m * deltaTime;
+      tile.particle.px += tile.particle.vx * deltaTime;
+      tile.particle.py += tile.particle.vy * deltaTime;
+      tile.particle.vx += tile.particle.fx;
+      tile.particle.vy += tile.particle.fy;
+
+      ////////////////////////////////////////////////////////////////////////////////////
+      // TODO: remove me!
+      var ap = tile.particle,
+          apx = ap.px,
+          apy = ap.py,
+          avx = ap.vx,
+          avy = ap.vy,
+          afx = ap.fx,
+          afy = ap.fy,
+          afAccx = ap.forceAccumulatorX,
+          afAccy = ap.forceAccumulatorY;
+      if (tile.index === 0) {
+        //console.log('tile 0!');
+      }
+      if (isNaN(tile.particle.px)) {
+        console.log('tile.particle.px=' + tile.particle.px);
+      }
+      if (isNaN(tile.particle.py)) {
+        console.log('tile.particle.py=' + tile.particle.py);
+      }
+      if (isNaN(tile.particle.vx)) {
+        console.log('tile.particle.vx=' + tile.particle.vx);
+      }
+      if (isNaN(tile.particle.vy)) {
+        console.log('tile.particle.vy=' + tile.particle.vy);
+      }
+      if (isNaN(tile.particle.fx)) {
+        console.log('tile.particle.fx=' + tile.particle.fx);
+      }
+      if (isNaN(tile.particle.fy)) {
+        console.log('tile.particle.fy=' + tile.particle.fy);
+      }
+      // TODO: remove me!
+      ////////////////////////////////////////////////////////////////////////////////////
+
+      // Kill all velocities and forces below a threshold
+      tile.particle.fx = tile.particle.fx < config.forceSuppressionLowerThreshold &&
+          tile.particle.fx > config.forceSuppressionThresholdNegative ?
+          0 : tile.particle.fx;
+      tile.particle.fy = tile.particle.fy < config.forceSuppressionLowerThreshold &&
+          tile.particle.fy > config.forceSuppressionThresholdNegative ?
+          0 : tile.particle.fy;
+      tile.particle.vx = tile.particle.vx < config.velocitySuppressionLowerThreshold &&
+          tile.particle.vx > config.velocitySuppressionThresholdNegative ?
+          0 : tile.particle.vx;
+      tile.particle.vy = tile.particle.vy < config.velocitySuppressionLowerThreshold &&
+          tile.particle.vy > config.velocitySuppressionThresholdNegative ?
+          0 : tile.particle.vy;
+
+      // Reset force accumulator for next time step
+      tile.particle.forceAccumulatorX = 0;
+      tile.particle.forceAccumulatorY = 0;
+
+      // Compute new vertex locations
+      updateVertices.call(tile, tile.particle.px, tile.particle.py);
+    }
+  }
+
+  /**
+   * Update the SVG attributes for this tile to match its current particle state.
+   *
+   * @this Tile
+   */
+  function draw() {
+    var tile, i, pointsString, colorString;
+
+    tile = this;
+
+    // --- Set the vertices --- //
+
+    for (i = 0, pointsString = ''; i < 12;) {
+      pointsString += tile.vertices[i++] + ',' + tile.vertices[i++] + ' ';
+    }
+
+    tile.element.setAttribute('points', pointsString);
+
+    // --- Set the color --- //
+
+    colorString = 'hsl(' + tile.currentHue + ',' +
+        tile.currentSaturation + '%,' +
+        tile.currentLightness + '%)';
+    tile.element.setAttribute('fill', colorString);
+  }
+
+  /**
+   * Adds the given force, which will take effect during the next call to update.
+   *
+   * @this Tile
+   * @param {number} fx
+   * @param {number} fy
+   */
+  function applyExternalForce(fx, fy) {
+    var tile;
+
+    tile = this;
+
+    tile.particle.forceAccumulatorX += fx;
+    tile.particle.forceAccumulatorY += fy;
+  }
+
+  /**
+   * Fixes the position of this tile to the given coordinates.
+   *
+   * @this Tile
+   * @param {number} px
+   * @param {number} py
+   */
+  function fixPosition(px, py) {
+    var tile;
+
+    tile = this;
+
+    tile.particle.isFixed = true;
+    tile.particle.px = px;
+    tile.particle.py = py;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {HTMLElement} svg
+   * @param {number} centerX
+   * @param {number} centerY
+   * @param {number} outerRadius
+   * @param {boolean} isVertical
+   * @param {number} hue
+   * @param {number} saturation
+   * @param {number} lightness
+   * @param {?Object} tileData
+   * @param {number} tileIndex
+   * @param {number} rowIndex
+   * @param {number} columnIndex
+   * @param {boolean} isMarginTile
+   * @param {boolean} isBorderTile
+   * @param {boolean} isCornerTile
+   * @param {boolean} isInLargerRow
+   * @param {number} mass
+   */
+  function Tile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
+                   tileData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
+                   isCornerTile, isInLargerRow, mass) {
+    var tile = this;
+
+    tile.svg = svg;
+    tile.element = null;
+    tile.centerX = centerX;
+    tile.centerY = centerY;
+    tile.originalCenterX = centerX;
+    tile.originalCenterY = centerY;
+    tile.outerRadius = outerRadius;
+    tile.isVertical = isVertical;
+
+    tile.originalHue = hue;
+    tile.originalSaturation = saturation;
+    tile.originalLightness = lightness;
+    tile.currentHue = hue;
+    tile.currentSaturation = saturation;
+    tile.currentLightness = lightness;
+
+    tile.tileData = tileData;
+    tile.holdsContent = !!tileData;
+    tile.index = tileIndex;
+    tile.rowIndex = rowIndex;
+    tile.columnIndex = columnIndex;
+    tile.isMarginTile = isMarginTile;
+    tile.isBorderTile = isBorderTile;
+    tile.isCornerTile = isCornerTile;
+    tile.isInLargerRow = isInLargerRow;
+
+    tile.neighbors = null;
+    tile.vertices = null;
+    tile.vertexDeltas = null;
+    tile.particle = null;
+
+    tile.setContent = setContent;
+    tile.setNeighborTiles = setNeighborTiles;
+    tile.setColor = setColor;
+    tile.update = update;
+    tile.draw = draw;
+    tile.applyExternalForce = applyExternalForce;
+    tile.fixPosition = fixPosition;
+
+    createElement.call(tile);
+    createParticle.call(tile, mass);
+  }
+
+  Tile.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.Tile = Tile;
+
+  initStaticFields();
+
+  console.log('Tile module loaded');
+})();
+
+'use strict';
+
+/**
+ * @typedef {AnimationJob} ClosePostJob
+ */
+
+/**
+ * This module defines a constructor for ClosePostJob objects.
+ *
+ * @module ClosePostJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -3412,7 +3639,7 @@
 
     // TODO:
 //    if (???) {
-//      console.log('AnimationJob completed');
+//      console.log('ClosePostJob completed');
 //
 //      job.isComplete = true;
 //      job.onComplete(true);
@@ -3426,9 +3653,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this AnimationJob as started.
+   * Sets this ClosePostJob as started.
    *
-   * @this AnimationJob
+   * @this ClosePostJob
    */
   function start() {
     var job = this;
@@ -3440,11 +3667,11 @@
   }
 
   /**
-   * Updates the animation progress of this AnimationJob to match the given time.
+   * Updates the animation progress of this ClosePostJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this AnimationJob
+   * @this ClosePostJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -3457,11 +3684,11 @@
   }
 
   /**
-   * Draws the current state of this AnimationJob.
+   * Draws the current state of this ClosePostJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this AnimationJob
+   * @this ClosePostJob
    */
   function draw() {
     var job = this;
@@ -3470,9 +3697,9 @@
   }
 
   /**
-   * Stops this AnimationJob, and returns the element its original form.
+   * Stops this ClosePostJob, and returns the element its original form.
    *
-   * @this AnimationJob
+   * @this ClosePostJob
    */
   function cancel() {
     var job = this;
@@ -3490,10 +3717,10 @@
   /**
    * @constructor
    * @global
-   * @param {HexGrid} grid
+   * @param {Grid} grid
    * @param {Function} onComplete
    */
-  function AnimationJob(grid, onComplete) {
+  function ClosePostJob(grid, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -3506,620 +3733,26 @@
     job.cancel = cancel;
     job.onComplete = onComplete;
 
-    console.log('AnimationJob created');
+    console.log('ClosePostJob created');
   }
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.AnimationJob = AnimationJob;
+  window.hg.ClosePostJob = ClosePostJob;
 
-  console.log('AnimationJob module loaded');
+  console.log('ClosePostJob module loaded');
 })();
 
 'use strict';
 
 /**
- * This module defines a constructor for ColorResetAnimationJob objects.
- *
- * ColorResetAnimationJob objects reset tile color values during each animation frame.
- *
- * @module ColorResetAnimationJob
+ * @typedef {AnimationJob} LineJob
  */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this ColorResetAnimationJob as started.
-   *
-   * @this ColorResetAnimationJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this ColorResetAnimationJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorResetAnimationJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, i, count;
-
-    job = this;
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      job.grid.tiles[i].currentHue = job.grid.tiles[i].originalHue;
-      job.grid.tiles[i].currentSaturation = job.grid.tiles[i].originalSaturation;
-      job.grid.tiles[i].currentLightness = job.grid.tiles[i].originalLightness;
-    }
-  }
-
-  /**
-   * Draws the current state of this ColorResetAnimationJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorResetAnimationJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this ColorResetAnimationJob, and returns the element its original form.
-   *
-   * @this ColorResetAnimationJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {HexGrid} grid
-   */
-  function ColorResetAnimationJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.init = function () {
-    };
-
-    job.init();
-
-    console.log('ColorResetAnimationJob created');
-  }
-
-  ColorResetAnimationJob.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.ColorResetAnimationJob = ColorResetAnimationJob;
-
-  console.log('ColorResetAnimationJob module loaded');
-})();
-
-'use strict';
 
 /**
- * This module defines a constructor for ColorShiftAnimationJob objects.
+ * This module defines a constructor for LineJob objects.
  *
- * ColorShiftAnimationJob objects animate the colors of the tiles in a random fashion.
- *
- * @module ColorShiftAnimationJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  // TODO:
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    // TODO:
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this ColorShiftAnimationJob as started.
-   *
-   * @this ColorShiftAnimationJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this ColorShiftAnimationJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorShiftAnimationJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job;
-
-    job = this;
-
-    // TODO:
-  }
-
-  /**
-   * Draws the current state of this ColorShiftAnimationJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorShiftAnimationJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this ColorShiftAnimationJob.
-   *
-   * @this ColorShiftAnimationJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {HexGrid} grid
-   */
-  function ColorShiftAnimationJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-    };
-
-    job.init();
-
-    console.log('ColorShiftAnimationJob created');
-  }
-
-  ColorShiftAnimationJob.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.ColorShiftAnimationJob = ColorShiftAnimationJob;
-
-  console.log('ColorShiftAnimationJob module loaded');
-})();
-
-'use strict';
-
-/**
- * This module defines a constructor for ColorWaveAnimationJob objects.
- *
- * ColorWaveAnimationJob objects animate the tiles of a HexGrid in order to create waves of color.
- *
- * @module ColorWaveAnimationJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  config.period = 1000;
-  config.wavelength = 600;
-  config.originX = -100;
-  config.originY = 1400;
-
-  // Amplitude (will range from negative to positive)
-  config.deltaHue = 0;
-  config.deltaSaturation = 0;
-  config.deltaLightness = 5;
-
-  config.opacity = 0.5;
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    config.halfPeriod = config.period / 2;
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Calculates a wave offset value for each tile according to their positions in the grid.
-   *
-   * @this ColorWaveAnimationJob
-   */
-  function initTileProgressOffsets() {
-    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
-
-    job = this;
-
-    halfWaveProgressWavelength = config.wavelength / 2;
-    job.waveProgressOffsets = [];
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      tile = job.grid.tiles[i];
-
-      deltaX = tile.originalCenterX - config.originX;
-      deltaY = tile.originalCenterY - config.originY;
-      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
-
-      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
-          / halfWaveProgressWavelength;
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Updates the animation progress of the given tile.
-   *
-   * @param {number} progress
-   * @param {HexTile} tile
-   * @param {number} waveProgressOffset
-   */
-  function updateTile(progress, tile, waveProgressOffset) {
-    var tileProgress =
-        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
-
-    tile.currentHue = tile.currentHue + config.deltaHue * tileProgress * config.opacity;
-    tile.currentSaturation =
-        tile.currentSaturation + config.deltaSaturation * tileProgress * config.opacity;
-    tile.currentLightness =
-        tile.currentLightness + config.deltaLightness * tileProgress * config.opacity;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this ColorWaveAnimationJob as started.
-   *
-   * @this ColorWaveAnimationJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this ColorWaveAnimationJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorWaveAnimationJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, progress, i, count;
-
-    job = this;
-
-    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
-    }
-  }
-
-  /**
-   * Draws the current state of this ColorWaveAnimationJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorWaveAnimationJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this ColorWaveAnimationJob, and returns the element its original form.
-   *
-   * @this ColorWaveAnimationJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {HexGrid} grid
-   */
-  function ColorWaveAnimationJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.waveProgressOffsets = null;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-      initTileProgressOffsets.call(job);
-    };
-
-    job.init();
-
-    console.log('ColorWaveAnimationJob created');
-  }
-
-  ColorWaveAnimationJob.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.ColorWaveAnimationJob = ColorWaveAnimationJob;
-
-  console.log('ColorWaveAnimationJob module loaded');
-})();
-
-'use strict';
-
-/**
- * This module defines a constructor for DisplacementWaveAnimationJob objects.
- *
- * DisplacementWaveAnimationJob objects animate the tiles of a HexGrid in order to create waves of
- * motion.
- *
- * @module DisplacementWaveAnimationJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  config.period = 3200;
-  config.wavelength = 1800;
-  config.originX = 0;
-  config.originY = 0;
-
-  // Amplitude (will range from negative to positive)
-  config.tileDeltaX = -15;
-  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    config.halfPeriod = config.period / 2;
-
-    config.displacementAmplitude =
-        Math.sqrt(config.tileDeltaX * config.tileDeltaX +
-            config.tileDeltaY * config.tileDeltaY);
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Calculates a wave offset value for each tile according to their positions in the grid.
-   *
-   * @this DisplacementWaveAnimationJob
-   */
-  function initTileProgressOffsets() {
-    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
-
-    job = this;
-
-    halfWaveProgressWavelength = config.wavelength / 2;
-    job.waveProgressOffsets = [];
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      tile = job.grid.tiles[i];
-
-      deltaX = tile.originalCenterX - config.originX;
-      deltaY = tile.originalCenterY - config.originY;
-      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
-
-      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
-          / halfWaveProgressWavelength;
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Updates the animation progress of the given tile.
-   *
-   * @param {number} progress
-   * @param {HexTile} tile
-   * @param {number} waveProgressOffset
-   */
-  function updateTile(progress, tile, waveProgressOffset) {
-    var tileProgress =
-        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
-
-    tile.centerX = tile.originalCenterX + config.tileDeltaX * tileProgress;
-    tile.centerY = tile.originalCenterY + config.tileDeltaY * tileProgress;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this DisplacementWaveAnimationJob as started.
-   *
-   * @this DisplacementWaveAnimationJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this DisplacementWaveAnimationJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this DisplacementWaveAnimationJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, progress, i, count;
-
-    job = this;
-
-    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
-    }
-  }
-
-  /**
-   * Draws the current state of this DisplacementWaveAnimationJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this DisplacementWaveAnimationJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this DisplacementWaveAnimationJob, and returns the element its original form.
-   *
-   * @this DisplacementWaveAnimationJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {HexGrid} grid
-   */
-  function DisplacementWaveAnimationJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.waveProgressOffsets = null;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-      initTileProgressOffsets.call(job);
-    };
-
-    job.init();
-
-    console.log('DisplacementWaveAnimationJob created');
-  }
-
-  DisplacementWaveAnimationJob.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.DisplacementWaveAnimationJob = DisplacementWaveAnimationJob;
-
-  console.log('DisplacementWaveAnimationJob module loaded');
-})();
-
-'use strict';
-
-/**
- * This module defines a constructor for LineAnimationJob objects.
- *
- * @module LineAnimationJob
+ * @module LineJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -4172,7 +3805,7 @@
   /**
    * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function defineLineBlur() {
     var job, filter, feGaussianBlur;
@@ -4205,7 +3838,7 @@
   /**
    * Creates the start and end hue for the line of this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function createHues() {
     var job;
@@ -4219,7 +3852,7 @@
   /**
    * Creates the polyline SVG element that is used to render this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function createPolyline() {
     var job;
@@ -4239,7 +3872,7 @@
   /**
    * Updates the color values of the line of this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function updateColorValues() {
     var job, progress, oneMinusProgress;
@@ -4258,14 +3891,14 @@
   /**
    * Updates the state of this job to handle its completion.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function handleCompletion() {
     var job;
 
     job = this;
 
-    console.log('LineAnimationJob completed');
+    console.log('LineJob completed');
 
     if (job.polyline) {
       job.grid.svg.removeChild(job.polyline);
@@ -4284,9 +3917,9 @@
   }
 
   /**
-   * Determines whether this LineAnimationJob has reached the edge of the grid.
+   * Determines whether this LineJob has reached the edge of the grid.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function checkHasAlmostReachedEdge() {
     var job;
@@ -4306,7 +3939,7 @@
   /**
    * Determines the neighbors of this job's current tile at the current corner.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function determineNeighbors() {
     var job, lowerNeigborTileIndex, upperNeigborTileIndex, currentCorner;
@@ -4334,7 +3967,7 @@
   /**
    * Returns the next vertex in the path of this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function chooseNextVertex() {
     var job, cornerConfig, neighborProb, lowerSelfProb, upperSelfProb, random, relativeDirection,
@@ -4455,7 +4088,7 @@
   /**
    * Updates the parameters of the segments of this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function updateSegments() {
     var job, distanceTravelled, frontSegmentLength, backSegmentLength, segmentsTouchedCount,
@@ -4465,7 +4098,7 @@
 
     // --- Compute some values of the polyline at the current time --- //
 
-    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * hg.HexGrid.config.tileOuterRadius;
+    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * hg.Grid.config.tileOuterRadius;
     segmentsTouchedCount = parseInt(job.ellapsedTime / job.lineSidePeriod) + 1;
 
     // Add additional vertices to the polyline as needed
@@ -4473,14 +4106,14 @@
       chooseNextVertex.call(job);
     }
 
-    frontSegmentLength = distanceTravelled % hg.HexGrid.config.tileOuterRadius;
+    frontSegmentLength = distanceTravelled % hg.Grid.config.tileOuterRadius;
     backSegmentLength = (job.lineLength - frontSegmentLength +
-        hg.HexGrid.config.tileOuterRadius) % hg.HexGrid.config.tileOuterRadius;
+        hg.Grid.config.tileOuterRadius) % hg.Grid.config.tileOuterRadius;
 
-    job.frontSegmentEndRatio = frontSegmentLength / hg.HexGrid.config.tileOuterRadius;
-    job.backSegmentStartRatio = 1 - (backSegmentLength / hg.HexGrid.config.tileOuterRadius);
+    job.frontSegmentEndRatio = frontSegmentLength / hg.Grid.config.tileOuterRadius;
+    job.backSegmentStartRatio = 1 - (backSegmentLength / hg.Grid.config.tileOuterRadius);
 
-    job.isShort = job.lineLength < hg.HexGrid.config.tileOuterRadius;
+    job.isShort = job.lineLength < hg.Grid.config.tileOuterRadius;
     job.isStarting = distanceTravelled < job.lineLength;
 
     // Check whether the line has reached the edge
@@ -4493,7 +4126,7 @@
     // When the polyline is neither starting nor ending and is not shorter than the length of a
     // segment, then this is how many segments it includes
     job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
-        backSegmentLength - config.epsilon) / hg.HexGrid.config.tileOuterRadius) + 2;
+        backSegmentLength - config.epsilon) / hg.Grid.config.tileOuterRadius) + 2;
 
     // Subtract from the number of included segments depending on current conditions
     if (job.isShort) {
@@ -4523,7 +4156,7 @@
         // The polyline is ending; the front of the polyline would lie outside the grid
         segmentsPastEdgeCount = segmentsTouchedCount - job.corners.length + 1;
         distancePastEdge = distanceTravelled - (job.corners.length - 1) *
-            hg.HexGrid.config.tileOuterRadius;
+            hg.Grid.config.tileOuterRadius;
 
         if (distancePastEdge > job.lineLength) {
           handleCompletion.call(job);
@@ -4538,7 +4171,7 @@
   /**
    * Calculates the points in the middle of the gaps between tiles at each known corner.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function computeCornerGapPoints() {
     var job, i, count;
@@ -4556,7 +4189,7 @@
   /**
    * Calculates the point in the middle of the gap between tiles at the given corner.
    *
-   * @param {HexTile} tile
+   * @param {Tile} tile
    * @param {number} corner
    * @param {Object} lowerNeighbor
    * @param {Object} upperNeighbor
@@ -4601,7 +4234,7 @@
   /**
    * Calculates the points of the SVG polyline element.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function computePolylinePoints() {
     var job, gapPointsIndex, polylinePointsIndex, stopIndex;
@@ -4665,7 +4298,7 @@
   /**
    * Updates the actual SVG elements to render the current state of this animation.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function drawSegments() {
     var job, i, count, pointsString;
@@ -4693,9 +4326,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this LineAnimationJob as started.
+   * Sets this LineJob as started.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function start() {
     var job = this;
@@ -4705,11 +4338,11 @@
   }
 
   /**
-   * Updates the animation progress of this LineAnimationJob to match the given time.
+   * Updates the animation progress of this LineJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -4734,11 +4367,11 @@
   }
 
   /**
-   * Draws the current state of this LineAnimationJob.
+   * Draws the current state of this LineJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function draw() {
     var job = this;
@@ -4747,9 +4380,9 @@
   }
 
   /**
-   * Stops this LineAnimationJob, and returns the element its original form.
+   * Stops this LineJob, and returns the element its original form.
    *
-   * @this LineAnimationJob
+   * @this LineJob
    */
   function cancel() {
     var job;
@@ -4765,8 +4398,8 @@
   /**
    * @constructor
    * @global
-   * @param {HexGrid} grid
-   * @param {HexTile} tile
+   * @param {Grid} grid
+   * @param {Tile} tile
    * @param {number} corner
    * @param {number} direction
    * @param {number} forcedInitialRelativeDirection
@@ -4774,7 +4407,7 @@
    * @param {{x:number,y:number}} extraStartPoint
    * @throws {Error}
    */
-  function LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
+  function LineJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
                             onComplete, extraStartPoint) {
     var job = this;
 
@@ -4838,22 +4471,22 @@
     }
 
     if (!checkIsValidInitialCornerConfiguration(job)) {
-      throw new Error('LineAnimationJob created with invalid initial corner configuration: ' +
+      throw new Error('LineJob created with invalid initial corner configuration: ' +
           'tileIndex=' + tile.index + ', corner=' + corner + ', direction=' + direction);
     } else {
       determineNeighbors.call(job);
       createHues.call(job);
       createPolyline.call(job);
 
-      console.log('LineAnimationJob created: tileIndex=' + tile.index + ', corner=' + corner +
+      console.log('LineJob created: tileIndex=' + tile.index + ', corner=' + corner +
           ', direction=' + direction);
     }
   }
 
   /**
-   * Creates a LineAnimationJob that is initialized at a tile vertex along the border of the grid.
+   * Creates a LineJob that is initialized at a tile vertex along the border of the grid.
    *
-   * @param {HexGrid} grid
+   * @param {Grid} grid
    * @param {Function} onComplete
    */
   function createRandomLineAnimationJob(grid, onComplete) {
@@ -5003,15 +4636,15 @@
       }
     }
 
-    return new LineAnimationJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
+    return new LineJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
         onComplete, null);
   }
 
   /**
-   * Checks whether the given LineAnimationJob has a valid corner configuration for its initial
+   * Checks whether the given LineJob has a valid corner configuration for its initial
    * position.
    *
-   * @param {LineAnimationJob} job
+   * @param {LineJob} job
    */
   function checkIsValidInitialCornerConfiguration(job) {
     var tile, corner, direction, forcedInitialRelativeDirection, isValidEdgeDirection;
@@ -5240,22 +4873,26 @@
     return true;
   }
 
-  LineAnimationJob.config = config;
-  LineAnimationJob.createRandomLineAnimationJob = createRandomLineAnimationJob;
+  LineJob.config = config;
+  LineJob.createRandomLineAnimationJob = createRandomLineAnimationJob;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.LineAnimationJob = LineAnimationJob;
+  window.hg.LineJob = LineJob;
 
-  console.log('LineAnimationJob module loaded');
+  console.log('LineJob module loaded');
 })();
 
 'use strict';
 
 /**
- * This module defines a constructor for LinesRadiateAnimationJob objects.
+ * @typedef {AnimationJob} LinesRadiateJob
+ */
+
+/**
+ * This module defines a constructor for LinesRadiateJob objects.
  *
- * @module LinesRadiateAnimationJob
+ * @module LinesRadiateJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -5292,7 +4929,7 @@
   /**
    * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function defineLineBlur() {
     var job, filter, feGaussianBlur;
@@ -5322,9 +4959,9 @@
   }
 
   /**
-   * Creates the individual LineAnimationJobs that comprise this LinesRadiateAnimationJob.
+   * Creates the individual LineAnimationJobs that comprise this LinesRadiateJob.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function createLineAnimationJobs() {
     var job, i, line;
@@ -5334,8 +4971,8 @@
 
     for (i = 0; i < 6; i += 1) {
       try {
-        line = new hg.LineAnimationJob(job.grid, job.tile, i, i,
-            hg.LineAnimationJob.config.NEIGHBOR, job.onComplete, job.extraStartPoint);
+        line = new hg.LineJob(job.grid, job.tile, i, i,
+            hg.LineJob.config.NEIGHBOR, job.onComplete, job.extraStartPoint);
       } catch (error) {
         console.debug(error.message);
         continue;
@@ -5375,7 +5012,7 @@
   /**
    * Checks whether this job is complete. If so, a flag is set and a callback is called.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function checkForComplete() {
     var job, i;
@@ -5390,7 +5027,7 @@
       }
     }
 
-    console.log('LinesRadiateAnimationJob completed');
+    console.log('LinesRadiateJob completed');
 
     job.isComplete = true;
   }
@@ -5402,9 +5039,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this LinesRadiateAnimationJob as started.
+   * Sets this LinesRadiateJob as started.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function start() {
     var job, i, count;
@@ -5420,11 +5057,11 @@
   }
 
   /**
-   * Updates the animation progress of this LinesRadiateAnimationJob to match the given time.
+   * Updates the animation progress of this LinesRadiateJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -5453,11 +5090,11 @@
   }
 
   /**
-   * Draws the current state of this LinesRadiateAnimationJob.
+   * Draws the current state of this LinesRadiateJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function draw() {
     var job, i, count;
@@ -5470,9 +5107,9 @@
   }
 
   /**
-   * Stops this LinesRadiateAnimationJob, and returns the element its original form.
+   * Stops this LinesRadiateJob, and returns the element its original form.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function cancel() {
     var job, i, count;
@@ -5494,11 +5131,11 @@
   /**
    * @constructor
    * @global
-   * @param {HexGrid} grid
-   * @param {HexTile} tile
+   * @param {Grid} grid
+   * @param {Tile} tile
    * @param {Function} [onComplete]
    */
-  function LinesRadiateAnimationJob(grid, tile, onComplete) {
+  function LinesRadiateJob(grid, tile, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -5521,24 +5158,292 @@
 
     createLineAnimationJobs.call(job);
 
-    console.log('LinesRadiateAnimationJob created: tileIndex=' + tile.index);
+    console.log('LinesRadiateJob created: tileIndex=' + tile.index);
   }
 
-  LinesRadiateAnimationJob.config = config;
+  LinesRadiateJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.LinesRadiateAnimationJob = LinesRadiateAnimationJob;
+  window.hg.LinesRadiateJob = LinesRadiateJob;
 
-  console.log('LinesRadiateAnimationJob module loaded');
+  console.log('LinesRadiateJob module loaded');
 })();
 
 'use strict';
 
 /**
- * This module defines a constructor for ShimmerRadiateAnimationJob objects.
+ * @typedef {AnimationJob} OpenPostJob
+ */
+
+/**
+ * This module defines a constructor for OpenPostJob objects.
  *
- * @module ShimmerRadiateAnimationJob
+ * @module OpenPostJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   */
+  function checkForComplete() {
+    var job = this;
+
+    // TODO:
+//    if (???) {
+//      console.log('OpenPostJob completed');
+//
+//      job.isComplete = true;
+//      job.onComplete(true);
+//    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this OpenPostJob as started.
+   *
+   * @this OpenPostJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    // TODO:
+  }
+
+  /**
+   * Updates the animation progress of this OpenPostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this OpenPostJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job = this;
+
+    // TODO:
+
+    checkForComplete.call(job);
+  }
+
+  /**
+   * Draws the current state of this OpenPostJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this OpenPostJob
+   */
+  function draw() {
+    var job = this;
+
+    // TODO:
+  }
+
+  /**
+   * Stops this OpenPostJob, and returns the element its original form.
+   *
+   * @this OpenPostJob
+   */
+  function cancel() {
+    var job = this;
+
+    // TODO:
+
+    job.onComplete(false);
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Function} onComplete
+   */
+  function OpenPostJob(grid, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+
+    console.log('OpenPostJob created');
+  }
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.OpenPostJob = OpenPostJob;
+
+  console.log('OpenPostJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * @typedef {AnimationJob} ShimmerHoverJob
+ */
+
+/**
+ * This module defines a constructor for ShimmerHoverJob objects.
+ *
+ * @module ShimmerHoverJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   */
+  function checkForComplete() {
+    var job = this;
+
+    // TODO:
+//    if (???) {
+//      console.log('ShimmerHoverJob completed');
+//
+//      job.isComplete = true;
+//      job.onComplete(true);
+//    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this ShimmerHoverJob as started.
+   *
+   * @this ShimmerHoverJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    // TODO:
+  }
+
+  /**
+   * Updates the animation progress of this ShimmerHoverJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ShimmerHoverJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job = this;
+
+    // TODO:
+
+    checkForComplete.call(job);
+  }
+
+  /**
+   * Draws the current state of this ShimmerHoverJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ShimmerHoverJob
+   */
+  function draw() {
+    var job = this;
+
+    // TODO:
+  }
+
+  /**
+   * Stops this ShimmerHoverJob, and returns the element its original form.
+   *
+   * @this ShimmerHoverJob
+   */
+  function cancel() {
+    var job = this;
+
+    // TODO:
+
+    job.onComplete(false);
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Function} onComplete
+   */
+  function ShimmerHoverJob(grid, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+
+    console.log('ShimmerHoverJob created');
+  }
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.ShimmerHoverJob = ShimmerHoverJob;
+
+  console.log('ShimmerHoverJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * @typedef {AnimationJob} ShimmerRadiateJob
+ */
+
+/**
+ * This module defines a constructor for ShimmerRadiateJob objects.
+ *
+ * @module ShimmerRadiateJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -5561,19 +5466,19 @@
 
   /**
    * Calculates the distance from each tile in the grid to the starting point of this
-   * ShimmerRadiateAnimationJob.
+   * ShimmerRadiateJob.
    *
    * This cheats by only calculating the distance to the tiles' original center. This allows us to
    * not need to re-calculate tile distances during each time step.
    *
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    */
   function calculateTileDistances() {
     var job, i, count, deltaX, deltaY, distanceOffset;
 
     job = this;
 
-    distanceOffset = -hg.HexGrid.config.tileShortLengthWithGap;
+    distanceOffset = -hg.Grid.config.tileShortLengthWithGap;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       deltaX = job.grid.tiles[i].originalCenterX - job.startPoint.x;
@@ -5583,12 +5488,12 @@
   }
 
   /**
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    */
   function handleComplete(wasCancelled) {
     var job = this;
 
-    console.log('ShimmerRadiateAnimationJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+    console.log('ShimmerRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
     job.isComplete = true;
 
@@ -5601,7 +5506,7 @@
   /**
    * Updates the color of the given tile according to the given waveWidthRatio and durationRatio.
    *
-   * @param {HexTile} tile
+   * @param {Tile} tile
    * @param {number} waveWidthRatio Specifies the tile's relative distance to the min and max
    * shimmer distances.
    * @param {number} oneMinusDurationRatio Specifies how far this animation is through its overall
@@ -5621,9 +5526,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this ShimmerRadiateAnimationJob as started.
+   * Sets this ShimmerRadiateJob as started.
    *
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    */
   function start() {
     var job = this;
@@ -5633,11 +5538,11 @@
   }
 
   /**
-   * Updates the animation progress of this ShimmerRadiateAnimationJob to match the given time.
+   * Updates the animation progress of this ShimmerRadiateJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -5676,20 +5581,20 @@
   }
 
   /**
-   * Draws the current state of this ShimmerRadiateAnimationJob.
+   * Draws the current state of this ShimmerRadiateJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    */
   function draw() {
     // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
-   * Stops this ShimmerRadiateAnimationJob, and returns the element its original form.
+   * Stops this ShimmerRadiateJob, and returns the element its original form.
    *
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    */
   function cancel() {
     var job = this;
@@ -5704,10 +5609,10 @@
    * @constructor
    * @global
    * @param {{x:number,y:number}} startPoint
-   * @param {HexGrid} grid
+   * @param {Grid} grid
    * @param {Function} [onComplete]
    */
-  function ShimmerRadiateAnimationJob(startPoint, grid, onComplete) {
+  function ShimmerRadiateJob(startPoint, grid, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -5725,187 +5630,628 @@
 
     calculateTileDistances.call(job);
 
-    console.log('ShimmerRadiateAnimationJob created');
+    console.log('ShimmerRadiateJob created');
   }
 
-  ShimmerRadiateAnimationJob.config = config;
+  ShimmerRadiateJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.ShimmerRadiateAnimationJob = ShimmerRadiateAnimationJob;
+  window.hg.ShimmerRadiateJob = ShimmerRadiateJob;
 
-  console.log('ShimmerRadiateAnimationJob module loaded');
+  console.log('ShimmerRadiateJob module loaded');
 })();
 
 'use strict';
 
 /**
- * This module defines a singleton for animating things.
+ * @typedef {AnimationJob} ColorResetJob
+ */
+
+/**
+ * This module defines a constructor for ColorResetJob objects.
  *
- * The animator singleton handles the animation loop for the application and updates all
- * registered AnimationJobs during each animation frame.
+ * ColorResetJob objects reset tile color values during each animation frame.
  *
- * @module animator
+ * @module ColorResetJob
  */
 (function () {
-  /**
-   * @typedef {{start: Function, update: Function(number, number), draw: Function, cancel: Function, isComplete: boolean}} AnimationJob
-   */
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
 
-  var animator = {};
   var config = {};
 
-  config.deltaTimeUpperThreshold = 200;
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this ColorResetJob as started.
+   *
+   * @this ColorResetJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this ColorResetJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorResetJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      job.grid.tiles[i].currentHue = job.grid.tiles[i].originalHue;
+      job.grid.tiles[i].currentSaturation = job.grid.tiles[i].originalSaturation;
+      job.grid.tiles[i].currentLightness = job.grid.tiles[i].originalLightness;
+    }
+  }
+
+  /**
+   * Draws the current state of this ColorResetJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorResetJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this ColorResetJob, and returns the element its original form.
+   *
+   * @this ColorResetJob
+   */
+  function cancel() {
+    var job = this;
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function ColorResetJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = function () {
+    };
+
+    job.init();
+
+    console.log('ColorResetJob created');
+  }
+
+  ColorResetJob.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.ColorResetJob = ColorResetJob;
+
+  console.log('ColorResetJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * @typedef {AnimationJob} ColorShiftJob
+ */
+
+/**
+ * This module defines a constructor for ColorShiftJob objects.
+ *
+ * ColorShiftJob objects animate the colors of the tiles in a random fashion.
+ *
+ * @module ColorShiftJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // TODO:
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this ColorShiftJob as started.
+   *
+   * @this ColorShiftJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this ColorShiftJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorShiftJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job;
+
+    job = this;
+
+    // TODO:
+  }
+
+  /**
+   * Draws the current state of this ColorShiftJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorShiftJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this ColorShiftJob.
+   *
+   * @this ColorShiftJob
+   */
+  function cancel() {
+    var job = this;
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function ColorShiftJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = function () {
+      config.computeDependentValues();
+    };
+
+    job.init();
+
+    console.log('ColorShiftJob created');
+  }
+
+  ColorShiftJob.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.ColorShiftJob = ColorShiftJob;
+
+  console.log('ColorShiftJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * @typedef {AnimationJob} ColorWaveJob
+ */
+
+/**
+ * This module defines a constructor for ColorWaveJob objects.
+ *
+ * ColorWaveJob objects animate the tiles of a Grid in order to create waves of color.
+ *
+ * @module ColorWaveJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.period = 1000;
+  config.wavelength = 600;
+  config.originX = -100;
+  config.originY = 1400;
+
+  // Amplitude (will range from negative to positive)
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 5;
+
+  config.opacity = 0.5;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.halfPeriod = config.period / 2;
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this ColorWaveJob
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
+
+    job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsets = [];
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      tile = job.grid.tiles[i];
+
+      deltaX = tile.originalCenterX - config.originX;
+      deltaY = tile.originalCenterY - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
+          / halfWaveProgressWavelength;
+    }
+  }
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
   /**
-   * This is the animation loop that drives all of the animation.
+   * Updates the animation progress of the given tile.
+   *
+   * @param {number} progress
+   * @param {Tile} tile
+   * @param {number} waveProgressOffset
    */
-  function animationLoop() {
-    var currentTime, deltaTime;
+  function updateTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    currentTime = Date.now();
-    deltaTime = currentTime - animator.previousTime;
-    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
-        config.deltaTimeUpperThreshold : deltaTime;
-    animator.isLooping = true;
+    tile.currentHue = tile.currentHue + config.deltaHue * tileProgress * config.opacity;
+    tile.currentSaturation =
+        tile.currentSaturation + config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentLightness =
+        tile.currentLightness + config.deltaLightness * tileProgress * config.opacity;
+  }
 
-    if (!animator.isPaused) {
-      updateJobs(currentTime, deltaTime);
-      drawJobs();
-      hg.util.requestAnimationFrame(animationLoop);
-    } else {
-      animator.isLooping = false;
-    }
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
 
-    animator.previousTime = currentTime;
+  /**
+   * Sets this ColorWaveJob as started.
+   *
+   * @this ColorWaveJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
   }
 
   /**
-   * Updates all of the active AnimationJobs.
+   * Updates the animation progress of this ColorWaveJob to match the given time.
    *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorWaveJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
-  function updateJobs(currentTime, deltaTime) {
-    var i, count;
+  function update(currentTime, deltaTime) {
+    var job, progress, i, count;
 
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].update(currentTime, deltaTime);
+    job = this;
 
-      // Remove jobs from the list after they are complete
-      if (animator.jobs[i].isComplete) {
-        removeJob(animator.jobs[i], i);
-        i--;
-        count--;
-      }
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
     }
   }
 
   /**
-   * Removes the given job from the collection of active, animating jobs.
+   * Draws the current state of this ColorWaveJob.
    *
-   * @param {AnimationJob} job
-   * @param {number} [index]
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorWaveJob
    */
-  function removeJob(job, index) {
-    var count;
-
-    if (typeof index === 'number') {
-      animator.jobs.splice(index, 1);
-    } else {
-      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
-        if (animator.jobs[index] === job) {
-          animator.jobs.splice(index, 1);
-          break;
-        }
-      }
-    }
-
-    // Stop the animation loop when there are no more jobs to animate
-    if (animator.jobs.length === 0) {
-      animator.isPaused = true;
-    }
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
-   * Draws all of the active AnimationJobs.
+   * Stops this ColorWaveJob, and returns the element its original form.
+   *
+   * @this ColorWaveJob
    */
-  function drawJobs() {
-    var i, count;
+  function cancel() {
+    var job = this;
 
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].draw();
-    }
-  }
-
-  /**
-   * Starts the animation loop if it is not already running
-   */
-  function startAnimationLoop() {
-    animator.isPaused = false;
-    if (!animator.isLooping) {
-      animator.previousTime = Date.now();
-      animationLoop();
-    }
+    job.isComplete = true;
   }
 
   // ------------------------------------------------------------------------------------------- //
-  // Public static functions
+  // Expose this module's constructor
 
   /**
-   * Starts the given AnimationJob.
-   *
-   * @param {AnimationJob} job
+   * @constructor
+   * @global
+   * @param {Grid} grid
    */
-  function startJob(job) {
-    console.log('AnimationJob starting: ' + job.constructor.name);
+  function ColorWaveJob(grid) {
+    var job = this;
 
-    job.start();
-    animator.jobs.push(job);
+    job.grid = grid;
+    job.waveProgressOffsets = null;
+    job.startTime = 0;
+    job.isComplete = false;
 
-    startAnimationLoop();
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = function () {
+      config.computeDependentValues();
+      initTileProgressOffsets.call(job);
+    };
+
+    job.init();
+
+    console.log('ColorWaveJob created');
   }
 
-  /**
-   * Cancels the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function cancelJob(job) {
-    console.log('AnimationJob cancelling: ' + job.constructor.name);
-
-    job.cancel();
-    removeJob(job);
-  }
-
-  /**
-   * Cancels all running animation jobs.
-   */
-  function cancelAll() {
-    while (animator.jobs.length) {
-      cancelJob(animator.jobs[0]);
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this singleton
-
-  animator.jobs = [];
-  animator.previousTime = Date.now();
-  animator.isLooping = false;
-  animator.isPaused = true;
-  animator.startJob = startJob;
-  animator.cancelJob = cancelJob;
-  animator.cancelAll = cancelAll;
-
-  animator.config = config;
+  ColorWaveJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.animator = animator;
+  window.hg.ColorWaveJob = ColorWaveJob;
 
-  console.log('animator module loaded');
+  console.log('ColorWaveJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * @typedef {AnimationJob} DisplacementWaveJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementWaveJob objects.
+ *
+ * DisplacementWaveJob objects animate the tiles of a Grid in order to create waves of
+ * motion.
+ *
+ * @module DisplacementWaveJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.period = 3200;
+  config.wavelength = 1800;
+  config.originX = 0;
+  config.originY = 0;
+
+  // Amplitude (will range from negative to positive)
+  config.tileDeltaX = -15;
+  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.halfPeriod = config.period / 2;
+
+    config.displacementAmplitude =
+        Math.sqrt(config.tileDeltaX * config.tileDeltaX +
+            config.tileDeltaY * config.tileDeltaY);
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this DisplacementWaveJob
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
+
+    job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsets = [];
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      tile = job.grid.tiles[i];
+
+      deltaX = tile.originalCenterX - config.originX;
+      deltaY = tile.originalCenterY - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
+          / halfWaveProgressWavelength;
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * Updates the animation progress of the given tile.
+   *
+   * @param {number} progress
+   * @param {Tile} tile
+   * @param {number} waveProgressOffset
+   */
+  function updateTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+
+    tile.centerX = tile.originalCenterX + config.tileDeltaX * tileProgress;
+    tile.centerY = tile.originalCenterY + config.tileDeltaY * tileProgress;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this DisplacementWaveJob as started.
+   *
+   * @this DisplacementWaveJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this DisplacementWaveJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementWaveJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, progress, i, count;
+
+    job = this;
+
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
+    }
+  }
+
+  /**
+   * Draws the current state of this DisplacementWaveJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementWaveJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this DisplacementWaveJob, and returns the element its original form.
+   *
+   * @this DisplacementWaveJob
+   */
+  function cancel() {
+    var job = this;
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function DisplacementWaveJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.waveProgressOffsets = null;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = function () {
+      config.computeDependentValues();
+      initTileProgressOffsets.call(job);
+    };
+
+    job.init();
+
+    console.log('DisplacementWaveJob created');
+  }
+
+  DisplacementWaveJob.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.DisplacementWaveJob = DisplacementWaveJob;
+
+  console.log('DisplacementWaveJob module loaded');
 })();

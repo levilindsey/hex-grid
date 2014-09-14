@@ -1,11 +1,16 @@
 'use strict';
 
 /**
- * This module defines a constructor for ColorWaveAnimationJob objects.
+ * @typedef {AnimationJob} DisplacementWaveJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementWaveJob objects.
  *
- * ColorWaveAnimationJob objects animate the tiles of a HexGrid in order to create waves of color.
+ * DisplacementWaveJob objects animate the tiles of a Grid in order to create waves of
+ * motion.
  *
- * @module ColorWaveAnimationJob
+ * @module DisplacementWaveJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -13,22 +18,23 @@
 
   var config = {};
 
-  config.period = 1000;
-  config.wavelength = 600;
-  config.originX = -100;
-  config.originY = 1400;
+  config.period = 3200;
+  config.wavelength = 1800;
+  config.originX = 0;
+  config.originY = 0;
 
   // Amplitude (will range from negative to positive)
-  config.deltaHue = 0;
-  config.deltaSaturation = 0;
-  config.deltaLightness = 5;
-
-  config.opacity = 0.5;
+  config.tileDeltaX = -15;
+  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
 
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
     config.halfPeriod = config.period / 2;
+
+    config.displacementAmplitude =
+        Math.sqrt(config.tileDeltaX * config.tileDeltaX +
+            config.tileDeltaY * config.tileDeltaY);
   };
 
   config.computeDependentValues();
@@ -39,7 +45,7 @@
   /**
    * Calculates a wave offset value for each tile according to their positions in the grid.
    *
-   * @this ColorWaveAnimationJob
+   * @this DisplacementWaveJob
    */
   function initTileProgressOffsets() {
     var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
@@ -68,27 +74,24 @@
    * Updates the animation progress of the given tile.
    *
    * @param {number} progress
-   * @param {HexTile} tile
+   * @param {Tile} tile
    * @param {number} waveProgressOffset
    */
   function updateTile(progress, tile, waveProgressOffset) {
     var tileProgress =
         Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.currentHue = tile.currentHue + config.deltaHue * tileProgress * config.opacity;
-    tile.currentSaturation =
-        tile.currentSaturation + config.deltaSaturation * tileProgress * config.opacity;
-    tile.currentLightness =
-        tile.currentLightness + config.deltaLightness * tileProgress * config.opacity;
+    tile.centerX = tile.originalCenterX + config.tileDeltaX * tileProgress;
+    tile.centerY = tile.originalCenterY + config.tileDeltaY * tileProgress;
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
   /**
-   * Sets this ColorWaveAnimationJob as started.
+   * Sets this DisplacementWaveJob as started.
    *
-   * @this ColorWaveAnimationJob
+   * @this DisplacementWaveJob
    */
   function start() {
     var job = this;
@@ -98,11 +101,11 @@
   }
 
   /**
-   * Updates the animation progress of this ColorWaveAnimationJob to match the given time.
+   * Updates the animation progress of this DisplacementWaveJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ColorWaveAnimationJob
+   * @this DisplacementWaveJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -119,20 +122,20 @@
   }
 
   /**
-   * Draws the current state of this ColorWaveAnimationJob.
+   * Draws the current state of this DisplacementWaveJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ColorWaveAnimationJob
+   * @this DisplacementWaveJob
    */
   function draw() {
     // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
-   * Stops this ColorWaveAnimationJob, and returns the element its original form.
+   * Stops this DisplacementWaveJob, and returns the element its original form.
    *
-   * @this ColorWaveAnimationJob
+   * @this DisplacementWaveJob
    */
   function cancel() {
     var job = this;
@@ -146,9 +149,9 @@
   /**
    * @constructor
    * @global
-   * @param {HexGrid} grid
+   * @param {Grid} grid
    */
-  function ColorWaveAnimationJob(grid) {
+  function DisplacementWaveJob(grid) {
     var job = this;
 
     job.grid = grid;
@@ -167,14 +170,14 @@
 
     job.init();
 
-    console.log('ColorWaveAnimationJob created');
+    console.log('DisplacementWaveJob created');
   }
 
-  ColorWaveAnimationJob.config = config;
+  DisplacementWaveJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.ColorWaveAnimationJob = ColorWaveAnimationJob;
+  window.hg.DisplacementWaveJob = DisplacementWaveJob;
 
-  console.log('ColorWaveAnimationJob module loaded');
+  console.log('DisplacementWaveJob module loaded');
 })();

@@ -1,17 +1,31 @@
 'use strict';
 
 /**
- * This module defines a constructor for ColorResetAnimationJob objects.
+ * @typedef {AnimationJob} ColorShiftJob
+ */
+
+/**
+ * This module defines a constructor for ColorShiftJob objects.
  *
- * ColorResetAnimationJob objects reset tile color values during each animation frame.
+ * ColorShiftJob objects animate the colors of the tiles in a random fashion.
  *
- * @module ColorResetAnimationJob
+ * @module ColorShiftJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
   var config = {};
+
+  // TODO:
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -23,9 +37,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this ColorResetAnimationJob as started.
+   * Sets this ColorShiftJob as started.
    *
-   * @this ColorResetAnimationJob
+   * @this ColorShiftJob
    */
   function start() {
     var job = this;
@@ -35,41 +49,37 @@
   }
 
   /**
-   * Updates the animation progress of this ColorResetAnimationJob to match the given time.
+   * Updates the animation progress of this ColorShiftJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ColorResetAnimationJob
+   * @this ColorShiftJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, i, count;
+    var job;
 
     job = this;
 
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      job.grid.tiles[i].currentHue = job.grid.tiles[i].originalHue;
-      job.grid.tiles[i].currentSaturation = job.grid.tiles[i].originalSaturation;
-      job.grid.tiles[i].currentLightness = job.grid.tiles[i].originalLightness;
-    }
+    // TODO:
   }
 
   /**
-   * Draws the current state of this ColorResetAnimationJob.
+   * Draws the current state of this ColorShiftJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ColorResetAnimationJob
+   * @this ColorShiftJob
    */
   function draw() {
     // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
-   * Stops this ColorResetAnimationJob, and returns the element its original form.
+   * Stops this ColorShiftJob.
    *
-   * @this ColorResetAnimationJob
+   * @this ColorShiftJob
    */
   function cancel() {
     var job = this;
@@ -83,9 +93,9 @@
   /**
    * @constructor
    * @global
-   * @param {HexGrid} grid
+   * @param {Grid} grid
    */
-  function ColorResetAnimationJob(grid) {
+  function ColorShiftJob(grid) {
     var job = this;
 
     job.grid = grid;
@@ -97,18 +107,19 @@
     job.draw = draw;
     job.cancel = cancel;
     job.init = function () {
+      config.computeDependentValues();
     };
 
     job.init();
 
-    console.log('ColorResetAnimationJob created');
+    console.log('ColorShiftJob created');
   }
 
-  ColorResetAnimationJob.config = config;
+  ColorShiftJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.ColorResetAnimationJob = ColorResetAnimationJob;
+  window.hg.ColorShiftJob = ColorShiftJob;
 
-  console.log('ColorResetAnimationJob module loaded');
+  console.log('ColorShiftJob module loaded');
 })();

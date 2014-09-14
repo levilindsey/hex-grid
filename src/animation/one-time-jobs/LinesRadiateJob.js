@@ -1,9 +1,13 @@
 'use strict';
 
 /**
- * This module defines a constructor for LinesRadiateAnimationJob objects.
+ * @typedef {AnimationJob} LinesRadiateJob
+ */
+
+/**
+ * This module defines a constructor for LinesRadiateJob objects.
  *
- * @module LinesRadiateAnimationJob
+ * @module LinesRadiateJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -40,7 +44,7 @@
   /**
    * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function defineLineBlur() {
     var job, filter, feGaussianBlur;
@@ -70,9 +74,9 @@
   }
 
   /**
-   * Creates the individual LineAnimationJobs that comprise this LinesRadiateAnimationJob.
+   * Creates the individual LineAnimationJobs that comprise this LinesRadiateJob.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function createLineAnimationJobs() {
     var job, i, line;
@@ -82,8 +86,8 @@
 
     for (i = 0; i < 6; i += 1) {
       try {
-        line = new hg.LineAnimationJob(job.grid, job.tile, i, i,
-            hg.LineAnimationJob.config.NEIGHBOR, job.onComplete, job.extraStartPoint);
+        line = new hg.LineJob(job.grid, job.tile, i, i,
+            hg.LineJob.config.NEIGHBOR, job.onComplete, job.extraStartPoint);
       } catch (error) {
         console.debug(error.message);
         continue;
@@ -123,7 +127,7 @@
   /**
    * Checks whether this job is complete. If so, a flag is set and a callback is called.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function checkForComplete() {
     var job, i;
@@ -138,7 +142,7 @@
       }
     }
 
-    console.log('LinesRadiateAnimationJob completed');
+    console.log('LinesRadiateJob completed');
 
     job.isComplete = true;
   }
@@ -150,9 +154,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this LinesRadiateAnimationJob as started.
+   * Sets this LinesRadiateJob as started.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function start() {
     var job, i, count;
@@ -168,11 +172,11 @@
   }
 
   /**
-   * Updates the animation progress of this LinesRadiateAnimationJob to match the given time.
+   * Updates the animation progress of this LinesRadiateJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -201,11 +205,11 @@
   }
 
   /**
-   * Draws the current state of this LinesRadiateAnimationJob.
+   * Draws the current state of this LinesRadiateJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function draw() {
     var job, i, count;
@@ -218,9 +222,9 @@
   }
 
   /**
-   * Stops this LinesRadiateAnimationJob, and returns the element its original form.
+   * Stops this LinesRadiateJob, and returns the element its original form.
    *
-   * @this LinesRadiateAnimationJob
+   * @this LinesRadiateJob
    */
   function cancel() {
     var job, i, count;
@@ -242,11 +246,11 @@
   /**
    * @constructor
    * @global
-   * @param {HexGrid} grid
-   * @param {HexTile} tile
+   * @param {Grid} grid
+   * @param {Tile} tile
    * @param {Function} [onComplete]
    */
-  function LinesRadiateAnimationJob(grid, tile, onComplete) {
+  function LinesRadiateJob(grid, tile, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -269,14 +273,14 @@
 
     createLineAnimationJobs.call(job);
 
-    console.log('LinesRadiateAnimationJob created: tileIndex=' + tile.index);
+    console.log('LinesRadiateJob created: tileIndex=' + tile.index);
   }
 
-  LinesRadiateAnimationJob.config = config;
+  LinesRadiateJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.LinesRadiateAnimationJob = LinesRadiateAnimationJob;
+  window.hg.LinesRadiateJob = LinesRadiateJob;
 
-  console.log('LinesRadiateAnimationJob module loaded');
+  console.log('LinesRadiateJob module loaded');
 })();

@@ -1,9 +1,13 @@
 'use strict';
 
 /**
- * This module defines a constructor for ShimmerRadiateAnimationJob objects.
+ * @typedef {AnimationJob} ShimmerRadiateJob
+ */
+
+/**
+ * This module defines a constructor for ShimmerRadiateJob objects.
  *
- * @module ShimmerRadiateAnimationJob
+ * @module ShimmerRadiateJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -26,19 +30,19 @@
 
   /**
    * Calculates the distance from each tile in the grid to the starting point of this
-   * ShimmerRadiateAnimationJob.
+   * ShimmerRadiateJob.
    *
    * This cheats by only calculating the distance to the tiles' original center. This allows us to
    * not need to re-calculate tile distances during each time step.
    *
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    */
   function calculateTileDistances() {
     var job, i, count, deltaX, deltaY, distanceOffset;
 
     job = this;
 
-    distanceOffset = -hg.HexGrid.config.tileShortLengthWithGap;
+    distanceOffset = -hg.Grid.config.tileShortLengthWithGap;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       deltaX = job.grid.tiles[i].originalCenterX - job.startPoint.x;
@@ -48,12 +52,12 @@
   }
 
   /**
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    */
   function handleComplete(wasCancelled) {
     var job = this;
 
-    console.log('ShimmerRadiateAnimationJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+    console.log('ShimmerRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
     job.isComplete = true;
 
@@ -66,7 +70,7 @@
   /**
    * Updates the color of the given tile according to the given waveWidthRatio and durationRatio.
    *
-   * @param {HexTile} tile
+   * @param {Tile} tile
    * @param {number} waveWidthRatio Specifies the tile's relative distance to the min and max
    * shimmer distances.
    * @param {number} oneMinusDurationRatio Specifies how far this animation is through its overall
@@ -86,9 +90,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this ShimmerRadiateAnimationJob as started.
+   * Sets this ShimmerRadiateJob as started.
    *
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    */
   function start() {
     var job = this;
@@ -98,11 +102,11 @@
   }
 
   /**
-   * Updates the animation progress of this ShimmerRadiateAnimationJob to match the given time.
+   * Updates the animation progress of this ShimmerRadiateJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -141,20 +145,20 @@
   }
 
   /**
-   * Draws the current state of this ShimmerRadiateAnimationJob.
+   * Draws the current state of this ShimmerRadiateJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    */
   function draw() {
     // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
-   * Stops this ShimmerRadiateAnimationJob, and returns the element its original form.
+   * Stops this ShimmerRadiateJob, and returns the element its original form.
    *
-   * @this ShimmerRadiateAnimationJob
+   * @this ShimmerRadiateJob
    */
   function cancel() {
     var job = this;
@@ -169,10 +173,10 @@
    * @constructor
    * @global
    * @param {{x:number,y:number}} startPoint
-   * @param {HexGrid} grid
+   * @param {Grid} grid
    * @param {Function} [onComplete]
    */
-  function ShimmerRadiateAnimationJob(startPoint, grid, onComplete) {
+  function ShimmerRadiateJob(startPoint, grid, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -190,14 +194,14 @@
 
     calculateTileDistances.call(job);
 
-    console.log('ShimmerRadiateAnimationJob created');
+    console.log('ShimmerRadiateJob created');
   }
 
-  ShimmerRadiateAnimationJob.config = config;
+  ShimmerRadiateJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.ShimmerRadiateAnimationJob = ShimmerRadiateAnimationJob;
+  window.hg.ShimmerRadiateJob = ShimmerRadiateJob;
 
-  console.log('ShimmerRadiateAnimationJob module loaded');
+  console.log('ShimmerRadiateJob module loaded');
 })();

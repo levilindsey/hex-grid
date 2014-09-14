@@ -1,12 +1,12 @@
 'use strict';
 
 /**
- * This module defines a constructor for HexTile objects.
+ * This module defines a constructor for Tile objects.
  *
- * HexTile objects handle the particle logic and the hexagon SVG-shape logic for a single
- * hexagonal tile within a HexGrid.
+ * Tile objects handle the particle logic and the hexagon SVG-shape logic for a single
+ * hexagonal tile within a Grid.
  *
- * @module HexTile
+ * @module Tile
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -47,7 +47,7 @@
   /**
    * Creates the polygon element for this tile.
    *
-   * @this HexTile
+   * @this Tile
    */
   function createElement() {
     var tile;
@@ -68,7 +68,7 @@
   /**
    * Creates the particle properties for this tile.
    *
-   * @this HexTile
+   * @this Tile
    * @param {number} mass
    */
   function createParticle(mass) {
@@ -91,7 +91,7 @@
   /**
    * Computes and stores the locations of the vertices of the hexagon for this tile.
    *
-   * @this HexTile
+   * @this Tile
    * @param {number} centerX
    * @param {number} centerY
    */
@@ -169,7 +169,7 @@
   /**
    * Sets this tile's content.
    *
-   * @this HexTile
+   * @this Tile
    * @param {?Object} tileData
    */
   function setContent(tileData) {
@@ -182,8 +182,8 @@
   /**
    * Sets this tile's neighbor tiles.
    *
-   * @this HexTile
-   * @param {Array.<HexTile>} neighborTiles
+   * @this Tile
+   * @param {Array.<Tile>} neighborTiles
    */
   function setNeighborTiles(neighborTiles) {
     var tile, i, iCount, j, jCount, neighborTile, deltaX, deltaY;
@@ -225,7 +225,7 @@
   /**
    * Sets this tile's color values.
    *
-   * @this HexTile
+   * @this Tile
    * @param {number} hue
    * @param {number} saturation
    * @param {number} lightness
@@ -245,7 +245,7 @@
   /**
    * Update the state of this tile particle for the current time step.
    *
-   * @this HexTile
+   * @this Tile
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -391,7 +391,7 @@
   /**
    * Update the SVG attributes for this tile to match its current particle state.
    *
-   * @this HexTile
+   * @this Tile
    */
   function draw() {
     var tile, i, pointsString, colorString;
@@ -417,7 +417,7 @@
   /**
    * Adds the given force, which will take effect during the next call to update.
    *
-   * @this HexTile
+   * @this Tile
    * @param {number} fx
    * @param {number} fy
    */
@@ -433,7 +433,7 @@
   /**
    * Fixes the position of this tile to the given coordinates.
    *
-   * @this HexTile
+   * @this Tile
    * @param {number} px
    * @param {number} py
    */
@@ -471,7 +471,7 @@
    * @param {boolean} isInLargerRow
    * @param {number} mass
    */
-  function HexTile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
+  function Tile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
                    tileData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
                    isCornerTile, isInLargerRow, mass) {
     var tile = this;
@@ -519,13 +519,13 @@
     createParticle.call(tile, mass);
   }
 
-  HexTile.config = config;
+  Tile.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.HexTile = HexTile;
+  window.hg.Tile = Tile;
 
   initStaticFields();
 
-  console.log('HexTile module loaded');
+  console.log('Tile module loaded');
 })();
