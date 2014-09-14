@@ -58,9 +58,9 @@
    * Sets up the grid folder within the dat.GUI controller.
    */
   function initGridFolder(parentFolder) {
-    var hexGridFolder, colors;
+    var gridFolder, colors;
 
-    hexGridFolder = parentFolder.addFolder('Grid');
+    gridFolder = parentFolder.addFolder('Grid');
 
     colors = {};
     colors.backgroundColor = hg.util.hslToHsv({
@@ -74,21 +74,21 @@
       l: hg.HexGrid.config.tileLightness * 0.01
     });
 
-    hexGridFolder.add(hg.controller.grids[app.main.gridId], 'isVertical')
+    gridFolder.add(hg.controller.grids[app.main.gridId], 'isVertical')
         .onChange(function () {
           hg.controller.resize();
         });
-    hexGridFolder.add(hg.HexGrid.config, 'tileOuterRadius', 10, 400)
-        .onChange(function () {
-          hg.HexGrid.config.computeDependentValues();
-          hg.controller.resize();
-        });
-    hexGridFolder.add(hg.HexGrid.config, 'tileGap', -50, 100)
+    gridFolder.add(hg.HexGrid.config, 'tileOuterRadius', 10, 400)
         .onChange(function () {
           hg.HexGrid.config.computeDependentValues();
           hg.controller.resize();
         });
-    hexGridFolder.addColor(colors, 'backgroundColor')
+    gridFolder.add(hg.HexGrid.config, 'tileGap', -50, 100)
+        .onChange(function () {
+          hg.HexGrid.config.computeDependentValues();
+          hg.controller.resize();
+        });
+    gridFolder.addColor(colors, 'backgroundColor')
         .onChange(function () {
           var color = hg.util.hsvToHsl(colors.backgroundColor);
 
@@ -98,7 +98,7 @@
 
           hg.controller.grids[app.main.gridId].updateBackgroundColor();
         });
-    hexGridFolder.addColor(colors, 'tileColor')
+    gridFolder.addColor(colors, 'tileColor')
         .onChange(function () {
           var color = hg.util.hsvToHsl(colors.tileColor);
 
@@ -111,24 +111,24 @@
             hg.controller.grids[app.main.gridId].annotations.toggleAnnotationEnabled('contentTiles', true);
           }
         });
-    hexGridFolder.add(hg.HexGrid.config, 'firstRowYOffset', -100, 100)
+    gridFolder.add(hg.HexGrid.config, 'firstRowYOffset', -100, 100)
         .onChange(function () {
           hg.HexGrid.config.computeDependentValues();
           hg.controller.resize();
         });
-    hexGridFolder.add(hg.HexGrid.config, 'contentStartingRowIndex', 0, 4).step(1)
-        .onChange(function () {
-          hg.HexGrid.config.computeDependentValues();
-          hg.controller.grids[app.main.gridId].computeContentIndices();
-          hg.controller.resize();
-        });
-    hexGridFolder.add(hg.HexGrid.config, 'targetContentAreaWidth', 500, 1500)
+    gridFolder.add(hg.HexGrid.config, 'contentStartingRowIndex', 0, 4).step(1)
         .onChange(function () {
           hg.HexGrid.config.computeDependentValues();
           hg.controller.grids[app.main.gridId].computeContentIndices();
           hg.controller.resize();
         });
-    hexGridFolder.add(hg.HexGrid.config, 'contentDensity', 0.1, 1.0)
+    gridFolder.add(hg.HexGrid.config, 'targetContentAreaWidth', 500, 1500)
+        .onChange(function () {
+          hg.HexGrid.config.computeDependentValues();
+          hg.controller.grids[app.main.gridId].computeContentIndices();
+          hg.controller.resize();
+        });
+    gridFolder.add(hg.HexGrid.config, 'contentDensity', 0.1, 1.0)
         .onChange(function () {
           hg.HexGrid.config.computeDependentValues();
           hg.controller.grids[app.main.gridId].computeContentIndices();
@@ -140,15 +140,15 @@
    * Sets up the annotations folder within the dat.GUI controller.
    */
   function initAnnotationsFolder(parentFolder) {
-    var hexGridAnnotationsFolder, key, data;
+    var annotationsFolder, key, data;
 
-    hexGridAnnotationsFolder = parentFolder.addFolder('Annotations');
+    annotationsFolder = parentFolder.addFolder('Annotations');
 
     for (key in hg.HexGridAnnotations.config.annotations) {
       data = {};
       data[key] = hg.HexGridAnnotations.config.annotations[key].enabled;
 
-      hexGridAnnotationsFolder.add(data, key).onChange(function (value) {
+      annotationsFolder.add(data, key).onChange(function (value) {
         hg.controller.grids[app.main.gridId].annotations.toggleAnnotationEnabled(this.property, value);
       });
     }
@@ -158,11 +158,12 @@
    * Sets up the input folder within the dat.GUI controller.
    */
   function initInputFolder(parentFolder) {
-    var hexInputFolder;
+    var inputFolder;
 
-    hexInputFolder = parentFolder.addFolder('Input');
+    inputFolder = parentFolder.addFolder('Input');
+    inputFolder.open();// TODO: remove me
 
-//    hexInputFolder.add(hg.HexInput.config, '').onChange(function (value) {
+//    inputFolder.add(hg.HexInput.config, '').onChange(function (value) {
 //      // TODO:
 //    });
   }
@@ -171,20 +172,20 @@
    * Sets up the tile folder within the dat.GUI controller.
    */
   function initTileFolder(parentFolder) {
-    var hexTileFolder;
+    var tileFolder;
 
-    hexTileFolder = parentFolder.addFolder('Tiles');
+    tileFolder = parentFolder.addFolder('Tiles');
 
-    hexTileFolder.add(hg.HexTile.config, 'dragCoeff', 0.000001, 0.1);
-    hexTileFolder.add(hg.HexTile.config, 'neighborSpringCoeff', 0.000001, 0.0001);
-    hexTileFolder.add(hg.HexTile.config, 'neighborDampingCoeff', 0.000001, 0.009999);
-    hexTileFolder.add(hg.HexTile.config, 'innerAnchorSpringCoeff', 0.000001, 0.0001);
-    hexTileFolder.add(hg.HexTile.config, 'innerAnchorDampingCoeff', 0.000001, 0.009999);
-    hexTileFolder.add(hg.HexTile.config, 'borderAnchorSpringCoeff', 0.000001, 0.0001);
-    hexTileFolder.add(hg.HexTile.config, 'borderAnchorDampingCoeff', 0.000001, 0.009999);
-    hexTileFolder.add(hg.HexTile.config, 'forceSuppressionLowerThreshold', 0.000001, 0.009999);
-    hexTileFolder.add(hg.HexTile.config, 'velocitySuppressionLowerThreshold', 0.000001, 0.009999);
-    hexTileFolder.add(hg.HexGrid.config, 'tileMass', 0.1, 10)
+    tileFolder.add(hg.HexTile.config, 'dragCoeff', 0.000001, 0.1);
+    tileFolder.add(hg.HexTile.config, 'neighborSpringCoeff', 0.000001, 0.0001);
+    tileFolder.add(hg.HexTile.config, 'neighborDampingCoeff', 0.000001, 0.009999);
+    tileFolder.add(hg.HexTile.config, 'innerAnchorSpringCoeff', 0.000001, 0.0001);
+    tileFolder.add(hg.HexTile.config, 'innerAnchorDampingCoeff', 0.000001, 0.009999);
+    tileFolder.add(hg.HexTile.config, 'borderAnchorSpringCoeff', 0.000001, 0.0001);
+    tileFolder.add(hg.HexTile.config, 'borderAnchorDampingCoeff', 0.000001, 0.009999);
+    tileFolder.add(hg.HexTile.config, 'forceSuppressionLowerThreshold', 0.000001, 0.009999);
+    tileFolder.add(hg.HexTile.config, 'velocitySuppressionLowerThreshold', 0.000001, 0.009999);
+    tileFolder.add(hg.HexGrid.config, 'tileMass', 0.1, 10)
         .onChange(function (value) {
           hg.controller.grids[app.main.gridId].updateTileMass(value);
         });
@@ -306,7 +307,7 @@
     var colorWaveAnimationFolder;
 
     colorWaveAnimationFolder = parentFolder.addFolder('Color Shift');
-    colorWaveAnimationFolder.open();// TODO: remove me
+//    colorWaveAnimationFolder.open();// TODO: remove me
 
     // TODO:
   }
