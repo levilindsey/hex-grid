@@ -165,14 +165,14 @@
 
     // Use 1s to represent the tiles that hold data
     tilesRepresentation = [];
-    count = grid.tileData.length;
+    count = grid.postData.length;
     for (i = 0; i < count; i += 1) {
       tilesRepresentation[i] = 1;
     }
 
     // Use 0s to represent the empty tiles
-    count = (1 / config.contentDensity) * grid.tileData.length;
-    for (i = grid.tileData.length; i < count; i += 1) {
+    count = (1 / config.contentDensity) * grid.postData.length;
+    for (i = grid.postData.length; i < count; i += 1) {
       tilesRepresentation[i] = 0;
     }
 
@@ -216,7 +216,7 @@
    */
   function createTiles() {
     var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
-        isMarginTile, isBorderTile, isCornerTile, isOddRow, contentAreaIndex, tileDataIndex,
+        isMarginTile, isBorderTile, isCornerTile, isOddRow, contentAreaIndex, postDataIndex,
         defaultNeighborDeltaIndices, tilesNeighborDeltaIndices, oddRowIsLarger, isLargerRow;
 
     grid = this;
@@ -225,7 +225,7 @@
     grid.borderTiles = [];
     tileIndex = 0;
     contentAreaIndex = 0;
-    tileDataIndex = 0;
+    postDataIndex = 0;
     centerY = config.firstRowYOffset;
     rowCount = grid.rowCount;
     tilesNeighborDeltaIndices = [];
@@ -277,9 +277,9 @@
         // Is the current tile within the content column?
         if (!isMarginTile) {
           // Does the current tile get to hold content?
-          if (contentAreaIndex === grid.actualContentInnerIndices[tileDataIndex]) {
-            grid.tiles[tileIndex].setContent(grid.tileData[tileDataIndex]);
-            tileDataIndex += 1;
+          if (contentAreaIndex === grid.actualContentInnerIndices[postDataIndex]) {
+            grid.tiles[tileIndex].setContent(grid.postData[postDataIndex]);
+            postDataIndex += 1;
           }
           contentAreaIndex += 1;
         }
@@ -622,14 +622,14 @@
    * @global
    * @constructor
    * @param {HTMLElement} parent
-   * @param {Array.<Object>} tileData
+   * @param {Array.<Object>} postData
    * @param {boolean} [isVertical]
    */
-  function Grid(parent, tileData, isVertical) {
+  function Grid(parent, postData, isVertical) {
     var grid = this;
 
     grid.parent = parent;
-    grid.tileData = tileData;
+    grid.postData = postData;
     grid.isVertical = isVertical;
 
     grid.actualContentAreaWidth = config.targetContentAreaWidth;

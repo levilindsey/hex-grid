@@ -106,6 +106,34 @@
     }
   }
 
+  /**
+   * Creates a new TilePost object with this Tile's post data.
+   *
+   * @this Tile
+   */
+  function createTilePost() {
+    var tile;
+
+    tile = this;
+
+    // TODO: tile.tilePost = new hg.TilePost(tile, tile.postData);
+  }
+
+  /**
+   * Destroys this Tile's TilePost object.
+   *
+   * @this Tile
+   */
+  function destroyTilePost() {
+    var tile;
+
+    tile = this;
+
+    // TODO: tile.tilePost.remove();
+
+    tile.tilePost = null;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -170,13 +198,24 @@
    * Sets this tile's content.
    *
    * @this Tile
-   * @param {?Object} tileData
+   * @param {?Object} postData
    */
-  function setContent(tileData) {
-    var tile = this;
+  function setContent(postData) {
+    var tile, usedToHoldContent;
 
-    tile.tileData = tileData;
-    tile.holdsContent = !!tileData;
+    tile = this;
+
+    usedToHoldContent = tile.holdsContent;
+
+    tile.postData = postData;
+    tile.holdsContent = !!postData;
+
+    if (usedToHoldContent) {
+      destroyTilePost.call(tile);
+      createTilePost.call(tile);
+    } else {
+      createTilePost.call(tile);
+    }
   }
 
   /**
@@ -398,6 +437,10 @@
 
     tile = this;
 
+    // --- Set the position of the TilePost --- //
+
+    // TODO: tile.tilePost.element.top; tile.tilePost.element.left
+
     // --- Set the vertices --- //
 
     for (i = 0, pointsString = ''; i < 12;) {
@@ -461,7 +504,7 @@
    * @param {number} hue
    * @param {number} saturation
    * @param {number} lightness
-   * @param {?Object} tileData
+   * @param {?Object} postData
    * @param {number} tileIndex
    * @param {number} rowIndex
    * @param {number} columnIndex
@@ -472,7 +515,7 @@
    * @param {number} mass
    */
   function Tile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
-                   tileData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
+                   postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
                    isCornerTile, isInLargerRow, mass) {
     var tile = this;
 
@@ -492,8 +535,9 @@
     tile.currentSaturation = saturation;
     tile.currentLightness = lightness;
 
-    tile.tileData = tileData;
-    tile.holdsContent = !!tileData;
+    tile.postData = postData;
+    tile.holdsContent = !!postData;
+    tile.tilePost = null;
     tile.index = tileIndex;
     tile.rowIndex = rowIndex;
     tile.columnIndex = columnIndex;
@@ -517,6 +561,10 @@
 
     createElement.call(tile);
     createParticle.call(tile, mass);
+
+    if (tile.holdsContent) {
+      createTilePost.call(tile);
+    }
   }
 
   Tile.config = config;

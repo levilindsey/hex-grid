@@ -2428,14 +2428,14 @@
 
     // Use 1s to represent the tiles that hold data
     tilesRepresentation = [];
-    count = grid.tileData.length;
+    count = grid.postData.length;
     for (i = 0; i < count; i += 1) {
       tilesRepresentation[i] = 1;
     }
 
     // Use 0s to represent the empty tiles
-    count = (1 / config.contentDensity) * grid.tileData.length;
-    for (i = grid.tileData.length; i < count; i += 1) {
+    count = (1 / config.contentDensity) * grid.postData.length;
+    for (i = grid.postData.length; i < count; i += 1) {
       tilesRepresentation[i] = 0;
     }
 
@@ -2479,7 +2479,7 @@
    */
   function createTiles() {
     var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
-        isMarginTile, isBorderTile, isCornerTile, isOddRow, contentAreaIndex, tileDataIndex,
+        isMarginTile, isBorderTile, isCornerTile, isOddRow, contentAreaIndex, postDataIndex,
         defaultNeighborDeltaIndices, tilesNeighborDeltaIndices, oddRowIsLarger, isLargerRow;
 
     grid = this;
@@ -2488,7 +2488,7 @@
     grid.borderTiles = [];
     tileIndex = 0;
     contentAreaIndex = 0;
-    tileDataIndex = 0;
+    postDataIndex = 0;
     centerY = config.firstRowYOffset;
     rowCount = grid.rowCount;
     tilesNeighborDeltaIndices = [];
@@ -2540,9 +2540,9 @@
         // Is the current tile within the content column?
         if (!isMarginTile) {
           // Does the current tile get to hold content?
-          if (contentAreaIndex === grid.actualContentInnerIndices[tileDataIndex]) {
-            grid.tiles[tileIndex].setContent(grid.tileData[tileDataIndex]);
-            tileDataIndex += 1;
+          if (contentAreaIndex === grid.actualContentInnerIndices[postDataIndex]) {
+            grid.tiles[tileIndex].setContent(grid.postData[postDataIndex]);
+            postDataIndex += 1;
           }
           contentAreaIndex += 1;
         }
@@ -2885,14 +2885,14 @@
    * @global
    * @constructor
    * @param {HTMLElement} parent
-   * @param {Array.<Object>} tileData
+   * @param {Array.<Object>} postData
    * @param {boolean} [isVertical]
    */
-  function Grid(parent, tileData, isVertical) {
+  function Grid(parent, postData, isVertical) {
     var grid = this;
 
     grid.parent = parent;
-    grid.tileData = tileData;
+    grid.postData = postData;
     grid.isVertical = isVertical;
 
     grid.actualContentAreaWidth = config.targetContentAreaWidth;
@@ -3079,6 +3079,8 @@
   console.log('Input module loaded');
 })();
 
+// TODO:
+
 'use strict';
 
 /**
@@ -3187,6 +3189,34 @@
     }
   }
 
+  /**
+   * Creates a new TilePost object with this Tile's post data.
+   *
+   * @this Tile
+   */
+  function createTilePost() {
+    var tile;
+
+    tile = this;
+
+    // TODO: tile.tilePost = new hg.TilePost(tile, tile.postData);
+  }
+
+  /**
+   * Destroys this Tile's TilePost object.
+   *
+   * @this Tile
+   */
+  function destroyTilePost() {
+    var tile;
+
+    tile = this;
+
+    // TODO: tile.tilePost.remove();
+
+    tile.tilePost = null;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -3251,13 +3281,24 @@
    * Sets this tile's content.
    *
    * @this Tile
-   * @param {?Object} tileData
+   * @param {?Object} postData
    */
-  function setContent(tileData) {
-    var tile = this;
+  function setContent(postData) {
+    var tile, usedToHoldContent;
 
-    tile.tileData = tileData;
-    tile.holdsContent = !!tileData;
+    tile = this;
+
+    usedToHoldContent = tile.holdsContent;
+
+    tile.postData = postData;
+    tile.holdsContent = !!postData;
+
+    if (usedToHoldContent) {
+      destroyTilePost.call(tile);
+      createTilePost.call(tile);
+    } else {
+      createTilePost.call(tile);
+    }
   }
 
   /**
@@ -3479,6 +3520,10 @@
 
     tile = this;
 
+    // --- Set the position of the TilePost --- //
+
+    // TODO: tile.tilePost.element.top; tile.tilePost.element.left
+
     // --- Set the vertices --- //
 
     for (i = 0, pointsString = ''; i < 12;) {
@@ -3542,7 +3587,7 @@
    * @param {number} hue
    * @param {number} saturation
    * @param {number} lightness
-   * @param {?Object} tileData
+   * @param {?Object} postData
    * @param {number} tileIndex
    * @param {number} rowIndex
    * @param {number} columnIndex
@@ -3553,7 +3598,7 @@
    * @param {number} mass
    */
   function Tile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
-                   tileData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
+                   postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
                    isCornerTile, isInLargerRow, mass) {
     var tile = this;
 
@@ -3573,8 +3618,9 @@
     tile.currentSaturation = saturation;
     tile.currentLightness = lightness;
 
-    tile.tileData = tileData;
-    tile.holdsContent = !!tileData;
+    tile.postData = postData;
+    tile.holdsContent = !!postData;
+    tile.tilePost = null;
     tile.index = tileIndex;
     tile.rowIndex = rowIndex;
     tile.columnIndex = columnIndex;
@@ -3598,6 +3644,10 @@
 
     createElement.call(tile);
     createParticle.call(tile, mass);
+
+    if (tile.holdsContent) {
+      createTilePost.call(tile);
+    }
   }
 
   Tile.config = config;
@@ -3610,6 +3660,8 @@
 
   console.log('Tile module loaded');
 })();
+
+// TODO: 
 
 'use strict';
 
