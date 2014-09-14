@@ -3,7 +3,8 @@
 /**
  * This module defines a constructor for DisplacementWaveAnimationJob objects.
  *
- * DisplacementWaveAnimationJob objects animate the tiles of a HexGrid in order to create a wave motion.
+ * DisplacementWaveAnimationJob objects animate the tiles of a HexGrid in order to create waves of
+ * motion.
  *
  * @module DisplacementWaveAnimationJob
  */

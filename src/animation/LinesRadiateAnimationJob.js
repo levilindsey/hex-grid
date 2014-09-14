@@ -11,10 +11,10 @@
 
   var config = {};
 
-  config.duration = 1400;
-  config.lineWidth = 20;
-  config.lineLength = 1000;
-  config.lineSidePeriod = 50; // milliseconds per tile side
+  config.duration = 700;
+  config.lineWidth = 24;
+  config.lineLength = 1300;
+  config.lineSidePeriod = 30; // milliseconds per tile side
 
   config.startSaturation = 100;
   config.startLightness = 100;
@@ -244,7 +244,7 @@
    * @global
    * @param {HexGrid} grid
    * @param {HexTile} tile
-   * @param {Function} onComplete
+   * @param {Function} [onComplete]
    */
   function LinesRadiateAnimationJob(grid, tile, onComplete) {
     var job = this;
@@ -256,7 +256,7 @@
     job.isComplete = false;
     job.lineAnimationJobs = null;
 
-    job.onComplete = onComplete;
+    job.onComplete = onComplete || function () {};
 
     job.start = start;
     job.update = update;

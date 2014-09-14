@@ -11,19 +11,15 @@
 
   var config = {};
 
-  config.shimmerSpeed = 200; // pixels / millisecond
-  config.shimmerWaveWidth = 400;
-  config.duration = 1000;
+  config.shimmerSpeed = 3; // pixels / millisecond
+  config.shimmerWaveWidth = 500;
+  config.duration = 500;
 
-  config.startHue = 120;
-  config.startSaturation = 50;
-  config.startLightness = 100;
-  config.startOpacity = 1;
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 70;
 
-  config.endHue = 360;
-  config.endSaturation = 50;
-  config.endLightness = 100;
-  config.endOpacity = 0;
+  config.opacity = 0.7;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -38,35 +34,53 @@
    * @this ShimmerRadiateAnimationJob
    */
   function calculateTileDistances() {
-    var job, i, count, deltaX, deltaY;
+    var job, i, count, deltaX, deltaY, distanceOffset;
 
     job = this;
+
+    distanceOffset = -hg.HexGrid.config.tileShortLengthWithGap;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       deltaX = job.grid.tiles[i].originalCenterX - job.startPoint.x;
       deltaY = job.grid.tiles[i].originalCenterY - job.startPoint.y;
-      job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
     }
   }
 
   /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
-   *
    * @this ShimmerRadiateAnimationJob
    */
-  function checkForComplete() {
+  function handleComplete(wasCancelled) {
     var job = this;
 
-    // TODO: two conditions: no tiles are in range any more; the duration value is past the threshold
-//    if (???) {
-//      console.log('ShimmerRadiateAnimationJob completed');
-//
-//      job.isComplete = true;
-//    }
+    console.log('ShimmerRadiateAnimationJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
+
+  /**
+   * Updates the color of the given tile according to the given waveWidthRatio and durationRatio.
+   *
+   * @param {HexTile} tile
+   * @param {number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * shimmer distances.
+   * @param {number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    var opacity = config.opacity * oneMinusDurationRatio;
+
+    tile.currentHue = tile.currentHue + config.deltaHue * waveWidthRatio * opacity;
+    tile.currentSaturation =
+        tile.currentSaturation + config.deltaSaturation * waveWidthRatio * opacity;
+    tile.currentLightness =
+        tile.currentLightness + config.deltaLightness * waveWidthRatio * opacity;
+  }
 
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
@@ -93,30 +107,36 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job;
+    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
+        oneMinusDurationRatio, animatedSomeTile;
 
     job = this;
 
-    // TODO:
+    if (currentTime > job.startTime + config.duration) {
+      handleComplete.call(job, false);
+    } else {
+      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
 
-//    config.shimmerSpeed = 200; // pixels / millisecond
-//    config.shimmerWaveWidth = 400;
-//    config.duration = 1000;
-//
-//    config.startHue = 120;
-//    config.startSaturation = 50;
-//    config.startLightness = 100;
-//    config.endOpacity = 1;
-//
-//    config.endHue = 360;
-//    config.endSaturation = 50;
-//    config.endLightness = 100;
-//    config.endOpacity = 0;
+      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
+      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
 
-    checkForComplete.call(job);
+      animatedSomeTile = false;
 
-    if (job.isComplete) {
-      job.onComplete(job);
+      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+        distance = job.tileDistances[i];
+
+        if (distance > currentMinDistance && distance < currentMaxDistance) {
+          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+
+          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
+
+          animatedSomeTile = true;
+        }
+      }
+
+      if (!animatedSomeTile) {
+        handleComplete.call(job, false);
+      }
     }
   }
 
@@ -128,11 +148,7 @@
    * @this ShimmerRadiateAnimationJob
    */
   function draw() {
-    var job;
-
-    job = this;
-
-    // TODO: will need to blend these color values with those of the tiles;
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
@@ -143,7 +159,7 @@
   function cancel() {
     var job = this;
 
-    job.isComplete = true;
+    handleComplete.call(job, true);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -154,8 +170,9 @@
    * @global
    * @param {{x:number,y:number}} startPoint
    * @param {HexGrid} grid
+   * @param {Function} [onComplete]
    */
-  function ShimmerRadiateAnimationJob(startPoint, grid) {
+  function ShimmerRadiateAnimationJob(startPoint, grid, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -163,6 +180,8 @@
     job.tileDistances = [];
     job.startTime = 0;
     job.isComplete = false;
+
+    job.onComplete = onComplete || function () {};
 
     job.start = start;
     job.update = update;

@@ -3,7 +3,7 @@
 /**
  * This module defines a constructor for ColorWaveAnimationJob objects.
  *
- * ColorWaveAnimationJob objects animate the tiles of a HexGrid in order to create a wave motion.
+ * ColorWaveAnimationJob objects animate the tiles of a HexGrid in order to create waves of color.
  *
  * @module ColorWaveAnimationJob
  */
@@ -75,12 +75,11 @@
     var tileProgress =
         Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.currentHue = tile.originalHue +
-        config.deltaHue * tileProgress * config.opacity;
-    tile.currentSaturation = tile.originalSaturation +
-        config.deltaSaturation * tileProgress * config.opacity;
-    tile.currentLightness = tile.originalLightness +
-        config.deltaLightness * tileProgress * config.opacity;
+    tile.currentHue = tile.currentHue + config.deltaHue * tileProgress * config.opacity;
+    tile.currentSaturation =
+        tile.currentSaturation + config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentLightness =
+        tile.currentLightness + config.deltaLightness * tileProgress * config.opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //

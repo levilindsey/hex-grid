@@ -44,11 +44,12 @@
     animationsFolder = gui.addFolder('Animations');
     animationsFolder.open();
 
-    initDisplacementWaveAnimationFolder(animationsFolder);
-    initColorWaveAnimationFolder(animationsFolder);
     initLinesRadiateAnimationFolder(animationsFolder);
     initRandomLineAnimationFolder(animationsFolder);
     initShimmerRadiateAnimationFolder(animationsFolder);
+    initColorShiftAnimationFolder(animationsFolder);
+    initColorWaveAnimationFolder(animationsFolder);
+    initDisplacementWaveAnimationFolder(animationsFolder);
 
     // TODO: add an additional control to completely hide the dat.GUI controls
   }
@@ -196,7 +197,6 @@
     var linesRadiateAnimationFolder, data;
 
     linesRadiateAnimationFolder = parentFolder.addFolder('Radiating Lines');
-    linesRadiateAnimationFolder.open();
 
     data = {
       'triggerLinesRadiate': createRandomLinesRadiateAnimation
@@ -266,15 +266,10 @@
     var shimmerRadiateAnimationFolder, data, colors;
 
     colors = [];
-    colors.startColor = hg.util.hslToHsv({
-      h: hg.ShimmerRadiateAnimationJob.config.startHue,
-      s: hg.ShimmerRadiateAnimationJob.config.startSaturation * 0.01,
-      l: hg.ShimmerRadiateAnimationJob.config.startLightness * 0.01
-    });
-    colors.endColor = hg.util.hslToHsv({
-      h: hg.ShimmerRadiateAnimationJob.config.endHue,
-      s: hg.ShimmerRadiateAnimationJob.config.endSaturation * 0.01,
-      l: hg.ShimmerRadiateAnimationJob.config.endLightness * 0.01
+    colors.deltaColor = hg.util.hslToHsv({
+      h: hg.ShimmerRadiateAnimationJob.config.deltaHue,
+      s: hg.ShimmerRadiateAnimationJob.config.deltaSaturation * 0.01,
+      l: hg.ShimmerRadiateAnimationJob.config.deltaLightness * 0.01
     });
 
     shimmerRadiateAnimationFolder = parentFolder.addFolder('Radiating Shimmer');
@@ -285,32 +280,63 @@
 
     shimmerRadiateAnimationFolder.add(data, 'triggerShimmerRadiate');
 
-    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, 'shimmerSpeed', 1, 2000);
+    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, 'shimmerSpeed', 0.1, 10);
     shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, 'shimmerWaveWidth', 1, 2000);
     shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, 'duration', 10, 10000);
-    shimmerRadiateAnimationFolder.addColor(colors, 'startColor')
+    shimmerRadiateAnimationFolder.addColor(colors, 'deltaColor')
         .onChange(function () {
-          var color = hg.util.hsvToHsl(colors.startColor);
+          var color = hg.util.hsvToHsl(colors.deltaColor);
 
-          hg.ShimmerRadiateAnimationJob.config.startHue = color.h;
-          hg.ShimmerRadiateAnimationJob.config.startSaturation = color.s * 100;
-          hg.ShimmerRadiateAnimationJob.config.startLightness = color.l * 100;
+          hg.ShimmerRadiateAnimationJob.config.deltaHue = color.h;
+          hg.ShimmerRadiateAnimationJob.config.deltaSaturation = color.s * 100;
+          hg.ShimmerRadiateAnimationJob.config.deltaLightness = color.l * 100;
         });
-    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, 'startOpacity', 0, 1);
-    shimmerRadiateAnimationFolder.addColor(colors, 'endColor')
-        .onChange(function () {
-          var color = hg.util.hsvToHsl(colors.endColor);
-
-          hg.ShimmerRadiateAnimationJob.config.endHue = color.h;
-          hg.ShimmerRadiateAnimationJob.config.endSaturation = color.s * 100;
-          hg.ShimmerRadiateAnimationJob.config.endLightness = color.l * 100;
-        });
-    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, 'endOpacity', 0, 1);
+    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateAnimationJob.config, 'opacity', 0, 1);
 
     function createRandomShimmerRadiateAnimation() {
       var tileIndex = parseInt(Math.random() * hg.controller.grids[app.main.gridId].tiles.length);
       hg.controller.createShimmerRadiateAnimation(app.main.gridId, tileIndex);
     }
+  }
+
+  /**
+   * Sets up the color shift animation folder within the dat.GUI controller.
+   */
+  function initColorShiftAnimationFolder(parentFolder) {
+    var colorWaveAnimationFolder;
+
+    colorWaveAnimationFolder = parentFolder.addFolder('Color Shift');
+    colorWaveAnimationFolder.open();// TODO: remove me
+
+    // TODO:
+  }
+
+  /**
+   * Sets up the color wave animation folder within the dat.GUI controller.
+   */
+  function initColorWaveAnimationFolder(parentFolder) {
+    var colorWaveAnimationFolder = parentFolder.addFolder('Color Wave');
+
+    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'period', 1, 10000)
+        .onChange(function (value) {
+          hg.ColorWaveAnimationJob.config.halfPeriod = value / 2;
+        });
+    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'wavelength', 1, 4000)
+        .onChange(function () {
+          hg.controller.restartColorWaveAnimation(app.main.gridId);
+        });
+    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'originX', -500, 3000)
+        .onChange(function () {
+          hg.controller.restartColorWaveAnimation(app.main.gridId);
+        });
+    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'originY', -500, 3000)
+        .onChange(function () {
+          hg.controller.restartColorWaveAnimation(app.main.gridId);
+        });
+    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaHue', 0, 360);
+    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaSaturation', 0, 100);
+    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaLightness', 0, 100);
+    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'opacity', 0, 1);
   }
 
   /**
@@ -339,43 +365,6 @@
         });
     displacementWaveAnimationFolder.add(hg.DisplacementWaveAnimationJob.config, 'tileDeltaX', -300, 300);
     displacementWaveAnimationFolder.add(hg.DisplacementWaveAnimationJob.config, 'tileDeltaY', -300, 300);
-  }
-
-  /**
-   * Sets up the color wave animation folder within the dat.GUI controller.
-   */
-  function initColorWaveAnimationFolder(parentFolder) {
-    var colorWaveAnimationFolder, colors;
-
-    colors = [];
-    colors.deltaColor = hg.util.hslToHsv({
-      h: hg.ColorWaveAnimationJob.config.deltaHue,
-      s: hg.ColorWaveAnimationJob.config.deltaSaturation * 0.01,
-      l: hg.ColorWaveAnimationJob.config.deltaLightness * 0.01
-    });
-
-    colorWaveAnimationFolder = parentFolder.addFolder('Color Wave');
-
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'period', 1, 10000)
-        .onChange(function (value) {
-          hg.ColorWaveAnimationJob.config.halfPeriod = value / 2;
-        });
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'wavelength', 1, 4000)
-        .onChange(function () {
-          hg.controller.restartColorWaveAnimation(app.main.gridId);
-        });
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'originX', -500, 3000)
-        .onChange(function () {
-          hg.controller.restartColorWaveAnimation(app.main.gridId);
-        });
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'originY', -500, 3000)
-        .onChange(function () {
-          hg.controller.restartColorWaveAnimation(app.main.gridId);
-        });
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaHue', 0, 360);
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaSaturation', 0, 100);
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'deltaLightness', 0, 100);
-    colorWaveAnimationFolder.add(hg.ColorWaveAnimationJob.config, 'opacity', 0, 1);
   }
 
   console.log('parameters module loaded');

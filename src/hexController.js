@@ -36,25 +36,42 @@
     hg.animator.startJob(grid);
     index = controller.grids.length - 1;
 
-    createDisplacementWaveAnimation(index);
+    createColorResetAnimation(index);
+    createColorShiftAnimation(index);
     createColorWaveAnimation(index);
+    createDisplacementWaveAnimation(index);
 
     return index;
   }
 
   /**
-   * Creates a new DisplacementWaveAnimationJob with the grid at the given index.
+   * Creates a new ColorResetAnimationJob with the grid at the given index.
    *
    * @param {number} gridIndex
    */
-  function createDisplacementWaveAnimation(gridIndex) {
-    var job = new hg.DisplacementWaveAnimationJob(controller.grids[gridIndex]);
-    controller.displacementWaveAnimationJobs.push(job);
-    restartDisplacementWaveAnimation(gridIndex);
+  function createColorResetAnimation(gridIndex) {
+    var job = new hg.ColorResetAnimationJob(controller.grids[gridIndex]);
+    controller.colorResetAnimationJobs.push(job);
+    restartColorResetAnimation(gridIndex);
 
-    controller.grids[gridIndex].animations.displacementWaveAnimations =
-        controller.grids[gridIndex].animations.displacementWaveAnimations || [];
-    controller.grids[gridIndex].animations.displacementWaveAnimations.push(job);
+    controller.grids[gridIndex].animations.colorResetAnimations =
+        controller.grids[gridIndex].animations.colorResetAnimations || [];
+    controller.grids[gridIndex].animations.colorResetAnimations.push(job);
+  }
+
+  /**
+   * Creates a new ColorShiftAnimationJob with the grid at the given index.
+   *
+   * @param {number} gridIndex
+   */
+  function createColorShiftAnimation(gridIndex) {
+    var job = new hg.ColorShiftAnimationJob(controller.grids[gridIndex]);
+    controller.colorShiftAnimationJobs.push(job);
+    restartColorShiftAnimation(gridIndex);
+
+    controller.grids[gridIndex].animations.colorShiftAnimations =
+        controller.grids[gridIndex].animations.colorShiftAnimations || [];
+    controller.grids[gridIndex].animations.colorShiftAnimations.push(job);
   }
 
   /**
@@ -73,12 +90,43 @@
   }
 
   /**
-   * Restarts the DisplacementWaveAnimationJob at the given index.
+   * Creates a new DisplacementWaveAnimationJob with the grid at the given index.
+   *
+   * @param {number} gridIndex
+   */
+  function createDisplacementWaveAnimation(gridIndex) {
+    var job = new hg.DisplacementWaveAnimationJob(controller.grids[gridIndex]);
+    controller.displacementWaveAnimationJobs.push(job);
+    restartDisplacementWaveAnimation(gridIndex);
+
+    controller.grids[gridIndex].animations.displacementWaveAnimations =
+        controller.grids[gridIndex].animations.displacementWaveAnimations || [];
+    controller.grids[gridIndex].animations.displacementWaveAnimations.push(job);
+  }
+
+  /**
+   * Restarts the ColorResetAnimationJob at the given index.
    *
    * @param {number} index
    */
-  function restartDisplacementWaveAnimation(index) {
-    var job = controller.displacementWaveAnimationJobs[index];
+  function restartColorResetAnimation(index) {
+    var job = controller.colorResetAnimationJobs[index];
+
+    if (!job.isComplete) {
+      hg.animator.cancelJob(job);
+    }
+
+    job.init();
+    hg.animator.startJob(job);
+  }
+
+  /**
+   * Restarts the ColorShiftAnimationJob at the given index.
+   *
+   * @param {number} index
+   */
+  function restartColorShiftAnimation(index) {
+    var job = controller.colorShiftAnimationJobs[index];
 
     if (!job.isComplete) {
       hg.animator.cancelJob(job);
@@ -95,6 +143,22 @@
    */
   function restartColorWaveAnimation(index) {
     var job = controller.colorWaveAnimationJobs[index];
+
+    if (!job.isComplete) {
+      hg.animator.cancelJob(job);
+    }
+
+    job.init();
+    hg.animator.startJob(job);
+  }
+
+  /**
+   * Restarts the DisplacementWaveAnimationJob at the given index.
+   *
+   * @param {number} index
+   */
+  function restartDisplacementWaveAnimation(index) {
+    var job = controller.displacementWaveAnimationJobs[index];
 
     if (!job.isComplete) {
       hg.animator.cancelJob(job);
@@ -162,14 +226,19 @@
    * @param {number} tileIndex
    */
   function createShimmerRadiateAnimation(gridIndex, tileIndex) {
-    var job, grid;
+    var job, grid, startPoint;
 
     grid = controller.grids[gridIndex];
 
     controller.grids[gridIndex].animations.shimmerAnimations =
         controller.grids[gridIndex].animations.shimmerAnimations || [];
 
-    job = new hg.ShimmerRadiateAnimationJob(grid, grid.tiles[tileIndex], onComplete);
+    startPoint = {
+      x: grid.tiles[tileIndex].originalCenterX,
+      y: grid.tiles[tileIndex].originalCenterY
+    };
+
+    job = new hg.ShimmerRadiateAnimationJob(startPoint, grid, onComplete);
     controller.shimmerRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
@@ -190,9 +259,11 @@
     controller.grids.forEach(function (grid, index) {
       hg.animator.cancelAll();
       grid.resize();
-      hg.animator.startJob(grid);
-      restartDisplacementWaveAnimation(index);
+      restartColorResetAnimation(index);
+      restartColorShiftAnimation(index);
       restartColorWaveAnimation(index);
+      restartDisplacementWaveAnimation(index);
+      hg.animator.startJob(grid);
     });
   }
 
@@ -200,6 +271,8 @@
   // Expose this singleton
 
   controller.grids = [];
+  controller.colorResetAnimationJobs = [];
+  controller.colorShiftAnimationJobs = [];
   controller.displacementWaveAnimationJobs = [];
   controller.colorWaveAnimationJobs = [];
   controller.linesRadiateAnimationJobs = [];
@@ -209,8 +282,9 @@
   controller.config = config;
 
   controller.createNewHexGrid = createNewHexGrid;
-  controller.restartDisplacementWaveAnimation = restartDisplacementWaveAnimation;
+  controller.restartColorShiftAnimation = restartColorShiftAnimation;
   controller.restartColorWaveAnimation = restartColorWaveAnimation;
+  controller.restartDisplacementWaveAnimation = restartDisplacementWaveAnimation;
   controller.createLinesRadiateAnimation = createLinesRadiateAnimation;
   controller.createRandomLineAnimation = createRandomLineAnimation;
   controller.createShimmerRadiateAnimation = createShimmerRadiateAnimation;

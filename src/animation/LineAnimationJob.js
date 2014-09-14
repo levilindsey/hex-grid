@@ -14,7 +14,7 @@
   config.duration = 2000;
   config.lineWidth = 28;
   config.lineLength = 60000;
-  config.lineSidePeriod = 7; // milliseconds per tile side
+  config.lineSidePeriod = 5; // milliseconds per tile side
 
   config.startSaturation = 100;
   config.startLightness = 100;
@@ -654,7 +654,7 @@
    * @param {number} corner
    * @param {number} direction
    * @param {number} forcedInitialRelativeDirection
-   * @param {Function} onComplete
+   * @param {Function} [onComplete]
    * @param {{x:number,y:number}} extraStartPoint
    * @throws {Error}
    */
@@ -710,7 +710,7 @@
     job.currentLightness = config.startLightness;
     job.currentOpacity = config.startOpacity;
 
-    job.onComplete = onComplete;
+    job.onComplete = onComplete || function () {};
 
     job.start = start;
     job.update = update;
