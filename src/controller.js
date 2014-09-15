@@ -29,7 +29,7 @@
    * @returns {number} The ID (actually index) of the new Grid.
    */
   function createNewHexGrid(parent, tileData, isVertical) {
-    var grid, index, annotations;
+    var grid, index, annotations, input;
 
     grid = new hg.Grid(parent, tileData, isVertical);
     controller.grids.push(grid);
@@ -44,6 +44,9 @@
     annotations = grid.annotations;
     hg.animator.startJob(annotations);
     controller.annotations.push(annotations);
+
+    input = new hg.Input(grid);
+    controller.inputs.push(input);
 
     return index;
   }
@@ -224,12 +227,12 @@
   }
 
   /**
-   * Creates a new ShimmerRadiateJob based off the tile at the given index.
+   * Creates a new HighlightRadiateJob based off the tile at the given index.
    *
    * @param {number} gridIndex
    * @param {number} tileIndex
    */
-  function createShimmerRadiateAnimation(gridIndex, tileIndex) {
+  function createHighlightRadiateAnimation(gridIndex, tileIndex) {
     var job, grid, startPoint;
 
     grid = controller.grids[gridIndex];
@@ -242,7 +245,7 @@
       y: grid.tiles[tileIndex].originalCenterY
     };
 
-    job = new hg.ShimmerRadiateJob(startPoint, grid, onComplete);
+    job = new hg.HighlightRadiateJob(startPoint, grid, onComplete);
     controller.shimmerRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
@@ -276,6 +279,7 @@
   // Expose this singleton
 
   controller.grids = [];
+  controller.inputs = [];
   controller.annotations = [];
   controller.colorResetAnimationJobs = [];
   controller.colorShiftAnimationJobs = [];
@@ -293,7 +297,7 @@
   controller.restartDisplacementWaveAnimation = restartDisplacementWaveAnimation;
   controller.createLinesRadiateAnimation = createLinesRadiateAnimation;
   controller.createRandomLineAnimation = createRandomLineAnimation;
-  controller.createShimmerRadiateAnimation = createShimmerRadiateAnimation;
+  controller.createHighlightRadiateAnimation = createHighlightRadiateAnimation;
   controller.resize = resize;
 
   // Expose this module

@@ -1,13 +1,13 @@
 'use strict';
 
 /**
- * @typedef {AnimationJob} ShimmerRadiateJob
+ * @typedef {AnimationJob} HighlightRadiateJob
  */
 
 /**
- * This module defines a constructor for ShimmerRadiateJob objects.
+ * This module defines a constructor for HighlightRadiateJob objects.
  *
- * @module ShimmerRadiateJob
+ * @module HighlightRadiateJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -30,12 +30,12 @@
 
   /**
    * Calculates the distance from each tile in the grid to the starting point of this
-   * ShimmerRadiateJob.
+   * HighlightRadiateJob.
    *
    * This cheats by only calculating the distance to the tiles' original center. This allows us to
    * not need to re-calculate tile distances during each time step.
    *
-   * @this ShimmerRadiateJob
+   * @this HighlightRadiateJob
    */
   function calculateTileDistances() {
     var job, i, count, deltaX, deltaY, distanceOffset;
@@ -52,12 +52,12 @@
   }
 
   /**
-   * @this ShimmerRadiateJob
+   * @this HighlightRadiateJob
    */
   function handleComplete(wasCancelled) {
     var job = this;
 
-    console.log('ShimmerRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+    console.log('HighlightRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
     job.isComplete = true;
 
@@ -90,9 +90,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this ShimmerRadiateJob as started.
+   * Sets this HighlightRadiateJob as started.
    *
-   * @this ShimmerRadiateJob
+   * @this HighlightRadiateJob
    */
   function start() {
     var job = this;
@@ -102,11 +102,11 @@
   }
 
   /**
-   * Updates the animation progress of this ShimmerRadiateJob to match the given time.
+   * Updates the animation progress of this HighlightRadiateJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ShimmerRadiateJob
+   * @this HighlightRadiateJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -145,20 +145,20 @@
   }
 
   /**
-   * Draws the current state of this ShimmerRadiateJob.
+   * Draws the current state of this HighlightRadiateJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ShimmerRadiateJob
+   * @this HighlightRadiateJob
    */
   function draw() {
     // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
-   * Stops this ShimmerRadiateJob, and returns the element its original form.
+   * Stops this HighlightRadiateJob, and returns the element its original form.
    *
-   * @this ShimmerRadiateJob
+   * @this HighlightRadiateJob
    */
   function cancel() {
     var job = this;
@@ -176,7 +176,7 @@
    * @param {Grid} grid
    * @param {Function} [onComplete]
    */
-  function ShimmerRadiateJob(startPoint, grid, onComplete) {
+  function HighlightRadiateJob(startPoint, grid, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -194,14 +194,14 @@
 
     calculateTileDistances.call(job);
 
-    console.log('ShimmerRadiateJob created');
+    console.log('HighlightRadiateJob created');
   }
 
-  ShimmerRadiateJob.config = config;
+  HighlightRadiateJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.ShimmerRadiateJob = ShimmerRadiateJob;
+  window.hg.HighlightRadiateJob = HighlightRadiateJob;
 
-  console.log('ShimmerRadiateJob module loaded');
+  console.log('HighlightRadiateJob module loaded');
 })();

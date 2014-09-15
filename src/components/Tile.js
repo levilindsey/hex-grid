@@ -61,6 +61,8 @@
     tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
 
+    tile.element.classList.add('hg-tile');
+
     // Set the color and vertices
     draw.call(tile);
   }

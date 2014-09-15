@@ -562,6 +562,24 @@
     };
   }
 
+  /**
+   * Checks the given element and all of its ancestors, and returns the first that contains the
+   * given class.
+   *
+   * @param {?HTMLElement} element
+   * @param {string} className
+   * @returns {?HTMLElement}
+   */
+  function findClassInSelfOrAncestors(element, className) {
+    while (element) {
+      if (element.classList.contains(className)) {
+        return element;
+      }
+    }
+
+    return null;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -598,6 +616,7 @@
     shallowCopy: shallowCopy,
     hsvToHsl: hsvToHsl,
     hslToHsv: hslToHsv,
+    findClassInSelfOrAncestors: findClassInSelfOrAncestors,
     svgNamespace: 'http://www.w3.org/2000/svg'
   };
 

@@ -198,12 +198,15 @@
     grid = this;
 
     grid.svg = document.createElementNS(hg.util.svgNamespace, 'svg');
+    grid.parent.appendChild(grid.svg);
+
     grid.svg.style.display = 'block';
     grid.svg.style.position = 'relative';
     grid.svg.style.width = '100%';
     grid.svg.style.zIndex = '2147483647';
+    grid.svg.classList.add('hg-svg');
+
     updateBackgroundColor.call(grid);
-    grid.parent.appendChild(grid.svg);
 
     grid.svgDefs = document.createElementNS(hg.util.svgNamespace, 'defs');
     grid.svg.appendChild(grid.svgDefs);

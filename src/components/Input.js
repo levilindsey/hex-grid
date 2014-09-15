@@ -34,20 +34,34 @@
 
     function handlePointerOut(event) {
       if (!event.toElement && !event.relatedTarget) {
+        // The mouse has left the viewport
+
         // TODO: handle the mouse out event
+      } else if (event.target.classList.contains('hg-post-tile')) {
+        // TODO: trigger a HighlightHoverJob
+
+        event.stopPropagation();
       }
     }
 
     function handlePointerMove(event) {
-      // TODO:
+      if (event.target.classList.contains('hg-post-tile')) {
+        // TODO:
+      } else if (event.target.classList.contains('hg-tile')) {
+        // TODO:
+      }
     }
 
     function handlePointerDown(event) {
-      // TODO:
+      if (event.target.classList.contains('hg-post-tile')) {
+        // TODO:
+      }
     }
 
     function handlePointerUp(event) {
-      // TODO:
+      if (event.target.classList.contains('hg-post-tile')) {
+        // TODO:
+      }
     }
 
     // TODO:

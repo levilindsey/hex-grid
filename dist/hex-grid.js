@@ -29,7 +29,7 @@
    * @returns {number} The ID (actually index) of the new Grid.
    */
   function createNewHexGrid(parent, tileData, isVertical) {
-    var grid, index, annotations;
+    var grid, index, annotations, input;
 
     grid = new hg.Grid(parent, tileData, isVertical);
     controller.grids.push(grid);
@@ -44,6 +44,9 @@
     annotations = grid.annotations;
     hg.animator.startJob(annotations);
     controller.annotations.push(annotations);
+
+    input = new hg.Input(grid);
+    controller.inputs.push(input);
 
     return index;
   }
@@ -224,12 +227,12 @@
   }
 
   /**
-   * Creates a new ShimmerRadiateJob based off the tile at the given index.
+   * Creates a new HighlightRadiateJob based off the tile at the given index.
    *
    * @param {number} gridIndex
    * @param {number} tileIndex
    */
-  function createShimmerRadiateAnimation(gridIndex, tileIndex) {
+  function createHighlightRadiateAnimation(gridIndex, tileIndex) {
     var job, grid, startPoint;
 
     grid = controller.grids[gridIndex];
@@ -242,7 +245,7 @@
       y: grid.tiles[tileIndex].originalCenterY
     };
 
-    job = new hg.ShimmerRadiateJob(startPoint, grid, onComplete);
+    job = new hg.HighlightRadiateJob(startPoint, grid, onComplete);
     controller.shimmerRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
@@ -276,6 +279,7 @@
   // Expose this singleton
 
   controller.grids = [];
+  controller.inputs = [];
   controller.annotations = [];
   controller.colorResetAnimationJobs = [];
   controller.colorShiftAnimationJobs = [];
@@ -293,7 +297,7 @@
   controller.restartDisplacementWaveAnimation = restartDisplacementWaveAnimation;
   controller.createLinesRadiateAnimation = createLinesRadiateAnimation;
   controller.createRandomLineAnimation = createRandomLineAnimation;
-  controller.createShimmerRadiateAnimation = createShimmerRadiateAnimation;
+  controller.createHighlightRadiateAnimation = createHighlightRadiateAnimation;
   controller.resize = resize;
 
   // Expose this module
@@ -869,6 +873,24 @@
     };
   }
 
+  /**
+   * Checks the given element and all of its ancestors, and returns the first that contains the
+   * given class.
+   *
+   * @param {?HTMLElement} element
+   * @param {string} className
+   * @returns {?HTMLElement}
+   */
+  function findClassInSelfOrAncestors(element, className) {
+    while (element) {
+      if (element.classList.contains(className)) {
+        return element;
+      }
+    }
+
+    return null;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -905,6 +927,7 @@
     shallowCopy: shallowCopy,
     hsvToHsl: hsvToHsl,
     hslToHsv: hslToHsv,
+    findClassInSelfOrAncestors: findClassInSelfOrAncestors,
     svgNamespace: 'http://www.w3.org/2000/svg'
   };
 
@@ -2461,12 +2484,15 @@
     grid = this;
 
     grid.svg = document.createElementNS(hg.util.svgNamespace, 'svg');
+    grid.parent.appendChild(grid.svg);
+
     grid.svg.style.display = 'block';
     grid.svg.style.position = 'relative';
     grid.svg.style.width = '100%';
     grid.svg.style.zIndex = '2147483647';
+    grid.svg.classList.add('hg-svg');
+
     updateBackgroundColor.call(grid);
-    grid.parent.appendChild(grid.svg);
 
     grid.svgDefs = document.createElementNS(hg.util.svgNamespace, 'defs');
     grid.svg.appendChild(grid.svgDefs);
@@ -2972,20 +2998,34 @@
 
     function handlePointerOut(event) {
       if (!event.toElement && !event.relatedTarget) {
+        // The mouse has left the viewport
+
         // TODO: handle the mouse out event
+      } else if (event.target.classList.contains('hg-post-tile')) {
+        // TODO: trigger a HighlightHoverJob
+
+        event.stopPropagation();
       }
     }
 
     function handlePointerMove(event) {
-      // TODO:
+      if (event.target.classList.contains('hg-post-tile')) {
+        // TODO:
+      } else if (event.target.classList.contains('hg-tile')) {
+        // TODO:
+      }
     }
 
     function handlePointerDown(event) {
-      // TODO:
+      if (event.target.classList.contains('hg-post-tile')) {
+        // TODO:
+      }
     }
 
     function handlePointerUp(event) {
-      // TODO:
+      if (event.target.classList.contains('hg-post-tile')) {
+        // TODO:
+      }
     }
 
     // TODO:
@@ -3143,6 +3183,8 @@
 
     tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
+
+    tile.element.classList.add('hg-tile');
 
     // Set the color and vertices
     draw.call(tile);
@@ -3663,6 +3705,8 @@
 
 // TODO: 
 
+// TODO: tile.element.classList.add('hg-post-tile') to any tile that contains a TilePost (and remove it when destroying the post)
+// TODO: post.element.style.pointerEvents = 'none';
 'use strict';
 
 /**
@@ -3793,6 +3837,346 @@
   window.hg.ClosePostJob = ClosePostJob;
 
   console.log('ClosePostJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * @typedef {AnimationJob} HighlightHoverJob
+ */
+
+/**
+ * This module defines a constructor for HighlightHoverJob objects.
+ *
+ * @module HighlightHoverJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   */
+  function checkForComplete() {
+    var job = this;
+
+    // TODO:
+//    if (???) {
+//      console.log('HighlightHoverJob completed');
+//
+//      job.isComplete = true;
+//      job.onComplete(true);
+//    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this HighlightHoverJob as started.
+   *
+   * @this HighlightHoverJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    // TODO:
+  }
+
+  /**
+   * Updates the animation progress of this HighlightHoverJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightHoverJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job = this;
+
+    // TODO:
+
+    checkForComplete.call(job);
+  }
+
+  /**
+   * Draws the current state of this HighlightHoverJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightHoverJob
+   */
+  function draw() {
+    var job = this;
+
+    // TODO:
+  }
+
+  /**
+   * Stops this HighlightHoverJob, and returns the element its original form.
+   *
+   * @this HighlightHoverJob
+   */
+  function cancel() {
+    var job = this;
+
+    // TODO:
+
+    job.onComplete(false);
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Function} onComplete
+   */
+  function HighlightHoverJob(grid, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+
+    console.log('HighlightHoverJob created');
+  }
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.HighlightHoverJob = HighlightHoverJob;
+
+  console.log('HighlightHoverJob module loaded');
+})();
+
+'use strict';
+
+/**
+ * @typedef {AnimationJob} HighlightRadiateJob
+ */
+
+/**
+ * This module defines a constructor for HighlightRadiateJob objects.
+ *
+ * @module HighlightRadiateJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.shimmerSpeed = 3; // pixels / millisecond
+  config.shimmerWaveWidth = 500;
+  config.duration = 500;
+
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 70;
+
+  config.opacity = 0.7;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Calculates the distance from each tile in the grid to the starting point of this
+   * HighlightRadiateJob.
+   *
+   * This cheats by only calculating the distance to the tiles' original center. This allows us to
+   * not need to re-calculate tile distances during each time step.
+   *
+   * @this HighlightRadiateJob
+   */
+  function calculateTileDistances() {
+    var job, i, count, deltaX, deltaY, distanceOffset;
+
+    job = this;
+
+    distanceOffset = -hg.Grid.config.tileShortLengthWithGap;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      deltaX = job.grid.tiles[i].originalCenterX - job.startPoint.x;
+      deltaY = job.grid.tiles[i].originalCenterY - job.startPoint.y;
+      job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
+    }
+  }
+
+  /**
+   * @this HighlightRadiateJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('HighlightRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * Updates the color of the given tile according to the given waveWidthRatio and durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * shimmer distances.
+   * @param {number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    var opacity = config.opacity * oneMinusDurationRatio;
+
+    tile.currentHue = tile.currentHue + config.deltaHue * waveWidthRatio * opacity;
+    tile.currentSaturation =
+        tile.currentSaturation + config.deltaSaturation * waveWidthRatio * opacity;
+    tile.currentLightness =
+        tile.currentLightness + config.deltaLightness * waveWidthRatio * opacity;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this HighlightRadiateJob as started.
+   *
+   * @this HighlightRadiateJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this HighlightRadiateJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightRadiateJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
+        oneMinusDurationRatio, animatedSomeTile;
+
+    job = this;
+
+    if (currentTime > job.startTime + config.duration) {
+      handleComplete.call(job, false);
+    } else {
+      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+
+      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
+      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
+
+      animatedSomeTile = false;
+
+      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+        distance = job.tileDistances[i];
+
+        if (distance > currentMinDistance && distance < currentMaxDistance) {
+          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+
+          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
+
+          animatedSomeTile = true;
+        }
+      }
+
+      if (!animatedSomeTile) {
+        handleComplete.call(job, false);
+      }
+    }
+  }
+
+  /**
+   * Draws the current state of this HighlightRadiateJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightRadiateJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this HighlightRadiateJob, and returns the element its original form.
+   *
+   * @this HighlightRadiateJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {{x:number,y:number}} startPoint
+   * @param {Grid} grid
+   * @param {Function} [onComplete]
+   */
+  function HighlightRadiateJob(startPoint, grid, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.startPoint = startPoint;
+    job.tileDistances = [];
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.onComplete = onComplete || function () {};
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+
+    calculateTileDistances.call(job);
+
+    console.log('HighlightRadiateJob created');
+  }
+
+  HighlightRadiateJob.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.HighlightRadiateJob = HighlightRadiateJob;
+
+  console.log('HighlightRadiateJob module loaded');
 })();
 
 'use strict';
@@ -5352,346 +5736,6 @@
   window.hg.OpenPostJob = OpenPostJob;
 
   console.log('OpenPostJob module loaded');
-})();
-
-'use strict';
-
-/**
- * @typedef {AnimationJob} ShimmerHoverJob
- */
-
-/**
- * This module defines a constructor for ShimmerHoverJob objects.
- *
- * @module ShimmerHoverJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
-   */
-  function checkForComplete() {
-    var job = this;
-
-    // TODO:
-//    if (???) {
-//      console.log('ShimmerHoverJob completed');
-//
-//      job.isComplete = true;
-//      job.onComplete(true);
-//    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this ShimmerHoverJob as started.
-   *
-   * @this ShimmerHoverJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-
-    // TODO:
-  }
-
-  /**
-   * Updates the animation progress of this ShimmerHoverJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ShimmerHoverJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job = this;
-
-    // TODO:
-
-    checkForComplete.call(job);
-  }
-
-  /**
-   * Draws the current state of this ShimmerHoverJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ShimmerHoverJob
-   */
-  function draw() {
-    var job = this;
-
-    // TODO:
-  }
-
-  /**
-   * Stops this ShimmerHoverJob, and returns the element its original form.
-   *
-   * @this ShimmerHoverJob
-   */
-  function cancel() {
-    var job = this;
-
-    // TODO:
-
-    job.onComplete(false);
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   * @param {Function} onComplete
-   */
-  function ShimmerHoverJob(grid, onComplete) {
-    var job = this;
-
-    job.grid = grid;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.onComplete = onComplete;
-
-    console.log('ShimmerHoverJob created');
-  }
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.ShimmerHoverJob = ShimmerHoverJob;
-
-  console.log('ShimmerHoverJob module loaded');
-})();
-
-'use strict';
-
-/**
- * @typedef {AnimationJob} ShimmerRadiateJob
- */
-
-/**
- * This module defines a constructor for ShimmerRadiateJob objects.
- *
- * @module ShimmerRadiateJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  config.shimmerSpeed = 3; // pixels / millisecond
-  config.shimmerWaveWidth = 500;
-  config.duration = 500;
-
-  config.deltaHue = 0;
-  config.deltaSaturation = 0;
-  config.deltaLightness = 70;
-
-  config.opacity = 0.7;
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Calculates the distance from each tile in the grid to the starting point of this
-   * ShimmerRadiateJob.
-   *
-   * This cheats by only calculating the distance to the tiles' original center. This allows us to
-   * not need to re-calculate tile distances during each time step.
-   *
-   * @this ShimmerRadiateJob
-   */
-  function calculateTileDistances() {
-    var job, i, count, deltaX, deltaY, distanceOffset;
-
-    job = this;
-
-    distanceOffset = -hg.Grid.config.tileShortLengthWithGap;
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      deltaX = job.grid.tiles[i].originalCenterX - job.startPoint.x;
-      deltaY = job.grid.tiles[i].originalCenterY - job.startPoint.y;
-      job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
-    }
-  }
-
-  /**
-   * @this ShimmerRadiateJob
-   */
-  function handleComplete(wasCancelled) {
-    var job = this;
-
-    console.log('ShimmerRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
-
-    job.isComplete = true;
-
-    job.onComplete();
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Updates the color of the given tile according to the given waveWidthRatio and durationRatio.
-   *
-   * @param {Tile} tile
-   * @param {number} waveWidthRatio Specifies the tile's relative distance to the min and max
-   * shimmer distances.
-   * @param {number} oneMinusDurationRatio Specifies how far this animation is through its overall
-   * duration.
-   */
-  function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
-    var opacity = config.opacity * oneMinusDurationRatio;
-
-    tile.currentHue = tile.currentHue + config.deltaHue * waveWidthRatio * opacity;
-    tile.currentSaturation =
-        tile.currentSaturation + config.deltaSaturation * waveWidthRatio * opacity;
-    tile.currentLightness =
-        tile.currentLightness + config.deltaLightness * waveWidthRatio * opacity;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this ShimmerRadiateJob as started.
-   *
-   * @this ShimmerRadiateJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this ShimmerRadiateJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ShimmerRadiateJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
-        oneMinusDurationRatio, animatedSomeTile;
-
-    job = this;
-
-    if (currentTime > job.startTime + config.duration) {
-      handleComplete.call(job, false);
-    } else {
-      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
-
-      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
-      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
-
-      animatedSomeTile = false;
-
-      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-        distance = job.tileDistances[i];
-
-        if (distance > currentMinDistance && distance < currentMaxDistance) {
-          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
-
-          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
-
-          animatedSomeTile = true;
-        }
-      }
-
-      if (!animatedSomeTile) {
-        handleComplete.call(job, false);
-      }
-    }
-  }
-
-  /**
-   * Draws the current state of this ShimmerRadiateJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ShimmerRadiateJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this ShimmerRadiateJob, and returns the element its original form.
-   *
-   * @this ShimmerRadiateJob
-   */
-  function cancel() {
-    var job = this;
-
-    handleComplete.call(job, true);
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {{x:number,y:number}} startPoint
-   * @param {Grid} grid
-   * @param {Function} [onComplete]
-   */
-  function ShimmerRadiateJob(startPoint, grid, onComplete) {
-    var job = this;
-
-    job.grid = grid;
-    job.startPoint = startPoint;
-    job.tileDistances = [];
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.onComplete = onComplete || function () {};
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-
-    calculateTileDistances.call(job);
-
-    console.log('ShimmerRadiateJob created');
-  }
-
-  ShimmerRadiateJob.config = config;
-
-  // Expose this module
-  if (!window.hg) window.hg = {};
-  window.hg.ShimmerRadiateJob = ShimmerRadiateJob;
-
-  console.log('ShimmerRadiateJob module loaded');
 })();
 
 'use strict';

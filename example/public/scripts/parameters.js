@@ -46,7 +46,7 @@
 
     initLinesRadiateAnimationFolder(animationsFolder);
     initRandomLineAnimationFolder(animationsFolder);
-    initShimmerRadiateAnimationFolder(animationsFolder);
+    initHighlightRadiateAnimationFolder(animationsFolder);
     initColorShiftAnimationFolder(animationsFolder);
     initColorWaveAnimationFolder(animationsFolder);
     initDisplacementWaveAnimationFolder(animationsFolder);
@@ -263,40 +263,40 @@
   /**
    * Sets up the shimmer-radiate-animation folder within the dat.GUI controller.
    */
-  function initShimmerRadiateAnimationFolder(parentFolder) {
+  function initHighlightRadiateAnimationFolder(parentFolder) {
     var shimmerRadiateAnimationFolder, data, colors;
 
     colors = [];
     colors.deltaColor = hg.util.hslToHsv({
-      h: hg.ShimmerRadiateJob.config.deltaHue,
-      s: hg.ShimmerRadiateJob.config.deltaSaturation * 0.01,
-      l: hg.ShimmerRadiateJob.config.deltaLightness * 0.01
+      h: hg.HighlightRadiateJob.config.deltaHue,
+      s: hg.HighlightRadiateJob.config.deltaSaturation * 0.01,
+      l: hg.HighlightRadiateJob.config.deltaLightness * 0.01
     });
 
-    shimmerRadiateAnimationFolder = parentFolder.addFolder('Radiating Shimmer');
+    shimmerRadiateAnimationFolder = parentFolder.addFolder('Radiating Highlight');
 
     data = {
-      'triggerShimmerRadiate': createRandomShimmerRadiateAnimation
+      'triggerHighlightRadiate': createRandomHighlightRadiateAnimation
     };
 
-    shimmerRadiateAnimationFolder.add(data, 'triggerShimmerRadiate');
+    shimmerRadiateAnimationFolder.add(data, 'triggerHighlightRadiate');
 
-    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateJob.config, 'shimmerSpeed', 0.1, 10);
-    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateJob.config, 'shimmerWaveWidth', 1, 2000);
-    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateJob.config, 'duration', 10, 10000);
+    shimmerRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'shimmerSpeed', 0.1, 10);
+    shimmerRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'shimmerWaveWidth', 1, 2000);
+    shimmerRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'duration', 10, 10000);
     shimmerRadiateAnimationFolder.addColor(colors, 'deltaColor')
         .onChange(function () {
           var color = hg.util.hsvToHsl(colors.deltaColor);
 
-          hg.ShimmerRadiateJob.config.deltaHue = color.h;
-          hg.ShimmerRadiateJob.config.deltaSaturation = color.s * 100;
-          hg.ShimmerRadiateJob.config.deltaLightness = color.l * 100;
+          hg.HighlightRadiateJob.config.deltaHue = color.h;
+          hg.HighlightRadiateJob.config.deltaSaturation = color.s * 100;
+          hg.HighlightRadiateJob.config.deltaLightness = color.l * 100;
         });
-    shimmerRadiateAnimationFolder.add(hg.ShimmerRadiateJob.config, 'opacity', 0, 1);
+    shimmerRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'opacity', 0, 1);
 
-    function createRandomShimmerRadiateAnimation() {
+    function createRandomHighlightRadiateAnimation() {
       var tileIndex = parseInt(Math.random() * hg.controller.grids[app.main.gridId].tiles.length);
-      hg.controller.createShimmerRadiateAnimation(app.main.gridId, tileIndex);
+      hg.controller.createHighlightRadiateAnimation(app.main.gridId, tileIndex);
     }
   }
 

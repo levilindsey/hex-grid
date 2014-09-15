@@ -1,13 +1,13 @@
 'use strict';
 
 /**
- * @typedef {AnimationJob} ShimmerHoverJob
+ * @typedef {AnimationJob} HighlightHoverJob
  */
 
 /**
- * This module defines a constructor for ShimmerHoverJob objects.
+ * This module defines a constructor for HighlightHoverJob objects.
  *
- * @module ShimmerHoverJob
+ * @module HighlightHoverJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -26,7 +26,7 @@
 
     // TODO:
 //    if (???) {
-//      console.log('ShimmerHoverJob completed');
+//      console.log('HighlightHoverJob completed');
 //
 //      job.isComplete = true;
 //      job.onComplete(true);
@@ -40,9 +40,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this ShimmerHoverJob as started.
+   * Sets this HighlightHoverJob as started.
    *
-   * @this ShimmerHoverJob
+   * @this HighlightHoverJob
    */
   function start() {
     var job = this;
@@ -54,11 +54,11 @@
   }
 
   /**
-   * Updates the animation progress of this ShimmerHoverJob to match the given time.
+   * Updates the animation progress of this HighlightHoverJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ShimmerHoverJob
+   * @this HighlightHoverJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -71,11 +71,11 @@
   }
 
   /**
-   * Draws the current state of this ShimmerHoverJob.
+   * Draws the current state of this HighlightHoverJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ShimmerHoverJob
+   * @this HighlightHoverJob
    */
   function draw() {
     var job = this;
@@ -84,9 +84,9 @@
   }
 
   /**
-   * Stops this ShimmerHoverJob, and returns the element its original form.
+   * Stops this HighlightHoverJob, and returns the element its original form.
    *
-   * @this ShimmerHoverJob
+   * @this HighlightHoverJob
    */
   function cancel() {
     var job = this;
@@ -107,7 +107,7 @@
    * @param {Grid} grid
    * @param {Function} onComplete
    */
-  function ShimmerHoverJob(grid, onComplete) {
+  function HighlightHoverJob(grid, onComplete) {
     var job = this;
 
     job.grid = grid;
@@ -120,12 +120,12 @@
     job.cancel = cancel;
     job.onComplete = onComplete;
 
-    console.log('ShimmerHoverJob created');
+    console.log('HighlightHoverJob created');
   }
 
   // Expose this module
   if (!window.hg) window.hg = {};
-  window.hg.ShimmerHoverJob = ShimmerHoverJob;
+  window.hg.HighlightHoverJob = HighlightHoverJob;
 
-  console.log('ShimmerHoverJob module loaded');
+  console.log('HighlightHoverJob module loaded');
 })();
