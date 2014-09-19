@@ -15,6 +15,14 @@
 
   var config = {};
 
+  config.duration = 600;
+
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 60;
+
+  config.opacity = 0.6;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -104,13 +112,13 @@
   /**
    * @constructor
    * @global
-   * @param {Grid} grid
+   * @param {Tile} tile
    * @param {Function} onComplete
    */
-  function HighlightHoverJob(grid, onComplete) {
+  function HighlightHoverJob(tile, onComplete) {
     var job = this;
 
-    job.grid = grid;
+    job.tile = tile;
     job.startTime = 0;
     job.isComplete = false;
 

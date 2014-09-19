@@ -46,6 +46,7 @@
 
     initLinesRadiateAnimationFolder(animationsFolder);
     initRandomLineAnimationFolder(animationsFolder);
+    initHighlightHoverAnimationFolder(animationsFolder);
     initHighlightRadiateAnimationFolder(animationsFolder);
     initColorShiftAnimationFolder(animationsFolder);
     initColorWaveAnimationFolder(animationsFolder);
@@ -264,7 +265,7 @@
    * Sets up the shimmer-radiate-animation folder within the dat.GUI controller.
    */
   function initHighlightRadiateAnimationFolder(parentFolder) {
-    var shimmerRadiateAnimationFolder, data, colors;
+    var highlightRadiateAnimationFolder, data, colors;
 
     colors = [];
     colors.deltaColor = hg.util.hslToHsv({
@@ -273,18 +274,18 @@
       l: hg.HighlightRadiateJob.config.deltaLightness * 0.01
     });
 
-    shimmerRadiateAnimationFolder = parentFolder.addFolder('Radiating Highlight');
+    highlightRadiateAnimationFolder = parentFolder.addFolder('Radiating Highlight');
 
     data = {
       'triggerHighlightRadiate': createRandomHighlightRadiateAnimation
     };
 
-    shimmerRadiateAnimationFolder.add(data, 'triggerHighlightRadiate');
+    highlightRadiateAnimationFolder.add(data, 'triggerHighlightRadiate');
 
-    shimmerRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'shimmerSpeed', 0.1, 10);
-    shimmerRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'shimmerWaveWidth', 1, 2000);
-    shimmerRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'duration', 10, 10000);
-    shimmerRadiateAnimationFolder.addColor(colors, 'deltaColor')
+    highlightRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'shimmerSpeed', 0.1, 10);
+    highlightRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'shimmerWaveWidth', 1, 2000);
+    highlightRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'duration', 10, 10000);
+    highlightRadiateAnimationFolder.addColor(colors, 'deltaColor')
         .onChange(function () {
           var color = hg.util.hsvToHsl(colors.deltaColor);
 
@@ -292,11 +293,49 @@
           hg.HighlightRadiateJob.config.deltaSaturation = color.s * 100;
           hg.HighlightRadiateJob.config.deltaLightness = color.l * 100;
         });
-    shimmerRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'opacity', 0, 1);
+    highlightRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'opacity', 0, 1);
 
     function createRandomHighlightRadiateAnimation() {
       var tileIndex = parseInt(Math.random() * hg.controller.grids[app.main.gridId].tiles.length);
       hg.controller.createHighlightRadiateAnimation(app.main.gridId, tileIndex);
+    }
+  }
+
+  /**
+   * Sets up the shimmer-hover-animation folder within the dat.GUI controller.
+   */
+  function initHighlightHoverAnimationFolder(parentFolder) {
+    var highlightHoverAnimationFolder, data, colors;
+
+    colors = [];
+    colors.deltaColor = hg.util.hslToHsv({
+      h: hg.HighlightHoverJob.config.deltaHue,
+      s: hg.HighlightHoverJob.config.deltaSaturation * 0.01,
+      l: hg.HighlightHoverJob.config.deltaLightness * 0.01
+    });
+
+    highlightHoverAnimationFolder = parentFolder.addFolder('Hover Highlight');
+
+    data = {
+      'triggerHighlightHover': createRandomHighlightHoverAnimation
+    };
+
+    highlightHoverAnimationFolder.add(data, 'triggerHighlightHover');
+
+    highlightHoverAnimationFolder.add(hg.HighlightHoverJob.config, 'duration', 10, 10000);
+    highlightHoverAnimationFolder.addColor(colors, 'deltaColor')
+        .onChange(function () {
+          var color = hg.util.hsvToHsl(colors.deltaColor);
+
+          hg.HighlightHoverJob.config.deltaHue = color.h;
+          hg.HighlightHoverJob.config.deltaSaturation = color.s * 100;
+          hg.HighlightHoverJob.config.deltaLightness = color.l * 100;
+        });
+    highlightHoverAnimationFolder.add(hg.HighlightHoverJob.config, 'opacity', 0, 1);
+
+    function createRandomHighlightHoverAnimation() {
+      var tileIndex = parseInt(Math.random() * hg.controller.grids[app.main.gridId].tiles.length);
+      hg.controller.createHighlightHoverAnimation(app.main.gridId, tileIndex);
     }
   }
 

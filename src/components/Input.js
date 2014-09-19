@@ -33,12 +33,21 @@
     // TODO: add touch support
 
     function handlePointerOut(event) {
+      var tileIndex, tile;
+
       if (!event.toElement && !event.relatedTarget) {
         // The mouse has left the viewport
 
         // TODO: handle the mouse out event
-      } else if (event.target.classList.contains('hg-post-tile')) {
-        // TODO: trigger a HighlightHoverJob
+      } else if (event.target.classList.contains('hg-tile')) {
+        tileIndex = event.target.id.substr(3);
+        tile = input.grid.tiles[tileIndex];
+
+        if (event.target.classList.contains('hg-post-tile')) {
+          // TODO: reset the other tile parameters
+        }
+
+        hg.controller.createHighlightHoverAnimation(input.grid.index, tileIndex);
 
         event.stopPropagation();
       }

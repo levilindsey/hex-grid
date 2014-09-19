@@ -647,6 +647,7 @@
     grid.innerIndexOfLastContentTile = null;
     grid.centerX = Number.NaN;
     grid.centerY = Number.NaN;
+    grid.index = Number.NaN;
 
     grid.animations = {};
 

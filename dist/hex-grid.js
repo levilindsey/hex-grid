@@ -35,6 +35,7 @@
     controller.grids.push(grid);
     hg.animator.startJob(grid);
     index = controller.grids.length - 1;
+    grid.index = index;
 
     createColorResetAnimation(index);
     createColorShiftAnimation(index);
@@ -227,6 +228,33 @@
   }
 
   /**
+   * Creates a new HighlightHoverJob based off the tile at the given index.
+   *
+   * @param {number} gridIndex
+   * @param {number} tileIndex
+   */
+  function createHighlightHoverAnimation(gridIndex, tileIndex) {
+    var job, grid, tile;
+
+    grid = controller.grids[gridIndex];
+    tile = grid.tiles[tileIndex];
+
+    controller.grids[gridIndex].animations.highlightHoverAnimations =
+        controller.grids[gridIndex].animations.highlightHoverAnimations || [];
+
+    job = new hg.HighlightHoverJob(tile, onComplete);
+    controller.highlightHoverAnimationJobs.push(job);
+    hg.animator.startJob(job);
+
+    controller.grids[gridIndex].animations.highlightHoverAnimations.push(job);
+
+    function onComplete() {
+      controller.grids[gridIndex].animations.highlightHoverAnimations.splice(
+          controller.grids[gridIndex].animations.highlightHoverAnimations.indexOf(job), 1);
+    }
+  }
+
+  /**
    * Creates a new HighlightRadiateJob based off the tile at the given index.
    *
    * @param {number} gridIndex
@@ -237,8 +265,8 @@
 
     grid = controller.grids[gridIndex];
 
-    controller.grids[gridIndex].animations.shimmerAnimations =
-        controller.grids[gridIndex].animations.shimmerAnimations || [];
+    controller.grids[gridIndex].animations.highlightRadiateAnimations =
+        controller.grids[gridIndex].animations.highlightRadiateAnimations || [];
 
     startPoint = {
       x: grid.tiles[tileIndex].originalCenterX,
@@ -246,14 +274,14 @@
     };
 
     job = new hg.HighlightRadiateJob(startPoint, grid, onComplete);
-    controller.shimmerRadiateAnimationJobs.push(job);
+    controller.highlightRadiateAnimationJobs.push(job);
     hg.animator.startJob(job);
 
-    controller.grids[gridIndex].animations.shimmerAnimations.push(job);
+    controller.grids[gridIndex].animations.highlightRadiateAnimations.push(job);
 
     function onComplete() {
-      controller.grids[gridIndex].animations.shimmerAnimations.splice(
-          controller.grids[gridIndex].animations.shimmerAnimations.indexOf(job), 1);
+      controller.grids[gridIndex].animations.highlightRadiateAnimations.splice(
+          controller.grids[gridIndex].animations.highlightRadiateAnimations.indexOf(job), 1);
     }
   }
 
@@ -287,7 +315,8 @@
   controller.colorWaveAnimationJobs = [];
   controller.linesRadiateAnimationJobs = [];
   controller.randomLineAnimationJobs = [];
-  controller.shimmerRadiateAnimationJobs = [];
+  controller.highlightHoverAnimationJobs = [];
+  controller.highlightRadiateAnimationJobs = [];
 
   controller.config = config;
 
@@ -297,6 +326,7 @@
   controller.restartDisplacementWaveAnimation = restartDisplacementWaveAnimation;
   controller.createLinesRadiateAnimation = createLinesRadiateAnimation;
   controller.createRandomLineAnimation = createRandomLineAnimation;
+  controller.createHighlightHoverAnimation = createHighlightHoverAnimation;
   controller.createHighlightRadiateAnimation = createHighlightRadiateAnimation;
   controller.resize = resize;
 
@@ -2933,6 +2963,7 @@
     grid.innerIndexOfLastContentTile = null;
     grid.centerX = Number.NaN;
     grid.centerY = Number.NaN;
+    grid.index = Number.NaN;
 
     grid.animations = {};
 
@@ -2997,12 +3028,21 @@
     // TODO: add touch support
 
     function handlePointerOut(event) {
+      var tileIndex, tile;
+
       if (!event.toElement && !event.relatedTarget) {
         // The mouse has left the viewport
 
         // TODO: handle the mouse out event
-      } else if (event.target.classList.contains('hg-post-tile')) {
-        // TODO: trigger a HighlightHoverJob
+      } else if (event.target.classList.contains('hg-tile')) {
+        tileIndex = event.target.id.substr(3);
+        tile = input.grid.tiles[tileIndex];
+
+        if (event.target.classList.contains('hg-post-tile')) {
+          // TODO: reset the other tile parameters
+        }
+
+        hg.controller.createHighlightHoverAnimation(input.grid.index, tileIndex);
 
         event.stopPropagation();
       }
@@ -3184,6 +3224,7 @@
     tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
 
+    tile.element.id = 'hg-' + tile.index;
     tile.element.classList.add('hg-tile');
 
     // Set the color and vertices
@@ -3856,6 +3897,14 @@
 
   var config = {};
 
+  config.duration = 600;
+
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 60;
+
+  config.opacity = 0.6;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -3945,13 +3994,13 @@
   /**
    * @constructor
    * @global
-   * @param {Grid} grid
+   * @param {Tile} tile
    * @param {Function} onComplete
    */
-  function HighlightHoverJob(grid, onComplete) {
+  function HighlightHoverJob(tile, onComplete) {
     var job = this;
 
-    job.grid = grid;
+    job.tile = tile;
     job.startTime = 0;
     job.isComplete = false;
 
