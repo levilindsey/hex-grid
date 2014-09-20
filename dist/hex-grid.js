@@ -3892,6 +3892,8 @@
  * @module HighlightHoverJob
  */
 (function () {
+  // TODO: add a cubic bezier curve that actually makes the highlight brighter briefly before fading it?
+
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
@@ -3909,22 +3911,35 @@
   // Private dynamic functions
 
   /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   * @this HighlightHoverJob
    */
-  function checkForComplete() {
+  function handleComplete(wasCancelled) {
     var job = this;
 
-    // TODO:
-//    if (???) {
-//      console.log('HighlightHoverJob completed');
-//
-//      job.isComplete = true;
-//      job.onComplete(true);
-//    }
+    console.log('HighlightHoverJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
+
+  /**
+   * Updates the color of the given tile according to the given durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateTile(tile, oneMinusDurationRatio) {
+    var opacity = config.opacity * oneMinusDurationRatio;
+
+    tile.currentHue = tile.currentHue + config.deltaHue * opacity;
+    tile.currentSaturation = tile.currentSaturation + config.deltaSaturation * opacity;
+    tile.currentLightness = tile.currentLightness + config.deltaLightness * opacity;
+  }
 
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
@@ -3939,8 +3954,6 @@
 
     job.startTime = Date.now();
     job.isComplete = false;
-
-    // TODO:
   }
 
   /**
@@ -3953,11 +3966,17 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job = this;
+    var job, oneMinusDurationRatio;
 
-    // TODO:
+    job = this;
 
-    checkForComplete.call(job);
+    if (currentTime > job.startTime + config.duration) {
+      handleComplete.call(job, false);
+    } else {
+      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+
+      updateTile(job.tile, oneMinusDurationRatio);
+    }
   }
 
   /**
@@ -3968,9 +3987,7 @@
    * @this HighlightHoverJob
    */
   function draw() {
-    var job = this;
-
-    // TODO:
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
@@ -3981,11 +3998,7 @@
   function cancel() {
     var job = this;
 
-    // TODO:
-
-    job.onComplete(false);
-
-    job.isComplete = true;
+    handleComplete.call(job, true);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -4012,6 +4025,8 @@
 
     console.log('HighlightHoverJob created');
   }
+
+  HighlightHoverJob.config = config;
 
   // Expose this module
   if (!window.hg) window.hg = {};
