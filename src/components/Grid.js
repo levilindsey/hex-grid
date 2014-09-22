@@ -618,6 +618,26 @@
     grid.isComplete = true;
   }
 
+  /**
+   * Sets the tile that the pointer is currently hovering over.
+   *
+   * @this Grid
+   * @param {Tile} hoveredTile
+   */
+  function setHoveredTile(hoveredTile) {
+    var grid = this;
+
+    if (grid.hoveredTile) {
+      grid.hoveredTile.setIsHighlighted(false);
+    }
+
+    if (hoveredTile) {
+      hoveredTile.setIsHighlighted(true);
+    }
+
+    grid.hoveredTile = hoveredTile;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -662,6 +682,7 @@
     grid.updateTileColor = updateTileColor;
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
+    grid.setHoveredTile = setHoveredTile;
 
     createSvg.call(grid);
     computeContentIndices.call(grid);

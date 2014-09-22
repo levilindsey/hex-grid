@@ -63,6 +63,7 @@
 
     tile.element.id = 'hg-' + tile.index;
     tile.element.classList.add('hg-tile');
+    tile.element.style.cursor = 'pointer';
 
     // Set the color and vertices
     draw.call(tile);
@@ -275,6 +276,12 @@
   function setColor(hue, saturation, lightness) {
     var tile = this;
 
+    if (tile.isHighlighted) {
+      hue = hue + hg.HighlightHoverJob.config.deltaHue;
+      saturation = saturation + hg.HighlightHoverJob.config.deltaSaturation;
+      lightness = lightness + hg.HighlightHoverJob.config.deltaLightness;
+    }
+
     tile.originalHue = hue;
     tile.originalSaturation = saturation;
     tile.originalLightness = lightness;
@@ -282,6 +289,54 @@
     tile.currentHue = hue;
     tile.currentSaturation = saturation;
     tile.currentLightness = lightness;
+  }
+
+  /**
+   * Sets whether this tile is highlighted.
+   *
+   * @this Tile
+   * @param {boolean} isHighlighted
+   */
+  function setIsHighlighted(isHighlighted) {
+    var tile, hue, saturation, lightness;
+
+    tile = this;
+
+    if (isHighlighted) {
+      if (tile.isHighlighted) {
+        // Nothing is changing
+        hue = tile.originalHue;
+        saturation = tile.originalSaturation;
+        lightness = tile.originalLightness;
+      } else {
+        // Add the highlight
+        hue = tile.originalHue + hg.HighlightHoverJob.config.deltaHue * hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalSaturation + hg.HighlightHoverJob.config.deltaSaturation * hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalLightness + hg.HighlightHoverJob.config.deltaLightness * hg.HighlightHoverJob.config.opacity;
+      }
+    } else {
+      if (tile.isHighlighted) {
+        // Remove the highlight
+        hue = tile.originalHue - hg.HighlightHoverJob.config.deltaHue * hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalSaturation - hg.HighlightHoverJob.config.deltaSaturation * hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalLightness - hg.HighlightHoverJob.config.deltaLightness * hg.HighlightHoverJob.config.opacity;
+      } else {
+        // Nothing is changing
+        hue = tile.originalHue;
+        saturation = tile.originalSaturation;
+        lightness = tile.originalLightness;
+      }
+    }
+
+    tile.originalHue = hue;
+    tile.originalSaturation = saturation;
+    tile.originalLightness = lightness;
+
+    tile.currentHue = hue;
+    tile.currentSaturation = saturation;
+    tile.currentLightness = lightness;
+
+    tile.isHighlighted = isHighlighted;
   }
 
   /**
@@ -549,6 +604,8 @@
     tile.isCornerTile = isCornerTile;
     tile.isInLargerRow = isInLargerRow;
 
+    tile.isHighlighted = false;
+
     tile.neighbors = null;
     tile.vertices = null;
     tile.vertexDeltas = null;
@@ -557,6 +614,7 @@
     tile.setContent = setContent;
     tile.setNeighborTiles = setNeighborTiles;
     tile.setColor = setColor;
+    tile.setIsHighlighted = setIsHighlighted;
     tile.update = update;
     tile.draw = draw;
     tile.applyExternalForce = applyExternalForce;

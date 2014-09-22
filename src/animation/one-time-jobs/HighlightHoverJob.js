@@ -10,20 +10,18 @@
  * @module HighlightHoverJob
  */
 (function () {
-  // TODO: add a cubic bezier curve that actually makes the highlight brighter briefly before fading it?
-
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
   var config = {};
 
-  config.duration = 600;
+  config.duration = 500;
 
   config.deltaHue = 0;
   config.deltaSaturation = 0;
-  config.deltaLightness = 60;
+  config.deltaLightness = 50;
 
-  config.opacity = 0.6;
+  config.opacity = 0.5;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions

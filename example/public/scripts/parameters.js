@@ -24,7 +24,7 @@
    * Sets up the dat.GUI controller.
    */
   function initDatGui() {
-    var gui, miscellaneousFolder, animationsFolder;
+    var gui, miscellaneousFolder, animationsFolder, oneTimeFolder, persistentFolder;
 
     gui = new dat.GUI();
     gui.width = config.datGuiWidth;
@@ -42,15 +42,21 @@
     // --- Animation properties --- //
 
     animationsFolder = gui.addFolder('Animations');
-//    animationsFolder.open();// TODO: remove me
+    animationsFolder.open();// TODO: remove me
 
-    initLinesRadiateAnimationFolder(animationsFolder);
-    initRandomLineAnimationFolder(animationsFolder);
-    initHighlightHoverAnimationFolder(animationsFolder);
-    initHighlightRadiateAnimationFolder(animationsFolder);
-    initColorShiftAnimationFolder(animationsFolder);
-    initColorWaveAnimationFolder(animationsFolder);
-    initDisplacementWaveAnimationFolder(animationsFolder);
+    oneTimeFolder = animationsFolder.addFolder('One Time');
+    oneTimeFolder.open();// TODO: remove me
+
+    initLinesRadiateAnimationFolder(oneTimeFolder);
+    initRandomLineAnimationFolder(oneTimeFolder);
+    initHighlightHoverAnimationFolder(oneTimeFolder);
+    initHighlightRadiateAnimationFolder(oneTimeFolder);
+
+    persistentFolder = animationsFolder.addFolder('Persistent');
+
+    initColorShiftAnimationFolder(persistentFolder);
+    initColorWaveAnimationFolder(persistentFolder);
+    initDisplacementWaveAnimationFolder(persistentFolder);
 
     // TODO: add an additional control to completely hide the dat.GUI controls
   }
@@ -164,9 +170,8 @@
     inputFolder = parentFolder.addFolder('Input');
     inputFolder.open();// TODO: remove me
 
-//    inputFolder.add(hg.Input.config, '').onChange(function (value) {
-//      // TODO:
-//    });
+    inputFolder.add(hg.Input.config, 'clickAnimation',
+        Object.keys(hg.Input.config.possibleClickAnimations));
   }
 
   /**

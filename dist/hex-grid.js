@@ -2934,6 +2934,26 @@
     grid.isComplete = true;
   }
 
+  /**
+   * Sets the tile that the pointer is currently hovering over.
+   *
+   * @this Grid
+   * @param {Tile} hoveredTile
+   */
+  function setHoveredTile(hoveredTile) {
+    var grid = this;
+
+    if (grid.hoveredTile) {
+      grid.hoveredTile.setIsHighlighted(false);
+    }
+
+    if (hoveredTile) {
+      hoveredTile.setIsHighlighted(true);
+    }
+
+    grid.hoveredTile = hoveredTile;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -2978,6 +2998,7 @@
     grid.updateTileColor = updateTileColor;
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
+    grid.setHoveredTile = setHoveredTile;
 
     createSvg.call(grid);
     computeContentIndices.call(grid);
@@ -3005,6 +3026,15 @@
 (function () {
   var config = {};
 
+  config.clickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
+
+  config.possibleClickAnimations = {
+    'Radiate Highlight': hg.controller.createHighlightRadiateAnimation,
+    'Radiate Lines': hg.controller.createLinesRadiateAnimation,
+    'Random Line': hg.controller.createRandomLineAnimation,
+    'None': function () {}
+  };
+
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
@@ -3021,28 +3051,42 @@
 
     input = this;
 
+    document.addEventListener('mouseover', handlePointerOver, false);
     document.addEventListener('mouseout', handlePointerOut, false);
     document.addEventListener('mousemove', handlePointerMove, false);
     document.addEventListener('mousedown', handlePointerDown, false);
     document.addEventListener('mouseup', handlePointerUp, false);
     // TODO: add touch support
 
-    function handlePointerOut(event) {
-      var tileIndex, tile;
+    function handlePointerOver(event) {
+      var tile;
 
-      if (!event.toElement && !event.relatedTarget) {
-        // The mouse has left the viewport
+      if (tile = getTileFromEvent(event)) {
 
-        // TODO: handle the mouse out event
-      } else if (event.target.classList.contains('hg-tile')) {
-        tileIndex = event.target.id.substr(3);
-        tile = input.grid.tiles[tileIndex];
-
-        if (event.target.classList.contains('hg-post-tile')) {
+        if (tile.element.classList.contains('hg-post-tile')) {
           // TODO: reset the other tile parameters
         }
 
-        hg.controller.createHighlightHoverAnimation(input.grid.index, tileIndex);
+        input.grid.setHoveredTile(tile);
+      }
+    }
+
+    function handlePointerOut(event) {
+      var tile;
+
+      if (!event.relatedTarget || event.relatedTarget.nodeName === 'HTML') {
+        console.log('The mouse left the viewport');
+
+        input.grid.setHoveredTile(null);
+      } else if (tile = getTileFromEvent(event)) {
+
+        if (tile.element.classList.contains('hg-post-tile')) {
+          // TODO: reset the other tile parameters
+        }
+
+        input.grid.setHoveredTile(null);
+
+        hg.controller.createHighlightHoverAnimation(input.grid.index, tile.index);
 
         event.stopPropagation();
       }
@@ -3063,73 +3107,36 @@
     }
 
     function handlePointerUp(event) {
-      if (event.target.classList.contains('hg-post-tile')) {
-        // TODO:
+      var tile;
+
+      if (tile = getTileFromEvent(event)) {
+
+        if (tile.element.classList.contains('hg-post-tile')) {
+          // TODO:
+        }
+
+        createClickAnimation(input.grid.index, tile.index);
       }
     }
 
-    // TODO:
+    function getTileFromEvent(event) {
+      var tileIndex;
+
+      if (event.target.classList.contains('hg-tile')) {
+        tileIndex = event.target.id.substr(3);
+        return input.grid.tiles[tileIndex];
+      } else {
+        return null;
+      }
+    }
   }
 
-  /**
-   * Checks whether the given point intersects with the same tile that was intersected during the
-   * last movement event.
-   *
-   * @this Input
-   * @param {number} x
-   * @param {number} y
-   */
-  function checkOldTileIntersection(x, y) {
-    var input;
-
-    input = this;
-
-    // TODO:
-  }
-
-  /**
-   * Checks whether the given point intersects with any tile in the grid.
-   *
-   * @this Input
-   * @param {number} x
-   * @param {number} y
-   */
-  function checkNewTileIntersection(x, y) {
-    var input;
-
-    input = this;
-
-    // TODO:
-    // - pre-compute the start and end x and y coordinates of each column and row
-    // - this function then simply loops over these until finding the one or two rows and columns that the point intersects
-    // - then there are at most four tiles to actually check for intersection within
+  function createClickAnimation(gridIndex, tileIndex) {
+    config.possibleClickAnimations[config.clickAnimation](gridIndex, tileIndex);
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
-
-  /**
-   * Checks whether the given point intersects with the given tile.
-   *
-   * @param {Tile} tile
-   * @param {number} x
-   * @param {number} y
-   */
-  function checkTileIntersection(tile, x, y) {
-    return checkTileBoundingBoxIntersection(tile, x, y) &&
-        util.isPointInsidePolyline(x, y, tile.vertices, false);
-  }
-
-  /**
-   * Checks whether the given point intersects with the bounding box of the given tile.
-   *
-   * @param {Tile} tile
-   * @param {number} x
-   * @param {number} y
-   */
-  function checkTileBoundingBoxIntersection(tile, x, y) {
-    // TODO:
-  }
 
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
@@ -3226,6 +3233,7 @@
 
     tile.element.id = 'hg-' + tile.index;
     tile.element.classList.add('hg-tile');
+    tile.element.style.cursor = 'pointer';
 
     // Set the color and vertices
     draw.call(tile);
@@ -3438,6 +3446,12 @@
   function setColor(hue, saturation, lightness) {
     var tile = this;
 
+    if (tile.isHighlighted) {
+      hue = hue + hg.HighlightHoverJob.config.deltaHue;
+      saturation = saturation + hg.HighlightHoverJob.config.deltaSaturation;
+      lightness = lightness + hg.HighlightHoverJob.config.deltaLightness;
+    }
+
     tile.originalHue = hue;
     tile.originalSaturation = saturation;
     tile.originalLightness = lightness;
@@ -3445,6 +3459,54 @@
     tile.currentHue = hue;
     tile.currentSaturation = saturation;
     tile.currentLightness = lightness;
+  }
+
+  /**
+   * Sets whether this tile is highlighted.
+   *
+   * @this Tile
+   * @param {boolean} isHighlighted
+   */
+  function setIsHighlighted(isHighlighted) {
+    var tile, hue, saturation, lightness;
+
+    tile = this;
+
+    if (isHighlighted) {
+      if (tile.isHighlighted) {
+        // Nothing is changing
+        hue = tile.originalHue;
+        saturation = tile.originalSaturation;
+        lightness = tile.originalLightness;
+      } else {
+        // Add the highlight
+        hue = tile.originalHue + hg.HighlightHoverJob.config.deltaHue * hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalSaturation + hg.HighlightHoverJob.config.deltaSaturation * hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalLightness + hg.HighlightHoverJob.config.deltaLightness * hg.HighlightHoverJob.config.opacity;
+      }
+    } else {
+      if (tile.isHighlighted) {
+        // Remove the highlight
+        hue = tile.originalHue - hg.HighlightHoverJob.config.deltaHue * hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalSaturation - hg.HighlightHoverJob.config.deltaSaturation * hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalLightness - hg.HighlightHoverJob.config.deltaLightness * hg.HighlightHoverJob.config.opacity;
+      } else {
+        // Nothing is changing
+        hue = tile.originalHue;
+        saturation = tile.originalSaturation;
+        lightness = tile.originalLightness;
+      }
+    }
+
+    tile.originalHue = hue;
+    tile.originalSaturation = saturation;
+    tile.originalLightness = lightness;
+
+    tile.currentHue = hue;
+    tile.currentSaturation = saturation;
+    tile.currentLightness = lightness;
+
+    tile.isHighlighted = isHighlighted;
   }
 
   /**
@@ -3712,6 +3774,8 @@
     tile.isCornerTile = isCornerTile;
     tile.isInLargerRow = isInLargerRow;
 
+    tile.isHighlighted = false;
+
     tile.neighbors = null;
     tile.vertices = null;
     tile.vertexDeltas = null;
@@ -3720,6 +3784,7 @@
     tile.setContent = setContent;
     tile.setNeighborTiles = setNeighborTiles;
     tile.setColor = setColor;
+    tile.setIsHighlighted = setIsHighlighted;
     tile.update = update;
     tile.draw = draw;
     tile.applyExternalForce = applyExternalForce;
@@ -3748,6 +3813,8 @@
 
 // TODO: tile.element.classList.add('hg-post-tile') to any tile that contains a TilePost (and remove it when destroying the post)
 // TODO: post.element.style.pointerEvents = 'none';
+// TODO: post.element.style.userSelect = 'none'; // or is this redundant?
+
 'use strict';
 
 /**
@@ -3892,20 +3959,18 @@
  * @module HighlightHoverJob
  */
 (function () {
-  // TODO: add a cubic bezier curve that actually makes the highlight brighter briefly before fading it?
-
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
   var config = {};
 
-  config.duration = 600;
+  config.duration = 500;
 
   config.deltaHue = 0;
   config.deltaSaturation = 0;
-  config.deltaLightness = 60;
+  config.deltaLightness = 50;
 
-  config.opacity = 0.6;
+  config.opacity = 0.5;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -4058,9 +4123,9 @@
 
   config.deltaHue = 0;
   config.deltaSaturation = 0;
-  config.deltaLightness = 70;
+  config.deltaLightness = 50;
 
-  config.opacity = 0.7;
+  config.opacity = 0.5;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions

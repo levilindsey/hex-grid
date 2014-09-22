@@ -21,9 +21,9 @@
 
   config.deltaHue = 0;
   config.deltaSaturation = 0;
-  config.deltaLightness = 70;
+  config.deltaLightness = 50;
 
-  config.opacity = 0.7;
+  config.opacity = 0.5;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
