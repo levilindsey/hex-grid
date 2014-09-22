@@ -437,6 +437,7 @@
 
       annotations.indexTexts[i].setAttribute('font-size', '16');
       annotations.indexTexts[i].setAttribute('fill', 'black');
+      annotations.indexTexts[i].setAttribute('pointer-events', 'none');
     }
   }
 
