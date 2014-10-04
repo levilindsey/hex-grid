@@ -206,7 +206,8 @@
     linesRadiateAnimationFolder = parentFolder.addFolder('Radiating Lines');
 
     data = {
-      'triggerLinesRadiate': createRandomLinesRadiateAnimation
+      'triggerLinesRadiate':
+          hg.controller.createRandomLinesRadiateAnimation.bind(hg.controller, app.main.gridId)
     };
 
     linesRadiateAnimationFolder.add(data, 'triggerLinesRadiate');
@@ -226,9 +227,19 @@
     linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'isBlurOn');
     linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'blurStdDeviation', 0, 80);
 
-    function createRandomLinesRadiateAnimation() {
-      var tileIndex = parseInt(Math.random() * hg.controller.grids[app.main.gridId].tiles.length);
-      hg.controller.createLinesRadiateAnimation(app.main.gridId, tileIndex);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'isRecurring')
+        .onChange(toggleRecurrence);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'avgDelay', 10, 10000)
+        .onChange(toggleRecurrence);
+    linesRadiateAnimationFolder.add(hg.LinesRadiateJob.config, 'delayDeviationRange', 0, 10000)
+        .onChange(toggleRecurrence);
+
+    function toggleRecurrence() {
+      hg.controller.toggleLinesRadiateJobRecurrence(
+          app.main.gridId,
+          hg.LinesRadiateJob.config.isRecurring,
+          hg.LinesRadiateJob.config.avgDelay,
+          hg.LinesRadiateJob.config.delayDeviationRange);
     }
   }
 
@@ -241,7 +252,7 @@
     randomLineAnimationFolder = parentFolder.addFolder('Random Lines');
 
     data = {
-      'triggerLine': createRandomLineAnimation
+      'triggerLine': hg.controller.createRandomLineAnimation.bind(hg.controller, app.main.gridId)
     };
 
     randomLineAnimationFolder.add(data, 'triggerLine');
@@ -261,8 +272,19 @@
     randomLineAnimationFolder.add(hg.LineJob.config, 'isBlurOn');
     randomLineAnimationFolder.add(hg.LineJob.config, 'blurStdDeviation', 0, 80);
 
-    function createRandomLineAnimation() {
-      hg.controller.createRandomLineAnimation(app.main.gridId);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'isRecurring')
+        .onChange(toggleRecurrence);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'avgDelay', 10, 10000)
+        .onChange(toggleRecurrence);
+    randomLineAnimationFolder.add(hg.LineJob.config, 'delayDeviationRange', 0, 10000)
+        .onChange(toggleRecurrence);
+
+    function toggleRecurrence() {
+      hg.controller.toggleRandomLineJobRecurrence(
+          app.main.gridId,
+          hg.LineJob.config.isRecurring,
+          hg.LineJob.config.avgDelay,
+          hg.LineJob.config.delayDeviationRange);
     }
   }
 
@@ -282,7 +304,8 @@
     highlightRadiateAnimationFolder = parentFolder.addFolder('Radiating Highlight');
 
     data = {
-      'triggerHighlightRadiate': createRandomHighlightRadiateAnimation
+      'triggerHighlightRadiate':
+          hg.controller.createRandomHighlightRadiateAnimation.bind(hg.controller, app.main.gridId)
     };
 
     highlightRadiateAnimationFolder.add(data, 'triggerHighlightRadiate');
@@ -300,9 +323,20 @@
         });
     highlightRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'opacity', 0, 1);
 
-    function createRandomHighlightRadiateAnimation() {
-      var tileIndex = parseInt(Math.random() * hg.controller.grids[app.main.gridId].tiles.length);
-      hg.controller.createHighlightRadiateAnimation(app.main.gridId, tileIndex);
+    highlightRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'isRecurring')
+        .onChange(toggleRecurrence);
+    highlightRadiateAnimationFolder.add(hg.HighlightRadiateJob.config, 'avgDelay', 10, 10000)
+        .onChange(toggleRecurrence);
+    highlightRadiateAnimationFolder
+        .add(hg.HighlightRadiateJob.config, 'delayDeviationRange', 0, 10000)
+        .onChange(toggleRecurrence);
+
+    function toggleRecurrence() {
+      hg.controller.toggleHighlightRadiateJobRecurrence(
+          app.main.gridId,
+          hg.HighlightRadiateJob.config.isRecurring,
+          hg.HighlightRadiateJob.config.avgDelay,
+          hg.HighlightRadiateJob.config.delayDeviationRange);
     }
   }
 
@@ -322,7 +356,8 @@
     highlightHoverAnimationFolder = parentFolder.addFolder('Hover Highlight');
 
     data = {
-      'triggerHighlightHover': createRandomHighlightHoverAnimation
+      'triggerHighlightHover':
+          hg.controller.createRandomHighlightHoverAnimation.bind(hg.controller, app.main.gridId)
     };
 
     highlightHoverAnimationFolder.add(data, 'triggerHighlightHover');
@@ -338,9 +373,19 @@
         });
     highlightHoverAnimationFolder.add(hg.HighlightHoverJob.config, 'opacity', 0, 1);
 
-    function createRandomHighlightHoverAnimation() {
-      var tileIndex = parseInt(Math.random() * hg.controller.grids[app.main.gridId].tiles.length);
-      hg.controller.createHighlightHoverAnimation(app.main.gridId, tileIndex);
+    highlightHoverAnimationFolder.add(hg.HighlightHoverJob.config, 'isRecurring')
+        .onChange(toggleRecurrence);
+    highlightHoverAnimationFolder.add(hg.HighlightHoverJob.config, 'avgDelay', 10, 2000)
+        .onChange(toggleRecurrence);
+    highlightHoverAnimationFolder.add(hg.HighlightHoverJob.config, 'delayDeviationRange', 0, 2000)
+        .onChange(toggleRecurrence);
+
+    function toggleRecurrence() {
+      hg.controller.toggleHighlightHoverJobRecurrence(
+          app.main.gridId,
+          hg.HighlightHoverJob.config.isRecurring,
+          hg.HighlightHoverJob.config.avgDelay,
+          hg.HighlightHoverJob.config.delayDeviationRange);
     }
   }
 

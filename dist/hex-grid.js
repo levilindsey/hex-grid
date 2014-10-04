@@ -49,7 +49,44 @@
     input = new hg.Input(grid);
     controller.inputs.push(input);
 
+    startRecurringAnimations(index);
+
     return index;
+  }
+
+  /**
+   * Starts repeating any AnimationJobs that are configured to recur.
+   *
+   * @param {number} gridIndex
+   */
+  function startRecurringAnimations(gridIndex) {
+    if (hg.HighlightHoverJob.config.isRecurring) {
+      controller.toggleHighlightHoverJobRecurrence(
+          gridIndex, true,
+          hg.HighlightHoverJob.config.avgDelay,
+          hg.HighlightHoverJob.config.delayDeviationRange);
+    }
+
+    if (hg.HighlightRadiateJob.config.isRecurring) {
+      controller.toggleHighlightRadiateJobRecurrence(
+          gridIndex, true,
+          hg.HighlightRadiateJob.config.avgDelay,
+          hg.HighlightRadiateJob.config.delayDeviationRange);
+    }
+
+    if (hg.LineJob.config.isRecurring) {
+      controller.toggleRandomLineJobRecurrence(
+          gridIndex, true,
+          hg.LineJob.config.avgDelay,
+          hg.LineJob.config.delayDeviationRange);
+    }
+
+    if (hg.LinesRadiateJob.config.isRecurring) {
+      controller.toggleLinesRadiateJobRecurrence(
+          gridIndex, true,
+          hg.LinesRadiateJob.config.avgDelay,
+          hg.LinesRadiateJob.config.delayDeviationRange);
+    }
   }
 
   /**
@@ -59,7 +96,7 @@
    */
   function createColorResetAnimation(gridIndex) {
     var job = new hg.ColorResetJob(controller.grids[gridIndex]);
-    controller.colorResetAnimationJobs.push(job);
+    controller.colorResetJobs.push(job);
     restartColorResetAnimation(gridIndex);
 
     controller.grids[gridIndex].animations.colorResetAnimations =
@@ -74,7 +111,7 @@
    */
   function createColorShiftAnimation(gridIndex) {
     var job = new hg.ColorShiftJob(controller.grids[gridIndex]);
-    controller.colorShiftAnimationJobs.push(job);
+    controller.colorShiftJobs.push(job);
     restartColorShiftAnimation(gridIndex);
 
     controller.grids[gridIndex].animations.colorShiftAnimations =
@@ -89,7 +126,7 @@
    */
   function createColorWaveAnimation(gridIndex) {
     var job = new hg.ColorWaveJob(controller.grids[gridIndex]);
-    controller.colorWaveAnimationJobs.push(job);
+    controller.colorWaveJobs.push(job);
     restartColorWaveAnimation(gridIndex);
 
     controller.grids[gridIndex].animations.colorWaveAnimations =
@@ -104,7 +141,7 @@
    */
   function createDisplacementWaveAnimation(gridIndex) {
     var job = new hg.DisplacementWaveJob(controller.grids[gridIndex]);
-    controller.displacementWaveAnimationJobs.push(job);
+    controller.displacementWaveJobs.push(job);
     restartDisplacementWaveAnimation(gridIndex);
 
     controller.grids[gridIndex].animations.displacementWaveAnimations =
@@ -118,7 +155,7 @@
    * @param {number} index
    */
   function restartColorResetAnimation(index) {
-    var job = controller.colorResetAnimationJobs[index];
+    var job = controller.colorResetJobs[index];
 
     if (!job.isComplete) {
       hg.animator.cancelJob(job);
@@ -134,7 +171,7 @@
    * @param {number} index
    */
   function restartColorShiftAnimation(index) {
-    var job = controller.colorShiftAnimationJobs[index];
+    var job = controller.colorShiftJobs[index];
 
     if (!job.isComplete) {
       hg.animator.cancelJob(job);
@@ -150,7 +187,7 @@
    * @param {number} index
    */
   function restartColorWaveAnimation(index) {
-    var job = controller.colorWaveAnimationJobs[index];
+    var job = controller.colorWaveJobs[index];
 
     if (!job.isComplete) {
       hg.animator.cancelJob(job);
@@ -166,7 +203,7 @@
    * @param {number} index
    */
   function restartDisplacementWaveAnimation(index) {
-    var job = controller.displacementWaveAnimationJobs[index];
+    var job = controller.displacementWaveJobs[index];
 
     if (!job.isComplete) {
       hg.animator.cancelJob(job);
@@ -190,11 +227,11 @@
     grid.animations.lineAnimations = grid.animations.lineAnimations || [];
 
     job = new hg.LinesRadiateJob(grid, grid.tiles[tileIndex], onComplete);
-    controller.linesRadiateAnimationJobs.push(job);
+    controller.linesRadiateJobs.push(job);
     hg.animator.startJob(job);
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      grid.animations.lineAnimations.push(job.lineAnimationJobs[i]);
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      grid.animations.lineAnimations.push(job.lineJobs[i]);
     }
 
     function onComplete(job) {
@@ -204,7 +241,7 @@
   }
 
   /**
-   * Creates a new RandomLIneAnimationJob.
+   * Creates a new random LineJob.
    *
    * @param {number} gridIndex
    */
@@ -214,9 +251,9 @@
     controller.grids[gridIndex].animations.lineAnimations =
         controller.grids[gridIndex].animations.lineAnimations || [];
 
-    job = hg.LineJob.createRandomLineAnimationJob(controller.grids[gridIndex],
+    job = hg.LineJob.createRandomLineJob(controller.grids[gridIndex],
         onComplete);
-    controller.randomLineAnimationJobs.push(job);
+    controller.randomLineJobs.push(job);
     hg.animator.startJob(job);
 
     controller.grids[gridIndex].animations.lineAnimations.push(job);
@@ -243,7 +280,7 @@
         controller.grids[gridIndex].animations.highlightHoverAnimations || [];
 
     job = new hg.HighlightHoverJob(tile, onComplete);
-    controller.highlightHoverAnimationJobs.push(job);
+    controller.highlightHoverJobs.push(job);
     hg.animator.startJob(job);
 
     controller.grids[gridIndex].animations.highlightHoverAnimations.push(job);
@@ -274,7 +311,7 @@
     };
 
     job = new hg.HighlightRadiateJob(startPoint, grid, onComplete);
-    controller.highlightRadiateAnimationJobs.push(job);
+    controller.highlightRadiateJobs.push(job);
     hg.animator.startJob(job);
 
     controller.grids[gridIndex].animations.highlightRadiateAnimations.push(job);
@@ -282,6 +319,77 @@
     function onComplete() {
       controller.grids[gridIndex].animations.highlightRadiateAnimations.splice(
           controller.grids[gridIndex].animations.highlightRadiateAnimations.indexOf(job), 1);
+    }
+  }
+
+  /**
+   * Creates a HighlightRadiateJob based off of a random tile.
+   *
+   * @param {number} gridIndex
+   */
+  function createRandomHighlightRadiateAnimation(gridIndex) {
+    var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
+    createHighlightRadiateAnimation(gridIndex, tileIndex);
+  }
+
+  /**
+   * Creates a HighlightHoverJob based off of a random tile.
+   *
+   * @param {number} gridIndex
+   */
+  function createRandomHighlightHoverAnimation(gridIndex) {
+    var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
+    createHighlightHoverAnimation(gridIndex, tileIndex);
+  }
+
+  /**
+   * Creates a LinesRadiateJob based off of a random tile.
+   *
+   * @param {number} gridIndex
+   */
+  function createRandomLinesRadiateAnimation(gridIndex) {
+    var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
+    createLinesRadiateAnimation(gridIndex, tileIndex);
+  }
+
+  /**
+   * Toggles whether an AnimationJob is automatically repeated.
+   *
+   * @param {Function} jobCreator
+   * @param {Array.<number>} jobTimeouts
+   * @param {number} gridIndex
+   * @param {boolean} isRecurring
+   * @param {number} avgDelay
+   * @param {number} delayDeviationRange
+   */
+  function toggleJobRecurrence(jobCreator, jobTimeouts, gridIndex, isRecurring, avgDelay,
+                               delayDeviationRange) {
+    var minDelay, maxDelay, actualDelayRange;
+
+    // Compute the delay deviation range
+    minDelay = avgDelay - delayDeviationRange * 0.5;
+    minDelay = minDelay > 0 ? minDelay : 1;
+    maxDelay = avgDelay + delayDeviationRange * 0.5;
+    actualDelayRange = maxDelay - minDelay;
+
+    // Stop any pre-existing recurrence
+    if (jobTimeouts[gridIndex]) {
+      clearTimeout(jobTimeouts[gridIndex]);
+      jobTimeouts[gridIndex] = null;
+    }
+
+    // Should we start the recurrence?
+    if (isRecurring) {
+      jobTimeouts[gridIndex] = setTimeout(recur, avgDelay);
+    }
+
+    /**
+     * Creates a new occurrence of the AnimationJob and starts a new timeout to repeat this.
+     */
+    function recur() {
+      var delay = Math.random() * actualDelayRange + minDelay;
+      jobCreator(gridIndex);
+      jobTimeouts[gridIndex] = setTimeout(recur, delay);
     }
   }
 
@@ -309,14 +417,19 @@
   controller.grids = [];
   controller.inputs = [];
   controller.annotations = [];
-  controller.colorResetAnimationJobs = [];
-  controller.colorShiftAnimationJobs = [];
-  controller.displacementWaveAnimationJobs = [];
-  controller.colorWaveAnimationJobs = [];
-  controller.linesRadiateAnimationJobs = [];
-  controller.randomLineAnimationJobs = [];
-  controller.highlightHoverAnimationJobs = [];
-  controller.highlightRadiateAnimationJobs = [];
+  controller.colorResetJobs = [];
+  controller.colorShiftJobs = [];
+  controller.displacementWaveJobs = [];
+  controller.colorWaveJobs = [];
+  controller.linesRadiateJobs = [];
+  controller.randomLineJobs = [];
+  controller.highlightHoverJobs = [];
+  controller.highlightRadiateJobs = [];
+
+  controller.highlightHoverRecurrenceTimeouts = [];
+  controller.highlightRadiateRecurrenceTimeouts = [];
+  controller.linesRadiateRecurrenceTimeouts = [];
+  controller.randomLineRecurrenceTimeouts = [];
 
   controller.config = config;
 
@@ -328,6 +441,22 @@
   controller.createRandomLineAnimation = createRandomLineAnimation;
   controller.createHighlightHoverAnimation = createHighlightHoverAnimation;
   controller.createHighlightRadiateAnimation = createHighlightRadiateAnimation;
+  controller.createRandomHighlightRadiateAnimation = createRandomHighlightRadiateAnimation;
+  controller.createRandomHighlightHoverAnimation = createRandomHighlightHoverAnimation;
+  controller.createRandomLinesRadiateAnimation = createRandomLinesRadiateAnimation;
+
+  controller.toggleHighlightHoverJobRecurrence =
+      toggleJobRecurrence.bind(controller, createRandomHighlightHoverAnimation,
+          controller.highlightHoverRecurrenceTimeouts);
+  controller.toggleHighlightRadiateJobRecurrence =
+      toggleJobRecurrence.bind(controller, createRandomHighlightRadiateAnimation,
+          controller.highlightRadiateRecurrenceTimeouts);
+  controller.toggleLinesRadiateJobRecurrence =
+      toggleJobRecurrence.bind(controller, createRandomLinesRadiateAnimation,
+          controller.linesRadiateRecurrenceTimeouts);
+  controller.toggleRandomLineJobRecurrence =
+      toggleJobRecurrence.bind(controller, createRandomLineAnimation,
+          controller.randomLineRecurrenceTimeouts);
   controller.resize = resize;
 
   // Expose this module
@@ -1095,7 +1224,7 @@
    * @param {AnimationJob} job
    */
   function startJob(job) {
-    console.log('AnimationJob starting: ' + job.constructor.name);
+//    console.log('Job starting: ' + job.constructor.name);
 
     job.start();
     animator.jobs.push(job);
@@ -1109,14 +1238,14 @@
    * @param {AnimationJob} job
    */
   function cancelJob(job) {
-    console.log('AnimationJob cancelling: ' + job.constructor.name);
+    console.log('Job cancelling: ' + job.constructor.name);
 
     job.cancel();
     removeJob(job);
   }
 
   /**
-   * Cancels all running animation jobs.
+   * Cancels all running AnimationJobs.
    */
   function cancelAll() {
     while (animator.jobs.length) {
@@ -3972,6 +4101,10 @@
 
   config.opacity = 0.5;
 
+  config.isRecurring = false;
+  config.avgDelay = 30;
+  config.delayDeviationRange = 20;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -3981,7 +4114,7 @@
   function handleComplete(wasCancelled) {
     var job = this;
 
-    console.log('HighlightHoverJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+//    console.log('HighlightHoverJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
     job.isComplete = true;
 
@@ -4088,7 +4221,7 @@
     job.cancel = cancel;
     job.onComplete = onComplete;
 
-    console.log('HighlightHoverJob created');
+//    console.log('HighlightHoverJob created');
   }
 
   HighlightHoverJob.config = config;
@@ -4126,6 +4259,10 @@
   config.deltaLightness = 50;
 
   config.opacity = 0.5;
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -4343,6 +4480,10 @@
   config.blurStdDeviation = 2;
   config.isBlurOn = false;
 
+  config.isRecurring = true;
+  config.avgDelay = 2200;
+  config.delayDeviationRange = 2100;
+
   // ---  --- //
 
   config.NEIGHBOR = 0;
@@ -4368,7 +4509,7 @@
   // Private dynamic functions
 
   /**
-   * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
+   * Creates an SVG definition that is used for blurring the lines of LineJobs.
    *
    * @this LineJob
    */
@@ -5054,7 +5195,7 @@
    * @param {Grid} grid
    * @param {Function} onComplete
    */
-  function createRandomLineAnimationJob(grid, onComplete) {
+  function createRandomLineJob(grid, onComplete) {
     var tile, corner, direction, forcedInitialRelativeDirection;
 
     // Pick a random, non-corner, border tile to start from
@@ -5439,7 +5580,7 @@
   }
 
   LineJob.config = config;
-  LineJob.createRandomLineAnimationJob = createRandomLineAnimationJob;
+  LineJob.createRandomLineJob = createRandomLineJob;
 
   // Expose this module
   if (!window.hg) window.hg = {};
@@ -5483,6 +5624,10 @@
   config.blurStdDeviation = 2;
   config.isBlurOn = false;
 
+  config.isRecurring = false;
+  config.avgDelay = 2000;
+  config.delayDeviationRange = 1800;
+
   // ---  --- //
 
   config.haveDefinedLineBlur = false;
@@ -5492,7 +5637,7 @@
   // Private dynamic functions
 
   /**
-   * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
+   * Creates an SVG definition that is used for blurring the lines of LineJobs.
    *
    * @this LinesRadiateJob
    */
@@ -5524,15 +5669,15 @@
   }
 
   /**
-   * Creates the individual LineAnimationJobs that comprise this LinesRadiateJob.
+   * Creates the individual LineJobs that comprise this LinesRadiateJob.
    *
    * @this LinesRadiateJob
    */
-  function createLineAnimationJobs() {
+  function createLineJobs() {
     var job, i, line;
 
     job = this;
-    job.lineAnimationJobs = [];
+    job.lineJobs = [];
 
     for (i = 0; i < 6; i += 1) {
       try {
@@ -5543,7 +5688,7 @@
         continue;
       }
 
-      job.lineAnimationJobs.push(line);
+      job.lineJobs.push(line);
 
       // Replace the line animation's normal parameters with some that are specific to radiating
       // lines
@@ -5584,9 +5729,9 @@
 
     job = this;
 
-    for (i = 0; i < job.lineAnimationJobs.length; i += 1) {
-      if (job.lineAnimationJobs[i].isComplete) {
-        job.lineAnimationJobs.splice(i--, 1);
+    for (i = 0; i < job.lineJobs.length; i += 1) {
+      if (job.lineJobs[i].isComplete) {
+        job.lineJobs.splice(i--, 1);
       } else {
         return;
       }
@@ -5616,8 +5761,8 @@
     job.startTime = Date.now();
     job.isComplete = false;
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      job.lineAnimationJobs[i].start();
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].start();
     }
   }
 
@@ -5639,11 +5784,11 @@
     job.extraStartPoint.x = job.tile.particle.px;
     job.extraStartPoint.y = job.tile.particle.py;
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      job.lineAnimationJobs[i].update(currentTime, deltaTime);
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].update(currentTime, deltaTime);
 
-      if (job.lineAnimationJobs[i].isComplete) {
-        job.lineAnimationJobs.splice(i, 1);
+      if (job.lineJobs[i].isComplete) {
+        job.lineJobs.splice(i, 1);
         i--;
         count--;
       }
@@ -5666,8 +5811,8 @@
 
     job = this;
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      job.lineAnimationJobs[i].draw();
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].draw();
     }
   }
 
@@ -5681,11 +5826,11 @@
 
     job = this;
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      job.lineAnimationJobs[i].cancel();
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].cancel();
     }
 
-    job.lineAnimationJobs = [];
+    job.lineJobs = [];
 
     job.isComplete = true;
   }
@@ -5708,7 +5853,7 @@
     job.extraStartPoint = { x: tile.particle.px, y: tile.particle.py };
     job.startTime = 0;
     job.isComplete = false;
-    job.lineAnimationJobs = null;
+    job.lineJobs = null;
 
     job.onComplete = onComplete || function () {};
 
@@ -5721,7 +5866,7 @@
       defineLineBlur.call(job);
     }
 
-    createLineAnimationJobs.call(job);
+    createLineJobs.call(job);
 
     console.log('LinesRadiateJob created: tileIndex=' + tile.index);
   }

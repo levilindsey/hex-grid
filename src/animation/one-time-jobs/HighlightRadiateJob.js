@@ -25,6 +25,10 @@
 
   config.opacity = 0.5;
 
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 

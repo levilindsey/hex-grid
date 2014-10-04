@@ -33,6 +33,10 @@
   config.blurStdDeviation = 2;
   config.isBlurOn = false;
 
+  config.isRecurring = false;
+  config.avgDelay = 2000;
+  config.delayDeviationRange = 1800;
+
   // ---  --- //
 
   config.haveDefinedLineBlur = false;
@@ -42,7 +46,7 @@
   // Private dynamic functions
 
   /**
-   * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
+   * Creates an SVG definition that is used for blurring the lines of LineJobs.
    *
    * @this LinesRadiateJob
    */
@@ -74,15 +78,15 @@
   }
 
   /**
-   * Creates the individual LineAnimationJobs that comprise this LinesRadiateJob.
+   * Creates the individual LineJobs that comprise this LinesRadiateJob.
    *
    * @this LinesRadiateJob
    */
-  function createLineAnimationJobs() {
+  function createLineJobs() {
     var job, i, line;
 
     job = this;
-    job.lineAnimationJobs = [];
+    job.lineJobs = [];
 
     for (i = 0; i < 6; i += 1) {
       try {
@@ -93,7 +97,7 @@
         continue;
       }
 
-      job.lineAnimationJobs.push(line);
+      job.lineJobs.push(line);
 
       // Replace the line animation's normal parameters with some that are specific to radiating
       // lines
@@ -134,9 +138,9 @@
 
     job = this;
 
-    for (i = 0; i < job.lineAnimationJobs.length; i += 1) {
-      if (job.lineAnimationJobs[i].isComplete) {
-        job.lineAnimationJobs.splice(i--, 1);
+    for (i = 0; i < job.lineJobs.length; i += 1) {
+      if (job.lineJobs[i].isComplete) {
+        job.lineJobs.splice(i--, 1);
       } else {
         return;
       }
@@ -166,8 +170,8 @@
     job.startTime = Date.now();
     job.isComplete = false;
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      job.lineAnimationJobs[i].start();
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].start();
     }
   }
 
@@ -189,11 +193,11 @@
     job.extraStartPoint.x = job.tile.particle.px;
     job.extraStartPoint.y = job.tile.particle.py;
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      job.lineAnimationJobs[i].update(currentTime, deltaTime);
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].update(currentTime, deltaTime);
 
-      if (job.lineAnimationJobs[i].isComplete) {
-        job.lineAnimationJobs.splice(i, 1);
+      if (job.lineJobs[i].isComplete) {
+        job.lineJobs.splice(i, 1);
         i--;
         count--;
       }
@@ -216,8 +220,8 @@
 
     job = this;
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      job.lineAnimationJobs[i].draw();
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].draw();
     }
   }
 
@@ -231,11 +235,11 @@
 
     job = this;
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      job.lineAnimationJobs[i].cancel();
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].cancel();
     }
 
-    job.lineAnimationJobs = [];
+    job.lineJobs = [];
 
     job.isComplete = true;
   }
@@ -258,7 +262,7 @@
     job.extraStartPoint = { x: tile.particle.px, y: tile.particle.py };
     job.startTime = 0;
     job.isComplete = false;
-    job.lineAnimationJobs = null;
+    job.lineJobs = null;
 
     job.onComplete = onComplete || function () {};
 
@@ -271,7 +275,7 @@
       defineLineBlur.call(job);
     }
 
-    createLineAnimationJobs.call(job);
+    createLineJobs.call(job);
 
     console.log('LinesRadiateJob created: tileIndex=' + tile.index);
   }

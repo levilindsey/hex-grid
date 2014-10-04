@@ -49,7 +49,44 @@
     input = new hg.Input(grid);
     controller.inputs.push(input);
 
+    startRecurringAnimations(index);
+
     return index;
+  }
+
+  /**
+   * Starts repeating any AnimationJobs that are configured to recur.
+   *
+   * @param {number} gridIndex
+   */
+  function startRecurringAnimations(gridIndex) {
+    if (hg.HighlightHoverJob.config.isRecurring) {
+      controller.toggleHighlightHoverJobRecurrence(
+          gridIndex, true,
+          hg.HighlightHoverJob.config.avgDelay,
+          hg.HighlightHoverJob.config.delayDeviationRange);
+    }
+
+    if (hg.HighlightRadiateJob.config.isRecurring) {
+      controller.toggleHighlightRadiateJobRecurrence(
+          gridIndex, true,
+          hg.HighlightRadiateJob.config.avgDelay,
+          hg.HighlightRadiateJob.config.delayDeviationRange);
+    }
+
+    if (hg.LineJob.config.isRecurring) {
+      controller.toggleRandomLineJobRecurrence(
+          gridIndex, true,
+          hg.LineJob.config.avgDelay,
+          hg.LineJob.config.delayDeviationRange);
+    }
+
+    if (hg.LinesRadiateJob.config.isRecurring) {
+      controller.toggleLinesRadiateJobRecurrence(
+          gridIndex, true,
+          hg.LinesRadiateJob.config.avgDelay,
+          hg.LinesRadiateJob.config.delayDeviationRange);
+    }
   }
 
   /**
@@ -59,7 +96,7 @@
    */
   function createColorResetAnimation(gridIndex) {
     var job = new hg.ColorResetJob(controller.grids[gridIndex]);
-    controller.colorResetAnimationJobs.push(job);
+    controller.colorResetJobs.push(job);
     restartColorResetAnimation(gridIndex);
 
     controller.grids[gridIndex].animations.colorResetAnimations =
@@ -74,7 +111,7 @@
    */
   function createColorShiftAnimation(gridIndex) {
     var job = new hg.ColorShiftJob(controller.grids[gridIndex]);
-    controller.colorShiftAnimationJobs.push(job);
+    controller.colorShiftJobs.push(job);
     restartColorShiftAnimation(gridIndex);
 
     controller.grids[gridIndex].animations.colorShiftAnimations =
@@ -89,7 +126,7 @@
    */
   function createColorWaveAnimation(gridIndex) {
     var job = new hg.ColorWaveJob(controller.grids[gridIndex]);
-    controller.colorWaveAnimationJobs.push(job);
+    controller.colorWaveJobs.push(job);
     restartColorWaveAnimation(gridIndex);
 
     controller.grids[gridIndex].animations.colorWaveAnimations =
@@ -104,7 +141,7 @@
    */
   function createDisplacementWaveAnimation(gridIndex) {
     var job = new hg.DisplacementWaveJob(controller.grids[gridIndex]);
-    controller.displacementWaveAnimationJobs.push(job);
+    controller.displacementWaveJobs.push(job);
     restartDisplacementWaveAnimation(gridIndex);
 
     controller.grids[gridIndex].animations.displacementWaveAnimations =
@@ -118,7 +155,7 @@
    * @param {number} index
    */
   function restartColorResetAnimation(index) {
-    var job = controller.colorResetAnimationJobs[index];
+    var job = controller.colorResetJobs[index];
 
     if (!job.isComplete) {
       hg.animator.cancelJob(job);
@@ -134,7 +171,7 @@
    * @param {number} index
    */
   function restartColorShiftAnimation(index) {
-    var job = controller.colorShiftAnimationJobs[index];
+    var job = controller.colorShiftJobs[index];
 
     if (!job.isComplete) {
       hg.animator.cancelJob(job);
@@ -150,7 +187,7 @@
    * @param {number} index
    */
   function restartColorWaveAnimation(index) {
-    var job = controller.colorWaveAnimationJobs[index];
+    var job = controller.colorWaveJobs[index];
 
     if (!job.isComplete) {
       hg.animator.cancelJob(job);
@@ -166,7 +203,7 @@
    * @param {number} index
    */
   function restartDisplacementWaveAnimation(index) {
-    var job = controller.displacementWaveAnimationJobs[index];
+    var job = controller.displacementWaveJobs[index];
 
     if (!job.isComplete) {
       hg.animator.cancelJob(job);
@@ -190,11 +227,11 @@
     grid.animations.lineAnimations = grid.animations.lineAnimations || [];
 
     job = new hg.LinesRadiateJob(grid, grid.tiles[tileIndex], onComplete);
-    controller.linesRadiateAnimationJobs.push(job);
+    controller.linesRadiateJobs.push(job);
     hg.animator.startJob(job);
 
-    for (i = 0, count = job.lineAnimationJobs.length; i < count; i += 1) {
-      grid.animations.lineAnimations.push(job.lineAnimationJobs[i]);
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      grid.animations.lineAnimations.push(job.lineJobs[i]);
     }
 
     function onComplete(job) {
@@ -204,7 +241,7 @@
   }
 
   /**
-   * Creates a new RandomLIneAnimationJob.
+   * Creates a new random LineJob.
    *
    * @param {number} gridIndex
    */
@@ -214,9 +251,9 @@
     controller.grids[gridIndex].animations.lineAnimations =
         controller.grids[gridIndex].animations.lineAnimations || [];
 
-    job = hg.LineJob.createRandomLineAnimationJob(controller.grids[gridIndex],
+    job = hg.LineJob.createRandomLineJob(controller.grids[gridIndex],
         onComplete);
-    controller.randomLineAnimationJobs.push(job);
+    controller.randomLineJobs.push(job);
     hg.animator.startJob(job);
 
     controller.grids[gridIndex].animations.lineAnimations.push(job);
@@ -243,7 +280,7 @@
         controller.grids[gridIndex].animations.highlightHoverAnimations || [];
 
     job = new hg.HighlightHoverJob(tile, onComplete);
-    controller.highlightHoverAnimationJobs.push(job);
+    controller.highlightHoverJobs.push(job);
     hg.animator.startJob(job);
 
     controller.grids[gridIndex].animations.highlightHoverAnimations.push(job);
@@ -274,7 +311,7 @@
     };
 
     job = new hg.HighlightRadiateJob(startPoint, grid, onComplete);
-    controller.highlightRadiateAnimationJobs.push(job);
+    controller.highlightRadiateJobs.push(job);
     hg.animator.startJob(job);
 
     controller.grids[gridIndex].animations.highlightRadiateAnimations.push(job);
@@ -282,6 +319,77 @@
     function onComplete() {
       controller.grids[gridIndex].animations.highlightRadiateAnimations.splice(
           controller.grids[gridIndex].animations.highlightRadiateAnimations.indexOf(job), 1);
+    }
+  }
+
+  /**
+   * Creates a HighlightRadiateJob based off of a random tile.
+   *
+   * @param {number} gridIndex
+   */
+  function createRandomHighlightRadiateAnimation(gridIndex) {
+    var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
+    createHighlightRadiateAnimation(gridIndex, tileIndex);
+  }
+
+  /**
+   * Creates a HighlightHoverJob based off of a random tile.
+   *
+   * @param {number} gridIndex
+   */
+  function createRandomHighlightHoverAnimation(gridIndex) {
+    var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
+    createHighlightHoverAnimation(gridIndex, tileIndex);
+  }
+
+  /**
+   * Creates a LinesRadiateJob based off of a random tile.
+   *
+   * @param {number} gridIndex
+   */
+  function createRandomLinesRadiateAnimation(gridIndex) {
+    var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
+    createLinesRadiateAnimation(gridIndex, tileIndex);
+  }
+
+  /**
+   * Toggles whether an AnimationJob is automatically repeated.
+   *
+   * @param {Function} jobCreator
+   * @param {Array.<number>} jobTimeouts
+   * @param {number} gridIndex
+   * @param {boolean} isRecurring
+   * @param {number} avgDelay
+   * @param {number} delayDeviationRange
+   */
+  function toggleJobRecurrence(jobCreator, jobTimeouts, gridIndex, isRecurring, avgDelay,
+                               delayDeviationRange) {
+    var minDelay, maxDelay, actualDelayRange;
+
+    // Compute the delay deviation range
+    minDelay = avgDelay - delayDeviationRange * 0.5;
+    minDelay = minDelay > 0 ? minDelay : 1;
+    maxDelay = avgDelay + delayDeviationRange * 0.5;
+    actualDelayRange = maxDelay - minDelay;
+
+    // Stop any pre-existing recurrence
+    if (jobTimeouts[gridIndex]) {
+      clearTimeout(jobTimeouts[gridIndex]);
+      jobTimeouts[gridIndex] = null;
+    }
+
+    // Should we start the recurrence?
+    if (isRecurring) {
+      jobTimeouts[gridIndex] = setTimeout(recur, avgDelay);
+    }
+
+    /**
+     * Creates a new occurrence of the AnimationJob and starts a new timeout to repeat this.
+     */
+    function recur() {
+      var delay = Math.random() * actualDelayRange + minDelay;
+      jobCreator(gridIndex);
+      jobTimeouts[gridIndex] = setTimeout(recur, delay);
     }
   }
 
@@ -309,14 +417,19 @@
   controller.grids = [];
   controller.inputs = [];
   controller.annotations = [];
-  controller.colorResetAnimationJobs = [];
-  controller.colorShiftAnimationJobs = [];
-  controller.displacementWaveAnimationJobs = [];
-  controller.colorWaveAnimationJobs = [];
-  controller.linesRadiateAnimationJobs = [];
-  controller.randomLineAnimationJobs = [];
-  controller.highlightHoverAnimationJobs = [];
-  controller.highlightRadiateAnimationJobs = [];
+  controller.colorResetJobs = [];
+  controller.colorShiftJobs = [];
+  controller.displacementWaveJobs = [];
+  controller.colorWaveJobs = [];
+  controller.linesRadiateJobs = [];
+  controller.randomLineJobs = [];
+  controller.highlightHoverJobs = [];
+  controller.highlightRadiateJobs = [];
+
+  controller.highlightHoverRecurrenceTimeouts = [];
+  controller.highlightRadiateRecurrenceTimeouts = [];
+  controller.linesRadiateRecurrenceTimeouts = [];
+  controller.randomLineRecurrenceTimeouts = [];
 
   controller.config = config;
 
@@ -328,6 +441,22 @@
   controller.createRandomLineAnimation = createRandomLineAnimation;
   controller.createHighlightHoverAnimation = createHighlightHoverAnimation;
   controller.createHighlightRadiateAnimation = createHighlightRadiateAnimation;
+  controller.createRandomHighlightRadiateAnimation = createRandomHighlightRadiateAnimation;
+  controller.createRandomHighlightHoverAnimation = createRandomHighlightHoverAnimation;
+  controller.createRandomLinesRadiateAnimation = createRandomLinesRadiateAnimation;
+
+  controller.toggleHighlightHoverJobRecurrence =
+      toggleJobRecurrence.bind(controller, createRandomHighlightHoverAnimation,
+          controller.highlightHoverRecurrenceTimeouts);
+  controller.toggleHighlightRadiateJobRecurrence =
+      toggleJobRecurrence.bind(controller, createRandomHighlightRadiateAnimation,
+          controller.highlightRadiateRecurrenceTimeouts);
+  controller.toggleLinesRadiateJobRecurrence =
+      toggleJobRecurrence.bind(controller, createRandomLinesRadiateAnimation,
+          controller.linesRadiateRecurrenceTimeouts);
+  controller.toggleRandomLineJobRecurrence =
+      toggleJobRecurrence.bind(controller, createRandomLineAnimation,
+          controller.randomLineRecurrenceTimeouts);
   controller.resize = resize;
 
   // Expose this module

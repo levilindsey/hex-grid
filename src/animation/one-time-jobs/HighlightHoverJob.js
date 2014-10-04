@@ -23,6 +23,10 @@
 
   config.opacity = 0.5;
 
+  config.isRecurring = false;
+  config.avgDelay = 30;
+  config.delayDeviationRange = 20;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -32,7 +36,7 @@
   function handleComplete(wasCancelled) {
     var job = this;
 
-    console.log('HighlightHoverJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+//    console.log('HighlightHoverJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
     job.isComplete = true;
 
@@ -139,7 +143,7 @@
     job.cancel = cancel;
     job.onComplete = onComplete;
 
-    console.log('HighlightHoverJob created');
+//    console.log('HighlightHoverJob created');
   }
 
   HighlightHoverJob.config = config;

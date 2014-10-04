@@ -33,6 +33,10 @@
   config.blurStdDeviation = 2;
   config.isBlurOn = false;
 
+  config.isRecurring = true;
+  config.avgDelay = 2200;
+  config.delayDeviationRange = 2100;
+
   // ---  --- //
 
   config.NEIGHBOR = 0;
@@ -58,7 +62,7 @@
   // Private dynamic functions
 
   /**
-   * Creates an SVG definition that is used for blurring the lines of LineAnimationJobs.
+   * Creates an SVG definition that is used for blurring the lines of LineJobs.
    *
    * @this LineJob
    */
@@ -744,7 +748,7 @@
    * @param {Grid} grid
    * @param {Function} onComplete
    */
-  function createRandomLineAnimationJob(grid, onComplete) {
+  function createRandomLineJob(grid, onComplete) {
     var tile, corner, direction, forcedInitialRelativeDirection;
 
     // Pick a random, non-corner, border tile to start from
@@ -1129,7 +1133,7 @@
   }
 
   LineJob.config = config;
-  LineJob.createRandomLineAnimationJob = createRandomLineAnimationJob;
+  LineJob.createRandomLineJob = createRandomLineJob;
 
   // Expose this module
   if (!window.hg) window.hg = {};
