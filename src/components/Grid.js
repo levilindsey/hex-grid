@@ -638,6 +638,35 @@
     grid.hoveredTile = hoveredTile;
   }
 
+  /**
+   * Opens a hole in the grid in order to display the post represented at the given tile index.
+   *
+   * @this Grid
+   * @param {number} tileIndex
+   */
+  function openPost(tileIndex) {
+    var grid;
+
+    grid = this;
+
+    // TODO:
+  }
+
+  /**
+   * Closes the post that is currently displayed, and closes the hole in the grid that is used to
+   * show the post.
+   *
+   * @this Grid
+   * @param {number} tileIndex
+   */
+  function closePost(tileIndex) {
+    var grid;
+
+    grid = this;
+
+    // TODO:
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -668,6 +697,7 @@
     grid.centerX = Number.NaN;
     grid.centerY = Number.NaN;
     grid.index = Number.NaN;
+    grid.isPostOpen = false;
 
     grid.animations = {};
 
@@ -683,6 +713,8 @@
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
+    grid.openPost = openPost;
+    grid.closePost = closePost;
 
     createSvg.call(grid);
     computeContentIndices.call(grid);

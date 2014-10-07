@@ -33,6 +33,19 @@
 //    }
   }
 
+  /**
+   * @this ClosePostJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('ClosePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -91,11 +104,7 @@
   function cancel() {
     var job = this;
 
-    // TODO:
-
-    job.onComplete(false);
-
-    job.isComplete = true;
+    handleComplete.call(job, true);
   }
 
   // ------------------------------------------------------------------------------------------- //
