@@ -3084,6 +3084,35 @@
     grid.hoveredTile = hoveredTile;
   }
 
+  /**
+   * Opens a hole in the grid in order to display the post represented at the given tile index.
+   *
+   * @this Grid
+   * @param {number} tileIndex
+   */
+  function openPost(tileIndex) {
+    var grid;
+
+    grid = this;
+
+    // TODO:
+  }
+
+  /**
+   * Closes the post that is currently displayed, and closes the hole in the grid that is used to
+   * show the post.
+   *
+   * @this Grid
+   * @param {number} tileIndex
+   */
+  function closePost(tileIndex) {
+    var grid;
+
+    grid = this;
+
+    // TODO:
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -3114,6 +3143,7 @@
     grid.centerX = Number.NaN;
     grid.centerY = Number.NaN;
     grid.index = Number.NaN;
+    grid.isPostOpen = false;
 
     grid.animations = {};
 
@@ -3129,6 +3159,8 @@
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
+    grid.openPost = openPost;
+    grid.closePost = closePost;
 
     createSvg.call(grid);
     computeContentIndices.call(grid);
@@ -3979,6 +4011,19 @@
 //    }
   }
 
+  /**
+   * @this ClosePostJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('ClosePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -4037,11 +4082,7 @@
   function cancel() {
     var job = this;
 
-    // TODO:
-
-    job.onComplete(false);
-
-    job.isComplete = true;
+    handleComplete.call(job, true);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -5915,6 +5956,19 @@
 //    }
   }
 
+  /**
+   * @this OpenPostJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('OpenPostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -5933,6 +5987,17 @@
     job.isComplete = false;
 
     // TODO:
+    // - create six sector objects
+    //   - calculate the start and end positions for each
+    // - deactivate all neighbor forces
+    // - start the panning animation to center on the given tile position
+    // - calculate which positions will need additional tiles for the expanded grid at the new panned location
+    // - create the new tiles; store them in auxiliary arrays within the new sector objects
+    // - calculate new, temporary neighbor tile relations to use for the expanded grid
+    //   - store these neighbor tile relations in an auxiliary structure within the grid object
+    //   - or not?
+    //     - the current neighbor relations are stored on the actual tiles
+    //     - so maybe store an optional, additional neighbor relations structure on each tile?
   }
 
   /**
@@ -5973,11 +6038,7 @@
   function cancel() {
     var job = this;
 
-    // TODO:
-
-    job.onComplete(false);
-
-    job.isComplete = true;
+    handleComplete.call(job, true);
   }
 
   // ------------------------------------------------------------------------------------------- //
