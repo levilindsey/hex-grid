@@ -703,6 +703,29 @@
 
     grid.annotations = new hg.Annotations(grid);
 
+    grid.centerX = null;
+    grid.centerY = null;
+    grid.actualContentAreaWidth = null;
+    grid.rowDeltaY = null;
+    grid.tileDeltaX = null;
+    grid.oddRowTileCount = null;
+    grid.evenRowTileCount = null;
+    grid.oddRowXOffset = null;
+    grid.rowCount = null;
+    grid.evenRowXOffset = null;
+    grid.contentAreaLeft = null;
+    grid.contentAreaRight = null;
+    grid.oddRowContentStartIndex = null;
+    grid.evenRowContentStartIndex = null;
+    grid.oddRowContentTileCount = null;
+    grid.evenRowContentTileCount = null;
+    grid.oddRowContentEndIndex = null;
+    grid.evenRowContentEndIndex = null;
+    grid.actualContentInnerIndices = null;
+    grid.innerIndexOfLastContentTile = null;
+    grid.rowCount = null;
+    grid.height = null;
+
     grid.resize = resize;
     grid.start = start;
     grid.update = update;

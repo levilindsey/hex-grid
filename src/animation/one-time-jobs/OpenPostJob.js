@@ -81,6 +81,7 @@
     // - start the panning animation to center on the given tile position
     // - calculate which positions will need additional tiles for the expanded grid at the new panned location
     // - create the new tiles; store them in auxiliary arrays within the new sector objects
+    **;
   }
 
   /**

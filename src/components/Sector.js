@@ -42,6 +42,7 @@
     sector = this;
 
     sector.tiles = getOldTiles().concat(createNewTiles());
+
     // TODO:
   }
 
@@ -49,26 +50,41 @@
    * Collects references to the pre-existing tiles that lie within this sector.
    *
    * @this Sector
+   * @returns {Array.<Tile>}
    */
   function getOldTiles() {
-    var sector;
+    var sector, oldTiles;
 
     sector = this;
 
+    oldTiles = [];
+
     // TODO:
+
+    return oldTiles;
   }
 
   /**
    * Creates the new tiles that will be shown within this sector.
    *
    * @this Sector
+   * @returns {Array.<Tile>}
    */
   function createNewTiles() {
-    var sector;
+    var sector, newTiles, minX, maxX, minY, maxY;
 
     sector = this;
 
+    newTiles = [];
+
+//    minX = sector.selectedTile.originalCenterX - window.innerWidth / 2;
+//    maxX = sector.selectedTile.originalCenterX + window.innerWidth / 2;
+//    minY = sector.selectedTile.originalCenterY - window.innerHeight / 2;
+//    maxY = sector.selectedTile.originalCenterY + window.innerHeight / 2;
+
     // TODO:
+
+    return newTiles;
   }
 
   // ------------------------------------------------------------------------------------------- //
