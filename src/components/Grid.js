@@ -7,7 +7,7 @@
 /**
  * This module defines a constructor for Grid objects.
  *
- * Grid objects define a collection of hexagonal tiles which animate and display dynamic,
+ * Grid objects define a collection of hexagonal tiles that animate and display dynamic,
  * textual content.
  *
  * @module Grid
