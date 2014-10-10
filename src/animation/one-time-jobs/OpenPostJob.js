@@ -78,6 +78,7 @@
     //     - new, temporary neighbor tile relations to use for the expanded grid
     //   - de-allocate this expandedProperties object when returning to the closed state
     // - deactivate all neighbor forces
+    // - start tapering all current animations to zero
     // - start the panning animation to center on the given tile position
     // - calculate which positions will need additional tiles for the expanded grid at the new panned location
     // - create the new tiles; store them in auxiliary arrays within the new sector objects

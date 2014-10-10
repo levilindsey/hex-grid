@@ -604,6 +604,8 @@
     tile.isCornerTile = isCornerTile;
     tile.isInLargerRow = isInLargerRow;
 
+    tile.expandedState = null;
+
     tile.isHighlighted = false;
 
     tile.neighbors = null;
