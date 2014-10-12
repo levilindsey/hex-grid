@@ -229,39 +229,16 @@
    * @param {Array.<Tile>} neighborTiles
    */
   function setNeighborTiles(neighborTiles) {
-    var tile, i, iCount, j, jCount, neighborTile, deltaX, deltaY;
+    var tile, i, count, neighborTile;
 
     tile = this;
 
-    tile.neighbors = [];
+    tile.neighborStates = [];
 
-    for (i = 0, iCount = neighborTiles.length; i < iCount; i += 1) {
+    for (i = 0, count = neighborTiles.length; i < count; i += 1) {
       neighborTile = neighborTiles[i];
 
-      if (neighborTile) {
-        deltaX = tile.centerX - neighborTile.centerX;
-        deltaY = tile.centerY - neighborTile.centerY;
-
-        tile.neighbors[i] = {
-          tile: neighborTile,
-          restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-          neighborsRelationshipObj: null,
-          springForceX: 0,
-          springForceY: 0
-        };
-
-        // Give neighbor tiles references to each others' relationship object
-        if (neighborTile.neighbors) {
-          for (j = 0, jCount = neighborTile.neighbors.length; j < jCount; j += 1) {
-            if (neighborTile.neighbors[j] && neighborTile.neighbors[j].tile === tile) {
-              tile.neighbors[i].neighborsRelationshipObj = neighborTile.neighbors[j];
-              neighborTile.neighbors[j].neighborsRelationshipObj = tile.neighbors[i];
-            }
-          }
-        }
-      } else {
-        tile.neighbors[i] = null;
-      }
+      setTileNeighborState(tile, i, neighborTile, false);
     }
   }
 
@@ -360,8 +337,8 @@
       tile.particle.forceAccumulatorY += -config.dragCoeff * tile.particle.vy;
 
       // --- Spring forces from neighbor tiles --- //
-      for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
-        neighbor = tile.neighbors[i];
+      for (i = 0, count = tile.neighborStates.length; i < count; i += 1) {
+        neighbor = tile.neighborStates[i];
 
         if (neighbor) {
           if (neighbor.springForceX) {
@@ -549,6 +526,78 @@
   }
 
   // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Creates the neighbor-tile state for the given tile according to the given neighbor tile. Also
+   * sets the reciprocal state for the neighbor tile.
+   *
+   * @param {Tile} tile
+   * @param {number} neighborRelationIndex
+   * @param {?Tile} neighborTile
+   * @param {boolean} isExpandedGrid
+   */
+  function setTileNeighborState(tile, neighborRelationIndex, neighborTile, isExpandedGrid) {
+    var i, count, deltaX, deltaY;
+
+    // Use the temporary expandedState property for keeping track of neighbors for the expanded
+    // grid
+    if (isExpandedGrid) {
+      if (neighborTile) {
+        deltaX = tile.centerX - neighborTile.centerX;
+        deltaY = tile.centerY - neighborTile.centerY;
+
+        tile.expandedState.neighborStates[neighborRelationIndex] = {
+          tile: neighborTile,
+          restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+          neighborsRelationshipObj: null,
+          springForceX: 0,
+          springForceY: 0
+        };
+
+        // Give neighbor tiles references to each others' relationship object
+        if (neighborTile.expandedState.neighborStates) {
+          // TODO: I should be able to remove this loop and only check the neighbor tile at (neighborRelationIndex + 3) % 6
+          for (i = 0, count = neighborTile.expandedState.neighborStates.length; i < count; i += 1) {
+            if (neighborTile.expandedState.neighborStates[i] && neighborTile.expandedState.neighborStates[i].tile === tile) {
+              tile.expandedState.neighborStates[neighborRelationIndex].neighborsRelationshipObj = neighborTile.expandedState.neighborStates[i];
+              neighborTile.expandedState.neighborStates[i].neighborsRelationshipObj = tile.expandedState.neighborStates[neighborRelationIndex];
+            }
+          }
+        }
+      } else {
+        tile.expandedState.neighborStates[neighborRelationIndex] = null;
+      }
+    } else {
+      if (neighborTile) {
+        deltaX = tile.centerX - neighborTile.centerX;
+        deltaY = tile.centerY - neighborTile.centerY;
+
+        tile.neighborStates[neighborRelationIndex] = {
+          tile: neighborTile,
+          restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+          neighborsRelationshipObj: null,
+          springForceX: 0,
+          springForceY: 0
+        };
+
+        // Give neighbor tiles references to each others' relationship object
+        if (neighborTile.neighborStates) {
+          // TODO: I should be able to remove this loop and only check the neighbor tile at (neighborRelationIndex + 3) % 6
+          for (i = 0, count = neighborTile.neighborStates.length; i < count; i += 1) {
+            if (neighborTile.neighborStates[i] && neighborTile.neighborStates[i].tile === tile) {
+              tile.neighborStates[neighborRelationIndex].neighborsRelationshipObj = neighborTile.neighborStates[i];
+              neighborTile.neighborStates[i].neighborsRelationshipObj = tile.neighborStates[neighborRelationIndex];
+            }
+          }
+        }
+      } else {
+        tile.neighborStates[neighborRelationIndex] = null;
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
   /**
@@ -608,7 +657,7 @@
 
     tile.isHighlighted = false;
 
-    tile.neighbors = null;
+    tile.neighborStates = null;
     tile.vertices = null;
     tile.vertexDeltas = null;
     tile.particle = null;
@@ -630,6 +679,7 @@
     }
   }
 
+  Tile.setTileNeighborState = setTileNeighborState;
   Tile.config = config;
 
   // Expose this module

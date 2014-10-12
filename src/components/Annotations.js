@@ -351,7 +351,7 @@
   }
 
   /**
-   * Creates lines connecting each tile to each of its neighbors.
+   * Creates lines connecting each tile to each of its neighborStates.
    *
    * @this Annotations
    */
@@ -365,8 +365,8 @@
       tile = annotations.grid.tiles[i];
       annotations.neighborLines[i] = [];
 
-      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
-        neighbor = tile.neighbors[j];
+      for (j = 0, jCount = tile.neighborStates.length; j < jCount; j += 1) {
+        neighbor = tile.neighborStates[j];
 
         if (neighbor) {
           annotations.neighborLines[i][j] = document.createElementNS(hg.util.svgNamespace, 'line');
@@ -617,7 +617,7 @@
   }
 
   /**
-   * Destroys lines connecting each tile to each of its neighbors.
+   * Destroys lines connecting each tile to each of its neighborStates.
    *
    * @this Annotations
    */
@@ -835,7 +835,7 @@
   }
 
   /**
-   * Updates lines connecting each tile to each of its neighbors.
+   * Updates lines connecting each tile to each of its neighborStates.
    *
    * @this Annotations
    */
@@ -847,8 +847,8 @@
     for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
       tile = annotations.grid.tiles[i];
 
-      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
-        neighbor = tile.neighbors[j];
+      for (j = 0, jCount = tile.neighborStates.length; j < jCount; j += 1) {
+        neighbor = tile.neighborStates[j];
 
         if (neighbor) {
           annotations.neighborLines[i][j].setAttribute('x1', tile.particle.px);

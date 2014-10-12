@@ -297,27 +297,27 @@
   }
 
   /**
-   * Connects each tile with references to its neighbors.
+   * Connects each tile with references to its neighborStates.
    *
    * @this Grid
    * @param {Array.<Array.<number>>} tilesNeighborDeltaIndices
    */
   function setNeighborTiles(tilesNeighborDeltaIndices) {
-    var grid, i, j, iCount, jCount, neighbors;
+    var grid, i, j, iCount, jCount, neighborStates;
 
     grid = this;
 
-    neighbors = [];
+    neighborStates = [];
 
-    // Give each tile references to each of its neighbors
+    // Give each tile references to each of its neighborStates
     for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
-      // Get the neighbors around the current tile
+      // Get the neighborStates around the current tile
       for (j = 0, jCount = 6; j < jCount; j += 1) {
-        neighbors[j] = !isNaN(tilesNeighborDeltaIndices[i][j]) ?
+        neighborStates[j] = !isNaN(tilesNeighborDeltaIndices[i][j]) ?
             grid.tiles[i + tilesNeighborDeltaIndices[i][j]] : null;
       }
 
-      grid.tiles[i].setNeighborTiles(neighbors);
+      grid.tiles[i].setNeighborTiles(neighborStates);
     }
   }
 
@@ -421,7 +421,7 @@
   }
 
   /**
-   * Calculates the index offsets of the neighbors of a tile.
+   * Calculates the index offsets of the neighborStates of a tile.
    *
    * @this Grid
    * @returns {Array.<number>}

@@ -215,9 +215,9 @@
     }
 
     job.lowerNeighbors[job.currentCornerIndex] =
-        job.tiles[job.currentCornerIndex].neighbors[lowerNeigborTileIndex];
+        job.tiles[job.currentCornerIndex].neighborStates[lowerNeigborTileIndex];
     job.upperNeighbors[job.currentCornerIndex] =
-        job.tiles[job.currentCornerIndex].neighbors[upperNeigborTileIndex];
+        job.tiles[job.currentCornerIndex].neighborStates[upperNeigborTileIndex];
 
     job.lowerNeighborCorners[job.currentCornerIndex] = (currentCorner + 2) % 6;
     job.upperNeighborCorners[job.currentCornerIndex] = (currentCorner + 4) % 6;
@@ -297,10 +297,10 @@
       case config.NEIGHBOR:
         if (job.grid.isVertical) {
           nextCorner = (currentCorner + 1) % 6;
-          nextTile = job.tiles[job.currentCornerIndex].neighbors[(currentCorner + 5) % 6].tile;
+          nextTile = job.tiles[job.currentCornerIndex].neighborStates[(currentCorner + 5) % 6].tile;
         } else {
           nextCorner = (currentCorner + 1) % 6;
-          nextTile = job.tiles[job.currentCornerIndex].neighbors[currentCorner].tile;
+          nextTile = job.tiles[job.currentCornerIndex].neighborStates[currentCorner].tile;
         }
         break;
       case config.LOWER_SELF:
@@ -758,7 +758,7 @@
 
     // Determine which corner and direction to use based on the selected tile
     if (grid.isVertical) {
-      if (!tile.neighbors[4]) { // Left side
+      if (!tile.neighborStates[4]) { // Left side
         if (tile.isInLargerRow) {
           if (Math.random() < 0.5) {
             corner = 0;
@@ -781,7 +781,7 @@
           }
         }
         direction = tile.originalCenterY < grid.centerY ? 2 : 1;
-      } else if (!tile.neighbors[1]) { // Right side
+      } else if (!tile.neighborStates[1]) { // Right side
         if (tile.isInLargerRow) {
           if (Math.random() < 0.5) {
             corner = 0;
@@ -804,7 +804,7 @@
           }
         }
         direction = tile.originalCenterY < grid.centerY ? 4 : 5;
-      } else if (!tile.neighbors[0]) { // Top side
+      } else if (!tile.neighborStates[0]) { // Top side
         if (Math.random() < 0.5) {
           corner = 1;
           forcedInitialRelativeDirection = config.UPPER_SELF;
@@ -826,7 +826,7 @@
         direction = 0;
       }
     } else { // Not vertical
-      if (!tile.neighbors[0]) { // Top side
+      if (!tile.neighborStates[0]) { // Top side
         if (tile.rowIndex === 0) { // First row
           if (Math.random() < 0.5) {
             corner = 1;
@@ -849,7 +849,7 @@
           }
         }
         direction = tile.originalCenterX < grid.centerX ? 2 : 3;
-      } else if (!tile.neighbors[3]) { // Bottom side
+      } else if (!tile.neighborStates[3]) { // Bottom side
         if (tile.rowIndex === grid.rowCount - 1) { // Last row
           if (Math.random() < 0.5) {
             corner = 1;
@@ -872,7 +872,7 @@
           }
         }
         direction = tile.originalCenterX < grid.centerX ? 0 : 5;
-      } else if (!tile.neighbors[4]) { // Left side
+      } else if (!tile.neighborStates[4]) { // Left side
         if (Math.random() < 0.5) {
           corner = 3;
           forcedInitialRelativeDirection = config.LOWER_SELF;
@@ -919,7 +919,7 @@
 
     if (tile.isBorderTile) {
       if (job.grid.isVertical) {
-        if (!tile.neighbors[4]) { // Left side
+        if (!tile.neighborStates[4]) { // Left side
           isValidEdgeDirection = direction === 1 || direction === 2;
 
           if (tile.isInLargerRow) {
@@ -953,7 +953,7 @@
                 return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
             }
           }
-        } else if (!tile.neighbors[1]) { // Right side
+        } else if (!tile.neighborStates[1]) { // Right side
           isValidEdgeDirection = direction === 4 || direction === 5;
 
           if (tile.isInLargerRow) {
@@ -987,7 +987,7 @@
                 return true;
             }
           }
-        } else if (!tile.neighbors[0]) { // Top side
+        } else if (!tile.neighborStates[0]) { // Top side
           isValidEdgeDirection = direction === 3;
 
           switch (corner) {
@@ -1023,7 +1023,7 @@
           }
         }
       } else { // Not vertical
-        if (!tile.neighbors[0]) { // Top side
+        if (!tile.neighborStates[0]) { // Top side
           isValidEdgeDirection = direction === 2 || direction === 3;
 
           if (tile.rowIndex === 0) { // First row
@@ -1057,7 +1057,7 @@
                 return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
             }
           }
-        } else if (!tile.neighbors[3]) { // Bottom side
+        } else if (!tile.neighborStates[3]) { // Bottom side
           isValidEdgeDirection = direction === 0 || direction === 5;
 
           if (tile.rowIndex === job.grid.rowCount - 1) { // Last row
@@ -1091,7 +1091,7 @@
                 return true;
             }
           }
-        } else if (!tile.neighbors[4]) { // Left side
+        } else if (!tile.neighborStates[4]) { // Left side
           isValidEdgeDirection = direction === 1;
 
           switch (corner) {

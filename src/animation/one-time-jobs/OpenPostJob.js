@@ -42,8 +42,10 @@
     console.log('OpenPostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
     // TODO:
-    // - reactivate neighbor forces; but make sure they are now using their temporary expanded neighbors
+    // - reactivate neighbor forces; but make sure they are now using their temporary expanded neighborStates
     // - keep the sectors to re-use for closing
+
+    // TODO: when closing the grid, make sure to de-allocate the sector objects and the tile.expandedState properties
 
     job.isComplete = true;
 
@@ -70,13 +72,17 @@
     // TODO:
     // - create six sector objects
     //   - calculate the start and end positions for each
-    // - create a new expandedProperties object on each tile (old and new)
-    //   - update all necessary logic to conditionally use this expandedProperties object
-    //   - this new conditional logic should account for three states: closed, transitioning, open
-    //   - properties to store on this expandedProperties object:
-    //     - indicate whether it is a border tile? (did the original tiles have that?)
-    //     - new, temporary neighbor tile relations to use for the expanded grid
-    //   - de-allocate this expandedProperties object when returning to the closed state
+    //   - create a new expandedProperties object on each tile (old and new)
+    //     - update all necessary logic to conditionally use this expandedProperties object
+    //     - this new conditional logic should account for three states: closed, transitioning, open
+    //     - properties to store on this expandedProperties object:
+    //       - indicate whether it is a border tile? (did the original tiles have that?)
+    //       - new, temporary neighbor tile relations to use for the expanded grid
+    //         - during the creation of the sector, only the relations that are internal to the sector can be created
+    //         - even these relations will have to be created AFTER collecting/creating all of the tiles for the sector
+    //     - de-allocate this expandedProperties object when returning to the closed state
+    // - after creating the sectors, set the external neighbor tile relations for each tile that lies along the edge of a sector
+    //   - then, de-allocate the sector.tilesByIndex property
     // - deactivate all neighbor forces
     // - start tapering all current animations to zero
     // - start the panning animation to center on the given tile position
