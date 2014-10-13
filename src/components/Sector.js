@@ -30,6 +30,55 @@
   // Private dynamic functions
 
   /**
+   * Calculates major and minor neighbor values and displacement values for the expanded grid
+   * configuration.
+   *
+   * @this Sector
+   */
+  function setUpExpandedDisplacementValues() {
+    var sector, expansionDirectionNeighborIndex, expansionDirectionNeighborDeltaX,
+        expansionDirectionNeighborDeltaY;
+
+    sector = this;
+
+    // Compute which directions to iterate through tiles for this sector
+
+    sector.majorNeighborIndex = sector.index;
+    sector.minorNeighborIndex = (sector.index + 1) % 6;
+
+    // Compute the axially-aligned distances between adjacent tiles
+
+    sector.majorNeighborDeltaX =
+        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalCenterX -
+        sector.baseTile.originalCenterX;
+    sector.majorNeighborDeltaY =
+        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalCenterY -
+        sector.baseTile.originalCenterY;
+    sector.minorNeighborDeltaX =
+        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalCenterX -
+        sector.baseTile.originalCenterX;
+    sector.minorNeighborDeltaY =
+        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalCenterY -
+        sector.baseTile.originalCenterY;
+
+    // Compute the axially-aligned displacement values of this sector when the grid is expanded
+
+    expansionDirectionNeighborIndex = (sector.index + 5) % 6;
+
+    expansionDirectionNeighborDeltaX =
+        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalCenterX -
+        sector.baseTile.originalCenterX;
+    expansionDirectionNeighborDeltaY =
+        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalCenterY -
+        sector.baseTile.originalCenterY;
+
+    sector.expandedDisplacementX =
+        sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaX;
+    sector.expandedDisplacementY =
+        sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaY;
+  }
+
+  /**
    * Populates the collection of tiles that lie within this sector. These include both the
    * pre-existing tiles and new tiles that are created.
    *
@@ -63,86 +112,79 @@
    * @this Sector
    */
   function collectOldTilesInSector() {
-    var sector, majorNeighborIndex, minorNeighborIndex;
+    var sector;
 
     sector = this;
 
-    // Compute which directions to iterate through tiles for this sector
-    majorNeighborIndex = sector.index;
-    minorNeighborIndex = (sector.index + 1) % 6;
-
     // TODO: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is when the viewport's aspect ratio is very large or very small)
     // Collect all of the tiles for this sector into a two-dimensional array
-    iterateOverTilesInSectorInMajorOrder(sector, sector.baseTile, majorNeighborIndex,
-        minorNeighborIndex);
-    iterateOverTilesInSectorInMinorOrder(sector, sector.baseTile, majorNeighborIndex,
-        minorNeighborIndex);
+    iterateOverTilesInSectorInMajorOrder();
+    iterateOverTilesInSectorInMinorOrder();
 
     // ---  --- //
 
-    function iterateOverTilesInSectorInMajorOrder(sector, baseTile, majorNeighborIndex,
-                                                  minorNeighborIndex) {
+    function iterateOverTilesInSectorInMajorOrder() {
       var majorTile, currentTile, majorIndex, minorIndex;
 
       majorIndex = 0;
-      majorTile = baseTile;
+      majorTile = sector.baseTile.neighborStates[sector.majorNeighborIndex].tile;
 
       // Iterate over the major indices of the sector (aka, the "rows" of the sector)
       do {
-        majorTile = majorTile.neighborStates[majorNeighborIndex].tile;
         currentTile = majorTile;
         minorIndex = 0;
 
         // Set up the inner array for this "row" of the sector
         sector.tilesByIndex[majorIndex] = sector.tilesByIndex[majorIndex] || [];
 
-        // Store the first tile in this major "row"
-        sector.tilesByIndex[majorIndex][minorIndex++] = currentTile;
-
         // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
-        while (currentTile.neighborStates[minorNeighborIndex]) {
-          currentTile = currentTile.neighborStates[minorNeighborIndex].tile;
+        do {
+          // Store the current tile in the "row" if it hasn't already been stored
+          if (!sector.tilesByIndex[majorIndex][minorIndex]) {
+            addOldTileToSector.call(sector, currentTile, majorIndex, minorIndex);
+          }
 
-          // Store the current tile in the "row"
-          sector.tilesByIndex[majorIndex][minorIndex++] = currentTile;
-        }
+          minorIndex++;
+
+        } while (currentTile.neighborStates[sector.minorNeighborIndex] &&
+            (currentTile = currentTile.neighborStates[sector.minorNeighborIndex].tile));
 
         majorIndex++;
-      } while (majorTile.neighborStates[majorNeighborIndex]);
+
+      } while (majorTile.neighborStates[sector.majorNeighborIndex] &&
+          (majorTile = majorTile.neighborStates[sector.majorNeighborIndex].tile));
     }
 
-    function iterateOverTilesInSectorInMinorOrder(sector, baseTile, majorNeighborIndex,
-                                                  minorNeighborIndex) {
+    function iterateOverTilesInSectorInMinorOrder() {
       var minorTile, currentTile, majorIndex, minorIndex;
 
       minorIndex = 0;
-      minorTile = baseTile.neighborStates[majorNeighborIndex].tile;
+      minorTile = sector.baseTile.neighborStates[sector.majorNeighborIndex].tile;
 
       // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
       do {
         currentTile = minorTile;
         majorIndex = 0;
 
-        // Set up the inner array for this "row" of the sector
-        sector.tilesByIndex[majorIndex] = sector.tilesByIndex[majorIndex] || [];
-
-        // Store the first tile in this minor "column"
-        sector.tilesByIndex[majorIndex++][minorIndex] = currentTile;
-
         // Iterate over the major indices of the sector (aka, the "rows" of the sector)
-        while (currentTile.neighborStates[majorNeighborIndex]) {
-          currentTile = currentTile.neighborStates[majorNeighborIndex].tile;
-
+        do {
           // Set up the inner array for this "row" of the sector
           sector.tilesByIndex[majorIndex] = sector.tilesByIndex[majorIndex] || [];
 
-          // Store the current tile in the "column"
-          sector.tilesByIndex[majorIndex++][minorIndex] = currentTile;
-        }
+          // Store the current tile in the "column" if it hasn't already been stored
+          if (!sector.tilesByIndex[majorIndex][minorIndex]) {
+            addOldTileToSector.call(sector, currentTile, majorIndex, minorIndex);
+          }
+
+          majorIndex++;
+
+        } while (currentTile.neighborStates[sector.majorNeighborIndex] &&
+            (currentTile = currentTile.neighborStates[sector.majorNeighborIndex].tile));
 
         minorIndex++;
-      } while (minorTile.neighborStates[minorNeighborIndex] &&
-          (minorTile = minorTile.neighborStates[minorNeighborIndex].tile));
+
+      } while (minorTile.neighborStates[sector.minorNeighborIndex] &&
+          (minorTile = minorTile.neighborStates[sector.minorNeighborIndex].tile));
     }
   }
 
@@ -154,192 +196,155 @@
    * @this Sector
    */
   function collectNewTilesInSector() {
-    var sector, majorNeighborIndex, minorNeighborIndex, majorNeighborDeltaX, majorNeighborDeltaY,
-        minorNeighborDeltaX, minorNeighborDeltaY, i, majorIndex, minorIndex;
+    var sector, boundingBoxHalfX, boundingBoxHalfY, minX, maxX, minY, maxY;
 
     sector = this;
 
-    // Compute which directions to iterate through tiles for this sector
-    majorNeighborIndex = sector.index;
-    minorNeighborIndex = (sector.index + 1) % 6;
-
-    // Compute the axially-aligned distances between adjacent tiles
-    majorNeighborDeltaX =
-        sector.baseTile.neighborStates[majorNeighborIndex].tile.originalCenterX -
-        sector.baseTile.originalCenterX;
-    majorNeighborDeltaY =
-        sector.baseTile.neighborStates[majorNeighborIndex].tile.originalCenterY -
-        sector.baseTile.originalCenterY;
-    minorNeighborDeltaX =
-        sector.baseTile.neighborStates[minorNeighborIndex].tile.originalCenterX -
-        sector.baseTile.originalCenterX;
-    minorNeighborDeltaY =
-        sector.baseTile.neighborStates[minorNeighborIndex].tile.originalCenterY -
-        sector.baseTile.originalCenterY;
+    // Determine the bounding box of the re-positioned viewport
+    boundingBoxHalfX = window.innerWidth / 2 - sector.expandedDisplacementX + hg.Grid.config.tileShortLengthWithGap;
+    boundingBoxHalfY = window.innerHeight / 2 - sector.expandedDisplacementY + hg.Grid.config.tileShortLengthWithGap;
+    minX = sector.baseTile.originalCenterX - boundingBoxHalfX;
+    maxX = sector.baseTile.originalCenterX + boundingBoxHalfX;
+    minY = sector.baseTile.originalCenterY - boundingBoxHalfY;
+    maxY = sector.baseTile.originalCenterY + boundingBoxHalfY;
 
     // TODO: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is when the viewport's aspect ratio is very large or very small)
     // Collect all of the tiles for this sector into a two-dimensional array
-    iterateOverTilesInSectorHelper(sector, sector.baseTile, majorNeighborIndex,
-        minorNeighborIndex, false);
-    iterateOverTilesInSectorHelper(sector, sector.baseTile, majorNeighborIndex,
-        minorNeighborIndex, true);
+    iterateOverTilesInSectorInMajorOrder();
+    iterateOverTilesInSectorInMinorOrder();
 
     // ---  --- //
 
-    function iterateOverTilesInSectorHelper(sector, baseTile, majorNeighborIndex,
-                                            minorNeighborIndex, iterateInOtherDirection) {
-      var majorTile, currentTile, majorIndex, minorIndex, centerX, centerY,
-          iterationMajorNeighborIndex, iterationMinorNeighborIndex;
+    function iterateOverTilesInSectorInMajorOrder() {
+      var startX, startY, centerX, centerY, majorIndex, minorIndex;
 
-      ******;// TODO: ****CURRENT****
-      // - SCRAP most of the old logic in this function, and use the logic from the above collectOldTilesInSector function
-      // - already have added old tiles
-      // - just iterate through the positions in the sector, stop when out of bounds, check if a tile already exists at the position in tilesByIndex, maybe add a new tile
-
-      **;// TODO: I am iterating incorrectly (wrong minor direction)
+      startX = sector.baseTile.originalCenterX + sector.majorNeighborDeltaX;
+      startY = sector.baseTile.originalCenterY + sector.majorNeighborDeltaY;
 
       majorIndex = 0;
-      majorTile = baseTile;
+      minorIndex = 0;
 
-      // Determine which direction we are iterating in
-      if (iterateInOtherDirection) {
-        iterationMajorNeighborIndex = minorNeighborIndex;**;// TODO: use these...
-        iterationMinorNeighborIndex = majorNeighborIndex;
-      } else {
-        iterationMajorNeighborIndex = majorNeighborIndex;
-        iterationMinorNeighborIndex = minorNeighborIndex;
-      }
-
-      centerX = sector.baseTile.originalCenterX;
-      centerY = sector.baseTile.originalCenterY;
+      centerX = startX;
+      centerY = startY;
 
       // Iterate over the major indices of the sector (aka, the "rows" of the sector)
-      while (*withinExpandedViewport*) {
-
+      do {
         // Set up the inner array for this "row" of the sector
         sector.tilesByIndex[majorIndex] = sector.tilesByIndex[majorIndex] || [];
 
-        // Is there a already a tile here, or do we need to create a new one?
-        if (majorTile.neighborStates[majorNeighborIndex]) {
-          // Use the pre-existing tile
-          majorTile = majorTile.neighborStates[majorNeighborIndex].tile;
-        } else {
-          // Create a new tile
-          majorTile = createNewTileInSector(majorIndex, 0, centerX, centerY);
-        }
-
-        currentTile = majorTile;
-        minorIndex = 1;
-
-        centerX = sector.baseTile.originalCenterX +
-            majorIndex * majorNeighborDeltaX +
-            minorIndex * minorNeighborDeltaX;
-        centerY = sector.baseTile.originalCenterY +
-            majorIndex * majorNeighborDeltaY +
-            minorIndex * minorNeighborDeltaY;
-
         // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
-        while (minorIndex < minorCount &&
-            *withinExpandedViewport*) {
-
-          // Is there a already a tile here, or do we need to create a new one?
-          if (currentTile.neighborStates[minorNeighborIndex]) {
-            // Use the pre-existing tile
-            currentTile = currentTile.neighborStates[minorNeighborIndex].tile;
-          } else {
-            // Create a new tile
-            currentTile = createNewTileInSector(majorIndex, minorIndex, centerX, centerY);
+        do {
+          // Create a new tile if one did not already exist for this position
+          if (!sector.tilesByIndex[majorIndex][minorIndex]) {
+            createNewTileInSector.call(sector, majorIndex, minorIndex, centerX, centerY);
           }
 
+          // Set up the next "column"
           minorIndex++;
-        }
+          centerX += sector.minorNeighborDeltaX;
+          centerY += sector.minorNeighborDeltaY;
 
-        // After we have added all of the tiles from this line that will lie within the viewport
-        // for the expanded grid configuration, also add any remaining pre-existing tiles that lie
-        // within this line
-        while (currentTile.neighborStates[minorNeighborIndex] &&
-            minorIndex < minorCount) {
-          // TODO: copy over much of the above while loop...
-        }
+        } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
 
+        // Set up the next "row"
         majorIndex++;
+        minorIndex = 0;
+        centerX = startX + majorIndex * sector.majorNeighborDeltaX;
+        centerY = startY + majorIndex * sector.majorNeighborDeltaY;
 
-        centerX = sector.baseTile.originalCenterX + majorIndex * majorNeighborDeltaX;
-        centerY = sector.baseTile.originalCenterY + majorIndex * majorNeighborDeltaY;
-      }
-
-      // After we have added all of the tiles from this sector that will lie within the viewport
-      // for the expanded grid configuration, also add any remaining pre-existing tiles that lie
-      // within this sector
-      while (majorTile.neighborStates[majorNeighborIndex]) {
-        // TODO: copy over much of the above while loop...
-      }
+      } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
     }
 
-    function addOldTileToSector(tile, majorIndex, minorIndex) {
-      sector.tilesByIndex[majorIndex][minorIndex] = tile;
-      tile.expandedState = {
-        sector: sector,
-        sectorMajorIndex: majorIndex,
-        sectorMinorIndex: minorIndex,
-        neighborStates: []
-      };
-    }
+    function iterateOverTilesInSectorInMinorOrder() {
+      var startX, startY, centerX, centerY, majorIndex, minorIndex;
 
-    function createNewTileInSector(majorIndex, minorIndex, centerX, centerY) {
-      // TODO: some of the later parameters will need to be set in order for some animations to work
-      //   - (BUT, the better solution is probably to just disable those animations for the expanded grid)
-      var tile = new hg.Tile(sector.grid.svg, centerX, centerY, hg.Grid.config.tileOuterRadius,
-          sector.grid.isVertical, hg.Grid.config.tileHue, hg.Grid.config.tileSaturation,
-          hg.Grid.config.tileLightness, null, Number.NaN, Number.NaN, Number.NaN, true, false,
-          false, false, hg.Grid.config.tileMass);
+      startX = sector.baseTile.originalCenterX + sector.majorNeighborDeltaX;
+      startY = sector.baseTile.originalCenterY + sector.majorNeighborDeltaY;
+
+      // Set up the first "column"
+      majorIndex = 0;
+      minorIndex = 0;
+      centerX = startX;
+      centerY = startY;
+
+      // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
+      do {
+        // Iterate over the major indices of the sector (aka, the "rows" of the sector)
+        do {
+          // Set up the inner array for this "row" of the sector
+          sector.tilesByIndex[majorIndex] = sector.tilesByIndex[majorIndex] || [];
+
+          // Create a new tile if one did not already exist for this position
+          if (!sector.tilesByIndex[majorIndex][minorIndex]) {
+            createNewTileInSector.call(sector, majorIndex, minorIndex, centerX, centerY);
+          }
+
+          // Set up the next "row"
+          majorIndex++;
+          centerX += sector.majorNeighborDeltaX;
+          centerY += sector.majorNeighborDeltaY;
+
+        } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
+
+        // Set up the next "column"
+        majorIndex = 0;
+        minorIndex++;
+        centerX = startX + minorIndex * sector.minorNeighborDeltaX;
+        centerY = startY + minorIndex * sector.minorNeighborDeltaY;
+
+      } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
+    }
+  }
+
+  /**
+   * Adds the given pre-existing tile to this Sector's two-dimensional tile collection.
+   *
+   * Initializes the tile's expandedState configuration.
+   *
+   * @this Sector
+   * @param {Tile} tile
+   * @param {number} majorIndex
+   * @param {number} minorIndex
+   */
+  function addOldTileToSector(tile, majorIndex, minorIndex) {
+    var sector = this;
+    sector.tilesByIndex[majorIndex][minorIndex] = tile;
+    tile.expandedState = {
+      sector: sector,
+      sectorMajorIndex: majorIndex,
+      sectorMinorIndex: minorIndex,
+      neighborStates: [],
+      isBorderTile: false
+    };
+  }
+
+  /**
+   * Adds a new tile to this Sector's two-dimensional tile collection.
+   *
+   * Initializes the new tile's expandedState configuration.
+   *
+   * @this Sector
+   * @param {number} majorIndex
+   * @param {number} minorIndex
+   * @param {number} centerX
+   * @param {number} centerY
+   */
+  function createNewTileInSector(majorIndex, minorIndex, centerX, centerY) {
+    var sector = this;
+    // TODO: some of the later parameters will need to be set in order for some animations to work
+    //   - (BUT, the better solution is probably to just disable those animations for the expanded grid)
+    var tile = new hg.Tile(sector.grid.svg, centerX, centerY, hg.Grid.config.tileOuterRadius,
+        sector.grid.isVertical, hg.Grid.config.tileHue, hg.Grid.config.tileSaturation,
+        hg.Grid.config.tileLightness, null, Number.NaN, Number.NaN, Number.NaN, true, false,
+        false, false, hg.Grid.config.tileMass);
 //      new hg.Tile(grid.svg, centerX, centerY, config.tileOuterRadius,
 //          grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
 //          tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
 //          isLargerRow, config.tileMass);
-      addOldTileToSector(tile, majorIndex, minorIndex);
+    addOldTileToSector.call(sector, tile, majorIndex, minorIndex);
 
-      return tile;
-    }
+    return tile;
   }
-
-//  /**
-//   * Creates the new tiles that will be shown within this sector.
-//   *
-//   * @this Sector
-//   * @param {number} majorNeighborIndex
-//   * @param {number} minorNeighborIndex
-//   * @returns {Array.<Tile>}
-//   */
-//  function createNewTiles(majorNeighborIndex, minorNeighborIndex) {
-//    var sector, newTiles, minX, maxX, minY, maxY, i, j, iCount, jCount, deltaX, deltaY;
-//
-//    sector = this;
-//
-//    newTiles = [];
-//
-//    // This assumes that a sector is never created based on a border tile
-//    deltaX = ;
-//    deltaY = ;
-//
-////    minX = sector.selectedTile.originalCenterX - window.innerWidth / 2;
-////    maxX = sector.selectedTile.originalCenterX + window.innerWidth / 2;
-////    minY = sector.selectedTile.originalCenterY - window.innerHeight / 2;
-////    maxY = sector.selectedTile.originalCenterY + window.innerHeight / 2;
-//
-//    for (i = 0, iCount = ; i < iCount; i += 1) {
-//      for (j = 0, jCount = ; j < jCount; j += 1) {
-//        **;
-//      }
-//    }
-//
-//    // TODO:
-//    // - will need to consider both the sector displacement and the viewport dimensions when considering max x/y displacement
-//    // - will need to be able to tell which tile positions already have a pre-existing tile
-//    // - ANSWER: iterate first (somehow during the overall nested loop) through the pre-existing tiles via neighbor links
-//
-//    return newTiles;
-//  }
 
   /**
    * Calculates and stores the neighbor states for the expanded grid configuration for each tile
@@ -372,6 +377,7 @@
       tile = sector.tilesByIndex[majorIndex][minorIndex];
 
       for (neighborRelationIndex = 0; neighborRelationIndex < 6; neighborRelationIndex += 1) {
+
         // Determine the major and minor indices of the current neighbor
         switch (neighborRelationIndex) {
           case sector.index:
@@ -404,11 +410,15 @@
 
         // Is the neighbor position within the bounds of the sector?
         if (neighborMinorIndex >= 0 && neighborMinorIndex <= neighborMajorIndex) {
+
           // Has a tile been created for the neighbor position?
           if (sector.tilesByIndex[neighborMajorIndex] &&
               sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]) {
+
             Tile.setTileNeighborState(tile, neighborRelationIndex,
                 sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex], true);
+          } else {
+            tile.expandedState.isBorderTile = true;
           }
         }
       }
@@ -448,6 +458,7 @@
    * @param {Grid} grid
    * @param {Tile} baseTile
    * @param {number} sectorIndex
+   * @param {number} expandedDisplacementTileCount
    *
    * PRE-CONDITION: the given baseTile is not a border tile (i.e., it has six neighbors)
    * PRE-CONDITION: the grid is in a closed state
@@ -455,15 +466,23 @@
    * POST-CONDITION: This sector is NOT guaranteed to collect all of the pre-existing tiles in the
    * sector nor to create all of the needed new tiles in the sector (but it probably will).
    */
-  function Sector(grid, baseTile, sectorIndex) {
+  function Sector(grid, baseTile, sectorIndex, expandedDisplacementTileCount) {
     var sector = this;
 
     sector.grid = grid;
     sector.baseTile = baseTile;
     sector.index = sectorIndex;
+    sector.expandedDisplacementTileCount = expandedDisplacementTileCount;
+    sector.majorNeighborDeltaX = Number.NaN;
+    sector.majorNeighborDeltaY = Number.NaN;
+    sector.minorNeighborDeltaX = Number.NaN;
+    sector.minorNeighborDeltaY = Number.NaN;
+    sector.expandedDisplacementX = Number.NaN;
+    sector.expandedDisplacementY = Number.NaN;
     sector.tiles = null;
     sector.tilesByIndex = null;
 
+    setUpExpandedDisplacementValues.call(sector);
     setUpTiles.call(sector);
   }
 
