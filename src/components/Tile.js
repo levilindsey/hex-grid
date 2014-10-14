@@ -50,9 +50,11 @@
    * @this Tile
    */
   function createElement() {
-    var tile;
+    var tile, id;
 
     tile = this;
+
+    id = !isNaN(tile.index) ? tile.index : parseInt(Math.random() * 1000000 + 1000);
 
     tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.vertices = [];
@@ -61,7 +63,7 @@
     tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
 
-    tile.element.id = 'hg-' + tile.index;
+    tile.element.id = 'hg-' + id;
     tile.element.classList.add('hg-tile');
     tile.element.style.cursor = 'pointer';
 
@@ -238,7 +240,7 @@
     for (i = 0, count = neighborTiles.length; i < count; i += 1) {
       neighborTile = neighborTiles[i];
 
-      setTileNeighborState(tile, i, neighborTile, false);
+      setTileNeighborState(tile, i, neighborTile);
     }
   }
 
@@ -324,38 +326,50 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var tile, i, count, neighbor, lx, ly, lDotX, lDotY, dotProd, length, temp, springForceX,
-        springForceY;
+    var tile, i, count, neighborStates, isBorderTile, neighborState, lx, ly, lDotX, lDotY,
+        dotProd, length, temp, springForceX, springForceY;
 
     tile = this;
 
     if (!tile.particle.isFixed) {
+
+      // Some different properties should be used when the grid is expanded
+      if (tile.grid.isPostOpen) {
+        neighborStates = tile.expandedState.neighborStates;
+        isBorderTile = tile.expandedState.isBorderTile;
+      } else {
+        neighborStates = tile.neighborStates;
+        isBorderTile = tile.isBorderTile;
+      }
+
       // --- Accumulate forces --- //
 
       // --- Drag force --- //
+
       tile.particle.forceAccumulatorX += -config.dragCoeff * tile.particle.vx;
       tile.particle.forceAccumulatorY += -config.dragCoeff * tile.particle.vy;
 
       // --- Spring forces from neighbor tiles --- //
-      for (i = 0, count = tile.neighborStates.length; i < count; i += 1) {
-        neighbor = tile.neighborStates[i];
 
-        if (neighbor) {
-          if (neighbor.springForceX) {
-            tile.particle.forceAccumulatorX += neighbor.springForceX;
-            tile.particle.forceAccumulatorY += neighbor.springForceY;
+      for (i = 0, count = neighborStates.length; i < count; i += 1) {
+        neighborState = neighborStates[i];
 
-            neighbor.springForceX = 0;
-            neighbor.springForceY = 0;
+        if (neighborState) {
+          if (neighborState.springForceX) {
+            tile.particle.forceAccumulatorX += neighborState.springForceX;
+            tile.particle.forceAccumulatorY += neighborState.springForceY;
+
+            neighborState.springForceX = 0;
+            neighborState.springForceY = 0;
           } else {
-            lx = neighbor.tile.particle.px - tile.particle.px;
-            ly = neighbor.tile.particle.py - tile.particle.py;
-            lDotX = neighbor.tile.particle.vx - tile.particle.vx;
-            lDotY = neighbor.tile.particle.vy - tile.particle.vy;
+            lx = neighborState.tile.particle.px - tile.particle.px;
+            ly = neighborState.tile.particle.py - tile.particle.py;
+            lDotX = neighborState.tile.particle.vx - tile.particle.vx;
+            lDotY = neighborState.tile.particle.vy - tile.particle.vy;
             dotProd = lx * lDotX + ly * lDotY;
             length = Math.sqrt(lx * lx + ly * ly);
 
-            temp = (config.neighborSpringCoeff * (length - neighbor.restLength) +
+            temp = (config.neighborSpringCoeff * (length - neighborState.restLength) +
                 config.neighborDampingCoeff * dotProd / length) / length;
             springForceX = lx * temp;
             springForceY = ly * temp;
@@ -363,8 +377,8 @@
             tile.particle.forceAccumulatorX += springForceX;
             tile.particle.forceAccumulatorY += springForceY;
 
-            neighbor.neighborsRelationshipObj.springForceX = -springForceX;
-            neighbor.neighborsRelationshipObj.springForceY = -springForceY;
+            neighborState.neighborsRelationshipObj.springForceX = -springForceX;
+            neighborState.neighborsRelationshipObj.springForceY = -springForceY;
           }
         }
       }
@@ -380,7 +394,7 @@
         lDotY = -tile.particle.vy;
         dotProd = lx * lDotX + ly * lDotY;
 
-        if (tile.isBorderTile) {
+        if (isBorderTile) {
           temp = (config.borderAnchorSpringCoeff * length + config.borderAnchorDampingCoeff *
               dotProd / length) / length;
         } else {
@@ -535,65 +549,80 @@
    * @param {Tile} tile
    * @param {number} neighborRelationIndex
    * @param {?Tile} neighborTile
-   * @param {boolean} isExpandedGrid
    */
-  function setTileNeighborState(tile, neighborRelationIndex, neighborTile, isExpandedGrid) {
-    var i, count, deltaX, deltaY;
+  function setTileNeighborState(tile, neighborRelationIndex, neighborTile) {
+    var i, count, deltaX, deltaY, neighborStates, neighborNeighborStates;
 
-    // Use the temporary expandedState property for keeping track of neighbors for the expanded
-    // grid
-    if (isExpandedGrid) {
-      if (neighborTile) {
-        deltaX = tile.centerX - neighborTile.centerX;
-        deltaY = tile.centerY - neighborTile.centerY;
+    neighborStates = tile.getNeighborStates();
 
-        tile.expandedState.neighborStates[neighborRelationIndex] = {
-          tile: neighborTile,
-          restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-          neighborsRelationshipObj: null,
-          springForceX: 0,
-          springForceY: 0
-        };
+    if (neighborTile) {
+      deltaX = tile.centerX - neighborTile.centerX;
+      deltaY = tile.centerY - neighborTile.centerY;
 
-        // Give neighbor tiles references to each others' relationship object
-        if (neighborTile.expandedState.neighborStates) {
-          // TODO: I should be able to remove this loop and only check the neighbor tile at (neighborRelationIndex + 3) % 6
-          for (i = 0, count = neighborTile.expandedState.neighborStates.length; i < count; i += 1) {
-            if (neighborTile.expandedState.neighborStates[i] && neighborTile.expandedState.neighborStates[i].tile === tile) {
-              tile.expandedState.neighborStates[neighborRelationIndex].neighborsRelationshipObj = neighborTile.expandedState.neighborStates[i];
-              neighborTile.expandedState.neighborStates[i].neighborsRelationshipObj = tile.expandedState.neighborStates[neighborRelationIndex];
-            }
+      neighborNeighborStates = neighborTile.getNeighborStates();
+
+      neighborStates[neighborRelationIndex] = {
+        tile: neighborTile,
+        restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+        neighborsRelationshipObj: null,
+        springForceX: 0,
+        springForceY: 0
+      };
+
+      // Give neighbor tiles references to each others' relationship object
+      if (neighborNeighborStates) {
+        // TODO: I should be able to remove this loop and only check the neighbor tile at (neighborRelationIndex + 3) % 6
+        for (i = 0, count = neighborNeighborStates.length; i < count; i += 1) {
+          if (neighborNeighborStates[i] && neighborNeighborStates[i].tile === tile) {
+            neighborStates[neighborRelationIndex].neighborsRelationshipObj = neighborNeighborStates[i];
+            neighborNeighborStates[i].neighborsRelationshipObj = neighborStates[neighborRelationIndex];
           }
         }
-      } else {
-        tile.expandedState.neighborStates[neighborRelationIndex] = null;
       }
     } else {
-      if (neighborTile) {
-        deltaX = tile.centerX - neighborTile.centerX;
-        deltaY = tile.centerY - neighborTile.centerY;
+      neighborStates[neighborRelationIndex] = null;
+    }
+  }
 
-        tile.neighborStates[neighborRelationIndex] = {
-          tile: neighborTile,
-          restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-          neighborsRelationshipObj: null,
-          springForceX: 0,
-          springForceY: 0
-        };
+  /**
+   * @returns {Object}
+   */
+  function getNeighborStates() {
+    var tile = this;
+    return tile.grid.isPostOpen ? tile.expandedState.neighborStates : tile.neighborStates;
+  }
 
-        // Give neighbor tiles references to each others' relationship object
-        if (neighborTile.neighborStates) {
-          // TODO: I should be able to remove this loop and only check the neighbor tile at (neighborRelationIndex + 3) % 6
-          for (i = 0, count = neighborTile.neighborStates.length; i < count; i += 1) {
-            if (neighborTile.neighborStates[i] && neighborTile.neighborStates[i].tile === tile) {
-              tile.neighborStates[neighborRelationIndex].neighborsRelationshipObj = neighborTile.neighborStates[i];
-              neighborTile.neighborStates[i].neighborsRelationshipObj = tile.neighborStates[neighborRelationIndex];
-            }
-          }
-        }
-      } else {
-        tile.neighborStates[neighborRelationIndex] = null;
-      }
+  /**
+   * @param {Object} neighborStates
+   */
+  function setNeighborStates(neighborStates) {
+    var tile = this;
+
+    if (tile.grid.isPostOpen) {
+      tile.expandedState.neighborStates = neighborStates;
+    } else {
+      tile.neighborStates = neighborStates;
+    }
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  function getIsBorderTile() {
+    var tile = this;
+    return tile.grid.isPostOpen ? tile.expandedState.isBorderTile : tile.isBorderTile;
+  }
+
+  /**
+   * @param {boolean} isBorderTile
+   */
+  function setIsBorderTile(isBorderTile) {
+    var tile = this;
+
+    if (tile.grid.isPostOpen) {
+      tile.expandedState.isBorderTile = isBorderTile;
+    } else {
+      tile.isBorderTile = isBorderTile;
     }
   }
 
@@ -604,6 +633,7 @@
    * @constructor
    * @global
    * @param {HTMLElement} svg
+   * @param {Grid} grid
    * @param {number} centerX
    * @param {number} centerY
    * @param {number} outerRadius
@@ -621,12 +651,13 @@
    * @param {boolean} isInLargerRow
    * @param {number} mass
    */
-  function Tile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
+  function Tile(svg, grid, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
                    postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
                    isCornerTile, isInLargerRow, mass) {
     var tile = this;
 
     tile.svg = svg;
+    tile.grid = grid;
     tile.element = null;
     tile.centerX = centerX;
     tile.centerY = centerY;
@@ -670,6 +701,10 @@
     tile.draw = draw;
     tile.applyExternalForce = applyExternalForce;
     tile.fixPosition = fixPosition;
+    tile.getNeighborStates = getNeighborStates;
+    tile.setNeighborStates = setNeighborStates;
+    tile.getIsBorderTile = getIsBorderTile;
+    tile.setIsBorderTile = setIsBorderTile;
 
     createElement.call(tile);
     createParticle.call(tile, mass);

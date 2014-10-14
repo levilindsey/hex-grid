@@ -90,6 +90,7 @@
     sector = this;
 
     sector.tilesByIndex = [];
+    sector.newTiles = [];
     sector.tiles = [];
 
     // Get the old and new tiles for this sector, and set up neighbor states for the expanded grid
@@ -98,7 +99,7 @@
     collectNewTilesInSector.call(sector);
 
     // Re-assign temporary neighbor states for tiles in this sector
-    initializeExpandedStateTileNeighbors.call(sector);
+    initializeExpandedStateInternalTileNeighbors.call(sector);
 
     // Convert the two-dimensional array to a flat array
     flattenTileCollection.call(sector);
@@ -333,29 +334,30 @@
     var sector = this;
     // TODO: some of the later parameters will need to be set in order for some animations to work
     //   - (BUT, the better solution is probably to just disable those animations for the expanded grid)
-    var tile = new hg.Tile(sector.grid.svg, centerX, centerY, hg.Grid.config.tileOuterRadius,
-        sector.grid.isVertical, hg.Grid.config.tileHue, hg.Grid.config.tileSaturation,
-        hg.Grid.config.tileLightness, null, Number.NaN, Number.NaN, Number.NaN, true, false,
-        false, false, hg.Grid.config.tileMass);
-//      new hg.Tile(grid.svg, centerX, centerY, config.tileOuterRadius,
+    var tile = new hg.Tile(sector.grid.svg, sector.grid, centerX, centerY,
+        hg.Grid.config.tileOuterRadius, sector.grid.isVertical, hg.Grid.config.tileHue,
+        hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness, null, Number.NaN, Number.NaN,
+        Number.NaN, true, false, false, false, hg.Grid.config.tileMass);
+//      new hg.Tile(grid.svg, grid, centerX, centerY, config.tileOuterRadius,
 //          grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
 //          tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
 //          isLargerRow, config.tileMass);
     addOldTileToSector.call(sector, tile, majorIndex, minorIndex);
+    sector.newTiles[sector.newTiles.length] = tile;
 
     return tile;
   }
 
   /**
-   * Calculates and stores the neighbor states for the expanded grid configuration for each tile
-   * in this Sector.
+   * Calculates and stores the internal neighbor states for the expanded grid configuration for
+   * each tile in this Sector.
    *
    * NOTE: this does not address external neighbor relations for tiles that lie on the outside
    * edge of this sector.
    *
    * @this Sector
    */
-  function initializeExpandedStateTileNeighbors() {
+  function initializeExpandedStateInternalTileNeighbors() {
     var sector, majorIndex, minorIndex;
 
     sector = this;
@@ -415,8 +417,8 @@
           if (sector.tilesByIndex[neighborMajorIndex] &&
               sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]) {
 
-            Tile.setTileNeighborState(tile, neighborRelationIndex,
-                sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex], true);
+            hg.Tile.setTileNeighborState(tile, neighborRelationIndex,
+                sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]);
           } else {
             tile.expandedState.isBorderTile = true;
           }
@@ -448,6 +450,94 @@
 
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
+
+  /**
+   * Calculates and stores the external neighbor states for the expanded grid configuration for
+   * each tile in this Sector.
+   *
+   * @this Sector
+   * @param {Array.<Sector>} sectors
+   */
+  function initializeExpandedStateExternalTileNeighbors(sectors) {
+
+    var sector, edgeTiles, minorIndex, count, lowerNeighborIndex, upperNeighborIndex,
+        neighborSector, neighborMajorIndex;
+
+    sector = this;
+
+    edgeTiles = sector.tilesByIndex[0];
+
+    lowerNeighborIndex = (sector.index + 2) % 6;
+    upperNeighborIndex = (sector.index + 3) % 6;
+
+    neighborSector = sectors[(sector.index + 1) % 6];
+
+    minorIndex = sector.expandedDisplacementTileCount;
+    neighborMajorIndex = 0;
+
+    // --- Handle the first edge tile --- //
+
+    // The first edge tile with an external neighbor will only have the lower neighbor
+    hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+        neighborSector.tilesByIndex[neighborMajorIndex][0]);
+    edgeTiles[minorIndex].expandedState.isBorderTile = true;
+
+    // --- Handle the middle edge tiles --- //
+
+    for (minorIndex += 1, count = edgeTiles.length - 1; minorIndex < count; minorIndex += 1) {
+
+      // The upper neighbor for the last tile
+      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
+          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+
+      neighborMajorIndex += 1;
+
+      // The lower neighbor for the last tile
+      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+    }
+
+    // --- Handle the last edge tile --- //
+
+    // The upper neighbor for the last tile
+    hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
+        neighborSector.tilesByIndex[neighborMajorIndex][0]);
+
+    neighborMajorIndex += 1;
+
+    // The last edge tile with an external neighbor might not have the lower neighbor
+    if (neighborSector.tilesByIndex[neighborMajorIndex] &&
+        neighborSector.tilesByIndex[neighborMajorIndex][0]) {
+      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+    }
+    edgeTiles[minorIndex].expandedState.isBorderTile = true;
+
+    // --- Mark the inner edge tiles as border tiles --- //
+
+    for (minorIndex = 0; minorIndex < sector.expandedDisplacementTileCount; minorIndex += 1) {
+
+      edgeTiles[minorIndex].expandedState.isBorderTile = true;
+    }
+
+    // TODO: Mark the outer edge tiles as border tiles?
+  }
+
+  /**
+   * Frees up memory used by this Sector.
+   *
+   * @this Sector
+   */
+  function destroy() {
+    var sector, i, count;
+
+    sector = this;
+
+    for (i = 0, count = sector.newTiles.length; i < count; i += 1) {
+      sector.newTiles[i].expandedState = null;
+      sector.newTiles[i].neighborStates = null;
+    }
+  }
 
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
@@ -481,6 +571,11 @@
     sector.expandedDisplacementY = Number.NaN;
     sector.tiles = null;
     sector.tilesByIndex = null;
+    sector.newTiles = null;
+
+    sector.initializeExpandedStateExternalTileNeighbors =
+        initializeExpandedStateExternalTileNeighbors;
+    sector.destroy = destroy;
 
     setUpExpandedDisplacementValues.call(sector);
     setUpTiles.call(sector);

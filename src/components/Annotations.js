@@ -129,6 +129,12 @@
       create: function () {/* Do nothing */},
       destroy: destroyLineAnimationCornerConfigurations,
       update:  updateLineAnimationCornerConfigurations
+    },
+    'sectorColors': {
+      enabled: true,
+      create: createSectorColors,
+      destroy: destroySectorColors,
+      update: function () {/* Do nothing */}
     }
   };
 
@@ -356,17 +362,18 @@
    * @this Annotations
    */
   function createTileNeighborConnections() {
-    var annotations, i, j, iCount, jCount, tile, neighbor;
+    var annotations, i, j, iCount, jCount, tile, neighborStates, neighbor;
 
     annotations = this;
     annotations.neighborLines = [];
 
     for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
       tile = annotations.grid.tiles[i];
+      neighborStates = tile.getNeighborStates();
       annotations.neighborLines[i] = [];
 
-      for (j = 0, jCount = tile.neighborStates.length; j < jCount; j += 1) {
-        neighbor = tile.neighborStates[j];
+      for (j = 0, jCount = neighborStates.length; j < jCount; j += 1) {
+        neighbor = neighborStates[j];
 
         if (neighbor) {
           annotations.neighborLines[i][j] = document.createElementNS(hg.util.svgNamespace, 'line');
@@ -432,12 +439,38 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.indexTexts[i] = document.createElementNS(hg.util.svgNamespace, 'text');
-      annotations.indexTexts[i].innerHTML = annotations.grid.tiles[i].index;
+      annotations.indexTexts[i].innerHTML =
+          !isNaN(annotations.grid.tiles[i].index) ? annotations.grid.tiles[i].index : '?';
       annotations.grid.svg.appendChild(annotations.indexTexts[i]);
 
       annotations.indexTexts[i].setAttribute('font-size', '16');
       annotations.indexTexts[i].setAttribute('fill', 'black');
       annotations.indexTexts[i].setAttribute('pointer-events', 'none');
+    }
+  }
+
+  /**
+   * Draws the tiles of each Sector with a different color.
+   *
+   * @this Annotations
+   */
+  function createSectorColors() {
+    var annotations, i, iCount, j, jCount, sector, sectorHue;
+
+    annotations = this;
+
+    if (annotations.grid.sectors) {
+      for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
+
+        sector = annotations.grid.sectors[i];
+        sectorHue = 60 * i;
+
+        for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
+
+          sector.tiles[j].setColor(sectorHue, hg.Grid.config.tileSaturation,
+              hg.Grid.config.tileLightness);
+        }
+      }
     }
   }
 
@@ -732,6 +765,38 @@
     annotations.lineAnimationUpperNeighborCornerDots = [];
   }
 
+  /**
+   * Draws the tiles of each Sector with a different color.
+   *
+   * @this Annotations
+   */
+  function destroySectorColors() {
+    var annotations, i, iCount, j, jCount, sector, sectorHue;
+
+    annotations = this;
+
+    if (annotations.grid.sectors) {
+      for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
+
+        sector = annotations.grid.sectors[i];
+        sectorHue = 60 * i;
+
+        for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
+
+          sector.tiles[j].setColor(sectorHue, hg.Grid.config.tileSaturation,
+              hg.Grid.config.tileLightness);
+        }
+      }
+
+      // Reset any other tile-color annotations
+      ['contentTiles', 'borderTiles', 'cornerTiles'].forEach(function (key) {
+        if (annotations.annotations[key].enabled) {
+          annotations.annotations[key].create.call(annotations);
+        }
+      });
+    }
+  }
+
   // --------------------------------------------------- //
   // Annotation updating functions
 
@@ -840,15 +905,16 @@
    * @this Annotations
    */
   function updateTileNeighborConnections() {
-    var annotations, i, j, iCount, jCount, tile, neighbor;
+    var annotations, i, j, iCount, jCount, tile, neighborStates, neighbor;
 
     annotations = this;
 
     for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
       tile = annotations.grid.tiles[i];
+      neighborStates = tile.getNeighborStates();
 
-      for (j = 0, jCount = tile.neighborStates.length; j < jCount; j += 1) {
-        neighbor = tile.neighborStates[j];
+      for (j = 0, jCount = neighborStates.length; j < jCount; j += 1) {
+        neighbor = neighborStates[j];
 
         if (neighbor) {
           annotations.neighborLines[i][j].setAttribute('x1', tile.particle.px);
@@ -1067,6 +1133,30 @@
   }
 
   /**
+   * Updates the annotation states to reflect whether the grid is currently expanded.
+   *
+   * @this Annotations
+   * @param {boolean} isExpanded
+   */
+  function setExpandedAnnotations(isExpanded) {
+    var annotations;
+
+    annotations = this;
+
+    if (annotations.annotations.tileNeighborConnections.enabled) {
+      destroyTileNeighborConnections.call(annotations);
+      createTileNeighborConnections.call(annotations);
+    }
+
+    if (isExpanded && annotations.annotations.sectorColors.enabled) {
+      destroySectorColors.call(annotations);
+      createSectorColors.call(annotations);
+    } else {
+      destroySectorColors.call(annotations);
+    }
+  }
+
+  /**
    * Sets this AnimationJob as started.
    *
    * @this Annotations
@@ -1153,6 +1243,7 @@
     annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
     annotations.createAnnotations = createAnnotations;
     annotations.destroyAnnotations = destroyAnnotations;
+    annotations.setExpandedAnnotations = setExpandedAnnotations;
 
     annotations.start = start;
     annotations.update = update;

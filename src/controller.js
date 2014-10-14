@@ -214,19 +214,42 @@
   }
 
   /**
+   * Expands the Grid to show the post at the given tile index.
+   *
+   * @param {number} gridIndex
+   * @param {Tile} tile
+   */
+  function openPost(gridIndex, tile) {
+    var job, grid;
+
+    grid = controller.grids[gridIndex];
+
+    grid.animations.openPostAnimations = grid.animations.openPostAnimations || [];
+
+    job = new hg.OpenPostJob(grid, tile, onComplete);
+    controller.openPostJobs.push(job);
+    hg.animator.startJob(job);
+
+    function onComplete(job) {
+      controller.grids[gridIndex].animations.openPostAnimations.splice(
+          controller.grids[gridIndex].animations.openPostAnimations.indexOf(job), 1);
+    }
+  }
+
+  /**
    * Creates a new LinesRadiateJob based off the tile at the given index.
    *
    * @param {number} gridIndex
-   * @param {number} tileIndex
+   * @param {Tile} tile
    */
-  function createLinesRadiateAnimation(gridIndex, tileIndex) {
+  function createLinesRadiateAnimation(gridIndex, tile) {
     var job, i, count, grid;
 
     grid = controller.grids[gridIndex];
 
     grid.animations.lineAnimations = grid.animations.lineAnimations || [];
 
-    job = new hg.LinesRadiateJob(grid, grid.tiles[tileIndex], onComplete);
+    job = new hg.LinesRadiateJob(grid, tile, onComplete);
     controller.linesRadiateJobs.push(job);
     hg.animator.startJob(job);
 
@@ -268,13 +291,10 @@
    * Creates a new HighlightHoverJob based off the tile at the given index.
    *
    * @param {number} gridIndex
-   * @param {number} tileIndex
+   * @param {Tile} tile
    */
-  function createHighlightHoverAnimation(gridIndex, tileIndex) {
-    var job, grid, tile;
-
-    grid = controller.grids[gridIndex];
-    tile = grid.tiles[tileIndex];
+  function createHighlightHoverAnimation(gridIndex, tile) {
+    var job;
 
     controller.grids[gridIndex].animations.highlightHoverAnimations =
         controller.grids[gridIndex].animations.highlightHoverAnimations || [];
@@ -295,9 +315,9 @@
    * Creates a new HighlightRadiateJob based off the tile at the given index.
    *
    * @param {number} gridIndex
-   * @param {number} tileIndex
+   * @param {Tile} tile
    */
-  function createHighlightRadiateAnimation(gridIndex, tileIndex) {
+  function createHighlightRadiateAnimation(gridIndex, tile) {
     var job, grid, startPoint;
 
     grid = controller.grids[gridIndex];
@@ -306,8 +326,8 @@
         controller.grids[gridIndex].animations.highlightRadiateAnimations || [];
 
     startPoint = {
-      x: grid.tiles[tileIndex].originalCenterX,
-      y: grid.tiles[tileIndex].originalCenterY
+      x: tile.originalCenterX,
+      y: tile.originalCenterY
     };
 
     job = new hg.HighlightRadiateJob(startPoint, grid, onComplete);
@@ -329,7 +349,7 @@
    */
   function createRandomHighlightRadiateAnimation(gridIndex) {
     var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
-    createHighlightRadiateAnimation(gridIndex, tileIndex);
+    createHighlightRadiateAnimation(gridIndex, hg.controller.grids[gridIndex].tiles[tileIndex]);
   }
 
   /**
@@ -339,7 +359,7 @@
    */
   function createRandomHighlightHoverAnimation(gridIndex) {
     var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
-    createHighlightHoverAnimation(gridIndex, tileIndex);
+    createHighlightHoverAnimation(gridIndex, hg.controller.grids[gridIndex].tiles[tileIndex]);
   }
 
   /**
@@ -349,7 +369,7 @@
    */
   function createRandomLinesRadiateAnimation(gridIndex) {
     var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
-    createLinesRadiateAnimation(gridIndex, tileIndex);
+    createLinesRadiateAnimation(gridIndex, hg.controller.grids[gridIndex].tiles[tileIndex]);
   }
 
   /**
@@ -421,6 +441,7 @@
   controller.colorShiftJobs = [];
   controller.displacementWaveJobs = [];
   controller.colorWaveJobs = [];
+  controller.openPostJobs = [];
   controller.linesRadiateJobs = [];
   controller.randomLineJobs = [];
   controller.highlightHoverJobs = [];
@@ -437,6 +458,7 @@
   controller.restartColorShiftAnimation = restartColorShiftAnimation;
   controller.restartColorWaveAnimation = restartColorWaveAnimation;
   controller.restartDisplacementWaveAnimation = restartDisplacementWaveAnimation;
+  controller.openPost = openPost;
   controller.createLinesRadiateAnimation = createLinesRadiateAnimation;
   controller.createRandomLineAnimation = createRandomLineAnimation;
   controller.createHighlightHoverAnimation = createHighlightHoverAnimation;

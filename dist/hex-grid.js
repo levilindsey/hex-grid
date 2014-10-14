@@ -214,19 +214,42 @@
   }
 
   /**
+   * Expands the Grid to show the post at the given tile index.
+   *
+   * @param {number} gridIndex
+   * @param {Tile} tile
+   */
+  function openPost(gridIndex, tile) {
+    var job, grid;
+
+    grid = controller.grids[gridIndex];
+
+    grid.animations.openPostAnimations = grid.animations.openPostAnimations || [];
+
+    job = new hg.OpenPostJob(grid, tile, onComplete);
+    controller.openPostJobs.push(job);
+    hg.animator.startJob(job);
+
+    function onComplete(job) {
+      controller.grids[gridIndex].animations.openPostAnimations.splice(
+          controller.grids[gridIndex].animations.openPostAnimations.indexOf(job), 1);
+    }
+  }
+
+  /**
    * Creates a new LinesRadiateJob based off the tile at the given index.
    *
    * @param {number} gridIndex
-   * @param {number} tileIndex
+   * @param {Tile} tile
    */
-  function createLinesRadiateAnimation(gridIndex, tileIndex) {
+  function createLinesRadiateAnimation(gridIndex, tile) {
     var job, i, count, grid;
 
     grid = controller.grids[gridIndex];
 
     grid.animations.lineAnimations = grid.animations.lineAnimations || [];
 
-    job = new hg.LinesRadiateJob(grid, grid.tiles[tileIndex], onComplete);
+    job = new hg.LinesRadiateJob(grid, tile, onComplete);
     controller.linesRadiateJobs.push(job);
     hg.animator.startJob(job);
 
@@ -268,13 +291,10 @@
    * Creates a new HighlightHoverJob based off the tile at the given index.
    *
    * @param {number} gridIndex
-   * @param {number} tileIndex
+   * @param {Tile} tile
    */
-  function createHighlightHoverAnimation(gridIndex, tileIndex) {
-    var job, grid, tile;
-
-    grid = controller.grids[gridIndex];
-    tile = grid.tiles[tileIndex];
+  function createHighlightHoverAnimation(gridIndex, tile) {
+    var job;
 
     controller.grids[gridIndex].animations.highlightHoverAnimations =
         controller.grids[gridIndex].animations.highlightHoverAnimations || [];
@@ -295,9 +315,9 @@
    * Creates a new HighlightRadiateJob based off the tile at the given index.
    *
    * @param {number} gridIndex
-   * @param {number} tileIndex
+   * @param {Tile} tile
    */
-  function createHighlightRadiateAnimation(gridIndex, tileIndex) {
+  function createHighlightRadiateAnimation(gridIndex, tile) {
     var job, grid, startPoint;
 
     grid = controller.grids[gridIndex];
@@ -306,8 +326,8 @@
         controller.grids[gridIndex].animations.highlightRadiateAnimations || [];
 
     startPoint = {
-      x: grid.tiles[tileIndex].originalCenterX,
-      y: grid.tiles[tileIndex].originalCenterY
+      x: tile.originalCenterX,
+      y: tile.originalCenterY
     };
 
     job = new hg.HighlightRadiateJob(startPoint, grid, onComplete);
@@ -329,7 +349,7 @@
    */
   function createRandomHighlightRadiateAnimation(gridIndex) {
     var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
-    createHighlightRadiateAnimation(gridIndex, tileIndex);
+    createHighlightRadiateAnimation(gridIndex, hg.controller.grids[gridIndex].tiles[tileIndex]);
   }
 
   /**
@@ -339,7 +359,7 @@
    */
   function createRandomHighlightHoverAnimation(gridIndex) {
     var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
-    createHighlightHoverAnimation(gridIndex, tileIndex);
+    createHighlightHoverAnimation(gridIndex, hg.controller.grids[gridIndex].tiles[tileIndex]);
   }
 
   /**
@@ -349,7 +369,7 @@
    */
   function createRandomLinesRadiateAnimation(gridIndex) {
     var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
-    createLinesRadiateAnimation(gridIndex, tileIndex);
+    createLinesRadiateAnimation(gridIndex, hg.controller.grids[gridIndex].tiles[tileIndex]);
   }
 
   /**
@@ -421,6 +441,7 @@
   controller.colorShiftJobs = [];
   controller.displacementWaveJobs = [];
   controller.colorWaveJobs = [];
+  controller.openPostJobs = [];
   controller.linesRadiateJobs = [];
   controller.randomLineJobs = [];
   controller.highlightHoverJobs = [];
@@ -437,6 +458,7 @@
   controller.restartColorShiftAnimation = restartColorShiftAnimation;
   controller.restartColorWaveAnimation = restartColorWaveAnimation;
   controller.restartDisplacementWaveAnimation = restartDisplacementWaveAnimation;
+  controller.openPost = openPost;
   controller.createLinesRadiateAnimation = createLinesRadiateAnimation;
   controller.createRandomLineAnimation = createRandomLineAnimation;
   controller.createHighlightHoverAnimation = createHighlightHoverAnimation;
@@ -1404,6 +1426,12 @@
       create: function () {/* Do nothing */},
       destroy: destroyLineAnimationCornerConfigurations,
       update:  updateLineAnimationCornerConfigurations
+    },
+    'sectorColors': {
+      enabled: true,
+      create: createSectorColors,
+      destroy: destroySectorColors,
+      update: function () {/* Do nothing */}
     }
   };
 
@@ -1626,22 +1654,23 @@
   }
 
   /**
-   * Creates lines connecting each tile to each of its neighbors.
+   * Creates lines connecting each tile to each of its neighborStates.
    *
    * @this Annotations
    */
   function createTileNeighborConnections() {
-    var annotations, i, j, iCount, jCount, tile, neighbor;
+    var annotations, i, j, iCount, jCount, tile, neighborStates, neighbor;
 
     annotations = this;
     annotations.neighborLines = [];
 
     for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
       tile = annotations.grid.tiles[i];
+      neighborStates = tile.getNeighborStates();
       annotations.neighborLines[i] = [];
 
-      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
-        neighbor = tile.neighbors[j];
+      for (j = 0, jCount = neighborStates.length; j < jCount; j += 1) {
+        neighbor = neighborStates[j];
 
         if (neighbor) {
           annotations.neighborLines[i][j] = document.createElementNS(hg.util.svgNamespace, 'line');
@@ -1707,12 +1736,38 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.indexTexts[i] = document.createElementNS(hg.util.svgNamespace, 'text');
-      annotations.indexTexts[i].innerHTML = annotations.grid.tiles[i].index;
+      annotations.indexTexts[i].innerHTML =
+          !isNaN(annotations.grid.tiles[i].index) ? annotations.grid.tiles[i].index : '?';
       annotations.grid.svg.appendChild(annotations.indexTexts[i]);
 
       annotations.indexTexts[i].setAttribute('font-size', '16');
       annotations.indexTexts[i].setAttribute('fill', 'black');
       annotations.indexTexts[i].setAttribute('pointer-events', 'none');
+    }
+  }
+
+  /**
+   * Draws the tiles of each Sector with a different color.
+   *
+   * @this Annotations
+   */
+  function createSectorColors() {
+    var annotations, i, iCount, j, jCount, sector, sectorHue;
+
+    annotations = this;
+
+    if (annotations.grid.sectors) {
+      for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
+
+        sector = annotations.grid.sectors[i];
+        sectorHue = 60 * i;
+
+        for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
+
+          sector.tiles[j].setColor(sectorHue, hg.Grid.config.tileSaturation,
+              hg.Grid.config.tileLightness);
+        }
+      }
     }
   }
 
@@ -1892,7 +1947,7 @@
   }
 
   /**
-   * Destroys lines connecting each tile to each of its neighbors.
+   * Destroys lines connecting each tile to each of its neighborStates.
    *
    * @this Annotations
    */
@@ -2007,6 +2062,38 @@
     annotations.lineAnimationUpperNeighborCornerDots = [];
   }
 
+  /**
+   * Draws the tiles of each Sector with a different color.
+   *
+   * @this Annotations
+   */
+  function destroySectorColors() {
+    var annotations, i, iCount, j, jCount, sector, sectorHue;
+
+    annotations = this;
+
+    if (annotations.grid.sectors) {
+      for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
+
+        sector = annotations.grid.sectors[i];
+        sectorHue = 60 * i;
+
+        for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
+
+          sector.tiles[j].setColor(sectorHue, hg.Grid.config.tileSaturation,
+              hg.Grid.config.tileLightness);
+        }
+      }
+
+      // Reset any other tile-color annotations
+      ['contentTiles', 'borderTiles', 'cornerTiles'].forEach(function (key) {
+        if (annotations.annotations[key].enabled) {
+          annotations.annotations[key].create.call(annotations);
+        }
+      });
+    }
+  }
+
   // --------------------------------------------------- //
   // Annotation updating functions
 
@@ -2110,20 +2197,21 @@
   }
 
   /**
-   * Updates lines connecting each tile to each of its neighbors.
+   * Updates lines connecting each tile to each of its neighborStates.
    *
    * @this Annotations
    */
   function updateTileNeighborConnections() {
-    var annotations, i, j, iCount, jCount, tile, neighbor;
+    var annotations, i, j, iCount, jCount, tile, neighborStates, neighbor;
 
     annotations = this;
 
     for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
       tile = annotations.grid.tiles[i];
+      neighborStates = tile.getNeighborStates();
 
-      for (j = 0, jCount = tile.neighbors.length; j < jCount; j += 1) {
-        neighbor = tile.neighbors[j];
+      for (j = 0, jCount = neighborStates.length; j < jCount; j += 1) {
+        neighbor = neighborStates[j];
 
         if (neighbor) {
           annotations.neighborLines[i][j].setAttribute('x1', tile.particle.px);
@@ -2342,6 +2430,30 @@
   }
 
   /**
+   * Updates the annotation states to reflect whether the grid is currently expanded.
+   *
+   * @this Annotations
+   * @param {boolean} isExpanded
+   */
+  function setExpandedAnnotations(isExpanded) {
+    var annotations;
+
+    annotations = this;
+
+    if (annotations.annotations.tileNeighborConnections.enabled) {
+      destroyTileNeighborConnections.call(annotations);
+      createTileNeighborConnections.call(annotations);
+    }
+
+    if (isExpanded && annotations.annotations.sectorColors.enabled) {
+      destroySectorColors.call(annotations);
+      createSectorColors.call(annotations);
+    } else {
+      destroySectorColors.call(annotations);
+    }
+  }
+
+  /**
    * Sets this AnimationJob as started.
    *
    * @this Annotations
@@ -2428,6 +2540,7 @@
     annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
     annotations.createAnnotations = createAnnotations;
     annotations.destroyAnnotations = destroyAnnotations;
+    annotations.setExpandedAnnotations = setExpandedAnnotations;
 
     annotations.start = start;
     annotations.update = update;
@@ -2453,7 +2566,7 @@
 /**
  * This module defines a constructor for Grid objects.
  *
- * Grid objects define a collection of hexagonal tiles which animate and display dynamic,
+ * Grid objects define a collection of hexagonal tiles that animate and display dynamic,
  * textual content.
  *
  * @module Grid
@@ -2714,10 +2827,10 @@
             ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
                 (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
 
-        grid.tiles[tileIndex] = new hg.Tile(grid.svg, centerX, centerY, config.tileOuterRadius,
-            grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
-            isLargerRow, config.tileMass);
+        grid.tiles[tileIndex] = new hg.Tile(grid.svg, grid, centerX, centerY,
+            config.tileOuterRadius, grid.isVertical, config.tileHue, config.tileSaturation,
+            config.tileLightness, null, tileIndex, rowIndex, columnIndex, isMarginTile,
+            isBorderTile, isCornerTile, isLargerRow, config.tileMass);
 
         if (isBorderTile) {
           grid.borderTiles.push(grid.tiles[tileIndex]);
@@ -2743,27 +2856,27 @@
   }
 
   /**
-   * Connects each tile with references to its neighbors.
+   * Connects each tile with references to its neighborStates.
    *
    * @this Grid
    * @param {Array.<Array.<number>>} tilesNeighborDeltaIndices
    */
   function setNeighborTiles(tilesNeighborDeltaIndices) {
-    var grid, i, j, iCount, jCount, neighbors;
+    var grid, i, j, iCount, jCount, neighborStates;
 
     grid = this;
 
-    neighbors = [];
+    neighborStates = [];
 
-    // Give each tile references to each of its neighbors
+    // Give each tile references to each of its neighborStates
     for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
-      // Get the neighbors around the current tile
+      // Get the neighborStates around the current tile
       for (j = 0, jCount = 6; j < jCount; j += 1) {
-        neighbors[j] = !isNaN(tilesNeighborDeltaIndices[i][j]) ?
+        neighborStates[j] = !isNaN(tilesNeighborDeltaIndices[i][j]) ?
             grid.tiles[i + tilesNeighborDeltaIndices[i][j]] : null;
       }
 
-      grid.tiles[i].setNeighborTiles(neighbors);
+      grid.tiles[i].setNeighborTiles(neighborStates);
     }
   }
 
@@ -2867,7 +2980,7 @@
   }
 
   /**
-   * Calculates the index offsets of the neighbors of a tile.
+   * Calculates the index offsets of the neighborStates of a tile.
    *
    * @this Grid
    * @returns {Array.<number>}
@@ -3144,10 +3257,35 @@
     grid.centerY = Number.NaN;
     grid.index = Number.NaN;
     grid.isPostOpen = false;
+    grid.isTransitioning = false;
+    grid.sectors = null;
 
     grid.animations = {};
 
     grid.annotations = new hg.Annotations(grid);
+
+    grid.centerX = null;
+    grid.centerY = null;
+    grid.actualContentAreaWidth = null;
+    grid.rowDeltaY = null;
+    grid.tileDeltaX = null;
+    grid.oddRowTileCount = null;
+    grid.evenRowTileCount = null;
+    grid.oddRowXOffset = null;
+    grid.rowCount = null;
+    grid.evenRowXOffset = null;
+    grid.contentAreaLeft = null;
+    grid.contentAreaRight = null;
+    grid.oddRowContentStartIndex = null;
+    grid.evenRowContentStartIndex = null;
+    grid.oddRowContentTileCount = null;
+    grid.evenRowContentTileCount = null;
+    grid.oddRowContentEndIndex = null;
+    grid.evenRowContentEndIndex = null;
+    grid.actualContentInnerIndices = null;
+    grid.innerIndexOfLastContentTile = null;
+    grid.rowCount = null;
+    grid.height = null;
 
     grid.resize = resize;
     grid.start = start;
@@ -3248,7 +3386,7 @@
 
         input.grid.setHoveredTile(null);
 
-        hg.controller.createHighlightHoverAnimation(input.grid.index, tile.index);
+        hg.controller.createHighlightHoverAnimation(input.grid.index, tile);
 
         event.stopPropagation();
       }
@@ -3277,7 +3415,7 @@
           // TODO:
         }
 
-        createClickAnimation(input.grid.index, tile.index);
+        createClickAnimation(input.grid.index, tile);
       }
     }
 
@@ -3293,8 +3431,9 @@
     }
   }
 
-  function createClickAnimation(gridIndex, tileIndex) {
-    config.possibleClickAnimations[config.clickAnimation](gridIndex, tileIndex);
+  function createClickAnimation(gridIndex, tile) {
+//    config.possibleClickAnimations[config.clickAnimation](gridIndex, tile);// TODO:
+    hg.controller.openPost(gridIndex, tile);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3309,7 +3448,7 @@
   /**
    * @constructor
    * @global
-   * @param {Input} grid
+   * @param {Grid} grid
    */
   function Input(grid) {
     var input = this;
@@ -3329,6 +3468,598 @@
 })();
 
 // TODO:
+
+'use strict';
+
+/**
+ * This module defines a constructor for Sector objects.
+ *
+ * Sector objects define a collection of hexagonal tiles that lie within a single sector of the
+ * grid--outward from a given tile position.
+ *
+ * Sectors are one-sixth of the grid.
+ *
+ * Sectors are used to animate open and close a hole in the grid around a given tile, so that the
+ * contents of that tile can be shown in an expanded form.
+ *
+ * @module Sector
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Calculates major and minor neighbor values and displacement values for the expanded grid
+   * configuration.
+   *
+   * @this Sector
+   */
+  function setUpExpandedDisplacementValues() {
+    var sector, expansionDirectionNeighborIndex, expansionDirectionNeighborDeltaX,
+        expansionDirectionNeighborDeltaY;
+
+    sector = this;
+
+    // Compute which directions to iterate through tiles for this sector
+
+    sector.majorNeighborIndex = sector.index;
+    sector.minorNeighborIndex = (sector.index + 1) % 6;
+
+    // Compute the axially-aligned distances between adjacent tiles
+
+    sector.majorNeighborDeltaX =
+        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalCenterX -
+        sector.baseTile.originalCenterX;
+    sector.majorNeighborDeltaY =
+        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalCenterY -
+        sector.baseTile.originalCenterY;
+    sector.minorNeighborDeltaX =
+        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalCenterX -
+        sector.baseTile.originalCenterX;
+    sector.minorNeighborDeltaY =
+        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalCenterY -
+        sector.baseTile.originalCenterY;
+
+    // Compute the axially-aligned displacement values of this sector when the grid is expanded
+
+    expansionDirectionNeighborIndex = (sector.index + 5) % 6;
+
+    expansionDirectionNeighborDeltaX =
+        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalCenterX -
+        sector.baseTile.originalCenterX;
+    expansionDirectionNeighborDeltaY =
+        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalCenterY -
+        sector.baseTile.originalCenterY;
+
+    sector.expandedDisplacementX =
+        sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaX;
+    sector.expandedDisplacementY =
+        sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaY;
+  }
+
+  /**
+   * Populates the collection of tiles that lie within this sector. These include both the
+   * pre-existing tiles and new tiles that are created.
+   *
+   * @this Sector
+   */
+  function setUpTiles() {
+    var sector;
+
+    sector = this;
+
+    sector.tilesByIndex = [];
+    sector.newTiles = [];
+    sector.tiles = [];
+
+    // Get the old and new tiles for this sector, and set up neighbor states for the expanded grid
+    // configuration
+    collectOldTilesInSector.call(sector);
+    collectNewTilesInSector.call(sector);
+
+    // Re-assign temporary neighbor states for tiles in this sector
+    initializeExpandedStateInternalTileNeighbors.call(sector);
+
+    // Convert the two-dimensional array to a flat array
+    flattenTileCollection.call(sector);
+  }
+
+  /**
+   * Collects references to the pre-existing tiles that lie within this sector.
+   *
+   * ASSUMPTION: the baseTile is not a border tile (i.e., it has six neighbors)
+   *
+   * @this Sector
+   */
+  function collectOldTilesInSector() {
+    var sector;
+
+    sector = this;
+
+    // TODO: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is when the viewport's aspect ratio is very large or very small)
+    // Collect all of the tiles for this sector into a two-dimensional array
+    iterateOverTilesInSectorInMajorOrder();
+    iterateOverTilesInSectorInMinorOrder();
+
+    // ---  --- //
+
+    function iterateOverTilesInSectorInMajorOrder() {
+      var majorTile, currentTile, majorIndex, minorIndex;
+
+      majorIndex = 0;
+      majorTile = sector.baseTile.neighborStates[sector.majorNeighborIndex].tile;
+
+      // Iterate over the major indices of the sector (aka, the "rows" of the sector)
+      do {
+        currentTile = majorTile;
+        minorIndex = 0;
+
+        // Set up the inner array for this "row" of the sector
+        sector.tilesByIndex[majorIndex] = sector.tilesByIndex[majorIndex] || [];
+
+        // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
+        do {
+          // Store the current tile in the "row" if it hasn't already been stored
+          if (!sector.tilesByIndex[majorIndex][minorIndex]) {
+            addOldTileToSector.call(sector, currentTile, majorIndex, minorIndex);
+          }
+
+          minorIndex++;
+
+        } while (currentTile.neighborStates[sector.minorNeighborIndex] &&
+            (currentTile = currentTile.neighborStates[sector.minorNeighborIndex].tile));
+
+        majorIndex++;
+
+      } while (majorTile.neighborStates[sector.majorNeighborIndex] &&
+          (majorTile = majorTile.neighborStates[sector.majorNeighborIndex].tile));
+    }
+
+    function iterateOverTilesInSectorInMinorOrder() {
+      var minorTile, currentTile, majorIndex, minorIndex;
+
+      minorIndex = 0;
+      minorTile = sector.baseTile.neighborStates[sector.majorNeighborIndex].tile;
+
+      // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
+      do {
+        currentTile = minorTile;
+        majorIndex = 0;
+
+        // Iterate over the major indices of the sector (aka, the "rows" of the sector)
+        do {
+          // Set up the inner array for this "row" of the sector
+          sector.tilesByIndex[majorIndex] = sector.tilesByIndex[majorIndex] || [];
+
+          // Store the current tile in the "column" if it hasn't already been stored
+          if (!sector.tilesByIndex[majorIndex][minorIndex]) {
+            addOldTileToSector.call(sector, currentTile, majorIndex, minorIndex);
+          }
+
+          majorIndex++;
+
+        } while (currentTile.neighborStates[sector.majorNeighborIndex] &&
+            (currentTile = currentTile.neighborStates[sector.majorNeighborIndex].tile));
+
+        minorIndex++;
+
+      } while (minorTile.neighborStates[sector.minorNeighborIndex] &&
+          (minorTile = minorTile.neighborStates[sector.minorNeighborIndex].tile));
+    }
+  }
+
+  /**
+   * Creates new tiles that will be shown within this sector.
+   *
+   * ASSUMPTION: the baseTile is not a border tile (i.e., it has six neighbors)
+   *
+   * @this Sector
+   */
+  function collectNewTilesInSector() {
+    var sector, boundingBoxHalfX, boundingBoxHalfY, minX, maxX, minY, maxY;
+
+    sector = this;
+
+    // Determine the bounding box of the re-positioned viewport
+    boundingBoxHalfX = window.innerWidth / 2 - sector.expandedDisplacementX + hg.Grid.config.tileShortLengthWithGap;
+    boundingBoxHalfY = window.innerHeight / 2 - sector.expandedDisplacementY + hg.Grid.config.tileShortLengthWithGap;
+    minX = sector.baseTile.originalCenterX - boundingBoxHalfX;
+    maxX = sector.baseTile.originalCenterX + boundingBoxHalfX;
+    minY = sector.baseTile.originalCenterY - boundingBoxHalfY;
+    maxY = sector.baseTile.originalCenterY + boundingBoxHalfY;
+
+    // TODO: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is when the viewport's aspect ratio is very large or very small)
+    // Collect all of the tiles for this sector into a two-dimensional array
+    iterateOverTilesInSectorInMajorOrder();
+    iterateOverTilesInSectorInMinorOrder();
+
+    // ---  --- //
+
+    function iterateOverTilesInSectorInMajorOrder() {
+      var startX, startY, centerX, centerY, majorIndex, minorIndex;
+
+      startX = sector.baseTile.originalCenterX + sector.majorNeighborDeltaX;
+      startY = sector.baseTile.originalCenterY + sector.majorNeighborDeltaY;
+
+      majorIndex = 0;
+      minorIndex = 0;
+
+      centerX = startX;
+      centerY = startY;
+
+      // Iterate over the major indices of the sector (aka, the "rows" of the sector)
+      do {
+        // Set up the inner array for this "row" of the sector
+        sector.tilesByIndex[majorIndex] = sector.tilesByIndex[majorIndex] || [];
+
+        // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
+        do {
+          // Create a new tile if one did not already exist for this position
+          if (!sector.tilesByIndex[majorIndex][minorIndex]) {
+            createNewTileInSector.call(sector, majorIndex, minorIndex, centerX, centerY);
+          }
+
+          // Set up the next "column"
+          minorIndex++;
+          centerX += sector.minorNeighborDeltaX;
+          centerY += sector.minorNeighborDeltaY;
+
+        } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
+
+        // Set up the next "row"
+        majorIndex++;
+        minorIndex = 0;
+        centerX = startX + majorIndex * sector.majorNeighborDeltaX;
+        centerY = startY + majorIndex * sector.majorNeighborDeltaY;
+
+      } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
+    }
+
+    function iterateOverTilesInSectorInMinorOrder() {
+      var startX, startY, centerX, centerY, majorIndex, minorIndex;
+
+      startX = sector.baseTile.originalCenterX + sector.majorNeighborDeltaX;
+      startY = sector.baseTile.originalCenterY + sector.majorNeighborDeltaY;
+
+      // Set up the first "column"
+      majorIndex = 0;
+      minorIndex = 0;
+      centerX = startX;
+      centerY = startY;
+
+      // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
+      do {
+        // Iterate over the major indices of the sector (aka, the "rows" of the sector)
+        do {
+          // Set up the inner array for this "row" of the sector
+          sector.tilesByIndex[majorIndex] = sector.tilesByIndex[majorIndex] || [];
+
+          // Create a new tile if one did not already exist for this position
+          if (!sector.tilesByIndex[majorIndex][minorIndex]) {
+            createNewTileInSector.call(sector, majorIndex, minorIndex, centerX, centerY);
+          }
+
+          // Set up the next "row"
+          majorIndex++;
+          centerX += sector.majorNeighborDeltaX;
+          centerY += sector.majorNeighborDeltaY;
+
+        } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
+
+        // Set up the next "column"
+        majorIndex = 0;
+        minorIndex++;
+        centerX = startX + minorIndex * sector.minorNeighborDeltaX;
+        centerY = startY + minorIndex * sector.minorNeighborDeltaY;
+
+      } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
+    }
+  }
+
+  /**
+   * Adds the given pre-existing tile to this Sector's two-dimensional tile collection.
+   *
+   * Initializes the tile's expandedState configuration.
+   *
+   * @this Sector
+   * @param {Tile} tile
+   * @param {number} majorIndex
+   * @param {number} minorIndex
+   */
+  function addOldTileToSector(tile, majorIndex, minorIndex) {
+    var sector = this;
+    sector.tilesByIndex[majorIndex][minorIndex] = tile;
+    tile.expandedState = {
+      sector: sector,
+      sectorMajorIndex: majorIndex,
+      sectorMinorIndex: minorIndex,
+      neighborStates: [],
+      isBorderTile: false
+    };
+  }
+
+  /**
+   * Adds a new tile to this Sector's two-dimensional tile collection.
+   *
+   * Initializes the new tile's expandedState configuration.
+   *
+   * @this Sector
+   * @param {number} majorIndex
+   * @param {number} minorIndex
+   * @param {number} centerX
+   * @param {number} centerY
+   */
+  function createNewTileInSector(majorIndex, minorIndex, centerX, centerY) {
+    var sector = this;
+    // TODO: some of the later parameters will need to be set in order for some animations to work
+    //   - (BUT, the better solution is probably to just disable those animations for the expanded grid)
+    var tile = new hg.Tile(sector.grid.svg, sector.grid, centerX, centerY,
+        hg.Grid.config.tileOuterRadius, sector.grid.isVertical, hg.Grid.config.tileHue,
+        hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness, null, Number.NaN, Number.NaN,
+        Number.NaN, true, false, false, false, hg.Grid.config.tileMass);
+//      new hg.Tile(grid.svg, grid, centerX, centerY, config.tileOuterRadius,
+//          grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
+//          tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
+//          isLargerRow, config.tileMass);
+    addOldTileToSector.call(sector, tile, majorIndex, minorIndex);
+    sector.newTiles[sector.newTiles.length] = tile;
+
+    return tile;
+  }
+
+  /**
+   * Calculates and stores the internal neighbor states for the expanded grid configuration for
+   * each tile in this Sector.
+   *
+   * NOTE: this does not address external neighbor relations for tiles that lie on the outside
+   * edge of this sector.
+   *
+   * @this Sector
+   */
+  function initializeExpandedStateInternalTileNeighbors() {
+    var sector, majorIndex, minorIndex;
+
+    sector = this;
+
+    // Iterate over the major indices of the sector (aka, the "rows" of the sector)
+    for (majorIndex = 0; sector.tilesByIndex[majorIndex]; majorIndex += 1) {
+
+      // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
+      for (minorIndex in sector.tilesByIndex[majorIndex]) {
+        setTileNeighborStates(sector, majorIndex, minorIndex);
+      }
+    }
+
+    // ---  --- //
+
+    function setTileNeighborStates(sector, majorIndex, minorIndex) {
+      var tile, neighborRelationIndex, neighborMajorIndex, neighborMinorIndex;
+
+      tile = sector.tilesByIndex[majorIndex][minorIndex];
+
+      for (neighborRelationIndex = 0; neighborRelationIndex < 6; neighborRelationIndex += 1) {
+
+        // Determine the major and minor indices of the current neighbor
+        switch (neighborRelationIndex) {
+          case sector.index:
+            neighborMajorIndex = majorIndex + 1;
+            neighborMinorIndex = minorIndex;
+            break;
+          case (sector.index + 1) % 6:// TODO: pre-compute these case values
+            neighborMajorIndex = majorIndex;
+            neighborMinorIndex = minorIndex + 1;
+            break;
+          case (sector.index + 2) % 6:
+            neighborMajorIndex = majorIndex - 1;
+            neighborMinorIndex = minorIndex + 1;
+            break;
+          case (sector.index + 3) % 6:
+            neighborMajorIndex = majorIndex - 1;
+            neighborMinorIndex = minorIndex;
+            break;
+          case (sector.index + 4) % 6:
+            neighborMajorIndex = majorIndex;
+            neighborMinorIndex = minorIndex - 1;
+            break;
+          case (sector.index + 5) % 6:
+            neighborMajorIndex = majorIndex + 1;
+            neighborMinorIndex = minorIndex - 1;
+            break;
+          default:
+            throw new Error('Invalid neighborRelationIndex: ' + neighborRelationIndex);
+        }
+
+        // Is the neighbor position within the bounds of the sector?
+        if (neighborMinorIndex >= 0 && neighborMinorIndex <= neighborMajorIndex) {
+
+          // Has a tile been created for the neighbor position?
+          if (sector.tilesByIndex[neighborMajorIndex] &&
+              sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]) {
+
+            hg.Tile.setTileNeighborState(tile, neighborRelationIndex,
+                sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]);
+          } else {
+            tile.expandedState.isBorderTile = true;
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Converts the two-dimensional sector.tilesByIndex array into the flat sector.tiles array.
+   *
+   * @this Sector
+   */
+  function flattenTileCollection() {
+    var sector, i, majorIndex, minorIndex;
+
+    sector = this;
+
+    i = 0;
+    for (majorIndex in sector.tilesByIndex) {
+      for (minorIndex in sector.tilesByIndex[majorIndex]) {
+        sector.tiles[i++] = sector.tilesByIndex[majorIndex][minorIndex];
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Calculates and stores the external neighbor states for the expanded grid configuration for
+   * each tile in this Sector.
+   *
+   * @this Sector
+   * @param {Array.<Sector>} sectors
+   */
+  function initializeExpandedStateExternalTileNeighbors(sectors) {
+
+    var sector, edgeTiles, minorIndex, count, lowerNeighborIndex, upperNeighborIndex,
+        neighborSector, neighborMajorIndex;
+
+    sector = this;
+
+    edgeTiles = sector.tilesByIndex[0];
+
+    lowerNeighborIndex = (sector.index + 2) % 6;
+    upperNeighborIndex = (sector.index + 3) % 6;
+
+    neighborSector = sectors[(sector.index + 1) % 6];
+
+    minorIndex = sector.expandedDisplacementTileCount;
+    neighborMajorIndex = 0;
+
+    // --- Handle the first edge tile --- //
+
+    // The first edge tile with an external neighbor will only have the lower neighbor
+    hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+        neighborSector.tilesByIndex[neighborMajorIndex][0]);
+    edgeTiles[minorIndex].expandedState.isBorderTile = true;
+
+    // --- Handle the middle edge tiles --- //
+
+    for (minorIndex += 1, count = edgeTiles.length - 1; minorIndex < count; minorIndex += 1) {
+
+      // The upper neighbor for the last tile
+      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
+          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+
+      neighborMajorIndex += 1;
+
+      // The lower neighbor for the last tile
+      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+    }
+
+    // --- Handle the last edge tile --- //
+
+    // The upper neighbor for the last tile
+    hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
+        neighborSector.tilesByIndex[neighborMajorIndex][0]);
+
+    neighborMajorIndex += 1;
+
+    // The last edge tile with an external neighbor might not have the lower neighbor
+    if (neighborSector.tilesByIndex[neighborMajorIndex] &&
+        neighborSector.tilesByIndex[neighborMajorIndex][0]) {
+      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+    }
+    edgeTiles[minorIndex].expandedState.isBorderTile = true;
+
+    // --- Mark the inner edge tiles as border tiles --- //
+
+    for (minorIndex = 0; minorIndex < sector.expandedDisplacementTileCount; minorIndex += 1) {
+
+      edgeTiles[minorIndex].expandedState.isBorderTile = true;
+    }
+
+    // TODO: Mark the outer edge tiles as border tiles?
+  }
+
+  /**
+   * Frees up memory used by this Sector.
+   *
+   * @this Sector
+   */
+  function destroy() {
+    var sector, i, count;
+
+    sector = this;
+
+    for (i = 0, count = sector.newTiles.length; i < count; i += 1) {
+      sector.newTiles[i].expandedState = null;
+      sector.newTiles[i].neighborStates = null;
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @global
+   * @constructor
+   * @param {Grid} grid
+   * @param {Tile} baseTile
+   * @param {number} sectorIndex
+   * @param {number} expandedDisplacementTileCount
+   *
+   * PRE-CONDITION: the given baseTile is not a border tile (i.e., it has six neighbors)
+   * PRE-CONDITION: the grid is in a closed state
+   *
+   * POST-CONDITION: This sector is NOT guaranteed to collect all of the pre-existing tiles in the
+   * sector nor to create all of the needed new tiles in the sector (but it probably will).
+   */
+  function Sector(grid, baseTile, sectorIndex, expandedDisplacementTileCount) {
+    var sector = this;
+
+    sector.grid = grid;
+    sector.baseTile = baseTile;
+    sector.index = sectorIndex;
+    sector.expandedDisplacementTileCount = expandedDisplacementTileCount;
+    sector.majorNeighborDeltaX = Number.NaN;
+    sector.majorNeighborDeltaY = Number.NaN;
+    sector.minorNeighborDeltaX = Number.NaN;
+    sector.minorNeighborDeltaY = Number.NaN;
+    sector.expandedDisplacementX = Number.NaN;
+    sector.expandedDisplacementY = Number.NaN;
+    sector.tiles = null;
+    sector.tilesByIndex = null;
+    sector.newTiles = null;
+
+    sector.initializeExpandedStateExternalTileNeighbors =
+        initializeExpandedStateExternalTileNeighbors;
+    sector.destroy = destroy;
+
+    setUpExpandedDisplacementValues.call(sector);
+    setUpTiles.call(sector);
+  }
+
+  Sector.config = config;
+
+  // Expose this module
+  if (!window.hg) window.hg = {};
+  window.hg.Sector = Sector;
+
+  console.log('Sector module loaded');
+})();
 
 'use strict';
 
@@ -3382,9 +4113,11 @@
    * @this Tile
    */
   function createElement() {
-    var tile;
+    var tile, id;
 
     tile = this;
+
+    id = !isNaN(tile.index) ? tile.index : parseInt(Math.random() * 1000000 + 1000);
 
     tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.vertices = [];
@@ -3393,7 +4126,7 @@
     tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
 
-    tile.element.id = 'hg-' + tile.index;
+    tile.element.id = 'hg-' + id;
     tile.element.classList.add('hg-tile');
     tile.element.style.cursor = 'pointer';
 
@@ -3561,39 +4294,16 @@
    * @param {Array.<Tile>} neighborTiles
    */
   function setNeighborTiles(neighborTiles) {
-    var tile, i, iCount, j, jCount, neighborTile, deltaX, deltaY;
+    var tile, i, count, neighborTile;
 
     tile = this;
 
-    tile.neighbors = [];
+    tile.neighborStates = [];
 
-    for (i = 0, iCount = neighborTiles.length; i < iCount; i += 1) {
+    for (i = 0, count = neighborTiles.length; i < count; i += 1) {
       neighborTile = neighborTiles[i];
 
-      if (neighborTile) {
-        deltaX = tile.centerX - neighborTile.centerX;
-        deltaY = tile.centerY - neighborTile.centerY;
-
-        tile.neighbors[i] = {
-          tile: neighborTile,
-          restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-          neighborsRelationshipObj: null,
-          springForceX: 0,
-          springForceY: 0
-        };
-
-        // Give neighbor tiles references to each others' relationship object
-        if (neighborTile.neighbors) {
-          for (j = 0, jCount = neighborTile.neighbors.length; j < jCount; j += 1) {
-            if (neighborTile.neighbors[j] && neighborTile.neighbors[j].tile === tile) {
-              tile.neighbors[i].neighborsRelationshipObj = neighborTile.neighbors[j];
-              neighborTile.neighbors[j].neighborsRelationshipObj = tile.neighbors[i];
-            }
-          }
-        }
-      } else {
-        tile.neighbors[i] = null;
-      }
+      setTileNeighborState(tile, i, neighborTile);
     }
   }
 
@@ -3679,38 +4389,50 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var tile, i, count, neighbor, lx, ly, lDotX, lDotY, dotProd, length, temp, springForceX,
-        springForceY;
+    var tile, i, count, neighborStates, isBorderTile, neighborState, lx, ly, lDotX, lDotY,
+        dotProd, length, temp, springForceX, springForceY;
 
     tile = this;
 
     if (!tile.particle.isFixed) {
+
+      // Some different properties should be used when the grid is expanded
+      if (tile.grid.isPostOpen) {
+        neighborStates = tile.expandedState.neighborStates;
+        isBorderTile = tile.expandedState.isBorderTile;
+      } else {
+        neighborStates = tile.neighborStates;
+        isBorderTile = tile.isBorderTile;
+      }
+
       // --- Accumulate forces --- //
 
       // --- Drag force --- //
+
       tile.particle.forceAccumulatorX += -config.dragCoeff * tile.particle.vx;
       tile.particle.forceAccumulatorY += -config.dragCoeff * tile.particle.vy;
 
       // --- Spring forces from neighbor tiles --- //
-      for (i = 0, count = tile.neighbors.length; i < count; i += 1) {
-        neighbor = tile.neighbors[i];
 
-        if (neighbor) {
-          if (neighbor.springForceX) {
-            tile.particle.forceAccumulatorX += neighbor.springForceX;
-            tile.particle.forceAccumulatorY += neighbor.springForceY;
+      for (i = 0, count = neighborStates.length; i < count; i += 1) {
+        neighborState = neighborStates[i];
 
-            neighbor.springForceX = 0;
-            neighbor.springForceY = 0;
+        if (neighborState) {
+          if (neighborState.springForceX) {
+            tile.particle.forceAccumulatorX += neighborState.springForceX;
+            tile.particle.forceAccumulatorY += neighborState.springForceY;
+
+            neighborState.springForceX = 0;
+            neighborState.springForceY = 0;
           } else {
-            lx = neighbor.tile.particle.px - tile.particle.px;
-            ly = neighbor.tile.particle.py - tile.particle.py;
-            lDotX = neighbor.tile.particle.vx - tile.particle.vx;
-            lDotY = neighbor.tile.particle.vy - tile.particle.vy;
+            lx = neighborState.tile.particle.px - tile.particle.px;
+            ly = neighborState.tile.particle.py - tile.particle.py;
+            lDotX = neighborState.tile.particle.vx - tile.particle.vx;
+            lDotY = neighborState.tile.particle.vy - tile.particle.vy;
             dotProd = lx * lDotX + ly * lDotY;
             length = Math.sqrt(lx * lx + ly * ly);
 
-            temp = (config.neighborSpringCoeff * (length - neighbor.restLength) +
+            temp = (config.neighborSpringCoeff * (length - neighborState.restLength) +
                 config.neighborDampingCoeff * dotProd / length) / length;
             springForceX = lx * temp;
             springForceY = ly * temp;
@@ -3718,8 +4440,8 @@
             tile.particle.forceAccumulatorX += springForceX;
             tile.particle.forceAccumulatorY += springForceY;
 
-            neighbor.neighborsRelationshipObj.springForceX = -springForceX;
-            neighbor.neighborsRelationshipObj.springForceY = -springForceY;
+            neighborState.neighborsRelationshipObj.springForceX = -springForceX;
+            neighborState.neighborsRelationshipObj.springForceY = -springForceY;
           }
         }
       }
@@ -3735,7 +4457,7 @@
         lDotY = -tile.particle.vy;
         dotProd = lx * lDotX + ly * lDotY;
 
-        if (tile.isBorderTile) {
+        if (isBorderTile) {
           temp = (config.borderAnchorSpringCoeff * length + config.borderAnchorDampingCoeff *
               dotProd / length) / length;
         } else {
@@ -3881,12 +4603,100 @@
   }
 
   // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Creates the neighbor-tile state for the given tile according to the given neighbor tile. Also
+   * sets the reciprocal state for the neighbor tile.
+   *
+   * @param {Tile} tile
+   * @param {number} neighborRelationIndex
+   * @param {?Tile} neighborTile
+   */
+  function setTileNeighborState(tile, neighborRelationIndex, neighborTile) {
+    var i, count, deltaX, deltaY, neighborStates, neighborNeighborStates;
+
+    neighborStates = tile.getNeighborStates();
+
+    if (neighborTile) {
+      deltaX = tile.centerX - neighborTile.centerX;
+      deltaY = tile.centerY - neighborTile.centerY;
+
+      neighborNeighborStates = neighborTile.getNeighborStates();
+
+      neighborStates[neighborRelationIndex] = {
+        tile: neighborTile,
+        restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+        neighborsRelationshipObj: null,
+        springForceX: 0,
+        springForceY: 0
+      };
+
+      // Give neighbor tiles references to each others' relationship object
+      if (neighborNeighborStates) {
+        // TODO: I should be able to remove this loop and only check the neighbor tile at (neighborRelationIndex + 3) % 6
+        for (i = 0, count = neighborNeighborStates.length; i < count; i += 1) {
+          if (neighborNeighborStates[i] && neighborNeighborStates[i].tile === tile) {
+            neighborStates[neighborRelationIndex].neighborsRelationshipObj = neighborNeighborStates[i];
+            neighborNeighborStates[i].neighborsRelationshipObj = neighborStates[neighborRelationIndex];
+          }
+        }
+      }
+    } else {
+      neighborStates[neighborRelationIndex] = null;
+    }
+  }
+
+  /**
+   * @returns {Object}
+   */
+  function getNeighborStates() {
+    var tile = this;
+    return tile.grid.isPostOpen ? tile.expandedState.neighborStates : tile.neighborStates;
+  }
+
+  /**
+   * @param {Object} neighborStates
+   */
+  function setNeighborStates(neighborStates) {
+    var tile = this;
+
+    if (tile.grid.isPostOpen) {
+      tile.expandedState.neighborStates = neighborStates;
+    } else {
+      tile.neighborStates = neighborStates;
+    }
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  function getIsBorderTile() {
+    var tile = this;
+    return tile.grid.isPostOpen ? tile.expandedState.isBorderTile : tile.isBorderTile;
+  }
+
+  /**
+   * @param {boolean} isBorderTile
+   */
+  function setIsBorderTile(isBorderTile) {
+    var tile = this;
+
+    if (tile.grid.isPostOpen) {
+      tile.expandedState.isBorderTile = isBorderTile;
+    } else {
+      tile.isBorderTile = isBorderTile;
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
   /**
    * @constructor
    * @global
    * @param {HTMLElement} svg
+   * @param {Grid} grid
    * @param {number} centerX
    * @param {number} centerY
    * @param {number} outerRadius
@@ -3904,12 +4714,13 @@
    * @param {boolean} isInLargerRow
    * @param {number} mass
    */
-  function Tile(svg, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
+  function Tile(svg, grid, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
                    postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
                    isCornerTile, isInLargerRow, mass) {
     var tile = this;
 
     tile.svg = svg;
+    tile.grid = grid;
     tile.element = null;
     tile.centerX = centerX;
     tile.centerY = centerY;
@@ -3936,9 +4747,11 @@
     tile.isCornerTile = isCornerTile;
     tile.isInLargerRow = isInLargerRow;
 
+    tile.expandedState = null;
+
     tile.isHighlighted = false;
 
-    tile.neighbors = null;
+    tile.neighborStates = null;
     tile.vertices = null;
     tile.vertexDeltas = null;
     tile.particle = null;
@@ -3951,6 +4764,10 @@
     tile.draw = draw;
     tile.applyExternalForce = applyExternalForce;
     tile.fixPosition = fixPosition;
+    tile.getNeighborStates = getNeighborStates;
+    tile.setNeighborStates = setNeighborStates;
+    tile.getIsBorderTile = getIsBorderTile;
+    tile.setIsBorderTile = setIsBorderTile;
 
     createElement.call(tile);
     createParticle.call(tile, mass);
@@ -3960,6 +4777,7 @@
     }
   }
 
+  Tile.setTileNeighborState = setTileNeighborState;
   Tile.config = config;
 
   // Expose this module
@@ -4703,9 +5521,9 @@
     }
 
     job.lowerNeighbors[job.currentCornerIndex] =
-        job.tiles[job.currentCornerIndex].neighbors[lowerNeigborTileIndex];
+        job.tiles[job.currentCornerIndex].neighborStates[lowerNeigborTileIndex];
     job.upperNeighbors[job.currentCornerIndex] =
-        job.tiles[job.currentCornerIndex].neighbors[upperNeigborTileIndex];
+        job.tiles[job.currentCornerIndex].neighborStates[upperNeigborTileIndex];
 
     job.lowerNeighborCorners[job.currentCornerIndex] = (currentCorner + 2) % 6;
     job.upperNeighborCorners[job.currentCornerIndex] = (currentCorner + 4) % 6;
@@ -4785,10 +5603,10 @@
       case config.NEIGHBOR:
         if (job.grid.isVertical) {
           nextCorner = (currentCorner + 1) % 6;
-          nextTile = job.tiles[job.currentCornerIndex].neighbors[(currentCorner + 5) % 6].tile;
+          nextTile = job.tiles[job.currentCornerIndex].neighborStates[(currentCorner + 5) % 6].tile;
         } else {
           nextCorner = (currentCorner + 1) % 6;
-          nextTile = job.tiles[job.currentCornerIndex].neighbors[currentCorner].tile;
+          nextTile = job.tiles[job.currentCornerIndex].neighborStates[currentCorner].tile;
         }
         break;
       case config.LOWER_SELF:
@@ -5246,7 +6064,7 @@
 
     // Determine which corner and direction to use based on the selected tile
     if (grid.isVertical) {
-      if (!tile.neighbors[4]) { // Left side
+      if (!tile.neighborStates[4]) { // Left side
         if (tile.isInLargerRow) {
           if (Math.random() < 0.5) {
             corner = 0;
@@ -5269,7 +6087,7 @@
           }
         }
         direction = tile.originalCenterY < grid.centerY ? 2 : 1;
-      } else if (!tile.neighbors[1]) { // Right side
+      } else if (!tile.neighborStates[1]) { // Right side
         if (tile.isInLargerRow) {
           if (Math.random() < 0.5) {
             corner = 0;
@@ -5292,7 +6110,7 @@
           }
         }
         direction = tile.originalCenterY < grid.centerY ? 4 : 5;
-      } else if (!tile.neighbors[0]) { // Top side
+      } else if (!tile.neighborStates[0]) { // Top side
         if (Math.random() < 0.5) {
           corner = 1;
           forcedInitialRelativeDirection = config.UPPER_SELF;
@@ -5314,7 +6132,7 @@
         direction = 0;
       }
     } else { // Not vertical
-      if (!tile.neighbors[0]) { // Top side
+      if (!tile.neighborStates[0]) { // Top side
         if (tile.rowIndex === 0) { // First row
           if (Math.random() < 0.5) {
             corner = 1;
@@ -5337,7 +6155,7 @@
           }
         }
         direction = tile.originalCenterX < grid.centerX ? 2 : 3;
-      } else if (!tile.neighbors[3]) { // Bottom side
+      } else if (!tile.neighborStates[3]) { // Bottom side
         if (tile.rowIndex === grid.rowCount - 1) { // Last row
           if (Math.random() < 0.5) {
             corner = 1;
@@ -5360,7 +6178,7 @@
           }
         }
         direction = tile.originalCenterX < grid.centerX ? 0 : 5;
-      } else if (!tile.neighbors[4]) { // Left side
+      } else if (!tile.neighborStates[4]) { // Left side
         if (Math.random() < 0.5) {
           corner = 3;
           forcedInitialRelativeDirection = config.LOWER_SELF;
@@ -5407,7 +6225,7 @@
 
     if (tile.isBorderTile) {
       if (job.grid.isVertical) {
-        if (!tile.neighbors[4]) { // Left side
+        if (!tile.neighborStates[4]) { // Left side
           isValidEdgeDirection = direction === 1 || direction === 2;
 
           if (tile.isInLargerRow) {
@@ -5441,7 +6259,7 @@
                 return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
             }
           }
-        } else if (!tile.neighbors[1]) { // Right side
+        } else if (!tile.neighborStates[1]) { // Right side
           isValidEdgeDirection = direction === 4 || direction === 5;
 
           if (tile.isInLargerRow) {
@@ -5475,7 +6293,7 @@
                 return true;
             }
           }
-        } else if (!tile.neighbors[0]) { // Top side
+        } else if (!tile.neighborStates[0]) { // Top side
           isValidEdgeDirection = direction === 3;
 
           switch (corner) {
@@ -5511,7 +6329,7 @@
           }
         }
       } else { // Not vertical
-        if (!tile.neighbors[0]) { // Top side
+        if (!tile.neighborStates[0]) { // Top side
           isValidEdgeDirection = direction === 2 || direction === 3;
 
           if (tile.rowIndex === 0) { // First row
@@ -5545,7 +6363,7 @@
                 return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
             }
           }
-        } else if (!tile.neighbors[3]) { // Bottom side
+        } else if (!tile.neighborStates[3]) { // Bottom side
           isValidEdgeDirection = direction === 0 || direction === 5;
 
           if (tile.rowIndex === job.grid.rowCount - 1) { // Last row
@@ -5579,7 +6397,7 @@
                 return true;
             }
           }
-        } else if (!tile.neighbors[4]) { // Left side
+        } else if (!tile.neighborStates[4]) { // Left side
           isValidEdgeDirection = direction === 1;
 
           switch (corner) {
@@ -5938,6 +6756,8 @@
 
   var config = {};
 
+  config.expandedDisplacementTileCount = 3;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -5964,9 +6784,63 @@
 
     console.log('OpenPostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
+    // TODO:
+    // - reactivate neighbor forces; but make sure they are now using their temporary expanded neighborStates
+    // - keep the sectors to re-use for closing
+
+    // TODO: when closing the grid, make sure to de-allocate the sector objects and the tile.expandedState properties (sector.destroy)
+
+    job.grid.isTransitioning = false;
+
     job.isComplete = true;
 
     job.onComplete();
+  }
+
+  /**
+   * Creates the Sectors for expanding the grid.
+   *
+   * @this OpenPostJob
+   */
+  function createSectors() {
+    var job, i;
+
+    job = this;
+
+    job.grid.sectors = [];
+
+    // Create the sectors
+    for (i = 0; i < 6; i += 1) {
+      job.grid.sectors[i] =
+          new hg.Sector(job.grid, job.baseTile, i, config.expandedDisplacementTileCount);
+    }
+
+    // Connect the sectors' tiles' external neighbor states
+    for (i = 0; i < 6; i += 1) {
+      job.grid.sectors[i].initializeExpandedStateExternalTileNeighbors(job.grid.sectors);
+    }
+
+    dumpSectorInfo.call(job);// TODO: comment this out
+
+    // De-allocate the now-unnecessary two-dimensional sector tile collections
+    for (i = 0; i < 6; i += 1) {
+      job.grid.sectors[i].tilesByIndex = null;
+    }
+  }
+
+  /**
+   * Logs the new Sector data.
+   *
+   * @this OpenPostJob
+   */
+  function dumpSectorInfo() {
+    var job, i;
+
+    job = this;
+
+    for (i = 0; i < 6; i += 1) {
+      console.log(job.grid.sectors[i]);// TODO: print out something that's more helpful
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -5986,18 +6860,23 @@
     job.startTime = Date.now();
     job.isComplete = false;
 
+    job.grid.isPostOpen = true;
+    job.grid.isTransitioning = true;
+
+    createSectors.call(job);
+
+    job.grid.annotations.setExpandedAnnotations(true);
+
+
     // TODO:
-    // - create six sector objects
-    //   - calculate the start and end positions for each
+    // - make sure that we are handling three different logical states for all appropriate logic in the app: closed, transitioning, open
+
+    // TODO:
     // - deactivate all neighbor forces
+    // - start tapering all current animations to zero
     // - start the panning animation to center on the given tile position
     // - calculate which positions will need additional tiles for the expanded grid at the new panned location
     // - create the new tiles; store them in auxiliary arrays within the new sector objects
-    // - calculate new, temporary neighbor tile relations to use for the expanded grid
-    //   - store these neighbor tile relations in an auxiliary structure within the grid object
-    //   - or not?
-    //     - the current neighbor relations are stored on the actual tiles
-    //     - so maybe store an optional, additional neighbor relations structure on each tile?
   }
 
   /**
@@ -6013,6 +6892,8 @@
     var job = this;
 
     // TODO:
+    // - update the base offsets for each of the six sectors
+    // -
 
     checkForComplete.call(job);
   }
@@ -6048,12 +6929,14 @@
    * @constructor
    * @global
    * @param {Grid} grid
+   * @param {Tile} baseTile
    * @param {Function} onComplete
    */
-  function OpenPostJob(grid, onComplete) {
+  function OpenPostJob(grid, baseTile, onComplete) {
     var job = this;
 
     job.grid = grid;
+    job.baseTile = baseTile;
     job.startTime = 0;
     job.isComplete = false;
 

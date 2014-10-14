@@ -70,7 +70,7 @@
 
         input.grid.setHoveredTile(null);
 
-        hg.controller.createHighlightHoverAnimation(input.grid.index, tile.index);
+        hg.controller.createHighlightHoverAnimation(input.grid.index, tile);
 
         event.stopPropagation();
       }
@@ -99,7 +99,7 @@
           // TODO:
         }
 
-        createClickAnimation(input.grid.index, tile.index);
+        createClickAnimation(input.grid.index, tile);
       }
     }
 
@@ -115,8 +115,9 @@
     }
   }
 
-  function createClickAnimation(gridIndex, tileIndex) {
-    config.possibleClickAnimations[config.clickAnimation](gridIndex, tileIndex);
+  function createClickAnimation(gridIndex, tile) {
+//    config.possibleClickAnimations[config.clickAnimation](gridIndex, tile);// TODO:
+    hg.controller.openPost(gridIndex, tile);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -131,7 +132,7 @@
   /**
    * @constructor
    * @global
-   * @param {Input} grid
+   * @param {Grid} grid
    */
   function Input(grid) {
     var input = this;

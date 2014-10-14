@@ -268,10 +268,10 @@
             ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
                 (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
 
-        grid.tiles[tileIndex] = new hg.Tile(grid.svg, centerX, centerY, config.tileOuterRadius,
-            grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-            tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
-            isLargerRow, config.tileMass);
+        grid.tiles[tileIndex] = new hg.Tile(grid.svg, grid, centerX, centerY,
+            config.tileOuterRadius, grid.isVertical, config.tileHue, config.tileSaturation,
+            config.tileLightness, null, tileIndex, rowIndex, columnIndex, isMarginTile,
+            isBorderTile, isCornerTile, isLargerRow, config.tileMass);
 
         if (isBorderTile) {
           grid.borderTiles.push(grid.tiles[tileIndex]);
@@ -698,6 +698,8 @@
     grid.centerY = Number.NaN;
     grid.index = Number.NaN;
     grid.isPostOpen = false;
+    grid.isTransitioning = false;
+    grid.sectors = null;
 
     grid.animations = {};
 
