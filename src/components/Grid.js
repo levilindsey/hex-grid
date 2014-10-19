@@ -303,21 +303,21 @@
    * @param {Array.<Array.<number>>} tilesNeighborDeltaIndices
    */
   function setNeighborTiles(tilesNeighborDeltaIndices) {
-    var grid, i, j, iCount, jCount, neighborStates;
+    var grid, i, j, iCount, jCount, neighborTiles;
 
     grid = this;
 
-    neighborStates = [];
+    neighborTiles = [];
 
     // Give each tile references to each of its neighborStates
     for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
       // Get the neighborStates around the current tile
       for (j = 0, jCount = 6; j < jCount; j += 1) {
-        neighborStates[j] = !isNaN(tilesNeighborDeltaIndices[i][j]) ?
+        neighborTiles[j] = !isNaN(tilesNeighborDeltaIndices[i][j]) ?
             grid.tiles[i + tilesNeighborDeltaIndices[i][j]] : null;
       }
 
-      grid.tiles[i].setNeighborTiles(neighborStates);
+      grid.tiles[i].setNeighborTiles(neighborTiles);
     }
   }
 

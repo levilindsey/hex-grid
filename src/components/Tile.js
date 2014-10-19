@@ -231,13 +231,11 @@
    * @param {Array.<Tile>} neighborTiles
    */
   function setNeighborTiles(neighborTiles) {
-    var tile, i, count, neighborTile;
+    var tile, i, neighborTile;
 
     tile = this;
 
-    tile.neighborStates = [];
-
-    for (i = 0, count = neighborTiles.length; i < count; i += 1) {
+    for (i = 0; i < 6; i += 1) {
       neighborTile = neighborTiles[i];
 
       setTileNeighborState(tile, i, neighborTile);
@@ -539,70 +537,12 @@
     tile.particle.py = py;
   }
 
-  // ------------------------------------------------------------------------------------------- //
-  // Public static functions
-
-  /**
-   * Creates the neighbor-tile state for the given tile according to the given neighbor tile. Also
-   * sets the reciprocal state for the neighbor tile.
-   *
-   * @param {Tile} tile
-   * @param {number} neighborRelationIndex
-   * @param {?Tile} neighborTile
-   */
-  function setTileNeighborState(tile, neighborRelationIndex, neighborTile) {
-    var i, count, deltaX, deltaY, neighborStates, neighborNeighborStates;
-
-    neighborStates = tile.getNeighborStates();
-
-    if (neighborTile) {
-      deltaX = tile.centerX - neighborTile.centerX;
-      deltaY = tile.centerY - neighborTile.centerY;
-
-      neighborNeighborStates = neighborTile.getNeighborStates();
-
-      neighborStates[neighborRelationIndex] = {
-        tile: neighborTile,
-        restLength: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-        neighborsRelationshipObj: null,
-        springForceX: 0,
-        springForceY: 0
-      };
-
-      // Give neighbor tiles references to each others' relationship object
-      if (neighborNeighborStates) {
-        // TODO: I should be able to remove this loop and only check the neighbor tile at (neighborRelationIndex + 3) % 6
-        for (i = 0, count = neighborNeighborStates.length; i < count; i += 1) {
-          if (neighborNeighborStates[i] && neighborNeighborStates[i].tile === tile) {
-            neighborStates[neighborRelationIndex].neighborsRelationshipObj = neighborNeighborStates[i];
-            neighborNeighborStates[i].neighborsRelationshipObj = neighborStates[neighborRelationIndex];
-          }
-        }
-      }
-    } else {
-      neighborStates[neighborRelationIndex] = null;
-    }
-  }
-
   /**
    * @returns {Object}
    */
   function getNeighborStates() {
     var tile = this;
     return tile.grid.isPostOpen ? tile.expandedState.neighborStates : tile.neighborStates;
-  }
-
-  /**
-   * @param {Object} neighborStates
-   */
-  function setNeighborStates(neighborStates) {
-    var tile = this;
-
-    if (tile.grid.isPostOpen) {
-      tile.expandedState.neighborStates = neighborStates;
-    } else {
-      tile.neighborStates = neighborStates;
-    }
   }
 
   /**
@@ -624,6 +564,82 @@
     } else {
       tile.isBorderTile = isBorderTile;
     }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Creates the neighbor-tile state for the given tile according to the given neighbor tile. Also
+   * sets the reciprocal state for the neighbor tile.
+   *
+   * @param {Tile} tile
+   * @param {number} neighborRelationIndex
+   * @param {?Tile} neighborTile
+   */
+  function setTileNeighborState(tile, neighborRelationIndex, neighborTile) {
+    var deltaX, deltaY, distance, neighborStates, neighborNeighborStates,
+        neighborNeighborRelationIndex;
+
+    neighborStates = tile.getNeighborStates();
+
+    if (neighborTile) {
+      // Determine the distance between these tiles
+      deltaX = tile.centerX - neighborTile.centerX;
+      deltaY = tile.centerY - neighborTile.centerY;
+      distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      // Initialize the neighbor relation data from this tile to its neighbor
+      initializeTileNeighborRelationData(neighborStates, neighborRelationIndex, neighborTile,
+          distance);
+
+      // -- Give the neighbor tile a reference to this tile --- //
+
+      neighborNeighborStates = neighborTile.getNeighborStates();
+
+      neighborNeighborRelationIndex = (neighborRelationIndex + 3) % 6;
+
+      // Initialize the neighbor relation data from the neighbor to this tile
+      initializeTileNeighborRelationData(neighborNeighborStates, neighborNeighborRelationIndex,
+          tile, distance);
+
+      // Share references to each other's neighbor relation objects
+      neighborStates[neighborRelationIndex].neighborsRelationshipObj =
+          neighborNeighborStates[neighborNeighborRelationIndex];
+      neighborNeighborStates[neighborNeighborRelationIndex].neighborsRelationshipObj =
+          neighborStates[neighborRelationIndex];
+    } else {
+      neighborStates[neighborRelationIndex] = null;
+    }
+
+    // ---  --- //
+
+    function initializeTileNeighborRelationData(neighborStates, neighborRelationIndex, neighborTile,
+                                                distance) {
+      neighborStates[neighborRelationIndex] = neighborStates[neighborRelationIndex] || {
+        tile: neighborTile,
+        restLength: distance,
+        neighborsRelationshipObj: null,
+        springForceX: 0,
+        springForceY: 0
+      };
+    }
+  }
+
+  /**
+   * @param {Tile} tile
+   * @param {Sector} sector
+   * @param {number} majorIndex
+   * @param {number} minorIndex
+   */
+  function initializeTileExpandedState(tile, sector, majorIndex, minorIndex) {
+    tile.expandedState = {
+      sector: sector,
+      sectorMajorIndex: majorIndex,
+      sectorMinorIndex: minorIndex,
+      neighborStates: [],
+      isBorderTile: false
+    };
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -688,7 +704,7 @@
 
     tile.isHighlighted = false;
 
-    tile.neighborStates = null;
+    tile.neighborStates = [];
     tile.vertices = null;
     tile.vertexDeltas = null;
     tile.particle = null;
@@ -702,7 +718,6 @@
     tile.applyExternalForce = applyExternalForce;
     tile.fixPosition = fixPosition;
     tile.getNeighborStates = getNeighborStates;
-    tile.setNeighborStates = setNeighborStates;
     tile.getIsBorderTile = getIsBorderTile;
     tile.setIsBorderTile = setIsBorderTile;
 
@@ -715,6 +730,7 @@
   }
 
   Tile.setTileNeighborState = setTileNeighborState;
+  Tile.initializeTileExpandedState = initializeTileExpandedState;
   Tile.config = config;
 
   // Expose this module

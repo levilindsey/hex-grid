@@ -202,8 +202,8 @@
     sector = this;
 
     // Determine the bounding box of the re-positioned viewport
-    boundingBoxHalfX = window.innerWidth / 2 - sector.expandedDisplacementX + hg.Grid.config.tileShortLengthWithGap;
-    boundingBoxHalfY = window.innerHeight / 2 - sector.expandedDisplacementY + hg.Grid.config.tileShortLengthWithGap;
+    boundingBoxHalfX = window.innerWidth / 2 - Math.abs(sector.expandedDisplacementX) + hg.Grid.config.tileShortLengthWithGap;
+    boundingBoxHalfY = window.innerHeight / 2 - Math.abs(sector.expandedDisplacementY) + hg.Grid.config.tileShortLengthWithGap;
     minX = sector.baseTile.originalCenterX - boundingBoxHalfX;
     maxX = sector.baseTile.originalCenterX + boundingBoxHalfX;
     minY = sector.baseTile.originalCenterY - boundingBoxHalfY;
@@ -222,9 +222,9 @@
       startX = sector.baseTile.originalCenterX + sector.majorNeighborDeltaX;
       startY = sector.baseTile.originalCenterY + sector.majorNeighborDeltaY;
 
+      // Set up the first "column"
       majorIndex = 0;
       minorIndex = 0;
-
       centerX = startX;
       centerY = startY;
 
@@ -310,13 +310,7 @@
   function addOldTileToSector(tile, majorIndex, minorIndex) {
     var sector = this;
     sector.tilesByIndex[majorIndex][minorIndex] = tile;
-    tile.expandedState = {
-      sector: sector,
-      sectorMajorIndex: majorIndex,
-      sectorMinorIndex: minorIndex,
-      neighborStates: [],
-      isBorderTile: false
-    };
+    hg.Tile.initializeTileExpandedState(tile, sector, majorIndex, minorIndex);
   }
 
   /**
@@ -410,18 +404,14 @@
             throw new Error('Invalid neighborRelationIndex: ' + neighborRelationIndex);
         }
 
-        // Is the neighbor position within the bounds of the sector?
-        if (neighborMinorIndex >= 0 && neighborMinorIndex <= neighborMajorIndex) {
+        // Has a tile been created for the neighbor position?
+        if (sector.tilesByIndex[neighborMajorIndex] &&
+            sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]) {
 
-          // Has a tile been created for the neighbor position?
-          if (sector.tilesByIndex[neighborMajorIndex] &&
-              sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]) {
-
-            hg.Tile.setTileNeighborState(tile, neighborRelationIndex,
-                sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]);
-          } else {
-            tile.expandedState.isBorderTile = true;
-          }
+          hg.Tile.setTileNeighborState(tile, neighborRelationIndex,
+              sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]);
+        } else {
+          tile.expandedState.isBorderTile = true;
         }
       }
     }
@@ -477,10 +467,12 @@
 
     // --- Handle the first edge tile --- //
 
-    // The first edge tile with an external neighbor will only have the lower neighbor
-    hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
-        neighborSector.tilesByIndex[neighborMajorIndex][0]);
-    edgeTiles[minorIndex].expandedState.isBorderTile = true;
+    if (edgeTiles[minorIndex]) {
+      // The first edge tile with an external neighbor will only have the lower neighbor
+      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+      edgeTiles[minorIndex].expandedState.isBorderTile = true;
+    }
 
     // --- Handle the middle edge tiles --- //
 
@@ -499,19 +491,21 @@
 
     // --- Handle the last edge tile --- //
 
-    // The upper neighbor for the last tile
-    hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
-        neighborSector.tilesByIndex[neighborMajorIndex][0]);
-
-    neighborMajorIndex += 1;
-
-    // The last edge tile with an external neighbor might not have the lower neighbor
-    if (neighborSector.tilesByIndex[neighborMajorIndex] &&
-        neighborSector.tilesByIndex[neighborMajorIndex][0]) {
-      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+    if (edgeTiles[minorIndex]) {
+      // The upper neighbor for the last tile
+      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
           neighborSector.tilesByIndex[neighborMajorIndex][0]);
+
+      neighborMajorIndex += 1;
+
+      // The last edge tile with an external neighbor might not have the lower neighbor
+      if (neighborSector.tilesByIndex[neighborMajorIndex] &&
+          neighborSector.tilesByIndex[neighborMajorIndex][0]) {
+        hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+            neighborSector.tilesByIndex[neighborMajorIndex][0]);
+      }
+      edgeTiles[minorIndex].expandedState.isBorderTile = true;
     }
-    edgeTiles[minorIndex].expandedState.isBorderTile = true;
 
     // --- Mark the inner edge tiles as border tiles --- //
 

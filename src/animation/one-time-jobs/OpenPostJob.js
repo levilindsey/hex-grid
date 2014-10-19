@@ -85,6 +85,9 @@
     for (i = 0; i < 6; i += 1) {
       job.grid.sectors[i].tilesByIndex = null;
     }
+
+    // Set up the expanded state for the selected tile (which is a member of no sector)
+    hg.Tile.initializeTileExpandedState(job.baseTile, null, Number.NaN, Number.NaN);
   }
 
   /**

@@ -107,7 +107,7 @@
       update: updateTileVelocities
     },
     'tileNeighborConnections': {
-      enabled: false,
+      enabled: true,
       create: createTileNeighborConnections,
       destroy: destroyTileNeighborConnections,
       update: updateTileNeighborConnections
