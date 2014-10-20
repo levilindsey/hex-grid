@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @typedef {AnimationJob} DisplacementWaveJob
  */
@@ -58,8 +56,8 @@
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
-      deltaX = tile.originalCenterX - config.originX;
-      deltaY = tile.originalCenterY - config.originY;
+      deltaX = tile.originalAnchorX - config.originX;
+      deltaY = tile.originalAnchorY - config.originY;
       length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
       job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
@@ -81,8 +79,8 @@
     var tileProgress =
         Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.centerX = tile.originalCenterX + config.tileDeltaX * tileProgress;
-    tile.centerY = tile.originalCenterY + config.tileDeltaY * tileProgress;
+    tile.anchorX += tile.originalAnchorX + config.tileDeltaX * tileProgress;
+    tile.anchorY += tile.originalAnchorY + config.tileDeltaY * tileProgress;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -176,7 +174,7 @@
   DisplacementWaveJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.DisplacementWaveJob = DisplacementWaveJob;
 
   console.log('DisplacementWaveJob module loaded');

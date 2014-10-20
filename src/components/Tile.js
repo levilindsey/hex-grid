@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * This module defines a constructor for Tile objects.
  *
@@ -58,9 +56,9 @@
 
     tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.vertices = [];
-    updateVertices.call(tile, tile.centerX, tile.centerY);
+    updateVertices.call(tile, tile.anchorX, tile.anchorY);
 
-    tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
+    tile.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
 
     tile.element.id = 'hg-' + id;
@@ -83,8 +81,8 @@
     tile = this;
 
     tile.particle = {};
-    tile.particle.px = tile.centerX;
-    tile.particle.py = tile.centerY;
+    tile.particle.px = tile.anchorX;
+    tile.particle.py = tile.anchorY;
     tile.particle.vx = 0;
     tile.particle.vy = 0;
     tile.particle.fx = 0;
@@ -98,17 +96,17 @@
    * Computes and stores the locations of the vertices of the hexagon for this tile.
    *
    * @this Tile
-   * @param {number} centerX
-   * @param {number} centerY
+   * @param {number} anchorX
+   * @param {number} anchorY
    */
-  function updateVertices(centerX, centerY) {
+  function updateVertices(anchorX, anchorY) {
     var tile, trigIndex, coordIndex;
 
     tile = this;
 
     for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
-      tile.vertices[coordIndex] = centerX + tile.vertexDeltas[coordIndex++];
-      tile.vertices[coordIndex] = centerY + tile.vertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorX + tile.vertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorY + tile.vertexDeltas[coordIndex++];
     }
   }
 
@@ -122,7 +120,7 @@
 
     tile = this;
 
-    // TODO: tile.tilePost = new hg.TilePost(tile, tile.postData);
+    // TODO: tile.tilePost = new window.hg.TilePost(tile, tile.postData);
   }
 
   /**
@@ -254,9 +252,9 @@
     var tile = this;
 
     if (tile.isHighlighted) {
-      hue = hue + hg.HighlightHoverJob.config.deltaHue;
-      saturation = saturation + hg.HighlightHoverJob.config.deltaSaturation;
-      lightness = lightness + hg.HighlightHoverJob.config.deltaLightness;
+      hue = hue + window.hg.HighlightHoverJob.config.deltaHue;
+      saturation = saturation + window.hg.HighlightHoverJob.config.deltaSaturation;
+      lightness = lightness + window.hg.HighlightHoverJob.config.deltaLightness;
     }
 
     tile.originalHue = hue;
@@ -287,16 +285,16 @@
         lightness = tile.originalLightness;
       } else {
         // Add the highlight
-        hue = tile.originalHue + hg.HighlightHoverJob.config.deltaHue * hg.HighlightHoverJob.config.opacity;
-        saturation = tile.originalSaturation + hg.HighlightHoverJob.config.deltaSaturation * hg.HighlightHoverJob.config.opacity;
-        lightness = tile.originalLightness + hg.HighlightHoverJob.config.deltaLightness * hg.HighlightHoverJob.config.opacity;
+        hue = tile.originalHue + window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalSaturation + window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalLightness + window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
       }
     } else {
       if (tile.isHighlighted) {
         // Remove the highlight
-        hue = tile.originalHue - hg.HighlightHoverJob.config.deltaHue * hg.HighlightHoverJob.config.opacity;
-        saturation = tile.originalSaturation - hg.HighlightHoverJob.config.deltaSaturation * hg.HighlightHoverJob.config.opacity;
-        lightness = tile.originalLightness - hg.HighlightHoverJob.config.deltaLightness * hg.HighlightHoverJob.config.opacity;
+        hue = tile.originalHue - window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalSaturation - window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalLightness - window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
       } else {
         // Nothing is changing
         hue = tile.originalHue;
@@ -383,8 +381,8 @@
 
       // --- Spring forces from anchor point --- //
 
-      lx = tile.centerX - tile.particle.px;
-      ly = tile.centerY - tile.particle.py;
+      lx = tile.anchorX - tile.particle.px;
+      ly = tile.anchorY - tile.particle.py;
       length = Math.sqrt(lx * lx + ly * ly);
 
       if (length > 0) {
@@ -585,8 +583,8 @@
 
     if (neighborTile) {
       // Determine the distance between these tiles
-      deltaX = tile.centerX - neighborTile.centerX;
-      deltaY = tile.centerY - neighborTile.centerY;
+      deltaX = tile.anchorX - neighborTile.anchorX;
+      deltaY = tile.anchorY - neighborTile.anchorY;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
       // Initialize the neighbor relation data from this tile to its neighbor
@@ -650,8 +648,8 @@
    * @global
    * @param {HTMLElement} svg
    * @param {Grid} grid
-   * @param {number} centerX
-   * @param {number} centerY
+   * @param {number} anchorX
+   * @param {number} anchorY
    * @param {number} outerRadius
    * @param {boolean} isVertical
    * @param {number} hue
@@ -667,7 +665,7 @@
    * @param {boolean} isInLargerRow
    * @param {number} mass
    */
-  function Tile(svg, grid, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
+  function Tile(svg, grid, anchorX, anchorY, outerRadius, isVertical, hue, saturation, lightness,
                    postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
                    isCornerTile, isInLargerRow, mass) {
     var tile = this;
@@ -675,10 +673,10 @@
     tile.svg = svg;
     tile.grid = grid;
     tile.element = null;
-    tile.centerX = centerX;
-    tile.centerY = centerY;
-    tile.originalCenterX = centerX;
-    tile.originalCenterY = centerY;
+    tile.anchorX = anchorX;
+    tile.anchorY = anchorY;
+    tile.originalAnchorX = anchorX;
+    tile.originalAnchorY = anchorY;
     tile.outerRadius = outerRadius;
     tile.isVertical = isVertical;
 
@@ -734,7 +732,7 @@
   Tile.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.Tile = Tile;
 
   initStaticFields();

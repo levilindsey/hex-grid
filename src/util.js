@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * This module defines a collection of static general utility functions.
  *
@@ -621,7 +619,7 @@
   };
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.util = util;
 
   console.log('util module loaded');

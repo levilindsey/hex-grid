@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * This module defines a singleton for animating things.
  *
@@ -39,7 +37,7 @@
     if (!animator.isPaused) {
       updateJobs(currentTime, deltaTime);
       drawJobs();
-      hg.util.requestAnimationFrame(animationLoop);
+      window.hg.util.requestAnimationFrame(animationLoop);
     } else {
       animator.isLooping = false;
     }
@@ -168,7 +166,7 @@
   animator.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.animator = animator;
 
   console.log('animator module loaded');

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @typedef {AnimationJob} Annotations
  */
@@ -35,7 +33,7 @@
 
   config.annotations = {
     'contentTiles': {
-      enabled: false,
+      enabled: true,
       create: fillContentTiles,
       destroy: unfillContentTiles,
       update: function () {/* Do nothing */}
@@ -222,7 +220,7 @@
     annotations = this;
     annotations.contentAreaGuideLines = [];
 
-    line = document.createElementNS(hg.util.svgNamespace, 'line');
+    line = document.createElementNS(window.hg.util.svgNamespace, 'line');
     annotations.grid.svg.appendChild(line);
     annotations.contentAreaGuideLines[0] = line;
 
@@ -233,7 +231,7 @@
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
 
-    line = document.createElementNS(hg.util.svgNamespace, 'line');
+    line = document.createElementNS(window.hg.util.svgNamespace, 'line');
     annotations.grid.svg.appendChild(line);
     annotations.contentAreaGuideLines[1] = line;
 
@@ -257,7 +255,7 @@
     annotations.tileParticleCenters = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileParticleCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileParticleCenters[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileParticleCenters[i]);
 
       annotations.tileParticleCenters[i].setAttribute('r', '4');
@@ -278,13 +276,13 @@
     annotations.tileAnchorCenters = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileAnchorLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.tileAnchorLines[i] = document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
 
       annotations.tileAnchorLines[i].setAttribute('stroke', '#666666');
       annotations.tileAnchorLines[i].setAttribute('stroke-width', '2');
 
-      annotations.tileAnchorCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileAnchorCenters[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileAnchorCenters[i]);
 
       annotations.tileAnchorCenters[i].setAttribute('r', '4');
@@ -305,7 +303,7 @@
     annotations.tileDisplacementCircles = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileDisplacementCircles[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileDisplacementCircles[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileDisplacementCircles[i]);
 
       annotations.tileDisplacementCircles[i].setAttribute('r', '80');
@@ -326,7 +324,7 @@
     annotations.tileInnerRadii = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileInnerRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileInnerRadii[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileInnerRadii[i]);
 
       annotations.tileInnerRadii[i].setAttribute('stroke', 'blue');
@@ -347,7 +345,7 @@
     annotations.tileOuterRadii = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileOuterRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileOuterRadii[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
 
       annotations.tileOuterRadii[i].setAttribute('stroke', 'green');
@@ -376,7 +374,7 @@
         neighbor = neighborStates[j];
 
         if (neighbor) {
-          annotations.neighborLines[i][j] = document.createElementNS(hg.util.svgNamespace, 'line');
+          annotations.neighborLines[i][j] = document.createElementNS(window.hg.util.svgNamespace, 'line');
           annotations.grid.svg.appendChild(annotations.neighborLines[i][j]);
 
           annotations.neighborLines[i][j].setAttribute('stroke', 'purple');
@@ -398,7 +396,7 @@
     annotations.forceLines = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.forceLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.forceLines[i] = document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.forceLines[i]);
 
       annotations.forceLines[i].setAttribute('stroke', 'orange');
@@ -418,7 +416,7 @@
     annotations.velocityLines = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.velocityLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.velocityLines[i] = document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.velocityLines[i]);
 
       annotations.velocityLines[i].setAttribute('stroke', 'red');
@@ -438,7 +436,7 @@
     annotations.indexTexts = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.indexTexts[i] = document.createElementNS(hg.util.svgNamespace, 'text');
+      annotations.indexTexts[i] = document.createElementNS(window.hg.util.svgNamespace, 'text');
       annotations.indexTexts[i].innerHTML =
           !isNaN(annotations.grid.tiles[i].index) ? annotations.grid.tiles[i].index : '?';
       annotations.grid.svg.appendChild(annotations.indexTexts[i]);
@@ -463,12 +461,12 @@
       for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
 
         sector = annotations.grid.sectors[i];
-        sectorHue = 60 * i;
+        sectorHue = 60 * i + 20;
 
         for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
 
-          sector.tiles[j].setColor(sectorHue, hg.Grid.config.tileSaturation,
-              hg.Grid.config.tileLightness);
+          sector.tiles[j].setColor(sectorHue, window.hg.Grid.config.tileSaturation,
+              window.hg.Grid.config.tileLightness);
         }
       }
     }
@@ -489,8 +487,8 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(hg.Grid.config.tileHue,
-            hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
+        annotations.grid.tiles[i].setColor(window.hg.Grid.config.tileHue,
+            window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
       }
     }
   }
@@ -506,8 +504,8 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(hg.Grid.config.tileHue,
-          hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
+      annotations.grid.borderTiles[i].setColor(window.hg.Grid.config.tileHue,
+          window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
     }
   }
 
@@ -523,8 +521,8 @@
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
       if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.borderTiles[i].setColor(hg.Grid.config.tileHue,
-            hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
+        annotations.grid.borderTiles[i].setColor(window.hg.Grid.config.tileHue,
+            window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
       }
     }
   }
@@ -783,8 +781,8 @@
 
         for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
 
-          sector.tiles[j].setColor(sectorHue, hg.Grid.config.tileSaturation,
-              hg.Grid.config.tileLightness);
+          sector.tiles[j].setColor(sectorHue, window.hg.Grid.config.tileSaturation,
+              window.hg.Grid.config.tileLightness);
         }
       }
 
@@ -829,10 +827,10 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileAnchorLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
       annotations.tileAnchorLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].centerX);
-      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].centerY);
-      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].centerX);
-      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].centerY);
+      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].anchorX);
+      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].anchorY);
+      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].anchorX);
+      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].anchorY);
     }
   }
 
@@ -848,14 +846,14 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalCenterX;
-      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalCenterY;
+      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalAnchorX;
+      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalAnchorY;
 
       angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
       colorString = 'hsl(' + angle + ',' +
-          distance / hg.DisplacementWaveJob.config.displacementAmplitude * 100 + '%,80%)';
+          distance / window.hg.DisplacementWaveJob.config.displacementAmplitude * 100 + '%,80%)';
 
       annotations.tileDisplacementCircles[i].setAttribute('fill', colorString);
       annotations.tileDisplacementCircles[i]
@@ -878,7 +876,7 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileInnerRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
       annotations.tileInnerRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
-      annotations.tileInnerRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius * hg.Grid.config.sqrtThreeOverTwo);
+      annotations.tileInnerRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius * window.hg.Grid.config.sqrtThreeOverTwo);
     }
   }
 
@@ -998,7 +996,7 @@
 
         for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
           annotations.lineAnimationGapDots[k] =
-              document.createElementNS(hg.util.svgNamespace, 'circle');
+              document.createElementNS(window.hg.util.svgNamespace, 'circle');
           annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
           annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
           annotations.lineAnimationGapDots[k].setAttribute('r', '4');
@@ -1031,7 +1029,7 @@
         for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
           // Self corner: red dot
           pos = getCornerPosition(line.tiles[j], line.corners[j]);
-          dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+          dot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
           dot.setAttribute('cx', pos.x);
           dot.setAttribute('cy', pos.y);
           dot.setAttribute('r', '3');
@@ -1042,7 +1040,7 @@
           // Lower neighbor corner: green dot
           if (line.lowerNeighbors[j]) {
             pos = getCornerPosition(line.lowerNeighbors[j].tile, line.lowerNeighborCorners[j]);
-            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+            dot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
             dot.setAttribute('cx', pos.x);
             dot.setAttribute('cy', pos.y);
             dot.setAttribute('r', '3');
@@ -1054,7 +1052,7 @@
           // Upper neighbor corner: blue dot
           if (line.upperNeighbors[j]) {
             pos = getCornerPosition(line.upperNeighbors[j].tile, line.upperNeighborCorners[j]);
-            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+            dot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
             dot.setAttribute('cx', pos.x);
             dot.setAttribute('cy', pos.y);
             dot.setAttribute('r', '3');
@@ -1222,7 +1220,7 @@
     annotations.grid = grid;
     annotations.startTime = 0;
     annotations.isComplete = false;
-    annotations.annotations = hg.util.shallowCopy(config.annotations);
+    annotations.annotations = window.hg.util.shallowCopy(config.annotations);
 
     annotations.contentAreaGuideLines = [];
     annotations.tileParticleCenters = [];
@@ -1254,7 +1252,7 @@
   Annotations.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.Annotations = Annotations;
 
   console.log('Annotations module loaded');

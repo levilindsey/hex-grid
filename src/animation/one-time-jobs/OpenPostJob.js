@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @typedef {AnimationJob} OpenPostJob
  */
@@ -71,7 +69,7 @@
     // Create the sectors
     for (i = 0; i < 6; i += 1) {
       job.grid.sectors[i] =
-          new hg.Sector(job.grid, job.baseTile, i, config.expandedDisplacementTileCount);
+          new window.hg.Sector(job.grid, job.baseTile, i, config.expandedDisplacementTileCount);
     }
 
     // Connect the sectors' tiles' external neighbor states
@@ -79,7 +77,7 @@
       job.grid.sectors[i].initializeExpandedStateExternalTileNeighbors(job.grid.sectors);
     }
 
-    dumpSectorInfo.call(job);// TODO: comment this out
+//    dumpSectorInfo.call(job);
 
     // De-allocate the now-unnecessary two-dimensional sector tile collections
     for (i = 0; i < 6; i += 1) {
@@ -87,7 +85,7 @@
     }
 
     // Set up the expanded state for the selected tile (which is a member of no sector)
-    hg.Tile.initializeTileExpandedState(job.baseTile, null, Number.NaN, Number.NaN);
+    window.hg.Tile.initializeTileExpandedState(job.baseTile, null, Number.NaN, Number.NaN);
   }
 
   /**
@@ -101,7 +99,7 @@
     job = this;
 
     for (i = 0; i < 6; i += 1) {
-      console.log(job.grid.sectors[i]);// TODO: print out something that's more helpful
+      console.log(job.grid.sectors[i]);
     }
   }
 
@@ -129,7 +127,6 @@
 
     job.grid.annotations.setExpandedAnnotations(true);
 
-
     // TODO:
     // - make sure that we are handling three different logical states for all appropriate logic in the app: closed, transitioning, open
 
@@ -137,8 +134,6 @@
     // - deactivate all neighbor forces
     // - start tapering all current animations to zero
     // - start the panning animation to center on the given tile position
-    // - calculate which positions will need additional tiles for the expanded grid at the new panned location
-    // - create the new tiles; store them in auxiliary arrays within the new sector objects
   }
 
   /**
@@ -191,14 +186,14 @@
    * @constructor
    * @global
    * @param {Grid} grid
-   * @param {Tile} baseTile
+   * @param {Tile} tile
    * @param {Function} onComplete
    */
-  function OpenPostJob(grid, baseTile, onComplete) {
+  function OpenPostJob(grid, tile, onComplete) {
     var job = this;
 
     job.grid = grid;
-    job.baseTile = baseTile;
+    job.baseTile = tile;
     job.startTime = 0;
     job.isComplete = false;
 
@@ -212,7 +207,7 @@
   }
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.OpenPostJob = OpenPostJob;
 
   console.log('OpenPostJob module loaded');

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @typedef {AnimationJob} HighlightHoverJob
  */
@@ -127,12 +125,14 @@
   /**
    * @constructor
    * @global
+   * @param {Grid} grid
    * @param {Tile} tile
    * @param {Function} onComplete
    */
-  function HighlightHoverJob(tile, onComplete) {
+  function HighlightHoverJob(grid, tile, onComplete) {
     var job = this;
 
+    job.grid = grid;
     job.tile = tile;
     job.startTime = 0;
     job.isComplete = false;
@@ -149,7 +149,7 @@
   HighlightHoverJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.HighlightHoverJob = HighlightHoverJob;
 
   console.log('HighlightHoverJob module loaded');

@@ -12,379 +12,198 @@
  */
 (function () {
   var controller = {},
-      config = {};
+      config = {},
+      internal = {};
+
+  controller.persistentJobs = {
+    colorShift: {
+      collection: [],
+      create: createColorShiftAnimation,
+      restart: restartColorShiftAnimation
+    },
+    colorWave: {
+      collection: [],
+      create: createColorWaveAnimation,
+      restart: restartColorWaveAnimation
+    },
+    displacementWave: {
+      collection: [],
+      create: createDisplacementWaveAnimation,
+      restart: restartDisplacementWaveAnimation
+    }
+  };
+
+  // TODO: refactor this to instead be dynamically generated according to a simpler object (which wouldn't require reduntantly including the jobId throughout each job's definition)?
+  controller.oneTimeJobs = {
+    openPost: {
+      constructorName: 'OpenPostJob',
+      collection: [],
+      timeouts: [],
+      create: createOneTimeAnimation.bind(controller, null, 'openPost'),
+      createRandom: openRandomPost,
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'openPost')
+    },
+    closePost: {
+      constructorName: 'ClosePostJob',
+      collection: [],
+      timeouts: [],
+      create: createOneTimeAnimation.bind(controller, null, 'closePost'),
+      createRandom: closePost,
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost')
+    },
+    displacementPulse: {
+      constructorName: 'DisplacementPulseJob',
+      collection: [],
+      timeouts: [],
+      create: createOneTimeAnimation.bind(controller, null, 'displacementPulse'),
+      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'displacementPulse'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'displacementPulse')
+    },
+    highlightHover: {
+      constructorName: 'HighlightHoverJob',
+      collection: [],
+      timeouts: [],
+      create: createOneTimeAnimation.bind(controller, null, 'highlightHover'),
+      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'highlightHover'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightHover')
+    },
+    highlightRadiate: {
+      constructorName: 'HighlightRadiateJob',
+      collection: [],
+      timeouts: [],
+      create: createOneTimeAnimation.bind(controller, null, 'highlightRadiate'),
+      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'highlightRadiate'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightRadiate')
+    },
+    intraTileRadiate: {
+      constructorName: 'IntraTileRadiateJob',
+      collection: [],
+      timeouts: [],
+      create: createOneTimeAnimation.bind(controller, null, 'intraTileRadiate'),
+      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'intraTileRadiate'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'intraTileRadiate')
+    },
+    line: {
+      constructorName: 'LineJob',
+      collection: [],
+      timeouts: [],
+      create: createOneTimeAnimation.bind(controller, randomLineCreator, 'line'),
+      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'line'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'line')
+    },
+    linesRadiate: {
+      constructorName: 'LinesRadiateJob',
+      collection: [],
+      timeouts: [],
+      create: createOneTimeAnimation.bind(controller, linesRadiateCreator, 'linesRadiate'),
+      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'linesRadiate'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'linesRadiate')
+    },
+    tileBorder: {
+      constructorName: 'TileBorderJob',
+      collection: [],
+      timeouts: [],
+      create: createOneTimeAnimation.bind(controller, null, 'tileBorder'),
+      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'tileBorder'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'tileBorder')
+    }
+  };
+
+  internal.grids = [];
+  internal.inputs = [];
+  internal.annotations = [];
+  internal.colorResetJobs = [];
+  internal.displacementResetJobs = [];
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public static functions
-
-  /**
-   * Creates a Grid object and registers it with the animator.
-   *
-   * @param {HTMLElement} parent
-   * @param {Array.<Object>} tileData
-   * @param {boolean} isVertical
-   * @returns {number} The ID (actually index) of the new Grid.
-   */
-  function createNewHexGrid(parent, tileData, isVertical) {
-    var grid, index, annotations, input;
-
-    grid = new hg.Grid(parent, tileData, isVertical);
-    controller.grids.push(grid);
-    hg.animator.startJob(grid);
-    index = controller.grids.length - 1;
-    grid.index = index;
-
-    createColorResetAnimation(index);
-    createColorShiftAnimation(index);
-    createColorWaveAnimation(index);
-    createDisplacementWaveAnimation(index);
-
-    annotations = grid.annotations;
-    hg.animator.startJob(annotations);
-    controller.annotations.push(annotations);
-
-    input = new hg.Input(grid);
-    controller.inputs.push(input);
-
-    startRecurringAnimations(index);
-
-    return index;
-  }
 
   /**
    * Starts repeating any AnimationJobs that are configured to recur.
    *
    * @param {number} gridIndex
    */
-  function startRecurringAnimations(gridIndex) {
-    if (hg.HighlightHoverJob.config.isRecurring) {
-      controller.toggleHighlightHoverJobRecurrence(
+  function startRecurringAnimations(gridIndex) {// TODO: refactor this to accept Grid objects rather than IDs
+    Object.keys(controller.oneTimeJobs).forEach(function (key) {
+      controller.oneTimeJobs[key].toggleRecurrence(
           gridIndex, true,
-          hg.HighlightHoverJob.config.avgDelay,
-          hg.HighlightHoverJob.config.delayDeviationRange);
-    }
-
-    if (hg.HighlightRadiateJob.config.isRecurring) {
-      controller.toggleHighlightRadiateJobRecurrence(
-          gridIndex, true,
-          hg.HighlightRadiateJob.config.avgDelay,
-          hg.HighlightRadiateJob.config.delayDeviationRange);
-    }
-
-    if (hg.LineJob.config.isRecurring) {
-      controller.toggleRandomLineJobRecurrence(
-          gridIndex, true,
-          hg.LineJob.config.avgDelay,
-          hg.LineJob.config.delayDeviationRange);
-    }
-
-    if (hg.LinesRadiateJob.config.isRecurring) {
-      controller.toggleLinesRadiateJobRecurrence(
-          gridIndex, true,
-          hg.LinesRadiateJob.config.avgDelay,
-          hg.LinesRadiateJob.config.delayDeviationRange);
-    }
+          window.hg[controller.oneTimeJobs[key].constructorName].config.avgDelay,
+          window.hg[controller.oneTimeJobs[key].constructorName].config.delayDeviationRange);
+    });
   }
 
   /**
-   * Creates a new ColorResetJob with the grid at the given index.
-   *
-   * @param {number} gridIndex
-   */
-  function createColorResetAnimation(gridIndex) {
-    var job = new hg.ColorResetJob(controller.grids[gridIndex]);
-    controller.colorResetJobs.push(job);
-    restartColorResetAnimation(gridIndex);
-
-    controller.grids[gridIndex].animations.colorResetAnimations =
-        controller.grids[gridIndex].animations.colorResetAnimations || [];
-    controller.grids[gridIndex].animations.colorResetAnimations.push(job);
-  }
-
-  /**
-   * Creates a new ColorShiftJob with the grid at the given index.
-   *
-   * @param {number} gridIndex
-   */
-  function createColorShiftAnimation(gridIndex) {
-    var job = new hg.ColorShiftJob(controller.grids[gridIndex]);
-    controller.colorShiftJobs.push(job);
-    restartColorShiftAnimation(gridIndex);
-
-    controller.grids[gridIndex].animations.colorShiftAnimations =
-        controller.grids[gridIndex].animations.colorShiftAnimations || [];
-    controller.grids[gridIndex].animations.colorShiftAnimations.push(job);
-  }
-
-  /**
-   * Creates a new ColorWaveJob with the grid at the given index.
-   *
-   * @param {number} gridIndex
-   */
-  function createColorWaveAnimation(gridIndex) {
-    var job = new hg.ColorWaveJob(controller.grids[gridIndex]);
-    controller.colorWaveJobs.push(job);
-    restartColorWaveAnimation(gridIndex);
-
-    controller.grids[gridIndex].animations.colorWaveAnimations =
-        controller.grids[gridIndex].animations.colorWaveAnimations || [];
-    controller.grids[gridIndex].animations.colorWaveAnimations.push(job);
-  }
-
-  /**
-   * Creates a new DisplacementWaveJob with the grid at the given index.
-   *
-   * @param {number} gridIndex
-   */
-  function createDisplacementWaveAnimation(gridIndex) {
-    var job = new hg.DisplacementWaveJob(controller.grids[gridIndex]);
-    controller.displacementWaveJobs.push(job);
-    restartDisplacementWaveAnimation(gridIndex);
-
-    controller.grids[gridIndex].animations.displacementWaveAnimations =
-        controller.grids[gridIndex].animations.displacementWaveAnimations || [];
-    controller.grids[gridIndex].animations.displacementWaveAnimations.push(job);
-  }
-
-  /**
-   * Restarts the ColorResetJob at the given index.
-   *
-   * @param {number} index
-   */
-  function restartColorResetAnimation(index) {
-    var job = controller.colorResetJobs[index];
-
-    if (!job.isComplete) {
-      hg.animator.cancelJob(job);
-    }
-
-    job.init();
-    hg.animator.startJob(job);
-  }
-
-  /**
-   * Restarts the ColorShiftJob at the given index.
-   *
-   * @param {number} index
-   */
-  function restartColorShiftAnimation(index) {
-    var job = controller.colorShiftJobs[index];
-
-    if (!job.isComplete) {
-      hg.animator.cancelJob(job);
-    }
-
-    job.init();
-    hg.animator.startJob(job);
-  }
-
-  /**
-   * Restarts the ColorWaveJob at the given index.
-   *
-   * @param {number} index
-   */
-  function restartColorWaveAnimation(index) {
-    var job = controller.colorWaveJobs[index];
-
-    if (!job.isComplete) {
-      hg.animator.cancelJob(job);
-    }
-
-    job.init();
-    hg.animator.startJob(job);
-  }
-
-  /**
-   * Restarts the DisplacementWaveJob at the given index.
-   *
-   * @param {number} index
-   */
-  function restartDisplacementWaveAnimation(index) {
-    var job = controller.displacementWaveJobs[index];
-
-    if (!job.isComplete) {
-      hg.animator.cancelJob(job);
-    }
-
-    job.init();
-    hg.animator.startJob(job);
-  }
-
-  /**
-   * Expands the Grid to show the post at the given tile index.
-   *
-   * @param {number} gridIndex
+   * @param {string} jobId
+   * @param {Grid} grid
    * @param {Tile} tile
+   * @param {Function} onComplete
+   * @returns {AnimationJob}
    */
-  function openPost(gridIndex, tile) {
-    var job, grid;
-
-    grid = controller.grids[gridIndex];
-
-    grid.animations.openPostAnimations = grid.animations.openPostAnimations || [];
-
-    job = new hg.OpenPostJob(grid, tile, onComplete);
-    controller.openPostJobs.push(job);
-    hg.animator.startJob(job);
-
-    function onComplete(job) {
-      controller.grids[gridIndex].animations.openPostAnimations.splice(
-          controller.grids[gridIndex].animations.openPostAnimations.indexOf(job), 1);
-    }
+  function generalOneTimeJobCreator(jobId, grid, tile, onComplete) {
+    return new window.hg[controller.oneTimeJobs[jobId].constructorName](grid, tile, onComplete);
   }
 
   /**
-   * Creates a new LinesRadiateJob based off the tile at the given index.
-   *
+   * @param {?Function} creator
+   * @param {Array.<AnimationJob>} jobId
    * @param {number} gridIndex
-   * @param {Tile} tile
-   */
-  function createLinesRadiateAnimation(gridIndex, tile) {
-    var job, i, count, grid;
+   * @param {?Tile} tile
+   */// TODO: refactor this to accept Grid objects rather than IDs
+  function createOneTimeAnimation(creator, jobId, gridIndex, tile) {// TODO: rename all occurrences (only within this file?) of jobId to jobId
+    var job, grid, gridAnimationsId;
 
-    grid = controller.grids[gridIndex];
+    creator = creator || generalOneTimeJobCreator.bind(controller, jobId);
 
-    grid.animations.lineAnimations = grid.animations.lineAnimations || [];
+    grid = internal.grids[gridIndex];
 
-    job = new hg.LinesRadiateJob(grid, tile, onComplete);
-    controller.linesRadiateJobs.push(job);
-    hg.animator.startJob(job);
+    // Create the job with whatever custom logic is needed for this particular type of job
+    job = creator(grid, tile, onComplete);
 
-    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
-      grid.animations.lineAnimations.push(job.lineJobs[i]);
-    }
+    // Store a reference to this job within the controller
+    controller.oneTimeJobs[jobId].jobs.push(job);
+    window.hg.animator.startJob(job);
 
-    function onComplete(job) {
-      controller.grids[gridIndex].animations.lineAnimations.splice(
-          controller.grids[gridIndex].animations.lineAnimations.indexOf(job), 1);
-    }
-  }
+    // TODO: get rid of this redundant storage on the Grid object; instead, make an easy way for the Annotation object to reference the jobs from the controller
+    // Keep a reference to this job within the grid object (this helps the Annotations object
+    // reference data from the job if needed)
+    gridAnimationsId = jobId + 'Animations';
+    grid.animations[gridAnimationsId] = grid.animations[gridAnimationsId] || [];
+    grid.animations[gridAnimationsId].push(job);
 
-  /**
-   * Creates a new random LineJob.
-   *
-   * @param {number} gridIndex
-   */
-  function createRandomLineAnimation(gridIndex) {
-    var job;
-
-    controller.grids[gridIndex].animations.lineAnimations =
-        controller.grids[gridIndex].animations.lineAnimations || [];
-
-    job = hg.LineJob.createRandomLineJob(controller.grids[gridIndex],
-        onComplete);
-    controller.randomLineJobs.push(job);
-    hg.animator.startJob(job);
-
-    controller.grids[gridIndex].animations.lineAnimations.push(job);
+    // ---  --- //
 
     function onComplete() {
-      controller.grids[gridIndex].animations.lineAnimations.splice(
-          controller.grids[gridIndex].animations.lineAnimations.indexOf(job), 1);
+      // Destroy both references to this now-complete job
+      controller.oneTimeJobs[jobId].jobs.splice(
+          controller.oneTimeJobs[jobId].jobs.indexOf(job), 1);
+      grid.animations[gridAnimationsId].jobs.splice(
+          grid.animations[gridAnimationsId].jobs.indexOf(job), 1);
     }
   }
 
   /**
-   * Creates a new HighlightHoverJob based off the tile at the given index.
-   *
-   * @param {number} gridIndex
-   * @param {Tile} tile
-   */
-  function createHighlightHoverAnimation(gridIndex, tile) {
-    var job;
-
-    controller.grids[gridIndex].animations.highlightHoverAnimations =
-        controller.grids[gridIndex].animations.highlightHoverAnimations || [];
-
-    job = new hg.HighlightHoverJob(tile, onComplete);
-    controller.highlightHoverJobs.push(job);
-    hg.animator.startJob(job);
-
-    controller.grids[gridIndex].animations.highlightHoverAnimations.push(job);
-
-    function onComplete() {
-      controller.grids[gridIndex].animations.highlightHoverAnimations.splice(
-          controller.grids[gridIndex].animations.highlightHoverAnimations.indexOf(job), 1);
-    }
-  }
-
-  /**
-   * Creates a new HighlightRadiateJob based off the tile at the given index.
-   *
-   * @param {number} gridIndex
-   * @param {Tile} tile
-   */
-  function createHighlightRadiateAnimation(gridIndex, tile) {
-    var job, grid, startPoint;
-
-    grid = controller.grids[gridIndex];
-
-    controller.grids[gridIndex].animations.highlightRadiateAnimations =
-        controller.grids[gridIndex].animations.highlightRadiateAnimations || [];
-
-    startPoint = {
-      x: tile.originalCenterX,
-      y: tile.originalCenterY
-    };
-
-    job = new hg.HighlightRadiateJob(startPoint, grid, onComplete);
-    controller.highlightRadiateJobs.push(job);
-    hg.animator.startJob(job);
-
-    controller.grids[gridIndex].animations.highlightRadiateAnimations.push(job);
-
-    function onComplete() {
-      controller.grids[gridIndex].animations.highlightRadiateAnimations.splice(
-          controller.grids[gridIndex].animations.highlightRadiateAnimations.indexOf(job), 1);
-    }
-  }
-
-  /**
-   * Creates a HighlightRadiateJob based off of a random tile.
-   *
+   * @param {string} jobId
    * @param {number} gridIndex
    */
-  function createRandomHighlightRadiateAnimation(gridIndex) {
-    var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
-    createHighlightRadiateAnimation(gridIndex, hg.controller.grids[gridIndex].tiles[tileIndex]);
-  }
-
-  /**
-   * Creates a HighlightHoverJob based off of a random tile.
-   *
-   * @param {number} gridIndex
-   */
-  function createRandomHighlightHoverAnimation(gridIndex) {
-    var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
-    createHighlightHoverAnimation(gridIndex, hg.controller.grids[gridIndex].tiles[tileIndex]);
-  }
-
-  /**
-   * Creates a LinesRadiateJob based off of a random tile.
-   *
-   * @param {number} gridIndex
-   */
-  function createRandomLinesRadiateAnimation(gridIndex) {
-    var tileIndex = parseInt(Math.random() * hg.controller.grids[gridIndex].tiles.length);
-    createLinesRadiateAnimation(gridIndex, hg.controller.grids[gridIndex].tiles[tileIndex]);
+  function createOneTimeJobWithARandomTile(jobId, gridIndex) {// TODO: refactor this to accept Grid objects rather than IDs
+    var tileIndex = parseInt(Math.random() * window.hg.internal.grids[gridIndex].tiles.length);
+    var tile = window.hg.internal.grids[gridIndex].tiles[tileIndex];
+    controller.oneTimeJobs[jobId].create(gridIndex, tile);
   }
 
   /**
    * Toggles whether an AnimationJob is automatically repeated.
    *
-   * @param {Function} jobCreator
-   * @param {Array.<number>} jobTimeouts
+   * @param {string} jobId
    * @param {number} gridIndex
    * @param {boolean} isRecurring
    * @param {number} avgDelay
    * @param {number} delayDeviationRange
    */
-  function toggleJobRecurrence(jobCreator, jobTimeouts, gridIndex, isRecurring, avgDelay,
-                               delayDeviationRange) {
-    var minDelay, maxDelay, actualDelayRange;
+  function toggleJobRecurrence(jobId, gridIndex, isRecurring, avgDelay, delayDeviationRange) {// TODO: refactor this to accept Grid objects rather than IDs
+    var minDelay, maxDelay, actualDelayRange, jobTimeouts;
+
+    jobTimeouts = controller.oneTimeJobs[jobId].timeouts;
 
     // Compute the delay deviation range
     minDelay = avgDelay - delayDeviationRange * 0.5;
@@ -403,94 +222,314 @@
       jobTimeouts[gridIndex] = setTimeout(recur, avgDelay);
     }
 
+    // ---  --- //
+
     /**
      * Creates a new occurrence of the AnimationJob and starts a new timeout to repeat this.
      */
     function recur() {
       var delay = Math.random() * actualDelayRange + minDelay;
-      jobCreator(gridIndex);
+      controller.oneTimeJobs[jobId].createRandom(gridIndex);
       jobTimeouts[gridIndex] = setTimeout(recur, delay);
     }
   }
 
   /**
-   * Event listener for the window resize event.
-   *
    * Resizes all of the hex-grid components.
    */
   function resize() {
-    controller.grids.forEach(function (grid, index) {
-      hg.animator.cancelAll();
-      grid.resize();
-      restartColorResetAnimation(index);
-      restartColorShiftAnimation(index);
-      restartColorWaveAnimation(index);
-      restartDisplacementWaveAnimation(index);
-      hg.animator.startJob(grid);
-      hg.animator.startJob(controller.annotations[index]);
+    internal.grids.forEach(resetGrid);
+  }
+
+  // --- Persistent-job creation functions --- //
+// TODO: these are redundant
+  /**
+   * Creates a new ColorResetJob with the grid at the given index.
+   *
+   * @param {number} gridIndex
+   */
+  function createColorResetAnimation(gridIndex) {// TODO: refactor this to accept Grid objects rather than IDs
+    var job = new window.hg.ColorResetJob(internal.grids[gridIndex]);
+    internal.colorResetJobs.push(job);
+    restartColorResetAnimation(gridIndex);
+
+    internal.grids[gridIndex].animations.colorResetAnimations =
+        internal.grids[gridIndex].animations.colorResetAnimations || [];
+    internal.grids[gridIndex].animations.colorResetAnimations.push(job);
+  }
+
+  /**
+   * Creates a new DisplacementResetJob with the grid at the given index.
+   *
+   * @param {number} gridIndex
+   */
+  function createDisplacementResetAnimation(gridIndex) {
+    var job = new window.hg.DisplacementResetJob(internal.grids[gridIndex]);
+    internal.displacementResetJobs.push(job);
+    restartDisplacementResetAnimation(gridIndex);
+
+    internal.grids[gridIndex].animations.displacementResetAnimations =
+        internal.grids[gridIndex].animations.displacementResetAnimations || [];
+    internal.grids[gridIndex].animations.displacementResetAnimations.push(job);
+  }
+
+  /**
+   * Creates a new ColorShiftJob with the grid at the given index.
+   *
+   * @param {number} gridIndex
+   */
+  function createColorShiftAnimation(gridIndex) {
+    var job = new window.hg.ColorShiftJob(internal.grids[gridIndex]);
+    controller.persistentJobs.colorShift.jobs.push(job);
+    controller.persistentJobs.colorShift.restart(gridIndex);
+
+    internal.grids[gridIndex].animations.colorShiftAnimations =
+        internal.grids[gridIndex].animations.colorShiftAnimations || [];
+    internal.grids[gridIndex].animations.colorShiftAnimations.push(job);
+  }
+
+  /**
+   * Creates a new ColorWaveJob with the grid at the given index.
+   *
+   * @param {number} gridIndex
+   */
+  function createColorWaveAnimation(gridIndex) {
+    var job = new window.hg.ColorWaveJob(internal.grids[gridIndex]);
+    controller.persistentJobs.colorWave.jobs.push(job);
+    controller.persistentJobs.colorWave.restart(gridIndex);
+
+    internal.grids[gridIndex].animations.colorWaveAnimations =
+        internal.grids[gridIndex].animations.colorWaveAnimations || [];
+    internal.grids[gridIndex].animations.colorWaveAnimations.push(job);
+  }
+
+  /**
+   * Creates a new DisplacementWaveJob with the grid at the given index.
+   *
+   * @param {number} gridIndex
+   */
+  function createDisplacementWaveAnimation(gridIndex) {
+    var job = new window.hg.DisplacementWaveJob(internal.grids[gridIndex]);
+    controller.persistentJobs.displacementWave.jobs.push(job);
+    controller.persistentJobs.displacementWave.restart(gridIndex);
+
+    internal.grids[gridIndex].animations.displacementWaveAnimations =
+        internal.grids[gridIndex].animations.displacementWaveAnimations || [];
+    internal.grids[gridIndex].animations.displacementWaveAnimations.push(job);
+  }
+
+  // --- Persistent-job restart functions --- //
+
+  /**
+   * Restarts the ColorResetJob at the given index.
+   *
+   * @param {number} index
+   */
+  function restartColorResetAnimation(index) {// TODO: refactor this to accept Grid objects rather than IDs
+    var job = internal.colorResetJobs[index];
+
+    if (!job.isComplete) {
+      window.hg.animator.cancelJob(job);
+    }
+
+    job.init();
+    window.hg.animator.startJob(job);
+  }
+
+  /**
+   * Restarts the DisplacementResetJob at the given index.
+   *
+   * @param {number} index
+   */
+  function restartDisplacementResetAnimation(index) {
+    var job = internal.displacementResetJobs[index];
+
+    if (!job.isComplete) {
+      window.hg.animator.cancelJob(job);
+    }
+
+    job.init();
+    window.hg.animator.startJob(job);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Creates a Grid object and registers it with the animator.
+   *
+   * @param {HTMLElement} parent
+   * @param {Array.<Object>} tileData
+   * @param {boolean} isVertical
+   * @returns {number} The ID (actually index) of the new Grid.
+   */
+  function createNewHexGrid(parent, tileData, isVertical) {
+    var grid, index, annotations, input;
+
+    index = internal.grids.length;
+    grid = new window.hg.Grid(index, parent, tileData, isVertical);
+    internal.grids.push(grid);
+    window.hg.animator.startJob(grid);
+
+    createColorResetAnimation(index);
+    createDisplacementResetAnimation(index);
+
+    controller.persistentJobs.colorShift.create(index);
+    controller.persistentJobs.colorWave.create(index);
+    controller.persistentJobs.displacementWave.create(index);
+
+    annotations = grid.annotations;
+    window.hg.animator.startJob(annotations);
+    internal.annotations.push(annotations);
+
+    input = new window.hg.Input(grid);
+    internal.inputs.push(input);
+
+    startRecurringAnimations(index);
+
+    return index;
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function resetGrid(grid) {
+    window.hg.animator.cancelAll();
+
+    grid.resize();
+
+    restartColorResetAnimation(grid.index);
+    restartDisplacementResetAnimation(grid.index);
+
+    controller.persistentJobs.colorShift.restart(grid.index);
+    controller.persistentJobs.colorWave.restart(grid.index);
+    controller.persistentJobs.displacementWave.restart(grid.index);
+
+    window.hg.animator.startJob(grid);
+    window.hg.animator.startJob(internal.annotations[grid.index]);
+  }
+
+  // --- Persistent-job restart functions --- //
+// TODO: these are redundant
+  /**
+   * Restarts the ColorShiftJob at the given index.
+   *
+   * @param {number} index
+   */
+  function restartColorShiftAnimation(index) {
+    var job = controller.persistentJobs.colorShift.jobs[index];
+
+    if (!job.isComplete) {
+      window.hg.animator.cancelJob(job);
+    }
+
+    job.init();
+    window.hg.animator.startJob(job);
+  }
+
+  /**
+   * Restarts the ColorWaveJob at the given index.
+   *
+   * @param {number} index
+   */
+  function restartColorWaveAnimation(index) {
+    var job = controller.persistentJobs.colorWave.jobs[index];
+
+    if (!job.isComplete) {
+      window.hg.animator.cancelJob(job);
+    }
+
+    job.init();
+    window.hg.animator.startJob(job);
+  }
+
+  /**
+   * Restarts the DisplacementWaveJob at the given index.
+   *
+   * @param {number} index
+   */
+  function restartDisplacementWaveAnimation(index) {
+    var job = controller.persistentJobs.displacementWave.jobs[index];
+
+    if (!job.isComplete) {
+      window.hg.animator.cancelJob(job);
+    }
+
+    job.init();
+    window.hg.animator.startJob(job);
+  }
+
+  // --- One-time-job creation functions --- //
+
+  /**
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   * @returns {Window.hg.LineJob}
+   */
+  function randomLineCreator(grid, tile, onComplete) {
+    return window.hg.LineJob.createRandomLineJob(grid, onComplete);
+  }
+
+  /**
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   * @returns {Window.hg.LinesRadiateJob}
+   */
+  function linesRadiateCreator(grid, tile, onComplete) {
+    var job, gridAnimationsId;
+
+    job = new window.hg.LinesRadiateJob(grid, tile, onAllLinesComplete);
+
+    // Also store references to each of the individual child lines
+    gridAnimationsId = 'lineAnimations';
+    grid.animations[gridAnimationsId] = grid.animations[gridAnimationsId] || [];
+    job.lineJobs.forEach(function (lineJob) {
+      grid.animations[gridAnimationsId].push(lineJob);
     });
+
+    return job;
+
+    // ---  --- //
+
+    function onAllLinesComplete() {
+      // Destroy the references to the individual child lines
+      job.lineJobs.forEach(function (lineJob) {
+        grid.animations[gridAnimationsId].splice(
+            grid.animations[gridAnimationsId].indexOf(lineJob), 1);
+      });
+
+      onComplete();
+    }
+  }
+
+  // --- One-time-job random creation functions --- //
+
+  function openRandomPost() {
+    // TODO: if no post is open, pick a random content tile, and open the post; otherwise, do nothing
+  }
+
+  function closePost() {
+    // TODO: if a post is open, close it; otherwise, do nothing
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Expose this singleton
 
-  controller.grids = [];
-  controller.inputs = [];
-  controller.annotations = [];
-  controller.colorResetJobs = [];
-  controller.colorShiftJobs = [];
-  controller.displacementWaveJobs = [];
-  controller.colorWaveJobs = [];
-  controller.openPostJobs = [];
-  controller.linesRadiateJobs = [];
-  controller.randomLineJobs = [];
-  controller.highlightHoverJobs = [];
-  controller.highlightRadiateJobs = [];
-
-  controller.highlightHoverRecurrenceTimeouts = [];
-  controller.highlightRadiateRecurrenceTimeouts = [];
-  controller.linesRadiateRecurrenceTimeouts = [];
-  controller.randomLineRecurrenceTimeouts = [];
-
   controller.config = config;
 
   controller.createNewHexGrid = createNewHexGrid;
-  controller.restartColorShiftAnimation = restartColorShiftAnimation;
-  controller.restartColorWaveAnimation = restartColorWaveAnimation;
-  controller.restartDisplacementWaveAnimation = restartDisplacementWaveAnimation;
-  controller.openPost = openPost;
-  controller.createLinesRadiateAnimation = createLinesRadiateAnimation;
-  controller.createRandomLineAnimation = createRandomLineAnimation;
-  controller.createHighlightHoverAnimation = createHighlightHoverAnimation;
-  controller.createHighlightRadiateAnimation = createHighlightRadiateAnimation;
-  controller.createRandomHighlightRadiateAnimation = createRandomHighlightRadiateAnimation;
-  controller.createRandomHighlightHoverAnimation = createRandomHighlightHoverAnimation;
-  controller.createRandomLinesRadiateAnimation = createRandomLinesRadiateAnimation;
-
-  controller.toggleHighlightHoverJobRecurrence =
-      toggleJobRecurrence.bind(controller, createRandomHighlightHoverAnimation,
-          controller.highlightHoverRecurrenceTimeouts);
-  controller.toggleHighlightRadiateJobRecurrence =
-      toggleJobRecurrence.bind(controller, createRandomHighlightRadiateAnimation,
-          controller.highlightRadiateRecurrenceTimeouts);
-  controller.toggleLinesRadiateJobRecurrence =
-      toggleJobRecurrence.bind(controller, createRandomLinesRadiateAnimation,
-          controller.linesRadiateRecurrenceTimeouts);
-  controller.toggleRandomLineJobRecurrence =
-      toggleJobRecurrence.bind(controller, createRandomLineAnimation,
-          controller.randomLineRecurrenceTimeouts);
-  controller.resize = resize;
+  controller.resetGrid = resetGrid;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.controller = controller;
 
   window.addEventListener('resize', resize, false);
 
   console.log('controller module loaded');
 })();
-
-'use strict';
 
 /**
  * This module defines a collection of static general utility functions.
@@ -1113,13 +1152,11 @@
   };
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.util = util;
 
   console.log('util module loaded');
 })();
-
-'use strict';
 
 /**
  * This module defines a singleton for animating things.
@@ -1160,7 +1197,7 @@
     if (!animator.isPaused) {
       updateJobs(currentTime, deltaTime);
       drawJobs();
-      hg.util.requestAnimationFrame(animationLoop);
+      window.hg.util.requestAnimationFrame(animationLoop);
     } else {
       animator.isLooping = false;
     }
@@ -1289,13 +1326,11 @@
   animator.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.animator = animator;
 
   console.log('animator module loaded');
 })();
-
-'use strict';
 
 /**
  * @typedef {AnimationJob} Annotations
@@ -1332,7 +1367,7 @@
 
   config.annotations = {
     'contentTiles': {
-      enabled: false,
+      enabled: true,
       create: fillContentTiles,
       destroy: unfillContentTiles,
       update: function () {/* Do nothing */}
@@ -1519,7 +1554,7 @@
     annotations = this;
     annotations.contentAreaGuideLines = [];
 
-    line = document.createElementNS(hg.util.svgNamespace, 'line');
+    line = document.createElementNS(window.hg.util.svgNamespace, 'line');
     annotations.grid.svg.appendChild(line);
     annotations.contentAreaGuideLines[0] = line;
 
@@ -1530,7 +1565,7 @@
     line.setAttribute('stroke', 'red');
     line.setAttribute('stroke-width', '2');
 
-    line = document.createElementNS(hg.util.svgNamespace, 'line');
+    line = document.createElementNS(window.hg.util.svgNamespace, 'line');
     annotations.grid.svg.appendChild(line);
     annotations.contentAreaGuideLines[1] = line;
 
@@ -1554,7 +1589,7 @@
     annotations.tileParticleCenters = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileParticleCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileParticleCenters[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileParticleCenters[i]);
 
       annotations.tileParticleCenters[i].setAttribute('r', '4');
@@ -1575,13 +1610,13 @@
     annotations.tileAnchorCenters = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileAnchorLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.tileAnchorLines[i] = document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
 
       annotations.tileAnchorLines[i].setAttribute('stroke', '#666666');
       annotations.tileAnchorLines[i].setAttribute('stroke-width', '2');
 
-      annotations.tileAnchorCenters[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileAnchorCenters[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileAnchorCenters[i]);
 
       annotations.tileAnchorCenters[i].setAttribute('r', '4');
@@ -1602,7 +1637,7 @@
     annotations.tileDisplacementCircles = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileDisplacementCircles[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileDisplacementCircles[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileDisplacementCircles[i]);
 
       annotations.tileDisplacementCircles[i].setAttribute('r', '80');
@@ -1623,7 +1658,7 @@
     annotations.tileInnerRadii = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileInnerRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileInnerRadii[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileInnerRadii[i]);
 
       annotations.tileInnerRadii[i].setAttribute('stroke', 'blue');
@@ -1644,7 +1679,7 @@
     annotations.tileOuterRadii = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileOuterRadii[i] = document.createElementNS(hg.util.svgNamespace, 'circle');
+      annotations.tileOuterRadii[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
 
       annotations.tileOuterRadii[i].setAttribute('stroke', 'green');
@@ -1673,7 +1708,7 @@
         neighbor = neighborStates[j];
 
         if (neighbor) {
-          annotations.neighborLines[i][j] = document.createElementNS(hg.util.svgNamespace, 'line');
+          annotations.neighborLines[i][j] = document.createElementNS(window.hg.util.svgNamespace, 'line');
           annotations.grid.svg.appendChild(annotations.neighborLines[i][j]);
 
           annotations.neighborLines[i][j].setAttribute('stroke', 'purple');
@@ -1695,7 +1730,7 @@
     annotations.forceLines = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.forceLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.forceLines[i] = document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.forceLines[i]);
 
       annotations.forceLines[i].setAttribute('stroke', 'orange');
@@ -1715,7 +1750,7 @@
     annotations.velocityLines = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.velocityLines[i] = document.createElementNS(hg.util.svgNamespace, 'line');
+      annotations.velocityLines[i] = document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.velocityLines[i]);
 
       annotations.velocityLines[i].setAttribute('stroke', 'red');
@@ -1735,7 +1770,7 @@
     annotations.indexTexts = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.indexTexts[i] = document.createElementNS(hg.util.svgNamespace, 'text');
+      annotations.indexTexts[i] = document.createElementNS(window.hg.util.svgNamespace, 'text');
       annotations.indexTexts[i].innerHTML =
           !isNaN(annotations.grid.tiles[i].index) ? annotations.grid.tiles[i].index : '?';
       annotations.grid.svg.appendChild(annotations.indexTexts[i]);
@@ -1760,12 +1795,12 @@
       for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
 
         sector = annotations.grid.sectors[i];
-        sectorHue = 60 * i;
+        sectorHue = 60 * i + 20;
 
         for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
 
-          sector.tiles[j].setColor(sectorHue, hg.Grid.config.tileSaturation,
-              hg.Grid.config.tileLightness);
+          sector.tiles[j].setColor(sectorHue, window.hg.Grid.config.tileSaturation,
+              window.hg.Grid.config.tileLightness);
         }
       }
     }
@@ -1786,8 +1821,8 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(hg.Grid.config.tileHue,
-            hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
+        annotations.grid.tiles[i].setColor(window.hg.Grid.config.tileHue,
+            window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
       }
     }
   }
@@ -1803,8 +1838,8 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(hg.Grid.config.tileHue,
-          hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
+      annotations.grid.borderTiles[i].setColor(window.hg.Grid.config.tileHue,
+          window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
     }
   }
 
@@ -1820,8 +1855,8 @@
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
       if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.borderTiles[i].setColor(hg.Grid.config.tileHue,
-            hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness);
+        annotations.grid.borderTiles[i].setColor(window.hg.Grid.config.tileHue,
+            window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
       }
     }
   }
@@ -2080,8 +2115,8 @@
 
         for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
 
-          sector.tiles[j].setColor(sectorHue, hg.Grid.config.tileSaturation,
-              hg.Grid.config.tileLightness);
+          sector.tiles[j].setColor(sectorHue, window.hg.Grid.config.tileSaturation,
+              window.hg.Grid.config.tileLightness);
         }
       }
 
@@ -2126,10 +2161,10 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileAnchorLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
       annotations.tileAnchorLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].centerX);
-      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].centerY);
-      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].centerX);
-      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].centerY);
+      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].anchorX);
+      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].anchorY);
+      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].anchorX);
+      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].anchorY);
     }
   }
 
@@ -2145,14 +2180,14 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalCenterX;
-      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalCenterY;
+      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalAnchorX;
+      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalAnchorY;
 
       angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
       colorString = 'hsl(' + angle + ',' +
-          distance / hg.DisplacementWaveJob.config.displacementAmplitude * 100 + '%,80%)';
+          distance / window.hg.DisplacementWaveJob.config.displacementAmplitude * 100 + '%,80%)';
 
       annotations.tileDisplacementCircles[i].setAttribute('fill', colorString);
       annotations.tileDisplacementCircles[i]
@@ -2175,7 +2210,7 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileInnerRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
       annotations.tileInnerRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
-      annotations.tileInnerRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius * hg.Grid.config.sqrtThreeOverTwo);
+      annotations.tileInnerRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius * window.hg.Grid.config.sqrtThreeOverTwo);
     }
   }
 
@@ -2295,7 +2330,7 @@
 
         for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
           annotations.lineAnimationGapDots[k] =
-              document.createElementNS(hg.util.svgNamespace, 'circle');
+              document.createElementNS(window.hg.util.svgNamespace, 'circle');
           annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
           annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
           annotations.lineAnimationGapDots[k].setAttribute('r', '4');
@@ -2328,7 +2363,7 @@
         for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
           // Self corner: red dot
           pos = getCornerPosition(line.tiles[j], line.corners[j]);
-          dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+          dot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
           dot.setAttribute('cx', pos.x);
           dot.setAttribute('cy', pos.y);
           dot.setAttribute('r', '3');
@@ -2339,7 +2374,7 @@
           // Lower neighbor corner: green dot
           if (line.lowerNeighbors[j]) {
             pos = getCornerPosition(line.lowerNeighbors[j].tile, line.lowerNeighborCorners[j]);
-            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+            dot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
             dot.setAttribute('cx', pos.x);
             dot.setAttribute('cy', pos.y);
             dot.setAttribute('r', '3');
@@ -2351,7 +2386,7 @@
           // Upper neighbor corner: blue dot
           if (line.upperNeighbors[j]) {
             pos = getCornerPosition(line.upperNeighbors[j].tile, line.upperNeighborCorners[j]);
-            dot = document.createElementNS(hg.util.svgNamespace, 'circle');
+            dot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
             dot.setAttribute('cx', pos.x);
             dot.setAttribute('cy', pos.y);
             dot.setAttribute('r', '3');
@@ -2519,7 +2554,7 @@
     annotations.grid = grid;
     annotations.startTime = 0;
     annotations.isComplete = false;
-    annotations.annotations = hg.util.shallowCopy(config.annotations);
+    annotations.annotations = window.hg.util.shallowCopy(config.annotations);
 
     annotations.contentAreaGuideLines = [];
     annotations.tileParticleCenters = [];
@@ -2551,13 +2586,11 @@
   Annotations.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.Annotations = Annotations;
 
   console.log('Annotations module loaded');
 })();
-
-'use strict';
 
 /**
  * @typedef {AnimationJob} Grid
@@ -2586,9 +2619,9 @@
   var config = {};
 
   config.targetContentAreaWidth = 800;
-  config.backgroundHue = 327;
-  config.backgroundSaturation = 20;
-  config.backgroundLightness = 10;
+  config.backgroundHue = 230;
+  config.backgroundSaturation = 2;
+  config.backgroundLightness = 8;
   config.tileHue = 230;//147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
@@ -2735,7 +2768,7 @@
       tilesRepresentation[i] = 0;
     }
 
-    tilesRepresentation = hg.util.shuffle(tilesRepresentation);
+    tilesRepresentation = window.hg.util.shuffle(tilesRepresentation);
 
     // Record the resulting indices of the elements representing tile content
     grid.originalContentInnerIndices = [];
@@ -2756,7 +2789,7 @@
 
     grid = this;
 
-    grid.svg = document.createElementNS(hg.util.svgNamespace, 'svg');
+    grid.svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
     grid.parent.appendChild(grid.svg);
 
     grid.svg.style.display = 'block';
@@ -2767,7 +2800,7 @@
 
     updateBackgroundColor.call(grid);
 
-    grid.svgDefs = document.createElementNS(hg.util.svgNamespace, 'defs');
+    grid.svgDefs = document.createElementNS(window.hg.util.svgNamespace, 'defs');
     grid.svg.appendChild(grid.svgDefs);
   }
 
@@ -2777,7 +2810,7 @@
    * @this Grid
    */
   function createTiles() {
-    var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
+    var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, anchorX, anchorY,
         isMarginTile, isBorderTile, isCornerTile, isOddRow, contentAreaIndex, postDataIndex,
         defaultNeighborDeltaIndices, tilesNeighborDeltaIndices, oddRowIsLarger, isLargerRow;
 
@@ -2788,27 +2821,27 @@
     tileIndex = 0;
     contentAreaIndex = 0;
     postDataIndex = 0;
-    centerY = config.firstRowYOffset;
+    anchorY = config.firstRowYOffset;
     rowCount = grid.rowCount;
     tilesNeighborDeltaIndices = [];
 
     defaultNeighborDeltaIndices = getDefaultNeighborDeltaIndices.call(grid);
     oddRowIsLarger = grid.oddRowTileCount > grid.evenRowTileCount;
 
-    for (rowIndex = 0; rowIndex < rowCount; rowIndex += 1, centerY += grid.rowDeltaY) {
+    for (rowIndex = 0; rowIndex < rowCount; rowIndex += 1, anchorY += grid.rowDeltaY) {
       isOddRow = rowIndex % 2 === 0;
       isLargerRow = oddRowIsLarger && isOddRow || !oddRowIsLarger && !isOddRow;
 
       if (isOddRow) {
-        centerX = grid.oddRowXOffset;
+        anchorX = grid.oddRowXOffset;
         columnCount = grid.oddRowTileCount;
       } else {
-        centerX = grid.evenRowXOffset;
+        anchorX = grid.evenRowXOffset;
         columnCount = grid.evenRowTileCount;
       }
 
       for (columnIndex = 0; columnIndex < columnCount;
-           tileIndex += 1, columnIndex += 1, centerX += grid.tileDeltaX) {
+           tileIndex += 1, columnIndex += 1, anchorX += grid.tileDeltaX) {
         isMarginTile = isOddRow ?
             columnIndex < grid.oddRowContentStartIndex ||
                 columnIndex > grid.oddRowContentEndIndex :
@@ -2827,7 +2860,7 @@
             ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
                 (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
 
-        grid.tiles[tileIndex] = new hg.Tile(grid.svg, grid, centerX, centerY,
+        grid.tiles[tileIndex] = new window.hg.Tile(grid.svg, grid, anchorX, anchorY,
             config.tileOuterRadius, grid.isVertical, config.tileHue, config.tileSaturation,
             config.tileLightness, null, tileIndex, rowIndex, columnIndex, isMarginTile,
             isBorderTile, isCornerTile, isLargerRow, config.tileMass);
@@ -3232,13 +3265,15 @@
   /**
    * @global
    * @constructor
+   * @param {number} index
    * @param {HTMLElement} parent
    * @param {Array.<Object>} postData
    * @param {boolean} [isVertical]
    */
-  function Grid(parent, postData, isVertical) {
+  function Grid(index, parent, postData, isVertical) {
     var grid = this;
 
+    grid.index = index;
     grid.parent = parent;
     grid.postData = postData;
     grid.isVertical = isVertical;
@@ -3255,17 +3290,14 @@
     grid.innerIndexOfLastContentTile = null;
     grid.centerX = Number.NaN;
     grid.centerY = Number.NaN;
-    grid.index = Number.NaN;
     grid.isPostOpen = false;
     grid.isTransitioning = false;
     grid.sectors = null;
 
     grid.animations = {};
 
-    grid.annotations = new hg.Annotations(grid);
+    grid.annotations = new window.hg.Annotations(grid);
 
-    grid.centerX = null;
-    grid.centerY = null;
     grid.actualContentAreaWidth = null;
     grid.rowDeltaY = null;
     grid.tileDeltaX = null;
@@ -3308,13 +3340,11 @@
   Grid.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.Grid = Grid;
 
   console.log('Grid module loaded');
 })();
-
-'use strict';
 
 /**
  * This module defines a constructor for Input objects.
@@ -3326,12 +3356,13 @@
 (function () {
   var config = {};
 
-  config.clickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
+  config.contentTileClickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
+  config.emptyTileClickAnimation = 'Radiate Lines'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
 
   config.possibleClickAnimations = {
-    'Radiate Highlight': hg.controller.createHighlightRadiateAnimation,
-    'Radiate Lines': hg.controller.createLinesRadiateAnimation,
-    'Random Line': hg.controller.createRandomLineAnimation,
+    'Radiate Highlight': window.hg.controller.oneTimeJobs.highlightRadiate.create,
+    'Radiate Lines': window.hg.controller.oneTimeJobs.linesRadiate.create,
+    'Random Line': window.hg.controller.oneTimeJobs.line.create,
     'None': function () {}
   };
 
@@ -3386,7 +3417,7 @@
 
         input.grid.setHoveredTile(null);
 
-        hg.controller.createHighlightHoverAnimation(input.grid.index, tile);
+        window.hg.controller.oneTimeJobs.highlightHover.create(input.grid.index, tile);
 
         event.stopPropagation();
       }
@@ -3431,9 +3462,17 @@
     }
   }
 
+  /**
+   * @param {number} gridIndex
+   * @param {Tile} tile
+   */
   function createClickAnimation(gridIndex, tile) {
-//    config.possibleClickAnimations[config.clickAnimation](gridIndex, tile);// TODO:
-    hg.controller.openPost(gridIndex, tile);
+    if (tile.holdsContent) {
+      config.possibleClickAnimations[config.contentTileClickAnimation](gridIndex, tile);
+      window.hg.controller.oneTimeJobs.openPost.create(gridIndex, tile);
+    } else {
+      config.possibleClickAnimations[config.emptyTileClickAnimation](gridIndex, tile);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3461,15 +3500,13 @@
   Input.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.Input = Input;
 
   console.log('Input module loaded');
 })();
 
 // TODO:
-
-'use strict';
 
 /**
  * This module defines a constructor for Sector objects.
@@ -3520,28 +3557,28 @@
     // Compute the axially-aligned distances between adjacent tiles
 
     sector.majorNeighborDeltaX =
-        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalCenterX -
-        sector.baseTile.originalCenterX;
+        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchorX -
+        sector.baseTile.originalAnchorX;
     sector.majorNeighborDeltaY =
-        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalCenterY -
-        sector.baseTile.originalCenterY;
+        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchorY -
+        sector.baseTile.originalAnchorY;
     sector.minorNeighborDeltaX =
-        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalCenterX -
-        sector.baseTile.originalCenterX;
+        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchorX -
+        sector.baseTile.originalAnchorX;
     sector.minorNeighborDeltaY =
-        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalCenterY -
-        sector.baseTile.originalCenterY;
+        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchorY -
+        sector.baseTile.originalAnchorY;
 
     // Compute the axially-aligned displacement values of this sector when the grid is expanded
 
     expansionDirectionNeighborIndex = (sector.index + 5) % 6;
 
     expansionDirectionNeighborDeltaX =
-        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalCenterX -
-        sector.baseTile.originalCenterX;
+        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchorX -
+        sector.baseTile.originalAnchorX;
     expansionDirectionNeighborDeltaY =
-        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalCenterY -
-        sector.baseTile.originalCenterY;
+        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchorY -
+        sector.baseTile.originalAnchorY;
 
     sector.expandedDisplacementX =
         sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaX;
@@ -3673,12 +3710,12 @@
     sector = this;
 
     // Determine the bounding box of the re-positioned viewport
-    boundingBoxHalfX = window.innerWidth / 2 - Math.abs(sector.expandedDisplacementX) + hg.Grid.config.tileShortLengthWithGap;
-    boundingBoxHalfY = window.innerHeight / 2 - Math.abs(sector.expandedDisplacementY) + hg.Grid.config.tileShortLengthWithGap;
-    minX = sector.baseTile.originalCenterX - boundingBoxHalfX;
-    maxX = sector.baseTile.originalCenterX + boundingBoxHalfX;
-    minY = sector.baseTile.originalCenterY - boundingBoxHalfY;
-    maxY = sector.baseTile.originalCenterY + boundingBoxHalfY;
+    boundingBoxHalfX = window.innerWidth / 2 - Math.abs(sector.expandedDisplacementX) + window.hg.Grid.config.tileShortLengthWithGap;
+    boundingBoxHalfY = window.innerHeight / 2 - Math.abs(sector.expandedDisplacementY) + window.hg.Grid.config.tileShortLengthWithGap;
+    minX = sector.baseTile.originalAnchorX - boundingBoxHalfX;
+    maxX = sector.baseTile.originalAnchorX + boundingBoxHalfX;
+    minY = sector.baseTile.originalAnchorY - boundingBoxHalfY;
+    maxY = sector.baseTile.originalAnchorY + boundingBoxHalfY;
 
     // TODO: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is when the viewport's aspect ratio is very large or very small)
     // Collect all of the tiles for this sector into a two-dimensional array
@@ -3688,16 +3725,16 @@
     // ---  --- //
 
     function iterateOverTilesInSectorInMajorOrder() {
-      var startX, startY, centerX, centerY, majorIndex, minorIndex;
+      var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
-      startX = sector.baseTile.originalCenterX + sector.majorNeighborDeltaX;
-      startY = sector.baseTile.originalCenterY + sector.majorNeighborDeltaY;
+      startX = sector.baseTile.originalAnchorX + sector.majorNeighborDeltaX;
+      startY = sector.baseTile.originalAnchorY + sector.majorNeighborDeltaY;
 
       // Set up the first "column"
       majorIndex = 0;
       minorIndex = 0;
-      centerX = startX;
-      centerY = startY;
+      anchorX = startX;
+      anchorY = startY;
 
       // Iterate over the major indices of the sector (aka, the "rows" of the sector)
       do {
@@ -3708,36 +3745,36 @@
         do {
           // Create a new tile if one did not already exist for this position
           if (!sector.tilesByIndex[majorIndex][minorIndex]) {
-            createNewTileInSector.call(sector, majorIndex, minorIndex, centerX, centerY);
+            createNewTileInSector.call(sector, majorIndex, minorIndex, anchorX, anchorY);
           }
 
           // Set up the next "column"
           minorIndex++;
-          centerX += sector.minorNeighborDeltaX;
-          centerY += sector.minorNeighborDeltaY;
+          anchorX += sector.minorNeighborDeltaX;
+          anchorY += sector.minorNeighborDeltaY;
 
-        } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
+        } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
 
         // Set up the next "row"
         majorIndex++;
         minorIndex = 0;
-        centerX = startX + majorIndex * sector.majorNeighborDeltaX;
-        centerY = startY + majorIndex * sector.majorNeighborDeltaY;
+        anchorX = startX + majorIndex * sector.majorNeighborDeltaX;
+        anchorY = startY + majorIndex * sector.majorNeighborDeltaY;
 
-      } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
+      } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
     }
 
     function iterateOverTilesInSectorInMinorOrder() {
-      var startX, startY, centerX, centerY, majorIndex, minorIndex;
+      var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
-      startX = sector.baseTile.originalCenterX + sector.majorNeighborDeltaX;
-      startY = sector.baseTile.originalCenterY + sector.majorNeighborDeltaY;
+      startX = sector.baseTile.originalAnchorX + sector.majorNeighborDeltaX;
+      startY = sector.baseTile.originalAnchorY + sector.majorNeighborDeltaY;
 
       // Set up the first "column"
       majorIndex = 0;
       minorIndex = 0;
-      centerX = startX;
-      centerY = startY;
+      anchorX = startX;
+      anchorY = startY;
 
       // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
       do {
@@ -3748,23 +3785,23 @@
 
           // Create a new tile if one did not already exist for this position
           if (!sector.tilesByIndex[majorIndex][minorIndex]) {
-            createNewTileInSector.call(sector, majorIndex, minorIndex, centerX, centerY);
+            createNewTileInSector.call(sector, majorIndex, minorIndex, anchorX, anchorY);
           }
 
           // Set up the next "row"
           majorIndex++;
-          centerX += sector.majorNeighborDeltaX;
-          centerY += sector.majorNeighborDeltaY;
+          anchorX += sector.majorNeighborDeltaX;
+          anchorY += sector.majorNeighborDeltaY;
 
-        } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
+        } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
 
         // Set up the next "column"
         majorIndex = 0;
         minorIndex++;
-        centerX = startX + minorIndex * sector.minorNeighborDeltaX;
-        centerY = startY + minorIndex * sector.minorNeighborDeltaY;
+        anchorX = startX + minorIndex * sector.minorNeighborDeltaX;
+        anchorY = startY + minorIndex * sector.minorNeighborDeltaY;
 
-      } while (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY);
+      } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
     }
   }
 
@@ -3781,7 +3818,7 @@
   function addOldTileToSector(tile, majorIndex, minorIndex) {
     var sector = this;
     sector.tilesByIndex[majorIndex][minorIndex] = tile;
-    hg.Tile.initializeTileExpandedState(tile, sector, majorIndex, minorIndex);
+    window.hg.Tile.initializeTileExpandedState(tile, sector, majorIndex, minorIndex);
   }
 
   /**
@@ -3792,18 +3829,18 @@
    * @this Sector
    * @param {number} majorIndex
    * @param {number} minorIndex
-   * @param {number} centerX
-   * @param {number} centerY
+   * @param {number} anchorX
+   * @param {number} anchorY
    */
-  function createNewTileInSector(majorIndex, minorIndex, centerX, centerY) {
+  function createNewTileInSector(majorIndex, minorIndex, anchorX, anchorY) {
     var sector = this;
     // TODO: some of the later parameters will need to be set in order for some animations to work
     //   - (BUT, the better solution is probably to just disable those animations for the expanded grid)
-    var tile = new hg.Tile(sector.grid.svg, sector.grid, centerX, centerY,
-        hg.Grid.config.tileOuterRadius, sector.grid.isVertical, hg.Grid.config.tileHue,
-        hg.Grid.config.tileSaturation, hg.Grid.config.tileLightness, null, Number.NaN, Number.NaN,
-        Number.NaN, true, false, false, false, hg.Grid.config.tileMass);
-//      new hg.Tile(grid.svg, grid, centerX, centerY, config.tileOuterRadius,
+    var tile = new window.hg.Tile(sector.grid.svg, sector.grid, anchorX, anchorY,
+        window.hg.Grid.config.tileOuterRadius, sector.grid.isVertical, window.hg.Grid.config.tileHue,
+        window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness, null, Number.NaN, Number.NaN,
+        Number.NaN, true, false, false, false, window.hg.Grid.config.tileMass);
+//      new window.hg.Tile(grid.svg, grid, anchorX, anchorY, config.tileOuterRadius,
 //          grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
 //          tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
 //          isLargerRow, config.tileMass);
@@ -3879,7 +3916,7 @@
         if (sector.tilesByIndex[neighborMajorIndex] &&
             sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]) {
 
-          hg.Tile.setTileNeighborState(tile, neighborRelationIndex,
+          window.hg.Tile.setTileNeighborState(tile, neighborRelationIndex,
               sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]);
         } else {
           tile.expandedState.isBorderTile = true;
@@ -3940,7 +3977,7 @@
 
     if (edgeTiles[minorIndex]) {
       // The first edge tile with an external neighbor will only have the lower neighbor
-      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
           neighborSector.tilesByIndex[neighborMajorIndex][0]);
       edgeTiles[minorIndex].expandedState.isBorderTile = true;
     }
@@ -3950,13 +3987,13 @@
     for (minorIndex += 1, count = edgeTiles.length - 1; minorIndex < count; minorIndex += 1) {
 
       // The upper neighbor for the last tile
-      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
+      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
           neighborSector.tilesByIndex[neighborMajorIndex][0]);
 
       neighborMajorIndex += 1;
 
       // The lower neighbor for the last tile
-      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
           neighborSector.tilesByIndex[neighborMajorIndex][0]);
     }
 
@@ -3964,7 +4001,7 @@
 
     if (edgeTiles[minorIndex]) {
       // The upper neighbor for the last tile
-      hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
+      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
           neighborSector.tilesByIndex[neighborMajorIndex][0]);
 
       neighborMajorIndex += 1;
@@ -3972,7 +4009,7 @@
       // The last edge tile with an external neighbor might not have the lower neighbor
       if (neighborSector.tilesByIndex[neighborMajorIndex] &&
           neighborSector.tilesByIndex[neighborMajorIndex][0]) {
-        hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
+        window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
             neighborSector.tilesByIndex[neighborMajorIndex][0]);
       }
       edgeTiles[minorIndex].expandedState.isBorderTile = true;
@@ -4049,13 +4086,11 @@
   Sector.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.Sector = Sector;
 
   console.log('Sector module loaded');
 })();
-
-'use strict';
 
 /**
  * This module defines a constructor for Tile objects.
@@ -4115,9 +4150,9 @@
 
     tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.vertices = [];
-    updateVertices.call(tile, tile.centerX, tile.centerY);
+    updateVertices.call(tile, tile.anchorX, tile.anchorY);
 
-    tile.element = document.createElementNS(hg.util.svgNamespace, 'polygon');
+    tile.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
 
     tile.element.id = 'hg-' + id;
@@ -4140,8 +4175,8 @@
     tile = this;
 
     tile.particle = {};
-    tile.particle.px = tile.centerX;
-    tile.particle.py = tile.centerY;
+    tile.particle.px = tile.anchorX;
+    tile.particle.py = tile.anchorY;
     tile.particle.vx = 0;
     tile.particle.vy = 0;
     tile.particle.fx = 0;
@@ -4155,17 +4190,17 @@
    * Computes and stores the locations of the vertices of the hexagon for this tile.
    *
    * @this Tile
-   * @param {number} centerX
-   * @param {number} centerY
+   * @param {number} anchorX
+   * @param {number} anchorY
    */
-  function updateVertices(centerX, centerY) {
+  function updateVertices(anchorX, anchorY) {
     var tile, trigIndex, coordIndex;
 
     tile = this;
 
     for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
-      tile.vertices[coordIndex] = centerX + tile.vertexDeltas[coordIndex++];
-      tile.vertices[coordIndex] = centerY + tile.vertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorX + tile.vertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorY + tile.vertexDeltas[coordIndex++];
     }
   }
 
@@ -4179,7 +4214,7 @@
 
     tile = this;
 
-    // TODO: tile.tilePost = new hg.TilePost(tile, tile.postData);
+    // TODO: tile.tilePost = new window.hg.TilePost(tile, tile.postData);
   }
 
   /**
@@ -4311,9 +4346,9 @@
     var tile = this;
 
     if (tile.isHighlighted) {
-      hue = hue + hg.HighlightHoverJob.config.deltaHue;
-      saturation = saturation + hg.HighlightHoverJob.config.deltaSaturation;
-      lightness = lightness + hg.HighlightHoverJob.config.deltaLightness;
+      hue = hue + window.hg.HighlightHoverJob.config.deltaHue;
+      saturation = saturation + window.hg.HighlightHoverJob.config.deltaSaturation;
+      lightness = lightness + window.hg.HighlightHoverJob.config.deltaLightness;
     }
 
     tile.originalHue = hue;
@@ -4344,16 +4379,16 @@
         lightness = tile.originalLightness;
       } else {
         // Add the highlight
-        hue = tile.originalHue + hg.HighlightHoverJob.config.deltaHue * hg.HighlightHoverJob.config.opacity;
-        saturation = tile.originalSaturation + hg.HighlightHoverJob.config.deltaSaturation * hg.HighlightHoverJob.config.opacity;
-        lightness = tile.originalLightness + hg.HighlightHoverJob.config.deltaLightness * hg.HighlightHoverJob.config.opacity;
+        hue = tile.originalHue + window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalSaturation + window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalLightness + window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
       }
     } else {
       if (tile.isHighlighted) {
         // Remove the highlight
-        hue = tile.originalHue - hg.HighlightHoverJob.config.deltaHue * hg.HighlightHoverJob.config.opacity;
-        saturation = tile.originalSaturation - hg.HighlightHoverJob.config.deltaSaturation * hg.HighlightHoverJob.config.opacity;
-        lightness = tile.originalLightness - hg.HighlightHoverJob.config.deltaLightness * hg.HighlightHoverJob.config.opacity;
+        hue = tile.originalHue - window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalSaturation - window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalLightness - window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
       } else {
         // Nothing is changing
         hue = tile.originalHue;
@@ -4440,8 +4475,8 @@
 
       // --- Spring forces from anchor point --- //
 
-      lx = tile.centerX - tile.particle.px;
-      ly = tile.centerY - tile.particle.py;
+      lx = tile.anchorX - tile.particle.px;
+      ly = tile.anchorY - tile.particle.py;
       length = Math.sqrt(lx * lx + ly * ly);
 
       if (length > 0) {
@@ -4642,8 +4677,8 @@
 
     if (neighborTile) {
       // Determine the distance between these tiles
-      deltaX = tile.centerX - neighborTile.centerX;
-      deltaY = tile.centerY - neighborTile.centerY;
+      deltaX = tile.anchorX - neighborTile.anchorX;
+      deltaY = tile.anchorY - neighborTile.anchorY;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
       // Initialize the neighbor relation data from this tile to its neighbor
@@ -4707,8 +4742,8 @@
    * @global
    * @param {HTMLElement} svg
    * @param {Grid} grid
-   * @param {number} centerX
-   * @param {number} centerY
+   * @param {number} anchorX
+   * @param {number} anchorY
    * @param {number} outerRadius
    * @param {boolean} isVertical
    * @param {number} hue
@@ -4724,7 +4759,7 @@
    * @param {boolean} isInLargerRow
    * @param {number} mass
    */
-  function Tile(svg, grid, centerX, centerY, outerRadius, isVertical, hue, saturation, lightness,
+  function Tile(svg, grid, anchorX, anchorY, outerRadius, isVertical, hue, saturation, lightness,
                    postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
                    isCornerTile, isInLargerRow, mass) {
     var tile = this;
@@ -4732,10 +4767,10 @@
     tile.svg = svg;
     tile.grid = grid;
     tile.element = null;
-    tile.centerX = centerX;
-    tile.centerY = centerY;
-    tile.originalCenterX = centerX;
-    tile.originalCenterY = centerY;
+    tile.anchorX = anchorX;
+    tile.anchorY = anchorY;
+    tile.originalAnchorX = anchorX;
+    tile.originalAnchorY = anchorY;
     tile.outerRadius = outerRadius;
     tile.isVertical = isVertical;
 
@@ -4791,7 +4826,7 @@
   Tile.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.Tile = Tile;
 
   initStaticFields();
@@ -4803,8 +4838,6 @@
 
 // TODO: tile.element.classList.add('hg-post-tile') to any tile that contains a TilePost (and remove it when destroying the post)
 // TODO: post.element.style.pointerEvents = 'none';
-
-'use strict';
 
 /**
  * @typedef {AnimationJob} ClosePostJob
@@ -4920,12 +4953,14 @@
    * @constructor
    * @global
    * @param {Grid} grid
+   * @param {Tile} tile
    * @param {Function} onComplete
    */
-  function ClosePostJob(grid, onComplete) {
+  function ClosePostJob(grid, tile, onComplete) {
     var job = this;
 
     job.grid = grid;
+    job.tile = tile;
     job.startTime = 0;
     job.isComplete = false;
 
@@ -4939,13 +4974,182 @@
   }
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.ClosePostJob = ClosePostJob;
 
   console.log('ClosePostJob module loaded');
 })();
 
-'use strict';
+/**
+ * @typedef {AnimationJob} DisplacementPulseJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementPulseJob objects.
+ *
+ * @module DisplacementPulseJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Calculates the distance from each tile in the grid to the starting point of this
+   * HighlightRadiateJob.
+   *
+   * This cheats by only calculating the distance to the tiles' original center. This allows us to
+   * not need to re-calculate tile distances during each time step.
+   *
+   * @this DisplacementPulseJob
+   */
+  function calculateTileDistances() {
+    var job, i, count, deltaX, deltaY, distanceOffset;
+
+    job = this;
+
+    distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      deltaX = job.grid.tiles[i].originalAnchorX - job.startPoint.x;
+      deltaY = job.grid.tiles[i].originalAnchorY - job.startPoint.y;
+      job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
+    }**;
+  }
+
+  /**
+   * @this DisplacementPulseJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('DisplacementPulseJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this DisplacementPulseJob as started.
+   *
+   * @this DisplacementPulseJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this DisplacementPulseJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementPulseJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
+        oneMinusDurationRatio, animatedSomeTile;
+
+    job = this;
+
+    if (currentTime > job.startTime + config.duration) {
+      handleComplete.call(job, false);
+    } else {
+      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+
+      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
+      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
+
+      animatedSomeTile = false;
+
+      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+        distance = job.tileDistances[i];
+
+        if (distance > currentMinDistance && distance < currentMaxDistance) {
+          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+
+          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
+
+          animatedSomeTile = true;
+        }
+      }
+
+      if (!animatedSomeTile) {
+        handleComplete.call(job, false);
+      }
+    }**;
+  }
+
+  /**
+   * Draws the current state of this DisplacementPulseJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementPulseJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this DisplacementPulseJob, and returns the element its original form.
+   *
+   * @this DisplacementPulseJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function DisplacementPulseJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+
+    console.log('DisplacementPulseJob created');
+  }
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementPulseJob = DisplacementPulseJob;
+
+  console.log('DisplacementPulseJob module loaded');
+})();
 
 /**
  * @typedef {AnimationJob} HighlightHoverJob
@@ -5074,12 +5278,14 @@
   /**
    * @constructor
    * @global
+   * @param {Grid} grid
    * @param {Tile} tile
    * @param {Function} onComplete
    */
-  function HighlightHoverJob(tile, onComplete) {
+  function HighlightHoverJob(grid, tile, onComplete) {
     var job = this;
 
+    job.grid = grid;
     job.tile = tile;
     job.startTime = 0;
     job.isComplete = false;
@@ -5096,13 +5302,11 @@
   HighlightHoverJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.HighlightHoverJob = HighlightHoverJob;
 
   console.log('HighlightHoverJob module loaded');
 })();
-
-'use strict';
 
 /**
  * @typedef {AnimationJob} HighlightRadiateJob
@@ -5150,11 +5354,11 @@
 
     job = this;
 
-    distanceOffset = -hg.Grid.config.tileShortLengthWithGap;
+    distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      deltaX = job.grid.tiles[i].originalCenterX - job.startPoint.x;
-      deltaY = job.grid.tiles[i].originalCenterY - job.startPoint.y;
+      deltaX = job.grid.tiles[i].originalAnchorX - job.startPoint.x;
+      deltaY = job.grid.tiles[i].originalAnchorY - job.startPoint.y;
       job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
     }
   }
@@ -5280,15 +5484,15 @@
   /**
    * @constructor
    * @global
-   * @param {{x:number,y:number}} startPoint
    * @param {Grid} grid
+   * @param {Tile} tile
    * @param {Function} [onComplete]
    */
-  function HighlightRadiateJob(startPoint, grid, onComplete) {
+  function HighlightRadiateJob(grid, tile, onComplete) {
     var job = this;
 
     job.grid = grid;
-    job.startPoint = startPoint;
+    job.startPoint = {x: tile.originalAnchorX, y: tile.originalAnchorY};
     job.tileDistances = [];
     job.startTime = 0;
     job.isComplete = false;
@@ -5308,13 +5512,164 @@
   HighlightRadiateJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.HighlightRadiateJob = HighlightRadiateJob;
 
   console.log('HighlightRadiateJob module loaded');
 })();
 
-'use strict';
+/**
+ * @typedef {AnimationJob} IntraTileRadiateJob
+ */
+
+/**
+ * This module defines a constructor for IntraTileRadiateJob objects.
+ *
+ * @module IntraTileRadiateJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * @this IntraTileRadiateJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('IntraTileRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this IntraTileRadiateJob as started.
+   *
+   * @this IntraTileRadiateJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this IntraTileRadiateJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this IntraTileRadiateJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    // TODO:
+//    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
+//        oneMinusDurationRatio, animatedSomeTile;
+//
+//    job = this;
+//
+//    if (currentTime > job.startTime + config.duration) {
+//      handleComplete.call(job, false);
+//    } else {
+//      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+//
+//      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
+//      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
+//
+//      animatedSomeTile = false;
+//
+//      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+//        distance = job.tileDistances[i];
+//
+//        if (distance > currentMinDistance && distance < currentMaxDistance) {
+//          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+//
+//          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
+//
+//          animatedSomeTile = true;
+//        }
+//      }
+//
+//      if (!animatedSomeTile) {
+//        handleComplete.call(job, false);
+//      }
+//    }**;
+  }
+
+  /**
+   * Draws the current state of this IntraTileRadiateJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this IntraTileRadiateJob
+   */
+  function draw() {
+    var job;
+
+    job = this;
+
+    // TODO:
+  }
+
+  /**
+   * Stops this IntraTileRadiateJob, and returns the element its original form.
+   *
+   * @this IntraTileRadiateJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function IntraTileRadiateJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+
+    console.log('IntraTileRadiateJob created');
+  }
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.IntraTileRadiateJob = IntraTileRadiateJob;
+
+  console.log('IntraTileRadiateJob module loaded');
+})();
 
 /**
  * @typedef {AnimationJob} LineJob
@@ -5389,10 +5744,10 @@
 
     // Create the elements
 
-    filter = document.createElementNS(hg.util.svgNamespace, 'filter');
+    filter = document.createElementNS(window.hg.util.svgNamespace, 'filter');
     job.grid.svgDefs.appendChild(filter);
 
-    feGaussianBlur = document.createElementNS(hg.util.svgNamespace, 'feGaussianBlur');
+    feGaussianBlur = document.createElementNS(window.hg.util.svgNamespace, 'feGaussianBlur');
     filter.appendChild(feGaussianBlur);
 
     // Define the blur
@@ -5434,7 +5789,7 @@
 
     job = this;
 
-    job.polyline = document.createElementNS(hg.util.svgNamespace, 'polyline');
+    job.polyline = document.createElementNS(window.hg.util.svgNamespace, 'polyline');
     job.grid.svg.insertBefore(job.polyline, job.grid.svg.firstChild);
 
     job.polyline.setAttribute('fill-opacity', '0');
@@ -5673,7 +6028,7 @@
 
     // --- Compute some values of the polyline at the current time --- //
 
-    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * hg.Grid.config.tileOuterRadius;
+    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * window.hg.Grid.config.tileOuterRadius;
     segmentsTouchedCount = parseInt(job.ellapsedTime / job.lineSidePeriod) + 1;
 
     // Add additional vertices to the polyline as needed
@@ -5681,14 +6036,14 @@
       chooseNextVertex.call(job);
     }
 
-    frontSegmentLength = distanceTravelled % hg.Grid.config.tileOuterRadius;
+    frontSegmentLength = distanceTravelled % window.hg.Grid.config.tileOuterRadius;
     backSegmentLength = (job.lineLength - frontSegmentLength +
-        hg.Grid.config.tileOuterRadius) % hg.Grid.config.tileOuterRadius;
+        window.hg.Grid.config.tileOuterRadius) % window.hg.Grid.config.tileOuterRadius;
 
-    job.frontSegmentEndRatio = frontSegmentLength / hg.Grid.config.tileOuterRadius;
-    job.backSegmentStartRatio = 1 - (backSegmentLength / hg.Grid.config.tileOuterRadius);
+    job.frontSegmentEndRatio = frontSegmentLength / window.hg.Grid.config.tileOuterRadius;
+    job.backSegmentStartRatio = 1 - (backSegmentLength / window.hg.Grid.config.tileOuterRadius);
 
-    job.isShort = job.lineLength < hg.Grid.config.tileOuterRadius;
+    job.isShort = job.lineLength < window.hg.Grid.config.tileOuterRadius;
     job.isStarting = distanceTravelled < job.lineLength;
 
     // Check whether the line has reached the edge
@@ -5701,7 +6056,7 @@
     // When the polyline is neither starting nor ending and is not shorter than the length of a
     // segment, then this is how many segments it includes
     job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
-        backSegmentLength - config.epsilon) / hg.Grid.config.tileOuterRadius) + 2;
+        backSegmentLength - config.epsilon) / window.hg.Grid.config.tileOuterRadius) + 2;
 
     // Subtract from the number of included segments depending on current conditions
     if (job.isShort) {
@@ -5731,7 +6086,7 @@
         // The polyline is ending; the front of the polyline would lie outside the grid
         segmentsPastEdgeCount = segmentsTouchedCount - job.corners.length + 1;
         distancePastEdge = distanceTravelled - (job.corners.length - 1) *
-            hg.Grid.config.tileOuterRadius;
+            window.hg.Grid.config.tileOuterRadius;
 
         if (distancePastEdge > job.lineLength) {
           handleCompletion.call(job);
@@ -6096,7 +6451,7 @@
             //forcedInitialAbsoluteDirection = 1;
           }
         }
-        direction = tile.originalCenterY < grid.centerY ? 2 : 1;
+        direction = tile.originalAnchorY < grid.centerY ? 2 : 1;
       } else if (!tile.neighborStates[1]) { // Right side
         if (tile.isInLargerRow) {
           if (Math.random() < 0.5) {
@@ -6119,7 +6474,7 @@
             //forcedInitialAbsoluteDirection = 4;
           }
         }
-        direction = tile.originalCenterY < grid.centerY ? 4 : 5;
+        direction = tile.originalAnchorY < grid.centerY ? 4 : 5;
       } else if (!tile.neighborStates[0]) { // Top side
         if (Math.random() < 0.5) {
           corner = 1;
@@ -6164,7 +6519,7 @@
             //forcedInitialAbsoluteDirection = 3;
           }
         }
-        direction = tile.originalCenterX < grid.centerX ? 2 : 3;
+        direction = tile.originalAnchorX < grid.centerX ? 2 : 3;
       } else if (!tile.neighborStates[3]) { // Bottom side
         if (tile.rowIndex === grid.rowCount - 1) { // Last row
           if (Math.random() < 0.5) {
@@ -6187,7 +6542,7 @@
             //forcedInitialAbsoluteDirection = 5;
           }
         }
-        direction = tile.originalCenterX < grid.centerX ? 0 : 5;
+        direction = tile.originalAnchorX < grid.centerX ? 0 : 5;
       } else if (!tile.neighborStates[4]) { // Left side
         if (Math.random() < 0.5) {
           corner = 3;
@@ -6452,13 +6807,11 @@
   LineJob.createRandomLineJob = createRandomLineJob;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.LineJob = LineJob;
 
   console.log('LineJob module loaded');
 })();
-
-'use strict';
 
 /**
  * @typedef {AnimationJob} LinesRadiateJob
@@ -6517,10 +6870,10 @@
 
     // Create the elements
 
-    filter = document.createElementNS(hg.util.svgNamespace, 'filter');
+    filter = document.createElementNS(window.hg.util.svgNamespace, 'filter');
     job.grid.svgDefs.appendChild(filter);
 
-    feGaussianBlur = document.createElementNS(hg.util.svgNamespace, 'feGaussianBlur');
+    feGaussianBlur = document.createElementNS(window.hg.util.svgNamespace, 'feGaussianBlur');
     filter.appendChild(feGaussianBlur);
 
     // Define the blur
@@ -6550,8 +6903,8 @@
 
     for (i = 0; i < 6; i += 1) {
       try {
-        line = new hg.LineJob(job.grid, job.tile, i, i,
-            hg.LineJob.config.NEIGHBOR, job.onComplete, job.extraStartPoint);
+        line = new window.hg.LineJob(job.grid, job.tile, i, i,
+            window.hg.LineJob.config.NEIGHBOR, job.onComplete, job.extraStartPoint);
       } catch (error) {
         console.debug(error.message);
         continue;
@@ -6743,13 +7096,11 @@
   LinesRadiateJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.LinesRadiateJob = LinesRadiateJob;
 
   console.log('LinesRadiateJob module loaded');
 })();
-
-'use strict';
 
 /**
  * @typedef {AnimationJob} OpenPostJob
@@ -6822,7 +7173,7 @@
     // Create the sectors
     for (i = 0; i < 6; i += 1) {
       job.grid.sectors[i] =
-          new hg.Sector(job.grid, job.baseTile, i, config.expandedDisplacementTileCount);
+          new window.hg.Sector(job.grid, job.baseTile, i, config.expandedDisplacementTileCount);
     }
 
     // Connect the sectors' tiles' external neighbor states
@@ -6830,7 +7181,7 @@
       job.grid.sectors[i].initializeExpandedStateExternalTileNeighbors(job.grid.sectors);
     }
 
-    dumpSectorInfo.call(job);// TODO: comment this out
+//    dumpSectorInfo.call(job);
 
     // De-allocate the now-unnecessary two-dimensional sector tile collections
     for (i = 0; i < 6; i += 1) {
@@ -6838,7 +7189,7 @@
     }
 
     // Set up the expanded state for the selected tile (which is a member of no sector)
-    hg.Tile.initializeTileExpandedState(job.baseTile, null, Number.NaN, Number.NaN);
+    window.hg.Tile.initializeTileExpandedState(job.baseTile, null, Number.NaN, Number.NaN);
   }
 
   /**
@@ -6852,7 +7203,7 @@
     job = this;
 
     for (i = 0; i < 6; i += 1) {
-      console.log(job.grid.sectors[i]);// TODO: print out something that's more helpful
+      console.log(job.grid.sectors[i]);
     }
   }
 
@@ -6880,7 +7231,6 @@
 
     job.grid.annotations.setExpandedAnnotations(true);
 
-
     // TODO:
     // - make sure that we are handling three different logical states for all appropriate logic in the app: closed, transitioning, open
 
@@ -6888,8 +7238,6 @@
     // - deactivate all neighbor forces
     // - start tapering all current animations to zero
     // - start the panning animation to center on the given tile position
-    // - calculate which positions will need additional tiles for the expanded grid at the new panned location
-    // - create the new tiles; store them in auxiliary arrays within the new sector objects
   }
 
   /**
@@ -6942,14 +7290,14 @@
    * @constructor
    * @global
    * @param {Grid} grid
-   * @param {Tile} baseTile
+   * @param {Tile} tile
    * @param {Function} onComplete
    */
-  function OpenPostJob(grid, baseTile, onComplete) {
+  function OpenPostJob(grid, tile, onComplete) {
     var job = this;
 
     job.grid = grid;
-    job.baseTile = baseTile;
+    job.baseTile = tile;
     job.startTime = 0;
     job.isComplete = false;
 
@@ -6963,13 +7311,164 @@
   }
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.OpenPostJob = OpenPostJob;
 
   console.log('OpenPostJob module loaded');
 })();
 
-'use strict';
+/**
+ * @typedef {AnimationJob} TileBorderJob
+ */
+
+/**
+ * This module defines a constructor for TileBorderJob objects.
+ *
+ * @module TileBorderJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * @this TileBorderJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('TileBorderJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this TileBorderJob as started.
+   *
+   * @this TileBorderJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this TileBorderJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this TileBorderJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    // TODO:
+//    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
+//        oneMinusDurationRatio, animatedSomeTile;
+//
+//    job = this;
+//
+//    if (currentTime > job.startTime + config.duration) {
+//      handleComplete.call(job, false);
+//    } else {
+//      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+//
+//      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
+//      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
+//
+//      animatedSomeTile = false;
+//
+//      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+//        distance = job.tileDistances[i];
+//
+//        if (distance > currentMinDistance && distance < currentMaxDistance) {
+//          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+//
+//          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
+//
+//          animatedSomeTile = true;
+//        }
+//      }
+//
+//      if (!animatedSomeTile) {
+//        handleComplete.call(job, false);
+//      }
+//    }**;
+  }
+
+  /**
+   * Draws the current state of this TileBorderJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this TileBorderJob
+   */
+  function draw() {
+    var job;
+
+    job = this;
+
+    // TODO:
+  }
+
+  /**
+   * Stops this TileBorderJob, and returns the element its original form.
+   *
+   * @this TileBorderJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function TileBorderJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+
+    console.log('TileBorderJob created');
+  }
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.TileBorderJob = TileBorderJob;
+
+  console.log('TileBorderJob module loaded');
+})();
 
 /**
  * @typedef {AnimationJob} ColorResetJob
@@ -7071,8 +7570,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {
-    };
+    job.init = function () {};
 
     job.init();
 
@@ -7082,13 +7580,11 @@
   ColorResetJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.ColorResetJob = ColorResetJob;
 
   console.log('ColorResetJob module loaded');
 })();
-
-'use strict';
 
 /**
  * @typedef {AnimationJob} ColorShiftJob
@@ -7208,13 +7704,11 @@
   ColorShiftJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.ColorShiftJob = ColorShiftJob;
 
   console.log('ColorShiftJob module loaded');
 })();
-
-'use strict';
 
 /**
  * @typedef {AnimationJob} ColorWaveJob
@@ -7272,8 +7766,8 @@
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
-      deltaX = tile.originalCenterX - config.originX;
-      deltaY = tile.originalCenterY - config.originY;
+      deltaX = tile.originalAnchorX - config.originX;
+      deltaY = tile.originalAnchorY - config.originY;
       length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
       job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
@@ -7393,13 +7887,126 @@
   ColorWaveJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.ColorWaveJob = ColorWaveJob;
 
   console.log('ColorWaveJob module loaded');
 })();
 
-'use strict';
+/**
+ * @typedef {AnimationJob} DisplacementResetJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementResetJob objects.
+ *
+ * DisplacementResetJob objects reset tile displacement values during each animation frame.
+ *
+ * @module DisplacementResetJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this DisplacementResetJob as started.
+   *
+   * @this DisplacementResetJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this DisplacementResetJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementResetJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      job.grid.tiles[i].anchorX = job.grid.tiles[i].originalAnchorX;
+      job.grid.tiles[i].anchorY = job.grid.tiles[i].originalAnchorY;
+    }
+  }
+
+  /**
+   * Draws the current state of this DisplacementResetJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementResetJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this DisplacementResetJob, and returns the element its original form.
+   *
+   * @this DisplacementResetJob
+   */
+  function cancel() {
+    var job = this;
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function DisplacementResetJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = function () {};
+
+    job.init();
+
+    console.log('DisplacementResetJob created');
+  }
+
+  DisplacementResetJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementResetJob = DisplacementResetJob;
+
+  console.log('DisplacementResetJob module loaded');
+})();
 
 /**
  * @typedef {AnimationJob} DisplacementWaveJob
@@ -7459,8 +8066,8 @@
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
-      deltaX = tile.originalCenterX - config.originX;
-      deltaY = tile.originalCenterY - config.originY;
+      deltaX = tile.originalAnchorX - config.originX;
+      deltaY = tile.originalAnchorY - config.originY;
       length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
       job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
@@ -7482,8 +8089,8 @@
     var tileProgress =
         Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.centerX = tile.originalCenterX + config.tileDeltaX * tileProgress;
-    tile.centerY = tile.originalCenterY + config.tileDeltaY * tileProgress;
+    tile.anchorX += tile.originalAnchorX + config.tileDeltaX * tileProgress;
+    tile.anchorY += tile.originalAnchorY + config.tileDeltaY * tileProgress;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -7577,7 +8184,7 @@
   DisplacementWaveJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.DisplacementWaveJob = DisplacementWaveJob;
 
   console.log('DisplacementWaveJob module loaded');

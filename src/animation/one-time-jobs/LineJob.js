@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @typedef {AnimationJob} LineJob
  */
@@ -73,10 +71,10 @@
 
     // Create the elements
 
-    filter = document.createElementNS(hg.util.svgNamespace, 'filter');
+    filter = document.createElementNS(window.hg.util.svgNamespace, 'filter');
     job.grid.svgDefs.appendChild(filter);
 
-    feGaussianBlur = document.createElementNS(hg.util.svgNamespace, 'feGaussianBlur');
+    feGaussianBlur = document.createElementNS(window.hg.util.svgNamespace, 'feGaussianBlur');
     filter.appendChild(feGaussianBlur);
 
     // Define the blur
@@ -118,7 +116,7 @@
 
     job = this;
 
-    job.polyline = document.createElementNS(hg.util.svgNamespace, 'polyline');
+    job.polyline = document.createElementNS(window.hg.util.svgNamespace, 'polyline');
     job.grid.svg.insertBefore(job.polyline, job.grid.svg.firstChild);
 
     job.polyline.setAttribute('fill-opacity', '0');
@@ -357,7 +355,7 @@
 
     // --- Compute some values of the polyline at the current time --- //
 
-    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * hg.Grid.config.tileOuterRadius;
+    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * window.hg.Grid.config.tileOuterRadius;
     segmentsTouchedCount = parseInt(job.ellapsedTime / job.lineSidePeriod) + 1;
 
     // Add additional vertices to the polyline as needed
@@ -365,14 +363,14 @@
       chooseNextVertex.call(job);
     }
 
-    frontSegmentLength = distanceTravelled % hg.Grid.config.tileOuterRadius;
+    frontSegmentLength = distanceTravelled % window.hg.Grid.config.tileOuterRadius;
     backSegmentLength = (job.lineLength - frontSegmentLength +
-        hg.Grid.config.tileOuterRadius) % hg.Grid.config.tileOuterRadius;
+        window.hg.Grid.config.tileOuterRadius) % window.hg.Grid.config.tileOuterRadius;
 
-    job.frontSegmentEndRatio = frontSegmentLength / hg.Grid.config.tileOuterRadius;
-    job.backSegmentStartRatio = 1 - (backSegmentLength / hg.Grid.config.tileOuterRadius);
+    job.frontSegmentEndRatio = frontSegmentLength / window.hg.Grid.config.tileOuterRadius;
+    job.backSegmentStartRatio = 1 - (backSegmentLength / window.hg.Grid.config.tileOuterRadius);
 
-    job.isShort = job.lineLength < hg.Grid.config.tileOuterRadius;
+    job.isShort = job.lineLength < window.hg.Grid.config.tileOuterRadius;
     job.isStarting = distanceTravelled < job.lineLength;
 
     // Check whether the line has reached the edge
@@ -385,7 +383,7 @@
     // When the polyline is neither starting nor ending and is not shorter than the length of a
     // segment, then this is how many segments it includes
     job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
-        backSegmentLength - config.epsilon) / hg.Grid.config.tileOuterRadius) + 2;
+        backSegmentLength - config.epsilon) / window.hg.Grid.config.tileOuterRadius) + 2;
 
     // Subtract from the number of included segments depending on current conditions
     if (job.isShort) {
@@ -415,7 +413,7 @@
         // The polyline is ending; the front of the polyline would lie outside the grid
         segmentsPastEdgeCount = segmentsTouchedCount - job.corners.length + 1;
         distancePastEdge = distanceTravelled - (job.corners.length - 1) *
-            hg.Grid.config.tileOuterRadius;
+            window.hg.Grid.config.tileOuterRadius;
 
         if (distancePastEdge > job.lineLength) {
           handleCompletion.call(job);
@@ -780,7 +778,7 @@
             //forcedInitialAbsoluteDirection = 1;
           }
         }
-        direction = tile.originalCenterY < grid.centerY ? 2 : 1;
+        direction = tile.originalAnchorY < grid.centerY ? 2 : 1;
       } else if (!tile.neighborStates[1]) { // Right side
         if (tile.isInLargerRow) {
           if (Math.random() < 0.5) {
@@ -803,7 +801,7 @@
             //forcedInitialAbsoluteDirection = 4;
           }
         }
-        direction = tile.originalCenterY < grid.centerY ? 4 : 5;
+        direction = tile.originalAnchorY < grid.centerY ? 4 : 5;
       } else if (!tile.neighborStates[0]) { // Top side
         if (Math.random() < 0.5) {
           corner = 1;
@@ -848,7 +846,7 @@
             //forcedInitialAbsoluteDirection = 3;
           }
         }
-        direction = tile.originalCenterX < grid.centerX ? 2 : 3;
+        direction = tile.originalAnchorX < grid.centerX ? 2 : 3;
       } else if (!tile.neighborStates[3]) { // Bottom side
         if (tile.rowIndex === grid.rowCount - 1) { // Last row
           if (Math.random() < 0.5) {
@@ -871,7 +869,7 @@
             //forcedInitialAbsoluteDirection = 5;
           }
         }
-        direction = tile.originalCenterX < grid.centerX ? 0 : 5;
+        direction = tile.originalAnchorX < grid.centerX ? 0 : 5;
       } else if (!tile.neighborStates[4]) { // Left side
         if (Math.random() < 0.5) {
           corner = 3;
@@ -1136,7 +1134,7 @@
   LineJob.createRandomLineJob = createRandomLineJob;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.LineJob = LineJob;
 
   console.log('LineJob module loaded');

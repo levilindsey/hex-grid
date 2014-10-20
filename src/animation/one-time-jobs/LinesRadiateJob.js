@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @typedef {AnimationJob} LinesRadiateJob
  */
@@ -57,10 +55,10 @@
 
     // Create the elements
 
-    filter = document.createElementNS(hg.util.svgNamespace, 'filter');
+    filter = document.createElementNS(window.hg.util.svgNamespace, 'filter');
     job.grid.svgDefs.appendChild(filter);
 
-    feGaussianBlur = document.createElementNS(hg.util.svgNamespace, 'feGaussianBlur');
+    feGaussianBlur = document.createElementNS(window.hg.util.svgNamespace, 'feGaussianBlur');
     filter.appendChild(feGaussianBlur);
 
     // Define the blur
@@ -90,8 +88,8 @@
 
     for (i = 0; i < 6; i += 1) {
       try {
-        line = new hg.LineJob(job.grid, job.tile, i, i,
-            hg.LineJob.config.NEIGHBOR, job.onComplete, job.extraStartPoint);
+        line = new window.hg.LineJob(job.grid, job.tile, i, i,
+            window.hg.LineJob.config.NEIGHBOR, job.onComplete, job.extraStartPoint);
       } catch (error) {
         console.debug(error.message);
         continue;
@@ -283,7 +281,7 @@
   LinesRadiateJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.LinesRadiateJob = LinesRadiateJob;
 
   console.log('LinesRadiateJob module loaded');

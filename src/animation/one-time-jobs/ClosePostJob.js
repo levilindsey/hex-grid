@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @typedef {AnimationJob} ClosePostJob
  */
@@ -114,12 +112,14 @@
    * @constructor
    * @global
    * @param {Grid} grid
+   * @param {Tile} tile
    * @param {Function} onComplete
    */
-  function ClosePostJob(grid, onComplete) {
+  function ClosePostJob(grid, tile, onComplete) {
     var job = this;
 
     job.grid = grid;
+    job.tile = tile;
     job.startTime = 0;
     job.isComplete = false;
 
@@ -133,7 +133,7 @@
   }
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.ClosePostJob = ClosePostJob;
 
   console.log('ClosePostJob module loaded');

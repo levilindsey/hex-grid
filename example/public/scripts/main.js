@@ -9,12 +9,16 @@
 
   var main = {};
 
-  if (!window.app) window.app = {};
+  window.app = window.app || {};
   app.main = main;
 
-  main.gridId = Number.NaN;
+  // ---  --- //
+
+  main.grid = null;
 
   window.addEventListener('load', initHexGrid, false);
+
+  // ---  --- //
 
   /**
    * This is the event handler for the completion of the DOM loading. This creates the Grid
@@ -32,9 +36,9 @@
     setTimeout(function () {
       tileData = [{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]; // TODO: fetch this from the server
 
-      main.gridId = hg.controller.createNewHexGrid(hexGridContainer, tileData, false);
+      main.grid = window.hg.controller.createNewHexGrid(hexGridContainer, tileData, false);
 
-      app.parameters.initDatGui();
+      app.parameters.initDatGui(main.grid);
     }, 500);
   }
 

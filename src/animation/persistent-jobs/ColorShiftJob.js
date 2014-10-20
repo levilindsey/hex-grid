@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @typedef {AnimationJob} ColorShiftJob
  */
@@ -118,7 +116,7 @@
   ColorShiftJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.ColorShiftJob = ColorShiftJob;
 
   console.log('ColorShiftJob module loaded');

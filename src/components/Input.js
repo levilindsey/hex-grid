@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * This module defines a constructor for Input objects.
  *
@@ -10,12 +8,13 @@
 (function () {
   var config = {};
 
-  config.clickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
+  config.contentTileClickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
+  config.emptyTileClickAnimation = 'Radiate Lines'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
 
   config.possibleClickAnimations = {
-    'Radiate Highlight': hg.controller.createHighlightRadiateAnimation,
-    'Radiate Lines': hg.controller.createLinesRadiateAnimation,
-    'Random Line': hg.controller.createRandomLineAnimation,
+    'Radiate Highlight': window.hg.controller.oneTimeJobs.highlightRadiate.create,
+    'Radiate Lines': window.hg.controller.oneTimeJobs.linesRadiate.create,
+    'Random Line': window.hg.controller.oneTimeJobs.line.create,
     'None': function () {}
   };
 
@@ -70,7 +69,7 @@
 
         input.grid.setHoveredTile(null);
 
-        hg.controller.createHighlightHoverAnimation(input.grid.index, tile);
+        window.hg.controller.oneTimeJobs.highlightHover.create(input.grid.index, tile);
 
         event.stopPropagation();
       }
@@ -115,9 +114,17 @@
     }
   }
 
+  /**
+   * @param {number} gridIndex
+   * @param {Tile} tile
+   */
   function createClickAnimation(gridIndex, tile) {
-//    config.possibleClickAnimations[config.clickAnimation](gridIndex, tile);// TODO:
-    hg.controller.openPost(gridIndex, tile);
+    if (tile.holdsContent) {
+      config.possibleClickAnimations[config.contentTileClickAnimation](gridIndex, tile);
+      window.hg.controller.oneTimeJobs.openPost.create(gridIndex, tile);
+    } else {
+      config.possibleClickAnimations[config.emptyTileClickAnimation](gridIndex, tile);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -145,7 +152,7 @@
   Input.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.Input = Input;
 
   console.log('Input module loaded');

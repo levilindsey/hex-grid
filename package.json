@@ -21,9 +21,9 @@
     "email": "levisl176@gmail.com",
     "url": "http://jackieandlevi.com/levi"
   },
-  "main": "example/main",
+  "main": "example/server/main",
   "scripts": {
-    "start": "node example/main.js",
+    "start": "node example/server/main.js",
     "postinstall": "bower install"
   },
   "dependencies": {

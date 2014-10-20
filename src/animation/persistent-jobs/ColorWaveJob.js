@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @typedef {AnimationJob} ColorWaveJob
  */
@@ -56,8 +54,8 @@
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
-      deltaX = tile.originalCenterX - config.originX;
-      deltaY = tile.originalCenterY - config.originY;
+      deltaX = tile.originalAnchorX - config.originX;
+      deltaY = tile.originalAnchorY - config.originY;
       length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
       job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
@@ -177,7 +175,7 @@
   ColorWaveJob.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.ColorWaveJob = ColorWaveJob;
 
   console.log('ColorWaveJob module loaded');

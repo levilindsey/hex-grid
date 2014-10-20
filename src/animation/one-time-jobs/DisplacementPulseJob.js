@@ -1,31 +1,17 @@
 /**
- * @typedef {AnimationJob} HighlightRadiateJob
+ * @typedef {AnimationJob} DisplacementPulseJob
  */
 
 /**
- * This module defines a constructor for HighlightRadiateJob objects.
+ * This module defines a constructor for DisplacementPulseJob objects.
  *
- * @module HighlightRadiateJob
+ * @module DisplacementPulseJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
   var config = {};
-
-  config.shimmerSpeed = 3; // pixels / millisecond
-  config.shimmerWaveWidth = 500;
-  config.duration = 500;
-
-  config.deltaHue = 0;
-  config.deltaSaturation = 0;
-  config.deltaLightness = 50;
-
-  config.opacity = 0.5;
-
-  config.isRecurring = false;
-  config.avgDelay = 4000;
-  config.delayDeviationRange = 3800;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -37,7 +23,7 @@
    * This cheats by only calculating the distance to the tiles' original center. This allows us to
    * not need to re-calculate tile distances during each time step.
    *
-   * @this HighlightRadiateJob
+   * @this DisplacementPulseJob
    */
   function calculateTileDistances() {
     var job, i, count, deltaX, deltaY, distanceOffset;
@@ -50,16 +36,16 @@
       deltaX = job.grid.tiles[i].originalAnchorX - job.startPoint.x;
       deltaY = job.grid.tiles[i].originalAnchorY - job.startPoint.y;
       job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
-    }
+    }**;
   }
 
   /**
-   * @this HighlightRadiateJob
+   * @this DisplacementPulseJob
    */
   function handleComplete(wasCancelled) {
     var job = this;
 
-    console.log('HighlightRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+    console.log('DisplacementPulseJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
     job.isComplete = true;
 
@@ -69,32 +55,13 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
-  /**
-   * Updates the color of the given tile according to the given waveWidthRatio and durationRatio.
-   *
-   * @param {Tile} tile
-   * @param {number} waveWidthRatio Specifies the tile's relative distance to the min and max
-   * shimmer distances.
-   * @param {number} oneMinusDurationRatio Specifies how far this animation is through its overall
-   * duration.
-   */
-  function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
-    var opacity = config.opacity * oneMinusDurationRatio;
-
-    tile.currentHue = tile.currentHue + config.deltaHue * waveWidthRatio * opacity;
-    tile.currentSaturation =
-        tile.currentSaturation + config.deltaSaturation * waveWidthRatio * opacity;
-    tile.currentLightness =
-        tile.currentLightness + config.deltaLightness * waveWidthRatio * opacity;
-  }
-
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
   /**
-   * Sets this HighlightRadiateJob as started.
+   * Sets this DisplacementPulseJob as started.
    *
-   * @this HighlightRadiateJob
+   * @this DisplacementPulseJob
    */
   function start() {
     var job = this;
@@ -104,11 +71,11 @@
   }
 
   /**
-   * Updates the animation progress of this HighlightRadiateJob to match the given time.
+   * Updates the animation progress of this DisplacementPulseJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this HighlightRadiateJob
+   * @this DisplacementPulseJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -143,24 +110,24 @@
       if (!animatedSomeTile) {
         handleComplete.call(job, false);
       }
-    }
+    }**;
   }
 
   /**
-   * Draws the current state of this HighlightRadiateJob.
+   * Draws the current state of this DisplacementPulseJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this HighlightRadiateJob
+   * @this DisplacementPulseJob
    */
   function draw() {
     // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
-   * Stops this HighlightRadiateJob, and returns the element its original form.
+   * Stops this DisplacementPulseJob, and returns the element its original form.
    *
-   * @this HighlightRadiateJob
+   * @this DisplacementPulseJob
    */
   function cancel() {
     var job = this;
@@ -176,34 +143,28 @@
    * @global
    * @param {Grid} grid
    * @param {Tile} tile
-   * @param {Function} [onComplete]
+   * @param {Function} onComplete
    */
-  function HighlightRadiateJob(grid, tile, onComplete) {
+  function DisplacementPulseJob(grid, tile, onComplete) {
     var job = this;
 
     job.grid = grid;
-    job.startPoint = {x: tile.originalAnchorX, y: tile.originalAnchorY};
-    job.tileDistances = [];
+    job.tile = tile;
     job.startTime = 0;
     job.isComplete = false;
-
-    job.onComplete = onComplete || function () {};
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.onComplete = onComplete;
 
-    calculateTileDistances.call(job);
-
-    console.log('HighlightRadiateJob created');
+    console.log('DisplacementPulseJob created');
   }
-
-  HighlightRadiateJob.config = config;
 
   // Expose this module
   window.hg = window.hg || {};
-  window.hg.HighlightRadiateJob = HighlightRadiateJob;
+  window.hg.DisplacementPulseJob = DisplacementPulseJob;
 
-  console.log('HighlightRadiateJob module loaded');
+  console.log('DisplacementPulseJob module loaded');
 })();

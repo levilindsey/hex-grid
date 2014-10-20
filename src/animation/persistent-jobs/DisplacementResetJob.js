@@ -1,13 +1,13 @@
 /**
- * @typedef {AnimationJob} ColorResetJob
+ * @typedef {AnimationJob} DisplacementResetJob
  */
 
 /**
- * This module defines a constructor for ColorResetJob objects.
+ * This module defines a constructor for DisplacementResetJob objects.
  *
- * ColorResetJob objects reset tile color values during each animation frame.
+ * DisplacementResetJob objects reset tile displacement values during each animation frame.
  *
- * @module ColorResetJob
+ * @module DisplacementResetJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -25,9 +25,9 @@
   // Public dynamic functions
 
   /**
-   * Sets this ColorResetJob as started.
+   * Sets this DisplacementResetJob as started.
    *
-   * @this ColorResetJob
+   * @this DisplacementResetJob
    */
   function start() {
     var job = this;
@@ -37,11 +37,11 @@
   }
 
   /**
-   * Updates the animation progress of this ColorResetJob to match the given time.
+   * Updates the animation progress of this DisplacementResetJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ColorResetJob
+   * @this DisplacementResetJob
    * @param {number} currentTime
    * @param {number} deltaTime
    */
@@ -51,27 +51,26 @@
     job = this;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      job.grid.tiles[i].currentHue = job.grid.tiles[i].originalHue;
-      job.grid.tiles[i].currentSaturation = job.grid.tiles[i].originalSaturation;
-      job.grid.tiles[i].currentLightness = job.grid.tiles[i].originalLightness;
+      job.grid.tiles[i].anchorX = job.grid.tiles[i].originalAnchorX;
+      job.grid.tiles[i].anchorY = job.grid.tiles[i].originalAnchorY;
     }
   }
 
   /**
-   * Draws the current state of this ColorResetJob.
+   * Draws the current state of this DisplacementResetJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this ColorResetJob
+   * @this DisplacementResetJob
    */
   function draw() {
     // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
-   * Stops this ColorResetJob, and returns the element its original form.
+   * Stops this DisplacementResetJob, and returns the element its original form.
    *
-   * @this ColorResetJob
+   * @this DisplacementResetJob
    */
   function cancel() {
     var job = this;
@@ -87,7 +86,7 @@
    * @global
    * @param {Grid} grid
    */
-  function ColorResetJob(grid) {
+  function DisplacementResetJob(grid) {
     var job = this;
 
     job.grid = grid;
@@ -102,14 +101,14 @@
 
     job.init();
 
-    console.log('ColorResetJob created');
+    console.log('DisplacementResetJob created');
   }
 
-  ColorResetJob.config = config;
+  DisplacementResetJob.config = config;
 
   // Expose this module
   window.hg = window.hg || {};
-  window.hg.ColorResetJob = ColorResetJob;
+  window.hg.DisplacementResetJob = DisplacementResetJob;
 
-  console.log('ColorResetJob module loaded');
+  console.log('DisplacementResetJob module loaded');
 })();

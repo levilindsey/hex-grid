@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @typedef {AnimationJob} Grid
  */
@@ -27,9 +25,9 @@
   var config = {};
 
   config.targetContentAreaWidth = 800;
-  config.backgroundHue = 327;
-  config.backgroundSaturation = 20;
-  config.backgroundLightness = 10;
+  config.backgroundHue = 230;
+  config.backgroundSaturation = 2;
+  config.backgroundLightness = 8;
   config.tileHue = 230;//147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
@@ -176,7 +174,7 @@
       tilesRepresentation[i] = 0;
     }
 
-    tilesRepresentation = hg.util.shuffle(tilesRepresentation);
+    tilesRepresentation = window.hg.util.shuffle(tilesRepresentation);
 
     // Record the resulting indices of the elements representing tile content
     grid.originalContentInnerIndices = [];
@@ -197,7 +195,7 @@
 
     grid = this;
 
-    grid.svg = document.createElementNS(hg.util.svgNamespace, 'svg');
+    grid.svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
     grid.parent.appendChild(grid.svg);
 
     grid.svg.style.display = 'block';
@@ -208,7 +206,7 @@
 
     updateBackgroundColor.call(grid);
 
-    grid.svgDefs = document.createElementNS(hg.util.svgNamespace, 'defs');
+    grid.svgDefs = document.createElementNS(window.hg.util.svgNamespace, 'defs');
     grid.svg.appendChild(grid.svgDefs);
   }
 
@@ -218,7 +216,7 @@
    * @this Grid
    */
   function createTiles() {
-    var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, centerX, centerY,
+    var grid, tileIndex, rowIndex, rowCount, columnIndex, columnCount, anchorX, anchorY,
         isMarginTile, isBorderTile, isCornerTile, isOddRow, contentAreaIndex, postDataIndex,
         defaultNeighborDeltaIndices, tilesNeighborDeltaIndices, oddRowIsLarger, isLargerRow;
 
@@ -229,27 +227,27 @@
     tileIndex = 0;
     contentAreaIndex = 0;
     postDataIndex = 0;
-    centerY = config.firstRowYOffset;
+    anchorY = config.firstRowYOffset;
     rowCount = grid.rowCount;
     tilesNeighborDeltaIndices = [];
 
     defaultNeighborDeltaIndices = getDefaultNeighborDeltaIndices.call(grid);
     oddRowIsLarger = grid.oddRowTileCount > grid.evenRowTileCount;
 
-    for (rowIndex = 0; rowIndex < rowCount; rowIndex += 1, centerY += grid.rowDeltaY) {
+    for (rowIndex = 0; rowIndex < rowCount; rowIndex += 1, anchorY += grid.rowDeltaY) {
       isOddRow = rowIndex % 2 === 0;
       isLargerRow = oddRowIsLarger && isOddRow || !oddRowIsLarger && !isOddRow;
 
       if (isOddRow) {
-        centerX = grid.oddRowXOffset;
+        anchorX = grid.oddRowXOffset;
         columnCount = grid.oddRowTileCount;
       } else {
-        centerX = grid.evenRowXOffset;
+        anchorX = grid.evenRowXOffset;
         columnCount = grid.evenRowTileCount;
       }
 
       for (columnIndex = 0; columnIndex < columnCount;
-           tileIndex += 1, columnIndex += 1, centerX += grid.tileDeltaX) {
+           tileIndex += 1, columnIndex += 1, anchorX += grid.tileDeltaX) {
         isMarginTile = isOddRow ?
             columnIndex < grid.oddRowContentStartIndex ||
                 columnIndex > grid.oddRowContentEndIndex :
@@ -268,7 +266,7 @@
             ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
                 (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
 
-        grid.tiles[tileIndex] = new hg.Tile(grid.svg, grid, centerX, centerY,
+        grid.tiles[tileIndex] = new window.hg.Tile(grid.svg, grid, anchorX, anchorY,
             config.tileOuterRadius, grid.isVertical, config.tileHue, config.tileSaturation,
             config.tileLightness, null, tileIndex, rowIndex, columnIndex, isMarginTile,
             isBorderTile, isCornerTile, isLargerRow, config.tileMass);
@@ -673,13 +671,15 @@
   /**
    * @global
    * @constructor
+   * @param {number} index
    * @param {HTMLElement} parent
    * @param {Array.<Object>} postData
    * @param {boolean} [isVertical]
    */
-  function Grid(parent, postData, isVertical) {
+  function Grid(index, parent, postData, isVertical) {
     var grid = this;
 
+    grid.index = index;
     grid.parent = parent;
     grid.postData = postData;
     grid.isVertical = isVertical;
@@ -696,17 +696,14 @@
     grid.innerIndexOfLastContentTile = null;
     grid.centerX = Number.NaN;
     grid.centerY = Number.NaN;
-    grid.index = Number.NaN;
     grid.isPostOpen = false;
     grid.isTransitioning = false;
     grid.sectors = null;
 
     grid.animations = {};
 
-    grid.annotations = new hg.Annotations(grid);
+    grid.annotations = new window.hg.Annotations(grid);
 
-    grid.centerX = null;
-    grid.centerY = null;
     grid.actualContentAreaWidth = null;
     grid.rowDeltaY = null;
     grid.tileDeltaX = null;
@@ -749,7 +746,7 @@
   Grid.config = config;
 
   // Expose this module
-  if (!window.hg) window.hg = {};
+  window.hg = window.hg || {};
   window.hg.Grid = Grid;
 
   console.log('Grid module loaded');

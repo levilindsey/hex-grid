@@ -2,6 +2,7 @@
 var srcPath = 'src',
     scriptsSrcPath = srcPath + '/**/*.js',
     distPath = 'dist',
+    serverPath = 'example/server/main.js',
 
     gulp = require('gulp'),
     plugins = require('gulp-load-plugins')();
@@ -39,5 +40,5 @@ gulp.task('server', function () {
 //  var tinyLRServer = require('tiny-lr')();
 //
 //  tinyLRServer.listen(35729);
-  plugins.nodemon({script: 'example/main.js'});
+  plugins.nodemon({script: serverPath});
 });
