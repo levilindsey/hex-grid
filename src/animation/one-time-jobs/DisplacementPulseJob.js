@@ -26,17 +26,18 @@
    * @this DisplacementPulseJob
    */
   function calculateTileDistances() {
-    var job, i, count, deltaX, deltaY, distanceOffset;
-
-    job = this;
-
-    distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      deltaX = job.grid.tiles[i].originalAnchorX - job.startPoint.x;
-      deltaY = job.grid.tiles[i].originalAnchorY - job.startPoint.y;
-      job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
-    }**;
+    // TODO:
+//    var job, i, count, deltaX, deltaY, distanceOffset;
+//
+//    job = this;
+//
+//    distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
+//
+//    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+//      deltaX = job.grid.tiles[i].originalAnchorX - job.startPoint.x;
+//      deltaY = job.grid.tiles[i].originalAnchorY - job.startPoint.y;
+//      job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
+//    }**;
   }
 
   /**
@@ -80,37 +81,38 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
-        oneMinusDurationRatio, animatedSomeTile;
-
-    job = this;
-
-    if (currentTime > job.startTime + config.duration) {
-      handleComplete.call(job, false);
-    } else {
-      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
-
-      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
-      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
-
-      animatedSomeTile = false;
-
-      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-        distance = job.tileDistances[i];
-
-        if (distance > currentMinDistance && distance < currentMaxDistance) {
-          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
-
-          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
-
-          animatedSomeTile = true;
-        }
-      }
-
-      if (!animatedSomeTile) {
-        handleComplete.call(job, false);
-      }
-    }**;
+    // TODO:
+//    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
+//        oneMinusDurationRatio, animatedSomeTile;
+//
+//    job = this;
+//
+//    if (currentTime > job.startTime + config.duration) {
+//      handleComplete.call(job, false);
+//    } else {
+//      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+//
+//      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
+//      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
+//
+//      animatedSomeTile = false;
+//
+//      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+//        distance = job.tileDistances[i];
+//
+//        if (distance > currentMinDistance && distance < currentMaxDistance) {
+//          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+//
+//          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
+//
+//          animatedSomeTile = true;
+//        }
+//      }
+//
+//      if (!animatedSomeTile) {
+//        handleComplete.call(job, false);
+//      }
+//    }**;
   }
 
   /**
@@ -161,6 +163,8 @@
 
     console.log('DisplacementPulseJob created');
   }
+
+  DisplacementPulseJob.config = config;
 
   // Expose this module
   window.hg = window.hg || {};

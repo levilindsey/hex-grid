@@ -79,8 +79,8 @@
     var tileProgress =
         Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.anchorX += tile.originalAnchorX + config.tileDeltaX * tileProgress;
-    tile.anchorY += tile.originalAnchorY + config.tileDeltaY * tileProgress;
+    tile.anchorX += config.tileDeltaX * tileProgress;
+    tile.anchorY += config.tileDeltaY * tileProgress;
   }
 
   // ------------------------------------------------------------------------------------------- //

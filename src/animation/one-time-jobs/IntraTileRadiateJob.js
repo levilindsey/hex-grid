@@ -144,6 +144,8 @@
     console.log('IntraTileRadiateJob created');
   }
 
+  IntraTileRadiateJob.config = config;
+
   // Expose this module
   window.hg = window.hg || {};
   window.hg.IntraTileRadiateJob = IntraTileRadiateJob;

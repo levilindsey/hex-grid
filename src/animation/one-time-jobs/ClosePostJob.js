@@ -132,6 +132,8 @@
     console.log('ClosePostJob created');
   }
 
+  ClosePostJob.config = config;
+
   // Expose this module
   window.hg = window.hg || {};
   window.hg.ClosePostJob = ClosePostJob;

@@ -4,7 +4,7 @@
  * This module defines a singleton that helps coordinate the various components of the hex-grid
  * package.
  *
- * The controller singleton handles provides convenient helper functions for creating and staring
+ * The controller singleton handles provides convenient helper functions for creating and running
  * grids and animations. It stores these objects and updates them in response to various system
  * events--e.g., window resize.
  *
@@ -17,19 +17,37 @@
 
   controller.persistentJobs = {
     colorShift: {
-      collection: [],
-      create: createColorShiftAnimation,
-      restart: restartColorShiftAnimation
+      constructorName: 'ColorShiftJob',
+      jobs: [],
+      create: createPersistentJob.bind(controller, 'colorShift'),
+      restart: restartPersistentJob.bind(controller, 'colorShift')
     },
     colorWave: {
-      collection: [],
-      create: createColorWaveAnimation,
-      restart: restartColorWaveAnimation
+      constructorName: 'ColorWaveJob',
+      jobs: [],
+      create: createPersistentJob.bind(controller, 'colorWave'),
+      restart: restartPersistentJob.bind(controller, 'colorWave')
     },
     displacementWave: {
-      collection: [],
-      create: createDisplacementWaveAnimation,
-      restart: restartDisplacementWaveAnimation
+      constructorName: 'DisplacementWaveJob',
+      jobs: [],
+      create: createPersistentJob.bind(controller, 'displacementWave'),
+      restart: restartPersistentJob.bind(controller, 'displacementWave')
+    },
+
+    // --- For internal use --- //
+
+    colorReset: {
+      constructorName: 'ColorResetJob',
+      jobs: [],
+      create: createPersistentJob.bind(controller, 'colorReset'),
+      restart: restartPersistentJob.bind(controller, 'colorReset')
+    },
+    displacementReset: {
+      constructorName: 'DisplacementResetJob',
+      jobs: [],
+      create: createPersistentJob.bind(controller, 'displacementReset'),
+      restart: restartPersistentJob.bind(controller, 'displacementReset')
     }
   };
 
@@ -37,73 +55,73 @@
   controller.oneTimeJobs = {
     openPost: {
       constructorName: 'OpenPostJob',
-      collection: [],
+      jobs: [],
       timeouts: [],
-      create: createOneTimeAnimation.bind(controller, null, 'openPost'),
+      create: createOneTimeJob.bind(controller, null, 'openPost'),
       createRandom: openRandomPost,
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'openPost')
     },
     closePost: {
       constructorName: 'ClosePostJob',
-      collection: [],
+      jobs: [],
       timeouts: [],
-      create: createOneTimeAnimation.bind(controller, null, 'closePost'),
+      create: createOneTimeJob.bind(controller, null, 'closePost'),
       createRandom: closePost,
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost')
     },
     displacementPulse: {
       constructorName: 'DisplacementPulseJob',
-      collection: [],
+      jobs: [],
       timeouts: [],
-      create: createOneTimeAnimation.bind(controller, null, 'displacementPulse'),
+      create: createOneTimeJob.bind(controller, null, 'displacementPulse'),
       createRandom: createOneTimeJobWithARandomTile.bind(controller, 'displacementPulse'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'displacementPulse')
     },
     highlightHover: {
       constructorName: 'HighlightHoverJob',
-      collection: [],
+      jobs: [],
       timeouts: [],
-      create: createOneTimeAnimation.bind(controller, null, 'highlightHover'),
+      create: createOneTimeJob.bind(controller, null, 'highlightHover'),
       createRandom: createOneTimeJobWithARandomTile.bind(controller, 'highlightHover'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightHover')
     },
     highlightRadiate: {
       constructorName: 'HighlightRadiateJob',
-      collection: [],
+      jobs: [],
       timeouts: [],
-      create: createOneTimeAnimation.bind(controller, null, 'highlightRadiate'),
+      create: createOneTimeJob.bind(controller, null, 'highlightRadiate'),
       createRandom: createOneTimeJobWithARandomTile.bind(controller, 'highlightRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightRadiate')
     },
     intraTileRadiate: {
       constructorName: 'IntraTileRadiateJob',
-      collection: [],
+      jobs: [],
       timeouts: [],
-      create: createOneTimeAnimation.bind(controller, null, 'intraTileRadiate'),
+      create: createOneTimeJob.bind(controller, null, 'intraTileRadiate'),
       createRandom: createOneTimeJobWithARandomTile.bind(controller, 'intraTileRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'intraTileRadiate')
     },
     line: {
       constructorName: 'LineJob',
-      collection: [],
+      jobs: [],
       timeouts: [],
-      create: createOneTimeAnimation.bind(controller, randomLineCreator, 'line'),
+      create: createOneTimeJob.bind(controller, randomLineCreator, 'line'),
       createRandom: createOneTimeJobWithARandomTile.bind(controller, 'line'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'line')
     },
     linesRadiate: {
       constructorName: 'LinesRadiateJob',
-      collection: [],
+      jobs: [],
       timeouts: [],
-      create: createOneTimeAnimation.bind(controller, linesRadiateCreator, 'linesRadiate'),
+      create: createOneTimeJob.bind(controller, linesRadiateCreator, 'linesRadiate'),
       createRandom: createOneTimeJobWithARandomTile.bind(controller, 'linesRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'linesRadiate')
     },
     tileBorder: {
       constructorName: 'TileBorderJob',
-      collection: [],
+      jobs: [],
       timeouts: [],
-      create: createOneTimeAnimation.bind(controller, null, 'tileBorder'),
+      create: createOneTimeJob.bind(controller, null, 'tileBorder'),
       createRandom: createOneTimeJobWithARandomTile.bind(controller, 'tileBorder'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'tileBorder')
     }
@@ -112,8 +130,6 @@
   internal.grids = [];
   internal.inputs = [];
   internal.annotations = [];
-  internal.colorResetJobs = [];
-  internal.displacementResetJobs = [];
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -125,10 +141,12 @@
    */
   function startRecurringAnimations(gridIndex) {// TODO: refactor this to accept Grid objects rather than IDs
     Object.keys(controller.oneTimeJobs).forEach(function (key) {
-      controller.oneTimeJobs[key].toggleRecurrence(
-          gridIndex, true,
-          window.hg[controller.oneTimeJobs[key].constructorName].config.avgDelay,
-          window.hg[controller.oneTimeJobs[key].constructorName].config.delayDeviationRange);
+      var config = window.hg[controller.oneTimeJobs[key].constructorName].config;
+
+      if (config.isRecurring) {
+        controller.oneTimeJobs[key].toggleRecurrence(gridIndex, true, config.avgDelay,
+            config.delayDeviationRange);
+      }
     });
   }
 
@@ -148,8 +166,8 @@
    * @param {Array.<AnimationJob>} jobId
    * @param {number} gridIndex
    * @param {?Tile} tile
-   */// TODO: refactor this to accept Grid objects rather than IDs
-  function createOneTimeAnimation(creator, jobId, gridIndex, tile) {// TODO: rename all occurrences (only within this file?) of jobId to jobId
+   */
+  function createOneTimeJob(creator, jobId, gridIndex, tile) {// TODO: refactor this to accept Grid objects rather than IDs
     var job, grid, gridAnimationsId;
 
     creator = creator || generalOneTimeJobCreator.bind(controller, jobId);
@@ -167,8 +185,8 @@
     // Keep a reference to this job within the grid object (this helps the Annotations object
     // reference data from the job if needed)
     gridAnimationsId = jobId + 'Animations';
-    grid.animations[gridAnimationsId] = grid.animations[gridAnimationsId] || [];
-    grid.animations[gridAnimationsId].push(job);
+    grid.jobs[gridAnimationsId] = grid.jobs[gridAnimationsId] || [];
+    grid.jobs[gridAnimationsId].push(job);
 
     // ---  --- //
 
@@ -176,8 +194,8 @@
       // Destroy both references to this now-complete job
       controller.oneTimeJobs[jobId].jobs.splice(
           controller.oneTimeJobs[jobId].jobs.indexOf(job), 1);
-      grid.animations[gridAnimationsId].jobs.splice(
-          grid.animations[gridAnimationsId].jobs.indexOf(job), 1);
+      grid.jobs[gridAnimationsId].splice(
+          grid.jobs[gridAnimationsId].indexOf(job), 1);
     }
   }
 
@@ -186,8 +204,8 @@
    * @param {number} gridIndex
    */
   function createOneTimeJobWithARandomTile(jobId, gridIndex) {// TODO: refactor this to accept Grid objects rather than IDs
-    var tileIndex = parseInt(Math.random() * window.hg.internal.grids[gridIndex].tiles.length);
-    var tile = window.hg.internal.grids[gridIndex].tiles[tileIndex];
+    var tileIndex = parseInt(Math.random() * internal.grids[gridIndex].tiles.length);
+    var tile = internal.grids[gridIndex].tiles[tileIndex];
     controller.oneTimeJobs[jobId].create(gridIndex, tile);
   }
 
@@ -235,121 +253,45 @@
   }
 
   /**
+   * @param {string} jobId
+   * @param {number} gridIndex
+   */
+  function createPersistentJob(jobId, gridIndex) {
+    var jobDefinition, job, gridAnimationsId;
+
+    var grid = internal.grids[gridIndex];
+
+    jobDefinition = controller.persistentJobs[jobId];
+
+    job = new window.hg[jobDefinition.constructorName](grid);
+    jobDefinition.jobs.push(job);
+    jobDefinition.restart(gridIndex);
+
+    gridAnimationsId = jobId + 'Animations';
+    grid.jobs[gridAnimationsId] = grid.jobs[gridAnimationsId] || [];
+    grid.jobs[gridAnimationsId].push(job);
+  }
+
+  /**
+   * @param {string} jobId
+   * @param {number} gridIndex
+   */
+  function restartPersistentJob(jobId, gridIndex) {
+    var job = controller.persistentJobs[jobId].jobs[gridIndex];
+
+    if (!job.isComplete) {
+      window.hg.animator.cancelJob(job);
+    }
+
+    job.init();
+    window.hg.animator.startJob(job);
+  }
+
+  /**
    * Resizes all of the hex-grid components.
    */
   function resize() {
     internal.grids.forEach(resetGrid);
-  }
-
-  // --- Persistent-job creation functions --- //
-// TODO: these are redundant
-  /**
-   * Creates a new ColorResetJob with the grid at the given index.
-   *
-   * @param {number} gridIndex
-   */
-  function createColorResetAnimation(gridIndex) {// TODO: refactor this to accept Grid objects rather than IDs
-    var job = new window.hg.ColorResetJob(internal.grids[gridIndex]);
-    internal.colorResetJobs.push(job);
-    restartColorResetAnimation(gridIndex);
-
-    internal.grids[gridIndex].animations.colorResetAnimations =
-        internal.grids[gridIndex].animations.colorResetAnimations || [];
-    internal.grids[gridIndex].animations.colorResetAnimations.push(job);
-  }
-
-  /**
-   * Creates a new DisplacementResetJob with the grid at the given index.
-   *
-   * @param {number} gridIndex
-   */
-  function createDisplacementResetAnimation(gridIndex) {
-    var job = new window.hg.DisplacementResetJob(internal.grids[gridIndex]);
-    internal.displacementResetJobs.push(job);
-    restartDisplacementResetAnimation(gridIndex);
-
-    internal.grids[gridIndex].animations.displacementResetAnimations =
-        internal.grids[gridIndex].animations.displacementResetAnimations || [];
-    internal.grids[gridIndex].animations.displacementResetAnimations.push(job);
-  }
-
-  /**
-   * Creates a new ColorShiftJob with the grid at the given index.
-   *
-   * @param {number} gridIndex
-   */
-  function createColorShiftAnimation(gridIndex) {
-    var job = new window.hg.ColorShiftJob(internal.grids[gridIndex]);
-    controller.persistentJobs.colorShift.jobs.push(job);
-    controller.persistentJobs.colorShift.restart(gridIndex);
-
-    internal.grids[gridIndex].animations.colorShiftAnimations =
-        internal.grids[gridIndex].animations.colorShiftAnimations || [];
-    internal.grids[gridIndex].animations.colorShiftAnimations.push(job);
-  }
-
-  /**
-   * Creates a new ColorWaveJob with the grid at the given index.
-   *
-   * @param {number} gridIndex
-   */
-  function createColorWaveAnimation(gridIndex) {
-    var job = new window.hg.ColorWaveJob(internal.grids[gridIndex]);
-    controller.persistentJobs.colorWave.jobs.push(job);
-    controller.persistentJobs.colorWave.restart(gridIndex);
-
-    internal.grids[gridIndex].animations.colorWaveAnimations =
-        internal.grids[gridIndex].animations.colorWaveAnimations || [];
-    internal.grids[gridIndex].animations.colorWaveAnimations.push(job);
-  }
-
-  /**
-   * Creates a new DisplacementWaveJob with the grid at the given index.
-   *
-   * @param {number} gridIndex
-   */
-  function createDisplacementWaveAnimation(gridIndex) {
-    var job = new window.hg.DisplacementWaveJob(internal.grids[gridIndex]);
-    controller.persistentJobs.displacementWave.jobs.push(job);
-    controller.persistentJobs.displacementWave.restart(gridIndex);
-
-    internal.grids[gridIndex].animations.displacementWaveAnimations =
-        internal.grids[gridIndex].animations.displacementWaveAnimations || [];
-    internal.grids[gridIndex].animations.displacementWaveAnimations.push(job);
-  }
-
-  // --- Persistent-job restart functions --- //
-
-  /**
-   * Restarts the ColorResetJob at the given index.
-   *
-   * @param {number} index
-   */
-  function restartColorResetAnimation(index) {// TODO: refactor this to accept Grid objects rather than IDs
-    var job = internal.colorResetJobs[index];
-
-    if (!job.isComplete) {
-      window.hg.animator.cancelJob(job);
-    }
-
-    job.init();
-    window.hg.animator.startJob(job);
-  }
-
-  /**
-   * Restarts the DisplacementResetJob at the given index.
-   *
-   * @param {number} index
-   */
-  function restartDisplacementResetAnimation(index) {
-    var job = internal.displacementResetJobs[index];
-
-    if (!job.isComplete) {
-      window.hg.animator.cancelJob(job);
-    }
-
-    job.init();
-    window.hg.animator.startJob(job);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -361,7 +303,7 @@
    * @param {HTMLElement} parent
    * @param {Array.<Object>} tileData
    * @param {boolean} isVertical
-   * @returns {number} The ID (actually index) of the new Grid.
+   * @returns {Window.hg.Grid}
    */
   function createNewHexGrid(parent, tileData, isVertical) {
     var grid, index, annotations, input;
@@ -371,8 +313,8 @@
     internal.grids.push(grid);
     window.hg.animator.startJob(grid);
 
-    createColorResetAnimation(index);
-    createDisplacementResetAnimation(index);
+    controller.persistentJobs.colorReset.create(index);
+    controller.persistentJobs.displacementReset.create(index);
 
     controller.persistentJobs.colorShift.create(index);
     controller.persistentJobs.colorWave.create(index);
@@ -387,7 +329,7 @@
 
     startRecurringAnimations(index);
 
-    return index;
+    return grid;
   }
 
   /**
@@ -398,8 +340,8 @@
 
     grid.resize();
 
-    restartColorResetAnimation(grid.index);
-    restartDisplacementResetAnimation(grid.index);
+    controller.persistentJobs.colorReset.restart(index);
+    controller.persistentJobs.displacementReset.restart(index);
 
     controller.persistentJobs.colorShift.restart(grid.index);
     controller.persistentJobs.colorWave.restart(grid.index);
@@ -407,56 +349,6 @@
 
     window.hg.animator.startJob(grid);
     window.hg.animator.startJob(internal.annotations[grid.index]);
-  }
-
-  // --- Persistent-job restart functions --- //
-// TODO: these are redundant
-  /**
-   * Restarts the ColorShiftJob at the given index.
-   *
-   * @param {number} index
-   */
-  function restartColorShiftAnimation(index) {
-    var job = controller.persistentJobs.colorShift.jobs[index];
-
-    if (!job.isComplete) {
-      window.hg.animator.cancelJob(job);
-    }
-
-    job.init();
-    window.hg.animator.startJob(job);
-  }
-
-  /**
-   * Restarts the ColorWaveJob at the given index.
-   *
-   * @param {number} index
-   */
-  function restartColorWaveAnimation(index) {
-    var job = controller.persistentJobs.colorWave.jobs[index];
-
-    if (!job.isComplete) {
-      window.hg.animator.cancelJob(job);
-    }
-
-    job.init();
-    window.hg.animator.startJob(job);
-  }
-
-  /**
-   * Restarts the DisplacementWaveJob at the given index.
-   *
-   * @param {number} index
-   */
-  function restartDisplacementWaveAnimation(index) {
-    var job = controller.persistentJobs.displacementWave.jobs[index];
-
-    if (!job.isComplete) {
-      window.hg.animator.cancelJob(job);
-    }
-
-    job.init();
-    window.hg.animator.startJob(job);
   }
 
   // --- One-time-job creation functions --- //
@@ -484,9 +376,9 @@
 
     // Also store references to each of the individual child lines
     gridAnimationsId = 'lineAnimations';
-    grid.animations[gridAnimationsId] = grid.animations[gridAnimationsId] || [];
+    grid.jobs[gridAnimationsId] = grid.jobs[gridAnimationsId] || [];
     job.lineJobs.forEach(function (lineJob) {
-      grid.animations[gridAnimationsId].push(lineJob);
+      grid.jobs[gridAnimationsId].push(lineJob);
     });
 
     return job;
@@ -496,8 +388,8 @@
     function onAllLinesComplete() {
       // Destroy the references to the individual child lines
       job.lineJobs.forEach(function (lineJob) {
-        grid.animations[gridAnimationsId].splice(
-            grid.animations[gridAnimationsId].indexOf(lineJob), 1);
+        grid.jobs[gridAnimationsId].splice(
+            grid.jobs[gridAnimationsId].indexOf(lineJob), 1);
       });
 
       onComplete();

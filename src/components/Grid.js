@@ -700,7 +700,7 @@
     grid.isTransitioning = false;
     grid.sectors = null;
 
-    grid.animations = {};
+    grid.jobs = {};
 
     grid.annotations = new window.hg.Annotations(grid);
 

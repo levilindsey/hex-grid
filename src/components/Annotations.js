@@ -989,10 +989,10 @@
     destroyLineAnimationGapPoints.call(annotations);
     annotations.lineAnimationGapDots = [];
 
-    if (annotations.grid.animations.lineAnimations) {
-      for (k = 0, i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount;
+    if (annotations.grid.jobs.lineAnimations) {
+      for (k = 0, i = 0, iCount = annotations.grid.jobs.lineAnimations.length; i < iCount;
            i += 1) {
-        line = annotations.grid.animations.lineAnimations[i];
+        line = annotations.grid.jobs.lineAnimations[i];
 
         for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
           annotations.lineAnimationGapDots[k] =
@@ -1022,9 +1022,9 @@
     annotations.lineAnimationLowerNeighborCornerDots = [];
     annotations.lineAnimationUpperNeighborCornerDots = [];
 
-    if (annotations.grid.animations.lineAnimations) {
-      for (i = 0, iCount = annotations.grid.animations.lineAnimations.length; i < iCount; i += 1) {
-        line = annotations.grid.animations.lineAnimations[i];
+    if (annotations.grid.jobs.lineAnimations) {
+      for (i = 0, iCount = annotations.grid.jobs.lineAnimations.length; i < iCount; i += 1) {
+        line = annotations.grid.jobs.lineAnimations[i];
 
         for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
           // Self corner: red dot

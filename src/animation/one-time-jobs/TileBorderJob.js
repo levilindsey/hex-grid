@@ -144,6 +144,8 @@
     console.log('TileBorderJob created');
   }
 
+  TileBorderJob.config = config;
+
   // Expose this module
   window.hg = window.hg || {};
   window.hg.TileBorderJob = TileBorderJob;

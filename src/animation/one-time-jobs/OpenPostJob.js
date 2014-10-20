@@ -206,6 +206,8 @@
     console.log('OpenPostJob created');
   }
 
+  OpenPostJob.config = config;
+
   // Expose this module
   window.hg = window.hg || {};
   window.hg.OpenPostJob = OpenPostJob;
