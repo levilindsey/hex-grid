@@ -11,6 +11,7 @@
  * @module controller
  */
 (function () {
+
   var controller = {},
       config = {},
       internal = {};
@@ -51,7 +52,6 @@
     }
   };
 
-  // TODO: refactor this to instead be dynamically generated according to a simpler object (which wouldn't require reduntantly including the jobId throughout each job's definition)?
   controller.oneTimeJobs = {
     openPost: {
       constructorName: 'OpenPostJob',
@@ -137,14 +137,14 @@
   /**
    * Starts repeating any AnimationJobs that are configured to recur.
    *
-   * @param {number} gridIndex
+   * @param {Window.hg.Grid} grid
    */
-  function startRecurringAnimations(gridIndex) {// TODO: refactor this to accept Grid objects rather than IDs
+  function startRecurringAnimations(grid) {
     Object.keys(controller.oneTimeJobs).forEach(function (key) {
       var config = window.hg[controller.oneTimeJobs[key].constructorName].config;
 
       if (config.isRecurring) {
-        controller.oneTimeJobs[key].toggleRecurrence(gridIndex, true, config.avgDelay,
+        controller.oneTimeJobs[key].toggleRecurrence(grid, true, config.avgDelay,
             config.delayDeviationRange);
       }
     });
@@ -164,61 +164,48 @@
   /**
    * @param {?Function} creator
    * @param {Array.<AnimationJob>} jobId
-   * @param {number} gridIndex
+   * @param {Grid} grid
    * @param {?Tile} tile
    */
-  function createOneTimeJob(creator, jobId, gridIndex, tile) {// TODO: refactor this to accept Grid objects rather than IDs
-    var job, grid, gridAnimationsId;
+  function createOneTimeJob(creator, jobId, grid, tile) {
+    var job;
 
     creator = creator || generalOneTimeJobCreator.bind(controller, jobId);
-
-    grid = internal.grids[gridIndex];
 
     // Create the job with whatever custom logic is needed for this particular type of job
     job = creator(grid, tile, onComplete);
 
     // Store a reference to this job within the controller
-    controller.oneTimeJobs[jobId].jobs.push(job);
+    controller.oneTimeJobs[jobId].jobs[grid.index].push(job);
     window.hg.animator.startJob(job);
-
-    // TODO: get rid of this redundant storage on the Grid object; instead, make an easy way for the Annotation object to reference the jobs from the controller
-    // Keep a reference to this job within the grid object (this helps the Annotations object
-    // reference data from the job if needed)
-    gridAnimationsId = jobId + 'Animations';
-    grid.jobs[gridAnimationsId] = grid.jobs[gridAnimationsId] || [];
-    grid.jobs[gridAnimationsId].push(job);
 
     // ---  --- //
 
     function onComplete() {
       // Destroy both references to this now-complete job
-      controller.oneTimeJobs[jobId].jobs.splice(
-          controller.oneTimeJobs[jobId].jobs.indexOf(job), 1);
-      grid.jobs[gridAnimationsId].splice(
-          grid.jobs[gridAnimationsId].indexOf(job), 1);
+      controller.oneTimeJobs[jobId].jobs[grid.index].splice(
+          controller.oneTimeJobs[jobId].jobs[grid.index].indexOf(job), 1);
     }
   }
 
   /**
    * @param {string} jobId
-   * @param {number} gridIndex
+   * @param {Grid} grid
    */
-  function createOneTimeJobWithARandomTile(jobId, gridIndex) {// TODO: refactor this to accept Grid objects rather than IDs
-    var tileIndex = parseInt(Math.random() * internal.grids[gridIndex].tiles.length);
-    var tile = internal.grids[gridIndex].tiles[tileIndex];
-    controller.oneTimeJobs[jobId].create(gridIndex, tile);
+  function createOneTimeJobWithARandomTile(jobId, grid) {
+    controller.oneTimeJobs[jobId].create(grid, getRandomTile(grid));
   }
 
   /**
    * Toggles whether an AnimationJob is automatically repeated.
    *
    * @param {string} jobId
-   * @param {number} gridIndex
+   * @param {Grid} grid
    * @param {boolean} isRecurring
    * @param {number} avgDelay
    * @param {number} delayDeviationRange
    */
-  function toggleJobRecurrence(jobId, gridIndex, isRecurring, avgDelay, delayDeviationRange) {// TODO: refactor this to accept Grid objects rather than IDs
+  function toggleJobRecurrence(jobId, grid, isRecurring, avgDelay, delayDeviationRange) {
     var minDelay, maxDelay, actualDelayRange, jobTimeouts;
 
     jobTimeouts = controller.oneTimeJobs[jobId].timeouts;
@@ -230,14 +217,14 @@
     actualDelayRange = maxDelay - minDelay;
 
     // Stop any pre-existing recurrence
-    if (jobTimeouts[gridIndex]) {
-      clearTimeout(jobTimeouts[gridIndex]);
-      jobTimeouts[gridIndex] = null;
+    if (jobTimeouts[grid.index]) {
+      clearTimeout(jobTimeouts[grid.index]);
+      jobTimeouts[grid.index] = null;
     }
 
     // Should we start the recurrence?
     if (isRecurring) {
-      jobTimeouts[gridIndex] = setTimeout(recur, avgDelay);
+      jobTimeouts[grid.index] = setTimeout(recur, avgDelay);
     }
 
     // ---  --- //
@@ -247,44 +234,48 @@
      */
     function recur() {
       var delay = Math.random() * actualDelayRange + minDelay;
-      controller.oneTimeJobs[jobId].createRandom(gridIndex);
-      jobTimeouts[gridIndex] = setTimeout(recur, delay);
+      controller.oneTimeJobs[jobId].createRandom(grid);
+      jobTimeouts[grid.index] = setTimeout(recur, delay);
     }
   }
 
   /**
    * @param {string} jobId
-   * @param {number} gridIndex
+   * @param {Grid} grid
    */
-  function createPersistentJob(jobId, gridIndex) {
-    var jobDefinition, job, gridAnimationsId;
-
-    var grid = internal.grids[gridIndex];
+  function createPersistentJob(jobId, grid) {
+    var jobDefinition, job;
 
     jobDefinition = controller.persistentJobs[jobId];
 
     job = new window.hg[jobDefinition.constructorName](grid);
-    jobDefinition.jobs.push(job);
-    jobDefinition.restart(gridIndex);
-
-    gridAnimationsId = jobId + 'Animations';
-    grid.jobs[gridAnimationsId] = grid.jobs[gridAnimationsId] || [];
-    grid.jobs[gridAnimationsId].push(job);
+    jobDefinition.jobs[grid.index].push(job);
+    jobDefinition.restart(grid, jobDefinition.jobs[grid.index].length - 1);
   }
 
   /**
    * @param {string} jobId
-   * @param {number} gridIndex
+   * @param {Grid} grid
+   * @param {number} [jobIndex] If not given, ALL persistent jobs (of this bound type) will be
+   * restarted for the given grid.
    */
-  function restartPersistentJob(jobId, gridIndex) {
-    var job = controller.persistentJobs[jobId].jobs[gridIndex];
-
-    if (!job.isComplete) {
-      window.hg.animator.cancelJob(job);
+  function restartPersistentJob(jobId, grid, jobIndex) {
+    if (typeof jobIndex !== 'undefined') {
+      restartPersistentJobHelper(controller.persistentJobs[jobId].jobs[grid.index][jobIndex]);
+    } else {
+      controller.persistentJobs[jobId].jobs[grid.index].forEach(restartPersistentJobHelper);
     }
 
-    job.init();
-    window.hg.animator.startJob(job);
+    // ---  --- //
+
+    function restartPersistentJobHelper(job) {
+      if (!job.isComplete) {
+        window.hg.animator.cancelJob(job);
+      }
+
+      job.init();
+      window.hg.animator.startJob(job);
+    }
   }
 
   /**
@@ -294,61 +285,22 @@
     internal.grids.forEach(resetGrid);
   }
 
-  // ------------------------------------------------------------------------------------------- //
-  // Public static functions
-
   /**
-   * Creates a Grid object and registers it with the animator.
-   *
-   * @param {HTMLElement} parent
-   * @param {Array.<Object>} tileData
-   * @param {boolean} isVertical
-   * @returns {Window.hg.Grid}
+   * @param {Grid} grid
+   * @returns {Tile}
    */
-  function createNewHexGrid(parent, tileData, isVertical) {
-    var grid, index, annotations, input;
-
-    index = internal.grids.length;
-    grid = new window.hg.Grid(index, parent, tileData, isVertical);
-    internal.grids.push(grid);
-    window.hg.animator.startJob(grid);
-
-    controller.persistentJobs.colorReset.create(index);
-    controller.persistentJobs.displacementReset.create(index);
-
-    controller.persistentJobs.colorShift.create(index);
-    controller.persistentJobs.colorWave.create(index);
-    controller.persistentJobs.displacementWave.create(index);
-
-    annotations = grid.annotations;
-    window.hg.animator.startJob(annotations);
-    internal.annotations.push(annotations);
-
-    input = new window.hg.Input(grid);
-    internal.inputs.push(input);
-
-    startRecurringAnimations(index);
-
-    return grid;
+  function getRandomTile(grid) {
+    var tileIndex = parseInt(Math.random() * grid.tiles.length);
+    return grid.tiles[tileIndex];
   }
 
   /**
    * @param {Grid} grid
+   * @returns {Tile}
    */
-  function resetGrid(grid) {
-    window.hg.animator.cancelAll();
-
-    grid.resize();
-
-    controller.persistentJobs.colorReset.restart(index);
-    controller.persistentJobs.displacementReset.restart(index);
-
-    controller.persistentJobs.colorShift.restart(grid.index);
-    controller.persistentJobs.colorWave.restart(grid.index);
-    controller.persistentJobs.displacementWave.restart(grid.index);
-
-    window.hg.animator.startJob(grid);
-    window.hg.animator.startJob(internal.annotations[grid.index]);
+  function getRandomContentTile(grid) {//
+    var contentIndex = parseInt(Math.random() * grid.actualContentInnerIndices.length);
+    return grid.tiles[grid.actualContentInnerIndices[contentIndex]];
   }
 
   // --- One-time-job creation functions --- //
@@ -370,15 +322,11 @@
    * @returns {Window.hg.LinesRadiateJob}
    */
   function linesRadiateCreator(grid, tile, onComplete) {
-    var job, gridAnimationsId;
-
-    job = new window.hg.LinesRadiateJob(grid, tile, onAllLinesComplete);
+    var job = new window.hg.LinesRadiateJob(grid, tile, onAllLinesComplete);
 
     // Also store references to each of the individual child lines
-    gridAnimationsId = 'lineAnimations';
-    grid.jobs[gridAnimationsId] = grid.jobs[gridAnimationsId] || [];
     job.lineJobs.forEach(function (lineJob) {
-      grid.jobs[gridAnimationsId].push(lineJob);
+      controller.oneTimeJobs.line.jobs[grid.index].push(lineJob);
     });
 
     return job;
@@ -388,8 +336,8 @@
     function onAllLinesComplete() {
       // Destroy the references to the individual child lines
       job.lineJobs.forEach(function (lineJob) {
-        grid.jobs[gridAnimationsId].splice(
-            grid.jobs[gridAnimationsId].indexOf(lineJob), 1);
+        controller.oneTimeJobs.line.jobs[grid.index].splice(
+            controller.oneTimeJobs.line.jobs[grid.index].indexOf(lineJob), 1);
       });
 
       onComplete();
@@ -398,12 +346,98 @@
 
   // --- One-time-job random creation functions --- //
 
-  function openRandomPost() {
-    // TODO: if no post is open, pick a random content tile, and open the post; otherwise, do nothing
+  /**
+   * @param {Grid} grid
+   * @returns {Window.hg.LinesRadiateJob}
+   */
+  function openRandomPost(grid) {
+    // If no post is open, pick a random content tile, and open the post; otherwise, do nothing
+    if (!grid.isPostOpen) {
+      controller.oneTimeJobs.closePost.create(grid, getRandomContentTile(grid));
+    }
   }
 
-  function closePost() {
-    // TODO: if a post is open, close it; otherwise, do nothing
+  /**
+   * @param {Grid} grid
+   * @returns {Window.hg.LinesRadiateJob}
+   */
+  function closePost(grid) {
+    // If a post is open, close it; otherwise, do nothing
+    if (grid.isPostOpen) {
+      controller.oneTimeJobs.closePost.create(grid, grid.expandedTile);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Creates a Grid object and registers it with the animator.
+   *
+   * @param {HTMLElement} parent
+   * @param {Array.<Object>} tileData
+   * @param {boolean} isVertical
+   * @returns {Window.hg.Grid}
+   */
+  function createNewHexGrid(parent, tileData, isVertical) {
+    var grid, index, annotations, input;
+
+    index = internal.grids.length;
+
+    initializeJobArraysForGrid(index);
+
+    grid = new window.hg.Grid(index, parent, tileData, isVertical);
+    internal.grids.push(grid);
+    window.hg.animator.startJob(grid);
+
+    controller.persistentJobs.colorReset.create(grid);
+    controller.persistentJobs.displacementReset.create(grid);
+
+    controller.persistentJobs.colorShift.create(grid);
+    controller.persistentJobs.colorWave.create(grid);
+    controller.persistentJobs.displacementWave.create(grid);
+
+    annotations = grid.annotations;
+    window.hg.animator.startJob(annotations);
+    internal.annotations.push(annotations);
+
+    input = new window.hg.Input(grid);
+    internal.inputs.push(input);
+
+    startRecurringAnimations(grid);
+
+    return grid;
+
+    // ---  --- //
+
+    function initializeJobArraysForGrid(index) {
+      Object.keys(controller.persistentJobs).forEach(function (key) {
+        controller.persistentJobs[key].jobs[index] = [];
+      });
+
+      Object.keys(controller.oneTimeJobs).forEach(function (key) {
+        controller.oneTimeJobs[key].jobs[index] = [];
+      });
+    }
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function resetGrid(grid) {
+    window.hg.animator.cancelAll();
+
+    grid.resize();
+
+    controller.persistentJobs.colorReset.restart(grid);
+    controller.persistentJobs.displacementReset.restart(grid);
+
+    controller.persistentJobs.colorShift.restart(grid);
+    controller.persistentJobs.colorWave.restart(grid);
+    controller.persistentJobs.displacementWave.restart(grid);
+
+    window.hg.animator.startJob(grid);
+    window.hg.animator.startJob(internal.annotations[grid.index]);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -1481,7 +1515,8 @@
     annotations.tileParticleCenters = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileParticleCenters[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+      annotations.tileParticleCenters[i] =
+          document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileParticleCenters[i]);
 
       annotations.tileParticleCenters[i].setAttribute('r', '4');
@@ -1502,13 +1537,15 @@
     annotations.tileAnchorCenters = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileAnchorLines[i] = document.createElementNS(window.hg.util.svgNamespace, 'line');
+      annotations.tileAnchorLines[i] =
+          document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
 
       annotations.tileAnchorLines[i].setAttribute('stroke', '#666666');
       annotations.tileAnchorLines[i].setAttribute('stroke-width', '2');
 
-      annotations.tileAnchorCenters[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+      annotations.tileAnchorCenters[i] =
+          document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileAnchorCenters[i]);
 
       annotations.tileAnchorCenters[i].setAttribute('r', '4');
@@ -1529,7 +1566,8 @@
     annotations.tileDisplacementCircles = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileDisplacementCircles[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+      annotations.tileDisplacementCircles[i] =
+          document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileDisplacementCircles[i]);
 
       annotations.tileDisplacementCircles[i].setAttribute('r', '80');
@@ -1550,7 +1588,8 @@
     annotations.tileInnerRadii = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileInnerRadii[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+      annotations.tileInnerRadii[i] =
+          document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileInnerRadii[i]);
 
       annotations.tileInnerRadii[i].setAttribute('stroke', 'blue');
@@ -1571,7 +1610,8 @@
     annotations.tileOuterRadii = [];
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileOuterRadii[i] = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+      annotations.tileOuterRadii[i] =
+          document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
 
       annotations.tileOuterRadii[i].setAttribute('stroke', 'green');
@@ -1600,7 +1640,8 @@
         neighbor = neighborStates[j];
 
         if (neighbor) {
-          annotations.neighborLines[i][j] = document.createElementNS(window.hg.util.svgNamespace, 'line');
+          annotations.neighborLines[i][j] =
+              document.createElementNS(window.hg.util.svgNamespace, 'line');
           annotations.grid.svg.appendChild(annotations.neighborLines[i][j]);
 
           annotations.neighborLines[i][j].setAttribute('stroke', 'purple');
@@ -1976,11 +2017,13 @@
       annotations.grid.svg.removeChild(annotations.lineAnimationSelfCornerDots[i]);
     }
 
-    for (i = 0, count = annotations.lineAnimationLowerNeighborCornerDots.length; i < count; i += 1) {
+    for (i = 0, count = annotations.lineAnimationLowerNeighborCornerDots.length;
+         i < count; i += 1) {
       annotations.grid.svg.removeChild(annotations.lineAnimationLowerNeighborCornerDots[i]);
     }
 
-    for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length; i < count; i += 1) {
+    for (i = 0, count = annotations.lineAnimationUpperNeighborCornerDots.length;
+         i < count; i += 1) {
       annotations.grid.svg.removeChild(annotations.lineAnimationUpperNeighborCornerDots[i]);
     }
 
@@ -2102,7 +2145,8 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileInnerRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
       annotations.tileInnerRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
-      annotations.tileInnerRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius * window.hg.Grid.config.sqrtThreeOverTwo);
+      annotations.tileInnerRadii[i].setAttribute('r',
+              annotations.grid.tiles[i].outerRadius * window.hg.Grid.config.sqrtThreeOverTwo);
     }
   }
 
@@ -2163,8 +2207,10 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.forceLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
       annotations.forceLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.forceLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px + annotations.grid.tiles[i].particle.fx * config.forceLineLengthMultiplier);
-      annotations.forceLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py + annotations.grid.tiles[i].particle.fy * config.forceLineLengthMultiplier);
+      annotations.forceLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px +
+          annotations.grid.tiles[i].particle.fx * config.forceLineLengthMultiplier);
+      annotations.forceLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py +
+          annotations.grid.tiles[i].particle.fy * config.forceLineLengthMultiplier);
     }
   }
 
@@ -2181,8 +2227,10 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.velocityLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
       annotations.velocityLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.velocityLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px + annotations.grid.tiles[i].particle.vx * config.velocityLineLengthMultiplier);
-      annotations.velocityLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py + annotations.grid.tiles[i].particle.vy * config.velocityLineLengthMultiplier);
+      annotations.velocityLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px +
+          annotations.grid.tiles[i].particle.vx * config.velocityLineLengthMultiplier);
+      annotations.velocityLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py +
+          annotations.grid.tiles[i].particle.vy * config.velocityLineLengthMultiplier);
     }
   }
 
@@ -2215,20 +2263,20 @@
     destroyLineAnimationGapPoints.call(annotations);
     annotations.lineAnimationGapDots = [];
 
-    if (annotations.grid.jobs.lineAnimations) {
-      for (k = 0, i = 0, iCount = annotations.grid.jobs.lineAnimations.length; i < iCount;
-           i += 1) {
-        line = annotations.grid.jobs.lineAnimations[i];
+    for (k = 0, i = 0,
+             iCount = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index].length;
+         i < iCount;
+         i += 1) {
+      line = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index][i];
 
-        for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
-          annotations.lineAnimationGapDots[k] =
-              document.createElementNS(window.hg.util.svgNamespace, 'circle');
-          annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
-          annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
-          annotations.lineAnimationGapDots[k].setAttribute('r', '4');
-          annotations.lineAnimationGapDots[k].setAttribute('fill', 'white');
-          annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
-        }
+      for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
+        annotations.lineAnimationGapDots[k] =
+            document.createElementNS(window.hg.util.svgNamespace, 'circle');
+        annotations.lineAnimationGapDots[k].setAttribute('cx', line.gapPoints[j].x);
+        annotations.lineAnimationGapDots[k].setAttribute('cy', line.gapPoints[j].y);
+        annotations.lineAnimationGapDots[k].setAttribute('r', '4');
+        annotations.lineAnimationGapDots[k].setAttribute('fill', 'white');
+        annotations.grid.svg.appendChild(annotations.lineAnimationGapDots[k]);
       }
     }
   }
@@ -2248,44 +2296,43 @@
     annotations.lineAnimationLowerNeighborCornerDots = [];
     annotations.lineAnimationUpperNeighborCornerDots = [];
 
-    if (annotations.grid.jobs.lineAnimations) {
-      for (i = 0, iCount = annotations.grid.jobs.lineAnimations.length; i < iCount; i += 1) {
-        line = annotations.grid.jobs.lineAnimations[i];
+    for (i = 0, iCount = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index].length;
+         i < iCount; i += 1) {
+      line = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index][i];
 
-        for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
-          // Self corner: red dot
-          pos = getCornerPosition(line.tiles[j], line.corners[j]);
+      for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
+        // Self corner: red dot
+        pos = getCornerPosition(line.tiles[j], line.corners[j]);
+        dot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+        dot.setAttribute('cx', pos.x);
+        dot.setAttribute('cy', pos.y);
+        dot.setAttribute('r', '3');
+        dot.setAttribute('fill', '#ffaaaa');
+        annotations.grid.svg.appendChild(dot);
+        annotations.lineAnimationSelfCornerDots.push(dot);
+
+        // Lower neighbor corner: green dot
+        if (line.lowerNeighbors[j]) {
+          pos = getCornerPosition(line.lowerNeighbors[j].tile, line.lowerNeighborCorners[j]);
           dot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
           dot.setAttribute('cx', pos.x);
           dot.setAttribute('cy', pos.y);
           dot.setAttribute('r', '3');
-          dot.setAttribute('fill', '#ffaaaa');
+          dot.setAttribute('fill', '#aaffaa');
           annotations.grid.svg.appendChild(dot);
-          annotations.lineAnimationSelfCornerDots.push(dot);
+          annotations.lineAnimationLowerNeighborCornerDots.push(dot);
+        }
 
-          // Lower neighbor corner: green dot
-          if (line.lowerNeighbors[j]) {
-            pos = getCornerPosition(line.lowerNeighbors[j].tile, line.lowerNeighborCorners[j]);
-            dot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
-            dot.setAttribute('cx', pos.x);
-            dot.setAttribute('cy', pos.y);
-            dot.setAttribute('r', '3');
-            dot.setAttribute('fill', '#aaffaa');
-            annotations.grid.svg.appendChild(dot);
-            annotations.lineAnimationLowerNeighborCornerDots.push(dot);
-          }
-
-          // Upper neighbor corner: blue dot
-          if (line.upperNeighbors[j]) {
-            pos = getCornerPosition(line.upperNeighbors[j].tile, line.upperNeighborCorners[j]);
-            dot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
-            dot.setAttribute('cx', pos.x);
-            dot.setAttribute('cy', pos.y);
-            dot.setAttribute('r', '3');
-            dot.setAttribute('fill', '#aaaaff');
-            annotations.grid.svg.appendChild(dot);
-            annotations.lineAnimationUpperNeighborCornerDots.push(dot);
-          }
+        // Upper neighbor corner: blue dot
+        if (line.upperNeighbors[j]) {
+          pos = getCornerPosition(line.upperNeighbors[j].tile, line.upperNeighborCorners[j]);
+          dot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+          dot.setAttribute('cx', pos.x);
+          dot.setAttribute('cy', pos.y);
+          dot.setAttribute('r', '3');
+          dot.setAttribute('fill', '#aaaaff');
+          annotations.grid.svg.appendChild(dot);
+          annotations.lineAnimationUpperNeighborCornerDots.push(dot);
         }
       }
     }
@@ -2501,12 +2548,8 @@
   // Private static variables
 
   // TODO:
-  // - update the tile radius and the targetContentAreaWidth with the screen width
-  //   - we should always have the same number of content tiles in a given row
-
-  // TODO:
-  // - give tiles references to their next DOM sibling
-  //   - this will be important for maintaining correct z-indices when removing/adding
+  // - update the tile radius and the targetContentAreaWidth with the screen width?
+  //   - what is my plan for mobile devices?
 
   var config = {};
 
@@ -3097,8 +3140,6 @@
   function cancel() {
     var grid = this;
 
-    // TODO:
-
     grid.isComplete = true;
   }
 
@@ -3120,35 +3161,6 @@
     }
 
     grid.hoveredTile = hoveredTile;
-  }
-
-  /**
-   * Opens a hole in the grid in order to display the post represented at the given tile index.
-   *
-   * @this Grid
-   * @param {number} tileIndex
-   */
-  function openPost(tileIndex) {
-    var grid;
-
-    grid = this;
-
-    // TODO:
-  }
-
-  /**
-   * Closes the post that is currently displayed, and closes the hole in the grid that is used to
-   * show the post.
-   *
-   * @this Grid
-   * @param {number} tileIndex
-   */
-  function closePost(tileIndex) {
-    var grid;
-
-    grid = this;
-
-    // TODO:
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3184,9 +3196,8 @@
     grid.centerY = Number.NaN;
     grid.isPostOpen = false;
     grid.isTransitioning = false;
+    grid.expandedTile = null;
     grid.sectors = null;
-
-    grid.jobs = {};
 
     grid.annotations = new window.hg.Annotations(grid);
 
@@ -3221,8 +3232,6 @@
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
-    grid.openPost = openPost;
-    grid.closePost = closePost;
 
     createSvg.call(grid);
     computeContentIndices.call(grid);
@@ -3309,7 +3318,7 @@
 
         input.grid.setHoveredTile(null);
 
-        window.hg.controller.oneTimeJobs.highlightHover.create(input.grid.index, tile);
+        window.hg.controller.oneTimeJobs.highlightHover.create(input.grid, tile);
 
         event.stopPropagation();
       }
@@ -3338,7 +3347,7 @@
           // TODO:
         }
 
-        createClickAnimation(input.grid.index, tile);
+        createClickAnimation(input.grid, tile);
       }
     }
 
@@ -3355,15 +3364,15 @@
   }
 
   /**
-   * @param {number} gridIndex
+   * @param {Grid} grid
    * @param {Tile} tile
    */
-  function createClickAnimation(gridIndex, tile) {
+  function createClickAnimation(grid, tile) {
     if (tile.holdsContent) {
-      config.possibleClickAnimations[config.contentTileClickAnimation](gridIndex, tile);
-      window.hg.controller.oneTimeJobs.openPost.create(gridIndex, tile);
+      config.possibleClickAnimations[config.contentTileClickAnimation](grid, tile);
+      window.hg.controller.oneTimeJobs.openPost.create(grid, tile);
     } else {
-      config.possibleClickAnimations[config.emptyTileClickAnimation](gridIndex, tile);
+      config.possibleClickAnimations[config.emptyTileClickAnimation](grid, tile);
     }
   }
 
@@ -7049,7 +7058,9 @@
     // - reactivate neighbor forces; but make sure they are now using their temporary expanded neighborStates
     // - keep the sectors to re-use for closing
 
-    // TODO: when closing the grid, make sure to de-allocate the sector objects and the tile.expandedState properties (sector.destroy)
+    // TODO: when closing the grid, make sure to:
+    // - de-allocate the sector objects and the tile.expandedState properties (sector.destroy)
+    // - job.grid.expandedTile = null;
 
     job.grid.isTransitioning = false;
 
@@ -7126,6 +7137,7 @@
 
     job.grid.isPostOpen = true;
     job.grid.isTransitioning = true;
+    job.grid.expandedTile = job.baseTile;
 
     createSectors.call(job);
 

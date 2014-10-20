@@ -11,6 +11,7 @@
  * @module controller
  */
 (function () {
+
   var controller = {},
       config = {},
       internal = {};
@@ -51,7 +52,6 @@
     }
   };
 
-  // TODO: refactor this to instead be dynamically generated according to a simpler object (which wouldn't require reduntantly including the jobId throughout each job's definition)?
   controller.oneTimeJobs = {
     openPost: {
       constructorName: 'OpenPostJob',
@@ -137,14 +137,14 @@
   /**
    * Starts repeating any AnimationJobs that are configured to recur.
    *
-   * @param {number} gridIndex
+   * @param {Window.hg.Grid} grid
    */
-  function startRecurringAnimations(gridIndex) {// TODO: refactor this to accept Grid objects rather than IDs
+  function startRecurringAnimations(grid) {
     Object.keys(controller.oneTimeJobs).forEach(function (key) {
       var config = window.hg[controller.oneTimeJobs[key].constructorName].config;
 
       if (config.isRecurring) {
-        controller.oneTimeJobs[key].toggleRecurrence(gridIndex, true, config.avgDelay,
+        controller.oneTimeJobs[key].toggleRecurrence(grid, true, config.avgDelay,
             config.delayDeviationRange);
       }
     });
@@ -164,61 +164,48 @@
   /**
    * @param {?Function} creator
    * @param {Array.<AnimationJob>} jobId
-   * @param {number} gridIndex
+   * @param {Grid} grid
    * @param {?Tile} tile
    */
-  function createOneTimeJob(creator, jobId, gridIndex, tile) {// TODO: refactor this to accept Grid objects rather than IDs
-    var job, grid, gridAnimationsId;
+  function createOneTimeJob(creator, jobId, grid, tile) {
+    var job;
 
     creator = creator || generalOneTimeJobCreator.bind(controller, jobId);
-
-    grid = internal.grids[gridIndex];
 
     // Create the job with whatever custom logic is needed for this particular type of job
     job = creator(grid, tile, onComplete);
 
     // Store a reference to this job within the controller
-    controller.oneTimeJobs[jobId].jobs.push(job);
+    controller.oneTimeJobs[jobId].jobs[grid.index].push(job);
     window.hg.animator.startJob(job);
-
-    // TODO: get rid of this redundant storage on the Grid object; instead, make an easy way for the Annotation object to reference the jobs from the controller
-    // Keep a reference to this job within the grid object (this helps the Annotations object
-    // reference data from the job if needed)
-    gridAnimationsId = jobId + 'Animations';
-    grid.jobs[gridAnimationsId] = grid.jobs[gridAnimationsId] || [];
-    grid.jobs[gridAnimationsId].push(job);
 
     // ---  --- //
 
     function onComplete() {
       // Destroy both references to this now-complete job
-      controller.oneTimeJobs[jobId].jobs.splice(
-          controller.oneTimeJobs[jobId].jobs.indexOf(job), 1);
-      grid.jobs[gridAnimationsId].splice(
-          grid.jobs[gridAnimationsId].indexOf(job), 1);
+      controller.oneTimeJobs[jobId].jobs[grid.index].splice(
+          controller.oneTimeJobs[jobId].jobs[grid.index].indexOf(job), 1);
     }
   }
 
   /**
    * @param {string} jobId
-   * @param {number} gridIndex
+   * @param {Grid} grid
    */
-  function createOneTimeJobWithARandomTile(jobId, gridIndex) {// TODO: refactor this to accept Grid objects rather than IDs
-    var tileIndex = parseInt(Math.random() * internal.grids[gridIndex].tiles.length);
-    var tile = internal.grids[gridIndex].tiles[tileIndex];
-    controller.oneTimeJobs[jobId].create(gridIndex, tile);
+  function createOneTimeJobWithARandomTile(jobId, grid) {
+    controller.oneTimeJobs[jobId].create(grid, getRandomTile(grid));
   }
 
   /**
    * Toggles whether an AnimationJob is automatically repeated.
    *
    * @param {string} jobId
-   * @param {number} gridIndex
+   * @param {Grid} grid
    * @param {boolean} isRecurring
    * @param {number} avgDelay
    * @param {number} delayDeviationRange
    */
-  function toggleJobRecurrence(jobId, gridIndex, isRecurring, avgDelay, delayDeviationRange) {// TODO: refactor this to accept Grid objects rather than IDs
+  function toggleJobRecurrence(jobId, grid, isRecurring, avgDelay, delayDeviationRange) {
     var minDelay, maxDelay, actualDelayRange, jobTimeouts;
 
     jobTimeouts = controller.oneTimeJobs[jobId].timeouts;
@@ -230,14 +217,14 @@
     actualDelayRange = maxDelay - minDelay;
 
     // Stop any pre-existing recurrence
-    if (jobTimeouts[gridIndex]) {
-      clearTimeout(jobTimeouts[gridIndex]);
-      jobTimeouts[gridIndex] = null;
+    if (jobTimeouts[grid.index]) {
+      clearTimeout(jobTimeouts[grid.index]);
+      jobTimeouts[grid.index] = null;
     }
 
     // Should we start the recurrence?
     if (isRecurring) {
-      jobTimeouts[gridIndex] = setTimeout(recur, avgDelay);
+      jobTimeouts[grid.index] = setTimeout(recur, avgDelay);
     }
 
     // ---  --- //
@@ -247,44 +234,48 @@
      */
     function recur() {
       var delay = Math.random() * actualDelayRange + minDelay;
-      controller.oneTimeJobs[jobId].createRandom(gridIndex);
-      jobTimeouts[gridIndex] = setTimeout(recur, delay);
+      controller.oneTimeJobs[jobId].createRandom(grid);
+      jobTimeouts[grid.index] = setTimeout(recur, delay);
     }
   }
 
   /**
    * @param {string} jobId
-   * @param {number} gridIndex
+   * @param {Grid} grid
    */
-  function createPersistentJob(jobId, gridIndex) {
-    var jobDefinition, job, gridAnimationsId;
-
-    var grid = internal.grids[gridIndex];
+  function createPersistentJob(jobId, grid) {
+    var jobDefinition, job;
 
     jobDefinition = controller.persistentJobs[jobId];
 
     job = new window.hg[jobDefinition.constructorName](grid);
-    jobDefinition.jobs.push(job);
-    jobDefinition.restart(gridIndex);
-
-    gridAnimationsId = jobId + 'Animations';
-    grid.jobs[gridAnimationsId] = grid.jobs[gridAnimationsId] || [];
-    grid.jobs[gridAnimationsId].push(job);
+    jobDefinition.jobs[grid.index].push(job);
+    jobDefinition.restart(grid, jobDefinition.jobs[grid.index].length - 1);
   }
 
   /**
    * @param {string} jobId
-   * @param {number} gridIndex
+   * @param {Grid} grid
+   * @param {number} [jobIndex] If not given, ALL persistent jobs (of this bound type) will be
+   * restarted for the given grid.
    */
-  function restartPersistentJob(jobId, gridIndex) {
-    var job = controller.persistentJobs[jobId].jobs[gridIndex];
-
-    if (!job.isComplete) {
-      window.hg.animator.cancelJob(job);
+  function restartPersistentJob(jobId, grid, jobIndex) {
+    if (typeof jobIndex !== 'undefined') {
+      restartPersistentJobHelper(controller.persistentJobs[jobId].jobs[grid.index][jobIndex]);
+    } else {
+      controller.persistentJobs[jobId].jobs[grid.index].forEach(restartPersistentJobHelper);
     }
 
-    job.init();
-    window.hg.animator.startJob(job);
+    // ---  --- //
+
+    function restartPersistentJobHelper(job) {
+      if (!job.isComplete) {
+        window.hg.animator.cancelJob(job);
+      }
+
+      job.init();
+      window.hg.animator.startJob(job);
+    }
   }
 
   /**
@@ -294,61 +285,22 @@
     internal.grids.forEach(resetGrid);
   }
 
-  // ------------------------------------------------------------------------------------------- //
-  // Public static functions
-
   /**
-   * Creates a Grid object and registers it with the animator.
-   *
-   * @param {HTMLElement} parent
-   * @param {Array.<Object>} tileData
-   * @param {boolean} isVertical
-   * @returns {Window.hg.Grid}
+   * @param {Grid} grid
+   * @returns {Tile}
    */
-  function createNewHexGrid(parent, tileData, isVertical) {
-    var grid, index, annotations, input;
-
-    index = internal.grids.length;
-    grid = new window.hg.Grid(index, parent, tileData, isVertical);
-    internal.grids.push(grid);
-    window.hg.animator.startJob(grid);
-
-    controller.persistentJobs.colorReset.create(index);
-    controller.persistentJobs.displacementReset.create(index);
-
-    controller.persistentJobs.colorShift.create(index);
-    controller.persistentJobs.colorWave.create(index);
-    controller.persistentJobs.displacementWave.create(index);
-
-    annotations = grid.annotations;
-    window.hg.animator.startJob(annotations);
-    internal.annotations.push(annotations);
-
-    input = new window.hg.Input(grid);
-    internal.inputs.push(input);
-
-    startRecurringAnimations(index);
-
-    return grid;
+  function getRandomTile(grid) {
+    var tileIndex = parseInt(Math.random() * grid.tiles.length);
+    return grid.tiles[tileIndex];
   }
 
   /**
    * @param {Grid} grid
+   * @returns {Tile}
    */
-  function resetGrid(grid) {
-    window.hg.animator.cancelAll();
-
-    grid.resize();
-
-    controller.persistentJobs.colorReset.restart(index);
-    controller.persistentJobs.displacementReset.restart(index);
-
-    controller.persistentJobs.colorShift.restart(grid.index);
-    controller.persistentJobs.colorWave.restart(grid.index);
-    controller.persistentJobs.displacementWave.restart(grid.index);
-
-    window.hg.animator.startJob(grid);
-    window.hg.animator.startJob(internal.annotations[grid.index]);
+  function getRandomContentTile(grid) {
+    var contentIndex = parseInt(Math.random() * grid.actualContentInnerIndices.length);
+    return grid.tiles[grid.actualContentInnerIndices[contentIndex]];
   }
 
   // --- One-time-job creation functions --- //
@@ -370,15 +322,11 @@
    * @returns {Window.hg.LinesRadiateJob}
    */
   function linesRadiateCreator(grid, tile, onComplete) {
-    var job, gridAnimationsId;
-
-    job = new window.hg.LinesRadiateJob(grid, tile, onAllLinesComplete);
+    var job = new window.hg.LinesRadiateJob(grid, tile, onAllLinesComplete);
 
     // Also store references to each of the individual child lines
-    gridAnimationsId = 'lineAnimations';
-    grid.jobs[gridAnimationsId] = grid.jobs[gridAnimationsId] || [];
     job.lineJobs.forEach(function (lineJob) {
-      grid.jobs[gridAnimationsId].push(lineJob);
+      controller.oneTimeJobs.line.jobs[grid.index].push(lineJob);
     });
 
     return job;
@@ -388,8 +336,8 @@
     function onAllLinesComplete() {
       // Destroy the references to the individual child lines
       job.lineJobs.forEach(function (lineJob) {
-        grid.jobs[gridAnimationsId].splice(
-            grid.jobs[gridAnimationsId].indexOf(lineJob), 1);
+        controller.oneTimeJobs.line.jobs[grid.index].splice(
+            controller.oneTimeJobs.line.jobs[grid.index].indexOf(lineJob), 1);
       });
 
       onComplete();
@@ -398,12 +346,98 @@
 
   // --- One-time-job random creation functions --- //
 
-  function openRandomPost() {
-    // TODO: if no post is open, pick a random content tile, and open the post; otherwise, do nothing
+  /**
+   * @param {Grid} grid
+   * @returns {Window.hg.LinesRadiateJob}
+   */
+  function openRandomPost(grid) {
+    // If no post is open, pick a random content tile, and open the post; otherwise, do nothing
+    if (!grid.isPostOpen) {
+      controller.oneTimeJobs.closePost.create(grid, getRandomContentTile(grid));
+    }
   }
 
-  function closePost() {
-    // TODO: if a post is open, close it; otherwise, do nothing
+  /**
+   * @param {Grid} grid
+   * @returns {Window.hg.LinesRadiateJob}
+   */
+  function closePost(grid) {
+    // If a post is open, close it; otherwise, do nothing
+    if (grid.isPostOpen) {
+      controller.oneTimeJobs.closePost.create(grid, grid.expandedTile);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Creates a Grid object and registers it with the animator.
+   *
+   * @param {HTMLElement} parent
+   * @param {Array.<Object>} tileData
+   * @param {boolean} isVertical
+   * @returns {Window.hg.Grid}
+   */
+  function createNewHexGrid(parent, tileData, isVertical) {
+    var grid, index, annotations, input;
+
+    index = internal.grids.length;
+
+    initializeJobArraysForGrid(index);
+
+    grid = new window.hg.Grid(index, parent, tileData, isVertical);
+    internal.grids.push(grid);
+    window.hg.animator.startJob(grid);
+
+    controller.persistentJobs.colorReset.create(grid);
+    controller.persistentJobs.displacementReset.create(grid);
+
+    controller.persistentJobs.colorShift.create(grid);
+    controller.persistentJobs.colorWave.create(grid);
+    controller.persistentJobs.displacementWave.create(grid);
+
+    annotations = grid.annotations;
+    window.hg.animator.startJob(annotations);
+    internal.annotations.push(annotations);
+
+    input = new window.hg.Input(grid);
+    internal.inputs.push(input);
+
+    startRecurringAnimations(grid);
+
+    return grid;
+
+    // ---  --- //
+
+    function initializeJobArraysForGrid(index) {
+      Object.keys(controller.persistentJobs).forEach(function (key) {
+        controller.persistentJobs[key].jobs[index] = [];
+      });
+
+      Object.keys(controller.oneTimeJobs).forEach(function (key) {
+        controller.oneTimeJobs[key].jobs[index] = [];
+      });
+    }
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function resetGrid(grid) {
+    window.hg.animator.cancelAll();
+
+    grid.resize();
+
+    controller.persistentJobs.colorReset.restart(grid);
+    controller.persistentJobs.displacementReset.restart(grid);
+
+    controller.persistentJobs.colorShift.restart(grid);
+    controller.persistentJobs.colorWave.restart(grid);
+    controller.persistentJobs.displacementWave.restart(grid);
+
+    window.hg.animator.startJob(grid);
+    window.hg.animator.startJob(internal.annotations[grid.index]);
   }
 
   // ------------------------------------------------------------------------------------------- //

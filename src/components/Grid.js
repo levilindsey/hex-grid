@@ -15,12 +15,8 @@
   // Private static variables
 
   // TODO:
-  // - update the tile radius and the targetContentAreaWidth with the screen width
-  //   - we should always have the same number of content tiles in a given row
-
-  // TODO:
-  // - give tiles references to their next DOM sibling
-  //   - this will be important for maintaining correct z-indices when removing/adding
+  // - update the tile radius and the targetContentAreaWidth with the screen width?
+  //   - what is my plan for mobile devices?
 
   var config = {};
 
@@ -611,8 +607,6 @@
   function cancel() {
     var grid = this;
 
-    // TODO:
-
     grid.isComplete = true;
   }
 
@@ -634,35 +628,6 @@
     }
 
     grid.hoveredTile = hoveredTile;
-  }
-
-  /**
-   * Opens a hole in the grid in order to display the post represented at the given tile index.
-   *
-   * @this Grid
-   * @param {number} tileIndex
-   */
-  function openPost(tileIndex) {
-    var grid;
-
-    grid = this;
-
-    // TODO:
-  }
-
-  /**
-   * Closes the post that is currently displayed, and closes the hole in the grid that is used to
-   * show the post.
-   *
-   * @this Grid
-   * @param {number} tileIndex
-   */
-  function closePost(tileIndex) {
-    var grid;
-
-    grid = this;
-
-    // TODO:
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -698,9 +663,8 @@
     grid.centerY = Number.NaN;
     grid.isPostOpen = false;
     grid.isTransitioning = false;
+    grid.expandedTile = null;
     grid.sectors = null;
-
-    grid.jobs = {};
 
     grid.annotations = new window.hg.Annotations(grid);
 
@@ -735,8 +699,6 @@
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
-    grid.openPost = openPost;
-    grid.closePost = closePost;
 
     createSvg.call(grid);
     computeContentIndices.call(grid);

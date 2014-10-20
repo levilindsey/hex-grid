@@ -69,7 +69,7 @@
 
         input.grid.setHoveredTile(null);
 
-        window.hg.controller.oneTimeJobs.highlightHover.create(input.grid.index, tile);
+        window.hg.controller.oneTimeJobs.highlightHover.create(input.grid, tile);
 
         event.stopPropagation();
       }
@@ -98,7 +98,7 @@
           // TODO:
         }
 
-        createClickAnimation(input.grid.index, tile);
+        createClickAnimation(input.grid, tile);
       }
     }
 
@@ -115,15 +115,15 @@
   }
 
   /**
-   * @param {number} gridIndex
+   * @param {Grid} grid
    * @param {Tile} tile
    */
-  function createClickAnimation(gridIndex, tile) {
+  function createClickAnimation(grid, tile) {
     if (tile.holdsContent) {
-      config.possibleClickAnimations[config.contentTileClickAnimation](gridIndex, tile);
-      window.hg.controller.oneTimeJobs.openPost.create(gridIndex, tile);
+      config.possibleClickAnimations[config.contentTileClickAnimation](grid, tile);
+      window.hg.controller.oneTimeJobs.openPost.create(grid, tile);
     } else {
-      config.possibleClickAnimations[config.emptyTileClickAnimation](gridIndex, tile);
+      config.possibleClickAnimations[config.emptyTileClickAnimation](grid, tile);
     }
   }
 

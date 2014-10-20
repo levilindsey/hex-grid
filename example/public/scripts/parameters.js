@@ -217,7 +217,7 @@
 
     data = {
       'triggerLinesRadiate': window.hg.controller.oneTimeJobs.linesRadiate.createRandom.bind(
-          window.hg.controller, parameters.grid.index)
+          window.hg.controller, parameters.grid)
     };
 
     linesRadiateAnimationFolder.add(data, 'triggerLinesRadiate');
@@ -246,7 +246,7 @@
 
     function toggleRecurrence() {
       window.hg.controller.oneTimeJobs.linesRadiate.toggleRecurrence(
-          parameters.grid.index,
+          parameters.grid,
           window.hg.LinesRadiateJob.config.isRecurring,
           window.hg.LinesRadiateJob.config.avgDelay,
           window.hg.LinesRadiateJob.config.delayDeviationRange);
@@ -263,7 +263,7 @@
 
     data = {
       'triggerLine': window.hg.controller.oneTimeJobs.line.createRandom.bind(
-          window.hg.controller, parameters.grid.index)
+          window.hg.controller, parameters.grid)
     };
 
     randomLineAnimationFolder.add(data, 'triggerLine');
@@ -292,7 +292,7 @@
 
     function toggleRecurrence() {
       window.hg.controller.oneTimeJobs.line.toggleRecurrence(
-          parameters.grid.index,
+          parameters.grid,
           window.hg.LineJob.config.isRecurring,
           window.hg.LineJob.config.avgDelay,
           window.hg.LineJob.config.delayDeviationRange);
@@ -317,7 +317,7 @@
     data = {
       'triggerHighlightRadiate':
           window.hg.controller.oneTimeJobs.highlightRadiate.createRandom.bind(
-              window.hg.controller, parameters.grid.index)
+              window.hg.controller, parameters.grid)
     };
 
     highlightRadiateAnimationFolder.add(data, 'triggerHighlightRadiate');
@@ -345,7 +345,7 @@
 
     function toggleRecurrence() {
       window.hg.controller.oneTimeJobs.highlightRadiate.toggleRecurrence(
-          parameters.grid.index,
+          parameters.grid,
           window.hg.HighlightRadiateJob.config.isRecurring,
           window.hg.HighlightRadiateJob.config.avgDelay,
           window.hg.HighlightRadiateJob.config.delayDeviationRange);
@@ -369,7 +369,7 @@
 
     data = {
       'triggerHighlightHover': window.hg.controller.oneTimeJobs.highlightHover.createRandom.bind(
-          window.hg.controller, parameters.grid.index)
+          window.hg.controller, parameters.grid)
     };
 
     highlightHoverAnimationFolder.add(data, 'triggerHighlightHover');
@@ -394,7 +394,7 @@
 
     function toggleRecurrence() {
       window.hg.controller.oneTimeJobs.highlightHover.toggleRecurrence(
-          parameters.grid.index,
+          parameters.grid,
           window.hg.HighlightHoverJob.config.isRecurring,
           window.hg.HighlightHoverJob.config.avgDelay,
           window.hg.HighlightHoverJob.config.delayDeviationRange);
@@ -425,15 +425,15 @@
         });
     colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.colorWave.restart(parameters.grid.index);
+          window.hg.controller.persistentJobs.colorWave.restart(parameters.grid);
         });
     colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.colorWave.restart(parameters.grid.index);
+          window.hg.controller.persistentJobs.colorWave.restart(parameters.grid);
         });
     colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.colorWave.restart(parameters.grid.index);
+          window.hg.controller.persistentJobs.colorWave.restart(parameters.grid);
         });
     colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'deltaHue', 0, 360);
     colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'deltaSaturation', 0, 100);
@@ -455,15 +455,15 @@
         });
     displacementWaveAnimationFolder.add(window.hg.DisplacementWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid.index);
+          window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid);
         });
     displacementWaveAnimationFolder.add(window.hg.DisplacementWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid.index);
+          window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid);
         });
     displacementWaveAnimationFolder.add(window.hg.DisplacementWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid.index);
+          window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid);
         });
     displacementWaveAnimationFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaX', -300, 300);
     displacementWaveAnimationFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaY', -300, 300);

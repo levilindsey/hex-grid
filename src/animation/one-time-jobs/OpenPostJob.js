@@ -45,7 +45,9 @@
     // - reactivate neighbor forces; but make sure they are now using their temporary expanded neighborStates
     // - keep the sectors to re-use for closing
 
-    // TODO: when closing the grid, make sure to de-allocate the sector objects and the tile.expandedState properties (sector.destroy)
+    // TODO: when closing the grid, make sure to:
+    // - de-allocate the sector objects and the tile.expandedState properties (sector.destroy)
+    // - job.grid.expandedTile = null;
 
     job.grid.isTransitioning = false;
 
@@ -122,6 +124,7 @@
 
     job.grid.isPostOpen = true;
     job.grid.isTransitioning = true;
+    job.grid.expandedTile = job.baseTile;
 
     createSectors.call(job);
 
