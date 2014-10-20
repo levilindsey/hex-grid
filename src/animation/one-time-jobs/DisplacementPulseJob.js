@@ -13,6 +13,14 @@
 
   var config = {};
 
+  config.duration = 500;
+
+  // TODO:
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 

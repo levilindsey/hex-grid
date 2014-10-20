@@ -13,7 +13,11 @@
 
   var config = {};
 
+  config.duration = 500;
+
   config.expandedDisplacementTileCount = 3;
+
+  // TODO:
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions

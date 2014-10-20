@@ -298,7 +298,7 @@
    * @param {Grid} grid
    * @returns {Tile}
    */
-  function getRandomContentTile(grid) {//
+  function getRandomContentTile(grid) {
     var contentIndex = parseInt(Math.random() * grid.actualContentInnerIndices.length);
     return grid.tiles[grid.actualContentInnerIndices[contentIndex]];
   }
@@ -4755,6 +4755,10 @@
 
   var config = {};
 
+  config.duration = 500;
+
+  // TODO:
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -4897,6 +4901,14 @@
   // Private static variables
 
   var config = {};
+
+  config.duration = 500;
+
+  // TODO:
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -5439,6 +5451,14 @@
   // Private static variables
 
   var config = {};
+
+  config.duration = 500;
+
+  // TODO:
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -7026,7 +7046,11 @@
 
   var config = {};
 
+  config.duration = 500;
+
   config.expandedDisplacementTileCount = 3;
+
+  // TODO:
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -7245,6 +7269,14 @@
   // Private static variables
 
   var config = {};
+
+  config.duration = 500;
+
+  // TODO:
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions

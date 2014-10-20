@@ -52,25 +52,37 @@
     animationsFolder = gui.addFolder('Animations');
     animationsFolder.open();// TODO: remove me
 
+    // One-time animations
+
     oneTimeFolder = animationsFolder.addFolder('One Time');
     oneTimeFolder.open();// TODO: remove me
 
-    initLinesRadiateAnimationFolder(oneTimeFolder);
-    initRandomLineAnimationFolder(oneTimeFolder);
-    initHighlightHoverAnimationFolder(oneTimeFolder);
-    initHighlightRadiateAnimationFolder(oneTimeFolder);
+    initOpenPostJobFolder(oneTimeFolder);
+    initClosePostJobFolder(oneTimeFolder);
+    initDisplacementPulseJobFolder(oneTimeFolder);
+    initHighlightHoverJobFolder(oneTimeFolder);
+    initHighlightRadiateJobFolder(oneTimeFolder);
+    initIntraTileRadiateJobFolder(oneTimeFolder);
+    initRandomLineJobFolder(oneTimeFolder);
+    initLinesRadiateJobFolder(oneTimeFolder);
+    initTileBorderJobFolder(oneTimeFolder);
+
+    // Persistent animations
 
     persistentFolder = animationsFolder.addFolder('Persistent');
 
-    initColorShiftAnimationFolder(persistentFolder);
-    initColorWaveAnimationFolder(persistentFolder);
-    initDisplacementWaveAnimationFolder(persistentFolder);
+    initColorShiftJobFolder(persistentFolder);
+    initColorWaveJobFolder(persistentFolder);
+    initDisplacementWaveJobFolder(persistentFolder);
 
-    // TODO: add an additional control to completely hide the dat.GUI controls
+    // TODO: add an additional control to completely hide the dat.GUI controls?
   }
 
+  // ------------------------------------------------------------------------------------------- //
+  // Miscellaneous
+
   /**
-   * Sets up the grid folder within the dat.GUI controller.
+   * Sets up the folder for Grid parameters within the dat.GUI controller.
    */
   function initGridFolder(parentFolder) {
     var gridFolder, colors;
@@ -152,7 +164,7 @@
   }
 
   /**
-   * Sets up the annotations folder within the dat.GUI controller.
+   * Sets up the folder for Annotation parameters within the dat.GUI controller.
    */
   function initAnnotationsFolder(parentFolder) {
     var annotationsFolder, key, data;
@@ -170,7 +182,7 @@
   }
 
   /**
-   * Sets up the input folder within the dat.GUI controller.
+   * Sets up the folder for Input parameters within the dat.GUI controller.
    */
   function initInputFolder(parentFolder) {
     var inputFolder;
@@ -185,7 +197,7 @@
   }
 
   /**
-   * Sets up the tile folder within the dat.GUI controller.
+   * Sets up the folder for Tile parameters within the dat.GUI controller.
    */
   function initTileFolder(parentFolder) {
     var tileFolder;
@@ -207,156 +219,96 @@
         });
   }
 
-  /**
-   * Sets up the lines-radiate-animation folder within the dat.GUI controller.
-   */
-  function initLinesRadiateAnimationFolder(parentFolder) {
-    var linesRadiateAnimationFolder, data;
-
-    linesRadiateAnimationFolder = parentFolder.addFolder('Radiating Lines');
-
-    data = {
-      'triggerLinesRadiate': window.hg.controller.oneTimeJobs.linesRadiate.createRandom.bind(
-          window.hg.controller, parameters.grid)
-    };
-
-    linesRadiateAnimationFolder.add(data, 'triggerLinesRadiate');
-
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'duration', 100, 20000);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'lineWidth', 1, 100);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'lineLength', 10, 60000);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'lineSidePeriod', 5, 500);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'startSaturation', 0, 100);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'startLightness', 0, 100);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'startOpacity', 0, 1);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'endSaturation', 0, 100);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'endLightness', 0, 100);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'endOpacity', 0, 1);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'sameDirectionProb', 0, 1);
-
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'isBlurOn');
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'blurStdDeviation', 0, 80);
-
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'isRecurring')
-        .onChange(toggleRecurrence);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'avgDelay', 10, 10000)
-        .onChange(toggleRecurrence);
-    linesRadiateAnimationFolder.add(window.hg.LinesRadiateJob.config, 'delayDeviationRange', 0, 10000)
-        .onChange(toggleRecurrence);
-
-    function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.linesRadiate.toggleRecurrence(
-          parameters.grid,
-          window.hg.LinesRadiateJob.config.isRecurring,
-          window.hg.LinesRadiateJob.config.avgDelay,
-          window.hg.LinesRadiateJob.config.delayDeviationRange);
-    }
-  }
+  // ------------------------------------------------------------------------------------------- //
+  // One-time animations
 
   /**
-   * Sets up the random-line-animation folder within the dat.GUI controller.
+   * Sets up the folder for OpenPostJob parameters within the dat.GUI controller.
    */
-  function initRandomLineAnimationFolder(parentFolder) {
-    var randomLineAnimationFolder, data;
+  function initOpenPostJobFolder(parentFolder) {
+    var openPostJobFolder, data;
 
-    randomLineAnimationFolder = parentFolder.addFolder('Random Lines');
+    openPostJobFolder = parentFolder.addFolder('Open Post');
+//    openPostJobFolder.open();// TODO: remove me
 
     data = {
-      'triggerLine': window.hg.controller.oneTimeJobs.line.createRandom.bind(
-          window.hg.controller, parameters.grid)
-    };
-
-    randomLineAnimationFolder.add(data, 'triggerLine');
-
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'duration', 100, 20000);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'lineWidth', 1, 100);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'lineLength', 10, 60000);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'lineSidePeriod', 5, 500);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'startSaturation', 0, 100);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'startLightness', 0, 100);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'startOpacity', 0, 1);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'endSaturation', 0, 100);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'endLightness', 0, 100);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'endOpacity', 0, 1);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'sameDirectionProb', 0, 1);
-
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'isBlurOn');
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'blurStdDeviation', 0, 80);
-
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'isRecurring')
-        .onChange(toggleRecurrence);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'avgDelay', 10, 10000)
-        .onChange(toggleRecurrence);
-    randomLineAnimationFolder.add(window.hg.LineJob.config, 'delayDeviationRange', 0, 10000)
-        .onChange(toggleRecurrence);
-
-    function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.line.toggleRecurrence(
-          parameters.grid,
-          window.hg.LineJob.config.isRecurring,
-          window.hg.LineJob.config.avgDelay,
-          window.hg.LineJob.config.delayDeviationRange);
-    }
-  }
-
-  /**
-   * Sets up the shimmer-radiate-animation folder within the dat.GUI controller.
-   */
-  function initHighlightRadiateAnimationFolder(parentFolder) {
-    var highlightRadiateAnimationFolder, data, colors;
-
-    colors = [];
-    colors.deltaColor = window.hg.util.hslToHsv({
-      h: window.hg.HighlightRadiateJob.config.deltaHue,
-      s: window.hg.HighlightRadiateJob.config.deltaSaturation * 0.01,
-      l: window.hg.HighlightRadiateJob.config.deltaLightness * 0.01
-    });
-
-    highlightRadiateAnimationFolder = parentFolder.addFolder('Radiating Highlight');
-
-    data = {
-      'triggerHighlightRadiate':
-          window.hg.controller.oneTimeJobs.highlightRadiate.createRandom.bind(
+      'triggerOpenPost': window.hg.controller.oneTimeJobs.openPost.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
-    highlightRadiateAnimationFolder.add(data, 'triggerHighlightRadiate');
+    openPostJobFolder.add(data, 'triggerOpenPost');
 
-    highlightRadiateAnimationFolder.add(window.hg.HighlightRadiateJob.config, 'shimmerSpeed', 0.1, 10);
-    highlightRadiateAnimationFolder.add(window.hg.HighlightRadiateJob.config, 'shimmerWaveWidth', 1, 2000);
-    highlightRadiateAnimationFolder.add(window.hg.HighlightRadiateJob.config, 'duration', 10, 10000);
-    highlightRadiateAnimationFolder.addColor(colors, 'deltaColor')
-        .onChange(function () {
-          var color = window.hg.util.hsvToHsl(colors.deltaColor);
+    openPostJobFolder.add(window.hg.OpenPostJob.config, 'duration', 10, 10000);
 
-          window.hg.HighlightRadiateJob.config.deltaHue = color.h;
-          window.hg.HighlightRadiateJob.config.deltaSaturation = color.s * 100;
-          window.hg.HighlightRadiateJob.config.deltaLightness = color.l * 100;
-        });
-    highlightRadiateAnimationFolder.add(window.hg.HighlightRadiateJob.config, 'opacity', 0, 1);
+    // TODO:
+  }
 
-    highlightRadiateAnimationFolder.add(window.hg.HighlightRadiateJob.config, 'isRecurring')
+  /**
+   * Sets up the folder for ClosePostJob parameters within the dat.GUI controller.
+   */
+  function initClosePostJobFolder(parentFolder) {
+    var closePostJobFolder, data;
+
+    closePostJobFolder = parentFolder.addFolder('Close Post');
+//    closePostJobFolder.open();// TODO: remove me
+
+    data = {
+      'triggerClosePost': window.hg.controller.oneTimeJobs.closePost.createRandom.bind(
+              window.hg.controller, parameters.grid)
+    };
+
+    closePostJobFolder.add(data, 'triggerClosePost');
+
+    closePostJobFolder.add(window.hg.ClosePostJob.config, 'duration', 10, 10000);
+
+    // TODO:
+  }
+
+  /**
+   * Sets up the folder for DisplacementPulseJob parameters within the dat.GUI controller.
+   */
+  function initDisplacementPulseJobFolder(parentFolder) {
+    var displacementPulseJobFolder, data;
+
+    displacementPulseJobFolder = parentFolder.addFolder('Displacement Pulse');
+//    displacementPulseJobFolder.open();// TODO: remove me
+
+    data = {
+      'triggerDisplacementPulse':
+          window.hg.controller.oneTimeJobs.displacementPulse.createRandom.bind(
+              window.hg.controller, parameters.grid)
+    };
+
+    displacementPulseJobFolder.add(data, 'triggerDisplacementPulse');
+
+    displacementPulseJobFolder.add(window.hg.DisplacementPulseJob.config, 'duration', 10, 10000);
+
+    // TODO:
+
+    displacementPulseJobFolder.add(window.hg.DisplacementPulseJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    highlightRadiateAnimationFolder.add(window.hg.HighlightRadiateJob.config, 'avgDelay', 10, 10000)
+    displacementPulseJobFolder.add(window.hg.DisplacementPulseJob.config, 'avgDelay', 10, 10000)
         .onChange(toggleRecurrence);
-    highlightRadiateAnimationFolder
-        .add(window.hg.HighlightRadiateJob.config, 'delayDeviationRange', 0, 10000)
+    displacementPulseJobFolder.add(window.hg.DisplacementPulseJob.config, 'delayDeviationRange',
+        0, 10000)
         .onChange(toggleRecurrence);
+
+    // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.highlightRadiate.toggleRecurrence(
+      window.hg.controller.oneTimeJobs.displacementPulse.toggleRecurrence(
           parameters.grid,
-          window.hg.HighlightRadiateJob.config.isRecurring,
-          window.hg.HighlightRadiateJob.config.avgDelay,
-          window.hg.HighlightRadiateJob.config.delayDeviationRange);
+          window.hg.DisplacementPulseJob.config.isRecurring,
+          window.hg.DisplacementPulseJob.config.avgDelay,
+          window.hg.DisplacementPulseJob.config.delayDeviationRange);
     }
   }
 
   /**
-   * Sets up the shimmer-hover-animation folder within the dat.GUI controller.
+   * Sets up the folder for HighlightHoverJob parameters within the dat.GUI controller.
    */
-  function initHighlightHoverAnimationFolder(parentFolder) {
-    var highlightHoverAnimationFolder, data, colors;
+  function initHighlightHoverJobFolder(parentFolder) {
+    var highlightHoverJobFolder, data, colors;
 
     colors = [];
     colors.deltaColor = window.hg.util.hslToHsv({
@@ -365,17 +317,17 @@
       l: window.hg.HighlightHoverJob.config.deltaLightness * 0.01
     });
 
-    highlightHoverAnimationFolder = parentFolder.addFolder('Hover Highlight');
+    highlightHoverJobFolder = parentFolder.addFolder('Hover Highlight');
 
     data = {
       'triggerHighlightHover': window.hg.controller.oneTimeJobs.highlightHover.createRandom.bind(
           window.hg.controller, parameters.grid)
     };
 
-    highlightHoverAnimationFolder.add(data, 'triggerHighlightHover');
+    highlightHoverJobFolder.add(data, 'triggerHighlightHover');
 
-    highlightHoverAnimationFolder.add(window.hg.HighlightHoverJob.config, 'duration', 10, 10000);
-    highlightHoverAnimationFolder.addColor(colors, 'deltaColor')
+    highlightHoverJobFolder.add(window.hg.HighlightHoverJob.config, 'duration', 10, 10000);
+    highlightHoverJobFolder.addColor(colors, 'deltaColor')
         .onChange(function () {
           var color = window.hg.util.hsvToHsl(colors.deltaColor);
 
@@ -383,14 +335,16 @@
           window.hg.HighlightHoverJob.config.deltaSaturation = color.s * 100;
           window.hg.HighlightHoverJob.config.deltaLightness = color.l * 100;
         });
-    highlightHoverAnimationFolder.add(window.hg.HighlightHoverJob.config, 'opacity', 0, 1);
+    highlightHoverJobFolder.add(window.hg.HighlightHoverJob.config, 'opacity', 0, 1);
 
-    highlightHoverAnimationFolder.add(window.hg.HighlightHoverJob.config, 'isRecurring')
+    highlightHoverJobFolder.add(window.hg.HighlightHoverJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    highlightHoverAnimationFolder.add(window.hg.HighlightHoverJob.config, 'avgDelay', 10, 2000)
+    highlightHoverJobFolder.add(window.hg.HighlightHoverJob.config, 'avgDelay', 10, 2000)
         .onChange(toggleRecurrence);
-    highlightHoverAnimationFolder.add(window.hg.HighlightHoverJob.config, 'delayDeviationRange', 0, 2000)
+    highlightHoverJobFolder.add(window.hg.HighlightHoverJob.config, 'delayDeviationRange', 0, 2000)
         .onChange(toggleRecurrence);
+
+    // ---  --- //
 
     function toggleRecurrence() {
       window.hg.controller.oneTimeJobs.highlightHover.toggleRecurrence(
@@ -402,71 +356,303 @@
   }
 
   /**
-   * Sets up the color shift animation folder within the dat.GUI controller.
+   * Sets up the folder for HighlightRadiateJob parameters within the dat.GUI controller.
    */
-  function initColorShiftAnimationFolder(parentFolder) {
-    var colorWaveAnimationFolder;
+  function initHighlightRadiateJobFolder(parentFolder) {
+    var highlightRadiateJobFolder, data, colors;
 
-    colorWaveAnimationFolder = parentFolder.addFolder('Color Shift');
-//    colorWaveAnimationFolder.open();// TODO: remove me
+    colors = [];
+    colors.deltaColor = window.hg.util.hslToHsv({
+      h: window.hg.HighlightRadiateJob.config.deltaHue,
+      s: window.hg.HighlightRadiateJob.config.deltaSaturation * 0.01,
+      l: window.hg.HighlightRadiateJob.config.deltaLightness * 0.01
+    });
+
+    highlightRadiateJobFolder = parentFolder.addFolder('Radiating Highlight');
+
+    data = {
+      'triggerHighlightRadiate':
+          window.hg.controller.oneTimeJobs.highlightRadiate.createRandom.bind(
+              window.hg.controller, parameters.grid)
+    };
+
+    highlightRadiateJobFolder.add(data, 'triggerHighlightRadiate');
+
+    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'shimmerSpeed', 0.1, 10);
+    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'shimmerWaveWidth', 1, 2000);
+    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'duration', 10, 10000);
+    highlightRadiateJobFolder.addColor(colors, 'deltaColor')
+        .onChange(function () {
+          var color = window.hg.util.hsvToHsl(colors.deltaColor);
+
+          window.hg.HighlightRadiateJob.config.deltaHue = color.h;
+          window.hg.HighlightRadiateJob.config.deltaSaturation = color.s * 100;
+          window.hg.HighlightRadiateJob.config.deltaLightness = color.l * 100;
+        });
+    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'opacity', 0, 1);
+
+    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'isRecurring')
+        .onChange(toggleRecurrence);
+    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'avgDelay', 10, 10000)
+        .onChange(toggleRecurrence);
+    highlightRadiateJobFolder
+        .add(window.hg.HighlightRadiateJob.config, 'delayDeviationRange', 0, 10000)
+        .onChange(toggleRecurrence);
+
+    // ---  --- //
+
+    function toggleRecurrence() {
+      window.hg.controller.oneTimeJobs.highlightRadiate.toggleRecurrence(
+          parameters.grid,
+          window.hg.HighlightRadiateJob.config.isRecurring,
+          window.hg.HighlightRadiateJob.config.avgDelay,
+          window.hg.HighlightRadiateJob.config.delayDeviationRange);
+    }
+  }
+
+  /**
+   * Sets up the folder for IntraTileRadiateJob parameters within the dat.GUI controller.
+   */
+  function initIntraTileRadiateJobFolder(parentFolder) {
+    var intraTileRadiateJobFolder, data;
+
+    intraTileRadiateJobFolder = parentFolder.addFolder('Intra-Tile Radiate');
+//    intraTileRadiateJobFolder.open();// TODO: remove me
+
+    data = {
+      'triggerIntraTileRadiate':
+          window.hg.controller.oneTimeJobs.intraTileRadiate.createRandom.bind(
+              window.hg.controller, parameters.grid)
+    };
+
+    intraTileRadiateJobFolder.add(data, 'triggerIntraTileRadiate');
+
+    intraTileRadiateJobFolder.add(window.hg.IntraTileRadiateJob.config, 'duration', 10, 10000);
+
+    // TODO:
+
+    intraTileRadiateJobFolder.add(window.hg.IntraTileRadiateJob.config, 'isRecurring')
+        .onChange(toggleRecurrence);
+    intraTileRadiateJobFolder.add(window.hg.IntraTileRadiateJob.config, 'avgDelay', 10, 10000)
+        .onChange(toggleRecurrence);
+    intraTileRadiateJobFolder.add(window.hg.IntraTileRadiateJob.config, 'delayDeviationRange',
+        0, 10000)
+        .onChange(toggleRecurrence);
+
+    // ---  --- //
+
+    function toggleRecurrence() {
+      window.hg.controller.oneTimeJobs.intraTileRadiate.toggleRecurrence(
+          parameters.grid,
+          window.hg.IntraTileRadiateJob.config.isRecurring,
+          window.hg.IntraTileRadiateJob.config.avgDelay,
+          window.hg.IntraTileRadiateJob.config.delayDeviationRange);
+    }
+  }
+
+  /**
+   * Sets up the folder for LineJob parameters within the dat.GUI controller.
+   */
+  function initRandomLineJobFolder(parentFolder) {
+    var randomLineJobFolder, data;
+
+    randomLineJobFolder = parentFolder.addFolder('Random Lines');
+
+    data = {
+      'triggerLine': window.hg.controller.oneTimeJobs.line.createRandom.bind(
+          window.hg.controller, parameters.grid)
+    };
+
+    randomLineJobFolder.add(data, 'triggerLine');
+
+    randomLineJobFolder.add(window.hg.LineJob.config, 'duration', 100, 20000);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'lineWidth', 1, 100);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'lineLength', 10, 60000);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'lineSidePeriod', 5, 500);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'startSaturation', 0, 100);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'startLightness', 0, 100);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'startOpacity', 0, 1);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'endSaturation', 0, 100);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'endLightness', 0, 100);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'endOpacity', 0, 1);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'sameDirectionProb', 0, 1);
+
+    randomLineJobFolder.add(window.hg.LineJob.config, 'isBlurOn');
+    randomLineJobFolder.add(window.hg.LineJob.config, 'blurStdDeviation', 0, 80);
+
+    randomLineJobFolder.add(window.hg.LineJob.config, 'isRecurring')
+        .onChange(toggleRecurrence);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'avgDelay', 10, 10000)
+        .onChange(toggleRecurrence);
+    randomLineJobFolder.add(window.hg.LineJob.config, 'delayDeviationRange', 0, 10000)
+        .onChange(toggleRecurrence);
+
+    // ---  --- //
+
+    function toggleRecurrence() {
+      window.hg.controller.oneTimeJobs.line.toggleRecurrence(
+          parameters.grid,
+          window.hg.LineJob.config.isRecurring,
+          window.hg.LineJob.config.avgDelay,
+          window.hg.LineJob.config.delayDeviationRange);
+    }
+  }
+
+  /**
+   * Sets up the folder for LinesRadiateJob parameters within the dat.GUI controller.
+   */
+  function initLinesRadiateJobFolder(parentFolder) {
+    var linesRadiateJobFolder, data;
+
+    linesRadiateJobFolder = parentFolder.addFolder('Radiating Lines');
+
+    data = {
+      'triggerLinesRadiate': window.hg.controller.oneTimeJobs.linesRadiate.createRandom.bind(
+          window.hg.controller, parameters.grid)
+    };
+
+    linesRadiateJobFolder.add(data, 'triggerLinesRadiate');
+
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'duration', 100, 20000);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'lineWidth', 1, 100);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'lineLength', 10, 60000);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'lineSidePeriod', 5, 500);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'startSaturation', 0, 100);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'startLightness', 0, 100);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'startOpacity', 0, 1);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'endSaturation', 0, 100);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'endLightness', 0, 100);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'endOpacity', 0, 1);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'sameDirectionProb', 0, 1);
+
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'isBlurOn');
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'blurStdDeviation', 0, 80);
+
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'isRecurring')
+        .onChange(toggleRecurrence);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'avgDelay', 10, 10000)
+        .onChange(toggleRecurrence);
+    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'delayDeviationRange', 0, 10000)
+        .onChange(toggleRecurrence);
+
+    // ---  --- //
+
+    function toggleRecurrence() {
+      window.hg.controller.oneTimeJobs.linesRadiate.toggleRecurrence(
+          parameters.grid,
+          window.hg.LinesRadiateJob.config.isRecurring,
+          window.hg.LinesRadiateJob.config.avgDelay,
+          window.hg.LinesRadiateJob.config.delayDeviationRange);
+    }
+  }
+
+  /**
+   * Sets up the folder for TileBorderJob parameters within the dat.GUI controller.
+   */
+  function initTileBorderJobFolder(parentFolder) {
+    var tileBorderJobFolder, data;
+
+    tileBorderJobFolder = parentFolder.addFolder('Tile Border');
+//    tileBorderJobFolder.open();// TODO: remove me
+
+    data = {
+      'triggerTileBorder': window.hg.controller.oneTimeJobs.tileBorder.createRandom.bind(
+              window.hg.controller, parameters.grid)
+    };
+
+    tileBorderJobFolder.add(data, 'triggerTileBorder');
+
+    tileBorderJobFolder.add(window.hg.TileBorderJob.config, 'duration', 10, 10000);
+
+    // TODO:
+
+    tileBorderJobFolder.add(window.hg.TileBorderJob.config, 'isRecurring')
+        .onChange(toggleRecurrence);
+    tileBorderJobFolder.add(window.hg.TileBorderJob.config, 'avgDelay', 10, 10000)
+        .onChange(toggleRecurrence);
+    tileBorderJobFolder.add(window.hg.TileBorderJob.config, 'delayDeviationRange', 0, 10000)
+        .onChange(toggleRecurrence);
+
+    // ---  --- //
+
+    function toggleRecurrence() {
+      window.hg.controller.oneTimeJobs.tileBorder.toggleRecurrence(
+          parameters.grid,
+          window.hg.TileBorderJob.config.isRecurring,
+          window.hg.TileBorderJob.config.avgDelay,
+          window.hg.TileBorderJob.config.delayDeviationRange);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Persistent animations
+
+  /**
+   * Sets up the folder for ColorShiftJob parameters within the dat.GUI controller.
+   */
+  function initColorShiftJobFolder(parentFolder) {
+    var colorWaveJobFolder;
+
+    colorWaveJobFolder = parentFolder.addFolder('Color Shift');
+//    colorWaveJobFolder.open();// TODO: remove me
 
     // TODO:
   }
 
   /**
-   * Sets up the color wave animation folder within the dat.GUI controller.
+   * Sets up the folder for ColorWaveJob parameters within the dat.GUI controller.
    */
-  function initColorWaveAnimationFolder(parentFolder) {
-    var colorWaveAnimationFolder = parentFolder.addFolder('Color Wave');
+  function initColorWaveJobFolder(parentFolder) {
+    var colorWaveJobFolder = parentFolder.addFolder('Color Wave');
 
-    colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'period', 1, 10000)
+    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'period', 1, 10000)
         .onChange(function (value) {
           window.hg.ColorWaveJob.config.halfPeriod = value / 2;
         });
-    colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'wavelength', 1, 4000)
+    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
           window.hg.controller.persistentJobs.colorWave.restart(parameters.grid);
         });
-    colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'originX', -500, 3000)
+    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
           window.hg.controller.persistentJobs.colorWave.restart(parameters.grid);
         });
-    colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'originY', -500, 3000)
+    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
           window.hg.controller.persistentJobs.colorWave.restart(parameters.grid);
         });
-    colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'deltaHue', 0, 360);
-    colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'deltaSaturation', 0, 100);
-    colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'deltaLightness', 0, 100);
-    colorWaveAnimationFolder.add(window.hg.ColorWaveJob.config, 'opacity', 0, 1);
+    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'deltaHue', 0, 360);
+    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'deltaSaturation', 0, 100);
+    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'deltaLightness', 0, 100);
+    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'opacity', 0, 1);
   }
 
   /**
-   * Sets up the displacement wave animation folder within the dat.GUI controller.
+   * Sets up the folder for DisplacementWaveJob parameters within the dat.GUI controller.
    */
-  function initDisplacementWaveAnimationFolder(parentFolder) {
-    var displacementWaveAnimationFolder;
+  function initDisplacementWaveJobFolder(parentFolder) {
+    var displacementWaveJobFolder;
 
-    displacementWaveAnimationFolder = parentFolder.addFolder('Displacement Wave');
+    displacementWaveJobFolder = parentFolder.addFolder('Displacement Wave');
 
-    displacementWaveAnimationFolder.add(window.hg.DisplacementWaveJob.config, 'period', 1, 10000)
+    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'period', 1, 10000)
         .onChange(function (value) {
           window.hg.DisplacementWaveJob.config.halfPeriod = value / 2;
         });
-    displacementWaveAnimationFolder.add(window.hg.DisplacementWaveJob.config, 'wavelength', 1, 4000)
+    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
           window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid);
         });
-    displacementWaveAnimationFolder.add(window.hg.DisplacementWaveJob.config, 'originX', -500, 3000)
+    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
           window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid);
         });
-    displacementWaveAnimationFolder.add(window.hg.DisplacementWaveJob.config, 'originY', -500, 3000)
+    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
           window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid);
         });
-    displacementWaveAnimationFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaX', -300, 300);
-    displacementWaveAnimationFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaY', -300, 300);
+    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaX', -300, 300);
+    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaY', -300, 300);
   }
 
   console.log('parameters module loaded');
