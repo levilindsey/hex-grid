@@ -25,15 +25,41 @@
   // Private dynamic functions
 
   /**
-   * Calculates the distance from each tile in the grid to the starting point of this
-   * HighlightRadiateJob.
-   *
-   * This cheats by only calculating the distance to the tiles' original center. This allows us to
-   * not need to re-calculate tile distances during each time step.
+   * Calculates and stores the initial and maximal displacement values for all tiles.
    *
    * @this DisplacementPulseJob
    */
-  function calculateTileDistances() {
+  function initializeDisplacements() {
+    var job, i, iCount, j, jCount, k, tiles;
+
+    job = this;
+
+    job.displacements = [];
+
+    k = 0;
+
+    if (job.grid.isPostOpen) {
+      // Consider all of the old AND new tiles
+      for (i = 0, iCount = job.grid.sectors.length; i < iCount; i += 1) {
+        tiles = job.grid.sectors[i].tiles;
+
+        for (j = 0, jCount = tiles.length; j < jCount; j += 1) {
+          job.displacements[k] = {
+            tile: ,
+            startX: ,
+            startY: ,
+            endX: ,
+            endY:
+          };
+          k += 1;
+        }
+      }
+    } else {
+      for (i = 0, iCount = job.grid.tiles.length; i < iCount; i += 1) {
+        **;
+      }
+    }
+
     // TODO:
 //    var job, i, count, deltaX, deltaY, distanceOffset;
 //
@@ -90,6 +116,9 @@
    */
   function update(currentTime, deltaTime) {
     // TODO:
+
+    // TODO: use an ease-out curve to determine progress at each frame
+
 //    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
 //        oneMinusDurationRatio, animatedSomeTile;
 //
@@ -162,6 +191,8 @@
     job.tile = tile;
     job.startTime = 0;
     job.isComplete = false;
+
+    job.displacements = null;
 
     job.start = start;
     job.update = update;

@@ -1085,180 +1085,6 @@
 })();
 
 /**
- * This module defines a singleton for animating things.
- *
- * The animator singleton handles the animation loop for the application and updates all
- * registered AnimationJobs during each animation frame.
- *
- * @module animator
- */
-(function () {
-  /**
-   * @typedef {{start: Function, update: Function(number, number), draw: Function, cancel: Function, isComplete: boolean}} AnimationJob
-   */
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var animator = {};
-  var config = {};
-
-  config.deltaTimeUpperThreshold = 200;
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * This is the animation loop that drives all of the animation.
-   */
-  function animationLoop() {
-    var currentTime, deltaTime;
-
-    currentTime = Date.now();
-    deltaTime = currentTime - animator.previousTime;
-    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
-        config.deltaTimeUpperThreshold : deltaTime;
-    animator.isLooping = true;
-
-    if (!animator.isPaused) {
-      updateJobs(currentTime, deltaTime);
-      drawJobs();
-      window.hg.util.requestAnimationFrame(animationLoop);
-    } else {
-      animator.isLooping = false;
-    }
-
-    animator.previousTime = currentTime;
-  }
-
-  /**
-   * Updates all of the active AnimationJobs.
-   *
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function updateJobs(currentTime, deltaTime) {
-    var i, count;
-
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].update(currentTime, deltaTime);
-
-      // Remove jobs from the list after they are complete
-      if (animator.jobs[i].isComplete) {
-        removeJob(animator.jobs[i], i);
-        i--;
-        count--;
-      }
-    }
-  }
-
-  /**
-   * Removes the given job from the collection of active, animating jobs.
-   *
-   * @param {AnimationJob} job
-   * @param {number} [index]
-   */
-  function removeJob(job, index) {
-    var count;
-
-    if (typeof index === 'number') {
-      animator.jobs.splice(index, 1);
-    } else {
-      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
-        if (animator.jobs[index] === job) {
-          animator.jobs.splice(index, 1);
-          break;
-        }
-      }
-    }
-
-    // Stop the animation loop when there are no more jobs to animate
-    if (animator.jobs.length === 0) {
-      animator.isPaused = true;
-    }
-  }
-
-  /**
-   * Draws all of the active AnimationJobs.
-   */
-  function drawJobs() {
-    var i, count;
-
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].draw();
-    }
-  }
-
-  /**
-   * Starts the animation loop if it is not already running
-   */
-  function startAnimationLoop() {
-    animator.isPaused = false;
-    if (!animator.isLooping) {
-      animator.previousTime = Date.now();
-      animationLoop();
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public static functions
-
-  /**
-   * Starts the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function startJob(job) {
-//    console.log('Job starting: ' + job.constructor.name);
-
-    job.start();
-    animator.jobs.push(job);
-
-    startAnimationLoop();
-  }
-
-  /**
-   * Cancels the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function cancelJob(job) {
-    console.log('Job cancelling: ' + job.constructor.name);
-
-    job.cancel();
-    removeJob(job);
-  }
-
-  /**
-   * Cancels all running AnimationJobs.
-   */
-  function cancelAll() {
-    while (animator.jobs.length) {
-      cancelJob(animator.jobs[0]);
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this singleton
-
-  animator.jobs = [];
-  animator.previousTime = Date.now();
-  animator.isLooping = false;
-  animator.isPaused = true;
-  animator.startJob = startJob;
-  animator.cancelJob = cancelJob;
-  animator.cancelAll = cancelAll;
-
-  animator.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.animator = animator;
-
-  console.log('animator module loaded');
-})();
-
-/**
  * @typedef {AnimationJob} Annotations
  */
 
@@ -4741,6 +4567,180 @@
 // TODO: post.element.style.pointerEvents = 'none';
 
 /**
+ * This module defines a singleton for animating things.
+ *
+ * The animator singleton handles the animation loop for the application and updates all
+ * registered AnimationJobs during each animation frame.
+ *
+ * @module animator
+ */
+(function () {
+  /**
+   * @typedef {{start: Function, update: Function(number, number), draw: Function, cancel: Function, isComplete: boolean}} AnimationJob
+   */
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var animator = {};
+  var config = {};
+
+  config.deltaTimeUpperThreshold = 200;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * This is the animation loop that drives all of the animation.
+   */
+  function animationLoop() {
+    var currentTime, deltaTime;
+
+    currentTime = Date.now();
+    deltaTime = currentTime - animator.previousTime;
+    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
+        config.deltaTimeUpperThreshold : deltaTime;
+    animator.isLooping = true;
+
+    if (!animator.isPaused) {
+      updateJobs(currentTime, deltaTime);
+      drawJobs();
+      window.hg.util.requestAnimationFrame(animationLoop);
+    } else {
+      animator.isLooping = false;
+    }
+
+    animator.previousTime = currentTime;
+  }
+
+  /**
+   * Updates all of the active AnimationJobs.
+   *
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function updateJobs(currentTime, deltaTime) {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].update(currentTime, deltaTime);
+
+      // Remove jobs from the list after they are complete
+      if (animator.jobs[i].isComplete) {
+        removeJob(animator.jobs[i], i);
+        i--;
+        count--;
+      }
+    }
+  }
+
+  /**
+   * Removes the given job from the collection of active, animating jobs.
+   *
+   * @param {AnimationJob} job
+   * @param {number} [index]
+   */
+  function removeJob(job, index) {
+    var count;
+
+    if (typeof index === 'number') {
+      animator.jobs.splice(index, 1);
+    } else {
+      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
+        if (animator.jobs[index] === job) {
+          animator.jobs.splice(index, 1);
+          break;
+        }
+      }
+    }
+
+    // Stop the animation loop when there are no more jobs to animate
+    if (animator.jobs.length === 0) {
+      animator.isPaused = true;
+    }
+  }
+
+  /**
+   * Draws all of the active AnimationJobs.
+   */
+  function drawJobs() {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].draw();
+    }
+  }
+
+  /**
+   * Starts the animation loop if it is not already running
+   */
+  function startAnimationLoop() {
+    animator.isPaused = false;
+    if (!animator.isLooping) {
+      animator.previousTime = Date.now();
+      animationLoop();
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Starts the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function startJob(job) {
+//    console.log('Job starting: ' + job.constructor.name);
+
+    job.start();
+    animator.jobs.push(job);
+
+    startAnimationLoop();
+  }
+
+  /**
+   * Cancels the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function cancelJob(job) {
+    console.log('Job cancelling: ' + job.constructor.name);
+
+    job.cancel();
+    removeJob(job);
+  }
+
+  /**
+   * Cancels all running AnimationJobs.
+   */
+  function cancelAll() {
+    while (animator.jobs.length) {
+      cancelJob(animator.jobs[0]);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  animator.jobs = [];
+  animator.previousTime = Date.now();
+  animator.isLooping = false;
+  animator.isPaused = true;
+  animator.startJob = startJob;
+  animator.cancelJob = cancelJob;
+  animator.cancelAll = cancelAll;
+
+  animator.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.animator = animator;
+
+  console.log('animator module loaded');
+})();
+
+/**
  * @typedef {AnimationJob} ClosePostJob
  */
 
@@ -4914,15 +4914,41 @@
   // Private dynamic functions
 
   /**
-   * Calculates the distance from each tile in the grid to the starting point of this
-   * HighlightRadiateJob.
-   *
-   * This cheats by only calculating the distance to the tiles' original center. This allows us to
-   * not need to re-calculate tile distances during each time step.
+   * Calculates and stores the initial and maximal displacement values for all tiles.
    *
    * @this DisplacementPulseJob
    */
-  function calculateTileDistances() {
+  function initializeDisplacements() {
+    var job, i, iCount, j, jCount, k, tiles;
+
+    job = this;
+
+    job.displacements = [];
+
+    k = 0;
+
+    if (job.grid.isPostOpen) {
+      // Consider all of the old AND new tiles
+      for (i = 0, iCount = job.grid.sectors.length; i < iCount; i += 1) {
+        tiles = job.grid.sectors[i].tiles;
+
+        for (j = 0, jCount = tiles.length; j < jCount; j += 1) {
+          job.displacements[k] = {
+            tile: ,
+            startX: ,
+            startY: ,
+            endX: ,
+            endY:
+          };
+          k += 1;
+        }
+      }
+    } else {
+      for (i = 0, iCount = job.grid.tiles.length; i < iCount; i += 1) {
+        **;
+      }
+    }
+
     // TODO:
 //    var job, i, count, deltaX, deltaY, distanceOffset;
 //
@@ -4979,6 +5005,9 @@
    */
   function update(currentTime, deltaTime) {
     // TODO:
+
+    // TODO: use an ease-out curve to determine progress at each frame
+
 //    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
 //        oneMinusDurationRatio, animatedSomeTile;
 //
@@ -5051,6 +5080,8 @@
     job.tile = tile;
     job.startTime = 0;
     job.isComplete = false;
+
+    job.displacements = null;
 
     job.start = start;
     job.update = update;
@@ -7174,6 +7205,8 @@
     // - deactivate all neighbor forces
     // - start tapering all current animations to zero
     // - start the panning animation to center on the given tile position
+
+    // TODO: use an ease-out curve for the overall expansion animation (same for closing)
   }
 
   /**

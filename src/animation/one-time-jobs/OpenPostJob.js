@@ -141,6 +141,8 @@
     // - deactivate all neighbor forces
     // - start tapering all current animations to zero
     // - start the panning animation to center on the given tile position
+
+    // TODO: use an ease-out curve for the overall expansion animation (same for closing)
   }
 
   /**
