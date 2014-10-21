@@ -30,40 +30,20 @@
    * @this SpreadJob
    */
   function initializeDisplacements() {
-    var job, i, iCount, j, jCount, k, tiles, displacementRatio;
+    var job, i, count;
 
     job = this;
 
     job.displacements = [];
 
-    k = 0;
-
-    if (job.grid.isPostOpen) {
-      // Consider all of the old AND new tiles
-      for (i = 0, iCount = job.grid.sectors.length; i < iCount; i += 1) {
-        tiles = job.grid.sectors[i].tiles;
-
-        for (j = 0, jCount = tiles.length; j < jCount; j += 1) {
-          job.displacements[k] = {
-            tile: tiles[j],
-            displacementX: config.displacementRatio *
-                (tiles[j].originalAnchorX - job.tile.originalAnchorX),
-            displacementY: config.displacementRatio *
-                (tiles[j].originalAnchorY - job.tile.originalAnchorY)
-          };
-          k += 1;
-        }
-      }
-    } else {
-      for (i = 0, iCount = job.grid.tiles.length; i < iCount; i += 1) {
-        job.displacements[i] = {
-          tile: job.grid.tiles[i],
-          displacementX: config.displacementRatio *
-              (job.grid.tiles[i].originalAnchorX - job.tile.originalAnchorX),
-          displacementY: config.displacementRatio *
-              (job.grid.tiles[i].originalAnchorY - job.tile.originalAnchorY)
-        };
-      }
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.displacements[i] = {
+        tile: job.grid.allTiles[i],
+        displacementX: config.displacementRatio *
+            (job.grid.allTiles[i].originalAnchorX - job.tile.originalAnchorX),
+        displacementY: config.displacementRatio *
+            (job.grid.allTiles[i].originalAnchorY - job.tile.originalAnchorY)
+      };
     }
   }
 

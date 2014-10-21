@@ -34,7 +34,28 @@
 
     job.isComplete = true;
 
+    setFinalTilePositions.call(job);
+
     job.onComplete();
+  }
+
+  /**
+   * @this PanJob
+   */
+  function setFinalTilePositions() {
+    var job, i, count;
+
+    job = this;
+
+    // Displace the tiles
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].originalAnchorX += job.displacement.x;
+      job.grid.allTiles[i].originalAnchorY += job.displacement.y;
+    }
+
+    // Update the grid
+    job.grid.centerX = job.startPoint.x + job.displacement.x;
+    job.grid.centerY = job.startPoint.y + job.displacement.y;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -65,25 +86,30 @@
    * @param {number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    // TODO:
-//    var job, progress, i, count;
-//
-//    job = this;
-//
-//    if (currentTime > job.startTime + config.duration) {
-//      handleComplete.call(job, false);
-//    } else {
-//      // Ease-out halfway, then ease-in back
-//      progress = (currentTime - job.startTime) / config.duration;
-//      progress = (progress > 0.5 ? 1 - progress : progress) * 2;
-//      progress = window.hg.util.easingFunctions.easeOutQuint(progress);
-//
-//      // Displace the tiles
-//      for (i = 0, count = job.displacements.length; i < count; i += 1) {
-//        job.displacements[i].tile.anchorX += job.displacements[i].displacementX * progress;
-//        job.displacements[i].tile.anchorY += job.displacements[i].displacementY * progress;
-//      }
-//    }
+    var job, progress, i, count, displacementX, displacementY;
+
+    job = this;
+
+    if (currentTime > job.startTime + config.duration) {
+      handleComplete.call(job, false);
+    } else {
+      // Calculate progress with an easing function
+      progress = (currentTime - job.startTime) / config.duration;
+      progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+      
+      displacementX = job.displacement.x * progress;
+      displacementY = job.displacement.y * progress;
+
+      // Displace the tiles
+      for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+        job.grid.allTiles[i].anchorX += displacementX;
+        job.grid.allTiles[i].anchorY += displacementY;
+      }
+
+      // Update the grid
+      job.grid.centerX = job.startPoint.x + displacementX;
+      job.grid.centerY = job.startPoint.y + displacementY;
+    }
   }
 
   /**
@@ -115,14 +141,25 @@
    * @constructor
    * @global
    * @param {Grid} grid
-   * @param {Tile} tile
+   * @param {?Tile} tile
    * @param {Function} onComplete
+   * @param {{x:number,y:number}} [destinationPoint]
    */
-  function PanJob(grid, tile, onComplete) {
+  function PanJob(grid, tile, onComplete, destinationPoint) {
     var job = this;
 
+    **;// TODO:
+    // - change the logic of this job to update all of the tile's originalAnchor positions at the start
+    //   - then base the update calculations in reverse
+    //   - this should allow multiple pan jobs to overlap
+    //   - think whether there are other jobs that overlapping with this would hurt though??
+    // - add annotations to show the current and original grid centers?
+    // - log the various params of this job
+
     job.grid = grid;
-    job.tile = tile;
+    job.endPoint = destinationPoint || {x: tile.originalAnchorX, y: tile.originalAnchorY};
+    job.startPoint = {x: grid.centerX, y: grid.centerY};
+    job.displacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
     job.startTime = 0;
     job.isComplete = false;
 

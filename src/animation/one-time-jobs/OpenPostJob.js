@@ -52,6 +52,7 @@
     // TODO: when closing the grid, make sure to:
     // - de-allocate the sector objects and the tile.expandedState properties (sector.destroy)
     // - job.grid.expandedTile = null;
+    // - job.grid.allTiles = job.grid.tiles;
 
     job.grid.isTransitioning = false;
 
@@ -66,7 +67,7 @@
    * @this OpenPostJob
    */
   function createSectors() {
-    var job, i;
+    var job, i, j, jCount, k, sectorTiles, allExpandedTiles;
 
     job = this;
 
@@ -92,6 +93,19 @@
 
     // Set up the expanded state for the selected tile (which is a member of no sector)
     window.hg.Tile.initializeTileExpandedState(job.baseTile, null, Number.NaN, Number.NaN);
+
+    // Give the grid a reference to the new complete collection of all tiles
+    allExpandedTiles = [];
+    k = 0;
+    for (i = 0; i < 6; i += 1) {
+      sectorTiles = job.grid.sectors[i].tiles;
+
+      for (j = 0, jCount = sectorTiles.length; j < jCount; j += 1) {
+        allExpandedTiles[k] = sectorTiles[j];
+        k += 1;
+      }
+    }
+    job.grid.allTiles = allExpandedTiles;
   }
 
   /**

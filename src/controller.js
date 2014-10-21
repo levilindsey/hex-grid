@@ -121,7 +121,7 @@
       constructorName: 'PanJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, linesRadiateCreator, 'pan'),
+      create: createOneTimeJob.bind(controller, null, 'pan'),
       createRandom: createOneTimeJobWithARandomTile.bind(controller, 'pan'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'pan')
     },

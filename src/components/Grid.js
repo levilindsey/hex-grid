@@ -71,8 +71,10 @@
     parentHalfWidth = grid.parent.clientWidth * 0.5;
     parentHeight = grid.parent.clientHeight;
 
-    grid.centerX = parentHalfWidth;
-    grid.centerY = parentHeight * 0.5;
+    grid.originalCenterX = parentHalfWidth;
+    grid.originalCenterY = parentHeight * 0.5;
+    grid.centerX = grid.originalCenterX;
+    grid.centerY = grid.originalCenterY;
 
     grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
         grid.parent.clientWidth : config.targetContentAreaWidth;
@@ -288,6 +290,8 @@
     }
 
     setNeighborTiles.call(grid, tilesNeighborDeltaIndices);
+
+    grid.allTiles = grid.tiles;
   }
 
   /**
@@ -659,12 +663,15 @@
     grid.borderTiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
+    grid.originalCenterX = Number.NaN;
+    grid.originalCenterY = Number.NaN;
     grid.centerX = Number.NaN;
     grid.centerY = Number.NaN;
     grid.isPostOpen = false;
     grid.isTransitioning = false;
     grid.expandedTile = null;
     grid.sectors = null;
+    grid.allTiles = null;
 
     grid.annotations = new window.hg.Annotations(grid);
 
