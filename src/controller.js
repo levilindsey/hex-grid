@@ -69,13 +69,13 @@
       createRandom: closePost,
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost')
     },
-    displacementPulse: {
-      constructorName: 'DisplacementPulseJob',
+    displacementRadiate: {
+      constructorName: 'DisplacementRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'displacementPulse'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'displacementPulse'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'displacementPulse')
+      create: createOneTimeJob.bind(controller, null, 'displacementRadiate'),
+      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'displacementRadiate'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'displacementRadiate')
     },
     highlightHover: {
       constructorName: 'HighlightHoverJob',
@@ -116,6 +116,14 @@
       create: createOneTimeJob.bind(controller, linesRadiateCreator, 'linesRadiate'),
       createRandom: createOneTimeJobWithARandomTile.bind(controller, 'linesRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'linesRadiate')
+    },
+    spread: {
+      constructorName: 'SpreadJob',
+      jobs: [],
+      timeouts: [],
+      create: createOneTimeJob.bind(controller, null, 'spread'),
+      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'spread'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'spread')
     },
     tileBorder: {
       constructorName: 'TileBorderJob',

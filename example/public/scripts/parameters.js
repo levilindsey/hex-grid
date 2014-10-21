@@ -59,12 +59,13 @@
 
     initOpenPostJobFolder(oneTimeFolder);
     initClosePostJobFolder(oneTimeFolder);
-    initDisplacementPulseJobFolder(oneTimeFolder);
+    initDisplacementRadiateJobFolder(oneTimeFolder);
     initHighlightHoverJobFolder(oneTimeFolder);
     initHighlightRadiateJobFolder(oneTimeFolder);
     initIntraTileRadiateJobFolder(oneTimeFolder);
     initRandomLineJobFolder(oneTimeFolder);
     initLinesRadiateJobFolder(oneTimeFolder);
+    initSpreadJobFolder(oneTimeFolder);
     initTileBorderJobFolder(oneTimeFolder);
 
     // Persistent animations
@@ -265,42 +266,41 @@
   }
 
   /**
-   * Sets up the folder for DisplacementPulseJob parameters within the dat.GUI controller.
+   * Sets up the folder for DisplacementRadiateJob parameters within the dat.GUI controller.
    */
-  function initDisplacementPulseJobFolder(parentFolder) {
-    var displacementPulseJobFolder, data;
+  function initDisplacementRadiateJobFolder(parentFolder) {
+    var spreadJobFolder, data;
 
-    displacementPulseJobFolder = parentFolder.addFolder('Displacement Pulse');
-//    displacementPulseJobFolder.open();// TODO: remove me
+    spreadJobFolder = parentFolder.addFolder('Displacement Radiate');
+//    spreadJobFolder.open();// TODO: remove me
 
     data = {
-      'triggerDisplacementPulse':
-          window.hg.controller.oneTimeJobs.displacementPulse.createRandom.bind(
+      'triggerDisplacement':
+          window.hg.controller.oneTimeJobs.displacementRadiate.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
-    displacementPulseJobFolder.add(data, 'triggerDisplacementPulse');
+    spreadJobFolder.add(data, 'triggerDisplacement');
 
-    displacementPulseJobFolder.add(window.hg.DisplacementPulseJob.config, 'duration', 10, 10000);
+    spreadJobFolder.add(window.hg.DisplacementRadiateJob.config, 'duration', 10, 10000);
 
     // TODO:
 
-    displacementPulseJobFolder.add(window.hg.DisplacementPulseJob.config, 'isRecurring')
+    spreadJobFolder.add(window.hg.DisplacementRadiateJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    displacementPulseJobFolder.add(window.hg.DisplacementPulseJob.config, 'avgDelay', 10, 10000)
+    spreadJobFolder.add(window.hg.DisplacementRadiateJob.config, 'avgDelay', 10, 10000)
         .onChange(toggleRecurrence);
-    displacementPulseJobFolder.add(window.hg.DisplacementPulseJob.config, 'delayDeviationRange',
-        0, 10000)
+    spreadJobFolder.add(window.hg.DisplacementRadiateJob.config, 'delayDeviationRange', 0, 10000)
         .onChange(toggleRecurrence);
 
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.displacementPulse.toggleRecurrence(
+      window.hg.controller.oneTimeJobs.spread.toggleRecurrence(
           parameters.grid,
-          window.hg.DisplacementPulseJob.config.isRecurring,
-          window.hg.DisplacementPulseJob.config.avgDelay,
-          window.hg.DisplacementPulseJob.config.delayDeviationRange);
+          window.hg.DisplacementRadiateJob.config.isRecurring,
+          window.hg.DisplacementRadiateJob.config.avgDelay,
+          window.hg.DisplacementRadiateJob.config.delayDeviationRange);
     }
   }
 
@@ -543,6 +543,45 @@
           window.hg.LinesRadiateJob.config.isRecurring,
           window.hg.LinesRadiateJob.config.avgDelay,
           window.hg.LinesRadiateJob.config.delayDeviationRange);
+    }
+  }
+
+  /**
+   * Sets up the folder for SpreadJob parameters within the dat.GUI controller.
+   */
+  function initSpreadJobFolder(parentFolder) {
+    var spreadJobFolder, data;
+
+    spreadJobFolder = parentFolder.addFolder('Spread');
+//    spreadJobFolder.open();// TODO: remove me
+
+    data = {
+      'triggerSpread':
+          window.hg.controller.oneTimeJobs.spread.createRandom.bind(
+              window.hg.controller, parameters.grid)
+    };
+
+    spreadJobFolder.add(data, 'triggerSpread');
+
+    spreadJobFolder.add(window.hg.SpreadJob.config, 'duration', 10, 10000);
+
+    spreadJobFolder.add(window.hg.SpreadJob.config, 'displacementRatio', 0.01, 1);
+
+    spreadJobFolder.add(window.hg.SpreadJob.config, 'isRecurring')
+        .onChange(toggleRecurrence);
+    spreadJobFolder.add(window.hg.SpreadJob.config, 'avgDelay', 10, 10000)
+        .onChange(toggleRecurrence);
+    spreadJobFolder.add(window.hg.SpreadJob.config, 'delayDeviationRange', 0, 10000)
+        .onChange(toggleRecurrence);
+
+    // ---  --- //
+
+    function toggleRecurrence() {
+      window.hg.controller.oneTimeJobs.spread.toggleRecurrence(
+          parameters.grid,
+          window.hg.SpreadJob.config.isRecurring,
+          window.hg.SpreadJob.config.avgDelay,
+          window.hg.SpreadJob.config.delayDeviationRange);
     }
   }
 
