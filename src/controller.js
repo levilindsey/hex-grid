@@ -117,6 +117,14 @@
       createRandom: createOneTimeJobWithARandomTile.bind(controller, 'linesRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'linesRadiate')
     },
+    pan: {
+      constructorName: 'PanJob',
+      jobs: [],
+      timeouts: [],
+      create: createOneTimeJob.bind(controller, linesRadiateCreator, 'pan'),
+      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'pan'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'pan')
+    },
     spread: {
       constructorName: 'SpreadJob',
       jobs: [],

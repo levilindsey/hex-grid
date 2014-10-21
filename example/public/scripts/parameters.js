@@ -65,6 +65,7 @@
     initIntraTileRadiateJobFolder(oneTimeFolder);
     initRandomLineJobFolder(oneTimeFolder);
     initLinesRadiateJobFolder(oneTimeFolder);
+    initPanJobFolder(oneTimeFolder);
     initSpreadJobFolder(oneTimeFolder);
     initTileBorderJobFolder(oneTimeFolder);
 
@@ -269,10 +270,10 @@
    * Sets up the folder for DisplacementRadiateJob parameters within the dat.GUI controller.
    */
   function initDisplacementRadiateJobFolder(parentFolder) {
-    var spreadJobFolder, data;
+    var displacementRadiateJobFolder, data;
 
-    spreadJobFolder = parentFolder.addFolder('Displacement Radiate');
-//    spreadJobFolder.open();// TODO: remove me
+    displacementRadiateJobFolder = parentFolder.addFolder('Displacement Radiate');
+//    displacementRadiateJobFolder.open();// TODO: remove me
 
     data = {
       'triggerDisplacement':
@@ -280,23 +281,23 @@
               window.hg.controller, parameters.grid)
     };
 
-    spreadJobFolder.add(data, 'triggerDisplacement');
+    displacementRadiateJobFolder.add(data, 'triggerDisplacement');
 
-    spreadJobFolder.add(window.hg.DisplacementRadiateJob.config, 'duration', 10, 10000);
+    displacementRadiateJobFolder.add(window.hg.DisplacementRadiateJob.config, 'duration', 10, 10000);
 
     // TODO:
 
-    spreadJobFolder.add(window.hg.DisplacementRadiateJob.config, 'isRecurring')
+    displacementRadiateJobFolder.add(window.hg.DisplacementRadiateJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    spreadJobFolder.add(window.hg.DisplacementRadiateJob.config, 'avgDelay', 10, 10000)
+    displacementRadiateJobFolder.add(window.hg.DisplacementRadiateJob.config, 'avgDelay', 10, 10000)
         .onChange(toggleRecurrence);
-    spreadJobFolder.add(window.hg.DisplacementRadiateJob.config, 'delayDeviationRange', 0, 10000)
+    displacementRadiateJobFolder.add(window.hg.DisplacementRadiateJob.config, 'delayDeviationRange', 0, 10000)
         .onChange(toggleRecurrence);
 
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.spread.toggleRecurrence(
+      window.hg.controller.oneTimeJobs.displacementRadiate.toggleRecurrence(
           parameters.grid,
           window.hg.DisplacementRadiateJob.config.isRecurring,
           window.hg.DisplacementRadiateJob.config.avgDelay,
@@ -543,6 +544,45 @@
           window.hg.LinesRadiateJob.config.isRecurring,
           window.hg.LinesRadiateJob.config.avgDelay,
           window.hg.LinesRadiateJob.config.delayDeviationRange);
+    }
+  }
+
+  /**
+   * Sets up the folder for PanJob parameters within the dat.GUI controller.
+   */
+  function initPanJobFolder(parentFolder) {
+    var panJobFolder, data;
+
+    panJobFolder = parentFolder.addFolder('Pan');
+//    panJobFolder.open();// TODO: remove me
+
+    data = {
+      'triggerPan':
+          window.hg.controller.oneTimeJobs.pan.createRandom.bind(
+              window.hg.controller, parameters.grid)
+    };
+
+    panJobFolder.add(data, 'triggerPan');
+
+    panJobFolder.add(window.hg.PanJob.config, 'duration', 10, 10000);
+
+    // TODO:
+
+    panJobFolder.add(window.hg.PanJob.config, 'isRecurring')
+        .onChange(toggleRecurrence);
+    panJobFolder.add(window.hg.PanJob.config, 'avgDelay', 10, 10000)
+        .onChange(toggleRecurrence);
+    panJobFolder.add(window.hg.PanJob.config, 'delayDeviationRange', 0, 10000)
+        .onChange(toggleRecurrence);
+
+    // ---  --- //
+
+    function toggleRecurrence() {
+      window.hg.controller.oneTimeJobs.pan.toggleRecurrence(
+          parameters.grid,
+          window.hg.SpreadJob.config.isRecurring,
+          window.hg.SpreadJob.config.avgDelay,
+          window.hg.SpreadJob.config.delayDeviationRange);
     }
   }
 
