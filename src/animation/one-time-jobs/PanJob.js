@@ -34,8 +34,6 @@
 
     job.isComplete = true;
 
-    setFinalTilePositions.call(job);
-
     job.onComplete();
   }
 
@@ -74,6 +72,8 @@
 
     job.startTime = Date.now();
     job.isComplete = false;
+
+    setFinalTilePositions.call(job);
   }
 
   /**
@@ -90,25 +90,27 @@
 
     job = this;
 
-    if (currentTime > job.startTime + config.duration) {
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / config.duration;
+    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress < 0 ? 0 : progress;
+
+    displacementX = job.reverseDisplacement.x * progress;
+    displacementY = job.reverseDisplacement.y * progress;
+
+    // Displace the tiles
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].anchorX += displacementX;
+      job.grid.allTiles[i].anchorY += displacementY;
+    }
+
+    // Update the grid
+    job.grid.centerX = job.startPoint.x + displacementX;
+    job.grid.centerY = job.startPoint.y + displacementY;
+
+    // Is the job done?
+    if (progress === 0) {
       handleComplete.call(job, false);
-    } else {
-      // Calculate progress with an easing function
-      progress = (currentTime - job.startTime) / config.duration;
-      progress = window.hg.util.easingFunctions.easeOutQuint(progress);
-      
-      displacementX = job.displacement.x * progress;
-      displacementY = job.displacement.y * progress;
-
-      // Displace the tiles
-      for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-        job.grid.allTiles[i].anchorX += displacementX;
-        job.grid.allTiles[i].anchorY += displacementY;
-      }
-
-      // Update the grid
-      job.grid.centerX = job.startPoint.x + displacementX;
-      job.grid.centerY = job.startPoint.y + displacementY;
     }
   }
 
@@ -137,6 +139,8 @@
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
+  // TODO: when multiple PanJobs overlap in execution, the center of the grid deviates from where it should be; fix this
+
   /**
    * @constructor
    * @global
@@ -148,18 +152,11 @@
   function PanJob(grid, tile, onComplete, destinationPoint) {
     var job = this;
 
-    **;// TODO:
-    // - change the logic of this job to update all of the tile's originalAnchor positions at the start
-    //   - then base the update calculations in reverse
-    //   - this should allow multiple pan jobs to overlap
-    //   - think whether there are other jobs that overlapping with this would hurt though??
-    // - add annotations to show the current and original grid centers?
-    // - log the various params of this job
-
     job.grid = grid;
     job.endPoint = destinationPoint || {x: tile.originalAnchorX, y: tile.originalAnchorY};
     job.startPoint = {x: grid.centerX, y: grid.centerY};
-    job.displacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
+    job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
+    job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
     job.startTime = 0;
     job.isComplete = false;
 

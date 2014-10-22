@@ -580,9 +580,9 @@
     function toggleRecurrence() {
       window.hg.controller.oneTimeJobs.pan.toggleRecurrence(
           parameters.grid,
-          window.hg.SpreadJob.config.isRecurring,
-          window.hg.SpreadJob.config.avgDelay,
-          window.hg.SpreadJob.config.delayDeviationRange);
+          window.hg.PanJob.config.isRecurring,
+          window.hg.PanJob.config.avgDelay,
+          window.hg.PanJob.config.delayDeviationRange);
     }
   }
 
