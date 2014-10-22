@@ -846,7 +846,7 @@
             //forcedInitialAbsoluteDirection = 3;
           }
         }
-        direction = tile.originalAnchorX < grid.originalCenterX ? 2 : 3;
+        direction = tile.originalAnchorX < grid.centerX ? 2 : 3;
       } else if (!tile.neighborStates[3]) { // Bottom side
         if (tile.rowIndex === grid.rowCount - 1) { // Last row
           if (Math.random() < 0.5) {
@@ -869,7 +869,7 @@
             //forcedInitialAbsoluteDirection = 5;
           }
         }
-        direction = tile.originalAnchorX < grid.originalCenterX ? 0 : 5;
+        direction = tile.originalAnchorX < grid.centerX ? 0 : 5;
       } else if (!tile.neighborStates[4]) { // Left side
         if (Math.random() < 0.5) {
           corner = 3;

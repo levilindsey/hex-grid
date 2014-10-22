@@ -133,6 +133,12 @@
       create: createSectorColors,
       destroy: destroySectorColors,
       update: function () {/* Do nothing */}
+    },
+    'panCenterPoints': {
+      enabled: true,
+      create: createPanCenterPoints,
+      destroy: destroyPanCenterPoints,
+      update: updatePanCenterPoints
     }
   };
 
@@ -476,6 +482,29 @@
               window.hg.Grid.config.tileLightness);
         }
       }
+    }
+  }
+
+  /**
+   * Creates a dot at the center of the grid, the center of the viewport, and highlights the base tile for the current
+   * pan.
+   *
+   * @this Annotations
+   */
+  function createPanCenterPoints() {**;// TODO: implement this and the other two functions
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.tileOuterRadii = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileOuterRadii[i] =
+        document.createElementNS(window.hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
+
+      annotations.tileOuterRadii[i].setAttribute('stroke', 'green');
+      annotations.tileOuterRadii[i].setAttribute('stroke-width', '1');
+      annotations.tileOuterRadii[i].setAttribute('fill', 'transparent');
     }
   }
 

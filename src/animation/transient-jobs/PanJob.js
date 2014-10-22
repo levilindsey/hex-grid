@@ -140,7 +140,7 @@
   // Expose this module's constructor
 
   // TODO: when multiple PanJobs overlap in execution, the center of the grid deviates from where it should be
-//  **;// TODO: FIX THIS! More generally, it is important that we can pan and displace sectors while the system is in any statec
+//  **;// TODO: FIX THIS! More generally, it is important that we can pan and displace sectors while the system is in any state
 
   /**
    * @constructor

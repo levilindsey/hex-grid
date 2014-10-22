@@ -1409,6 +1409,12 @@
       create: createSectorColors,
       destroy: destroySectorColors,
       update: function () {/* Do nothing */}
+    },
+    'panCenterPoints': {
+      enabled: true,
+      create: createPanCenterPoints,
+      destroy: destroyPanCenterPoints,
+      update: updatePanCenterPoints
     }
   };
 
@@ -1752,6 +1758,29 @@
               window.hg.Grid.config.tileLightness);
         }
       }
+    }
+  }
+
+  /**
+   * Creates a dot at the center of the grid, the center of the viewport, and highlights the base tile for the current
+   * pan.
+   *
+   * @this Annotations
+   */
+  function createPanCenterPoints() {**;// TODO: implement this and the other two functions
+    var annotations, i, count;
+
+    annotations = this;
+    annotations.tileOuterRadii = [];
+
+    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+      annotations.tileOuterRadii[i] =
+        document.createElementNS(window.hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
+
+      annotations.tileOuterRadii[i].setAttribute('stroke', 'green');
+      annotations.tileOuterRadii[i].setAttribute('stroke-width', '1');
+      annotations.tileOuterRadii[i].setAttribute('fill', 'transparent');
     }
   }
 
@@ -2620,10 +2649,8 @@
     parentHalfWidth = grid.parent.clientWidth * 0.5;
     parentHeight = grid.parent.clientHeight;
 
-    grid.originalCenterX = parentHalfWidth;
-    grid.originalCenterY = parentHeight * 0.5;
-    grid.centerX = grid.originalCenterX;
-    grid.centerY = grid.originalCenterY;
+    grid.centerX = parentHalfWidth;
+    grid.centerY = parentHeight * 0.5;
 
     grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
         grid.parent.clientWidth : config.targetContentAreaWidth;
@@ -3214,10 +3241,10 @@
     grid.contentTiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
-    grid.originalCenterX = Number.NaN;
-    grid.originalCenterY = Number.NaN;
     grid.centerX = Number.NaN;
     grid.centerY = Number.NaN;
+    grid.panDisplacementX = 0;**;// TODO: use these
+    grid.panDisplacementY = 0;
     grid.isPostOpen = false;
     grid.isTransitioning = false;
     grid.expandedTile = null;
@@ -7210,7 +7237,7 @@
             //forcedInitialAbsoluteDirection = 3;
           }
         }
-        direction = tile.originalAnchorX < grid.originalCenterX ? 2 : 3;
+        direction = tile.originalAnchorX < grid.centerX ? 2 : 3;
       } else if (!tile.neighborStates[3]) { // Bottom side
         if (tile.rowIndex === grid.rowCount - 1) { // Last row
           if (Math.random() < 0.5) {
@@ -7233,7 +7260,7 @@
             //forcedInitialAbsoluteDirection = 5;
           }
         }
-        direction = tile.originalAnchorX < grid.originalCenterX ? 0 : 5;
+        direction = tile.originalAnchorX < grid.centerX ? 0 : 5;
       } else if (!tile.neighborStates[4]) { // Left side
         if (Math.random() < 0.5) {
           corner = 3;
@@ -8179,7 +8206,7 @@
   // Expose this module's constructor
 
   // TODO: when multiple PanJobs overlap in execution, the center of the grid deviates from where it should be
-//  **;// TODO: FIX THIS! More generally, it is important that we can pan and displace sectors while the system is in any statec
+//  **;// TODO: FIX THIS! More generally, it is important that we can pan and displace sectors while the system is in any state
 
   /**
    * @constructor
