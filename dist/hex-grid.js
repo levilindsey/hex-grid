@@ -52,12 +52,12 @@
     }
   };
 
-  controller.oneTimeJobs = {
+  controller.transientJobs = {
     openPost: {
       constructorName: 'OpenPostJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'openPost'),
+      create: createTransientJob.bind(controller, null, 'openPost'),
       createRandom: openRandomPost,
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'openPost')
     },
@@ -65,7 +65,7 @@
       constructorName: 'ClosePostJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'closePost'),
+      create: createTransientJob.bind(controller, null, 'closePost'),
       createRandom: closePost,
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost')
     },
@@ -73,72 +73,72 @@
       constructorName: 'DisplacementRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'displacementRadiate'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'displacementRadiate'),
+      create: createTransientJob.bind(controller, null, 'displacementRadiate'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'displacementRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'displacementRadiate')
     },
     highlightHover: {
       constructorName: 'HighlightHoverJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'highlightHover'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'highlightHover'),
+      create: createTransientJob.bind(controller, null, 'highlightHover'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'highlightHover'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightHover')
     },
     highlightRadiate: {
       constructorName: 'HighlightRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'highlightRadiate'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'highlightRadiate'),
+      create: createTransientJob.bind(controller, null, 'highlightRadiate'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'highlightRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightRadiate')
     },
     intraTileRadiate: {
       constructorName: 'IntraTileRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'intraTileRadiate'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'intraTileRadiate'),
+      create: createTransientJob.bind(controller, null, 'intraTileRadiate'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'intraTileRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'intraTileRadiate')
     },
     line: {
       constructorName: 'LineJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, randomLineCreator, 'line'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'line'),
+      create: createTransientJob.bind(controller, randomLineCreator, 'line'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'line'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'line')
     },
     linesRadiate: {
       constructorName: 'LinesRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, linesRadiateCreator, 'linesRadiate'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'linesRadiate'),
+      create: createTransientJob.bind(controller, linesRadiateCreator, 'linesRadiate'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'linesRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'linesRadiate')
     },
     pan: {
       constructorName: 'PanJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'pan'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'pan'),
+      create: createTransientJob.bind(controller, null, 'pan'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'pan'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'pan')
     },
     spread: {
       constructorName: 'SpreadJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'spread'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'spread'),
+      create: createTransientJob.bind(controller, null, 'spread'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'spread'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'spread')
     },
     tileBorder: {
       constructorName: 'TileBorderJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'tileBorder'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'tileBorder'),
+      create: createTransientJob.bind(controller, null, 'tileBorder'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'tileBorder'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'tileBorder')
     }
   };
@@ -156,11 +156,11 @@
    * @param {Window.hg.Grid} grid
    */
   function startRecurringAnimations(grid) {
-    Object.keys(controller.oneTimeJobs).forEach(function (key) {
-      var config = window.hg[controller.oneTimeJobs[key].constructorName].config;
+    Object.keys(controller.transientJobs).forEach(function (key) {
+      var config = window.hg[controller.transientJobs[key].constructorName].config;
 
       if (config.isRecurring) {
-        controller.oneTimeJobs[key].toggleRecurrence(grid, true, config.avgDelay,
+        controller.transientJobs[key].toggleRecurrence(grid, true, config.avgDelay,
             config.delayDeviationRange);
       }
     });
@@ -173,8 +173,8 @@
    * @param {Function} onComplete
    * @returns {AnimationJob}
    */
-  function generalOneTimeJobCreator(jobId, grid, tile, onComplete) {
-    return new window.hg[controller.oneTimeJobs[jobId].constructorName](grid, tile, onComplete);
+  function generalTransientJobCreator(jobId, grid, tile, onComplete) {
+    return new window.hg[controller.transientJobs[jobId].constructorName](grid, tile, onComplete);
   }
 
   /**
@@ -183,24 +183,24 @@
    * @param {Grid} grid
    * @param {?Tile} tile
    */
-  function createOneTimeJob(creator, jobId, grid, tile) {
+  function createTransientJob(creator, jobId, grid, tile) {
     var job;
 
-    creator = creator || generalOneTimeJobCreator.bind(controller, jobId);
+    creator = creator || generalTransientJobCreator.bind(controller, jobId);
 
     // Create the job with whatever custom logic is needed for this particular type of job
     job = creator(grid, tile, onComplete);
 
     // Store a reference to this job within the controller
-    controller.oneTimeJobs[jobId].jobs[grid.index].push(job);
+    controller.transientJobs[jobId].jobs[grid.index].push(job);
     window.hg.animator.startJob(job);
 
     // ---  --- //
 
     function onComplete() {
       // Destroy both references to this now-complete job
-      controller.oneTimeJobs[jobId].jobs[grid.index].splice(
-          controller.oneTimeJobs[jobId].jobs[grid.index].indexOf(job), 1);
+      controller.transientJobs[jobId].jobs[grid.index].splice(
+          controller.transientJobs[jobId].jobs[grid.index].indexOf(job), 1);
     }
   }
 
@@ -208,8 +208,8 @@
    * @param {string} jobId
    * @param {Grid} grid
    */
-  function createOneTimeJobWithARandomTile(jobId, grid) {
-    controller.oneTimeJobs[jobId].create(grid, getRandomTile(grid));
+  function createTransientJobWithARandomTile(jobId, grid) {
+    controller.transientJobs[jobId].create(grid, getRandomTile(grid));
   }
 
   /**
@@ -224,7 +224,7 @@
   function toggleJobRecurrence(jobId, grid, isRecurring, avgDelay, delayDeviationRange) {
     var minDelay, maxDelay, actualDelayRange, jobTimeouts;
 
-    jobTimeouts = controller.oneTimeJobs[jobId].timeouts;
+    jobTimeouts = controller.transientJobs[jobId].timeouts;
 
     // Compute the delay deviation range
     minDelay = avgDelay - delayDeviationRange * 0.5;
@@ -250,7 +250,7 @@
      */
     function recur() {
       var delay = Math.random() * actualDelayRange + minDelay;
-      controller.oneTimeJobs[jobId].createRandom(grid);
+      controller.transientJobs[jobId].createRandom(grid);
       jobTimeouts[grid.index] = setTimeout(recur, delay);
     }
   }
@@ -315,8 +315,8 @@
    * @returns {Tile}
    */
   function getRandomContentTile(grid) {
-    var contentIndex = parseInt(Math.random() * grid.actualContentInnerIndices.length);
-    return grid.tiles[grid.actualContentInnerIndices[contentIndex]];
+    var contentIndex = parseInt(Math.random() * grid.contentTiles.length);
+    return grid.contentTiles[contentIndex];
   }
 
   // --- One-time-job creation functions --- //
@@ -342,7 +342,7 @@
 
     // Also store references to each of the individual child lines
     job.lineJobs.forEach(function (lineJob) {
-      controller.oneTimeJobs.line.jobs[grid.index].push(lineJob);
+      controller.transientJobs.line.jobs[grid.index].push(lineJob);
     });
 
     return job;
@@ -352,8 +352,8 @@
     function onAllLinesComplete() {
       // Destroy the references to the individual child lines
       job.lineJobs.forEach(function (lineJob) {
-        controller.oneTimeJobs.line.jobs[grid.index].splice(
-            controller.oneTimeJobs.line.jobs[grid.index].indexOf(lineJob), 1);
+        controller.transientJobs.line.jobs[grid.index].splice(
+            controller.transientJobs.line.jobs[grid.index].indexOf(lineJob), 1);
       });
 
       onComplete();
@@ -369,7 +369,7 @@
   function openRandomPost(grid) {
     // If no post is open, pick a random content tile, and open the post; otherwise, do nothing
     if (!grid.isPostOpen) {
-      controller.oneTimeJobs.closePost.create(grid, getRandomContentTile(grid));
+      controller.transientJobs.openPost.create(grid, getRandomContentTile(grid));
     }
   }
 
@@ -380,7 +380,7 @@
   function closePost(grid) {
     // If a post is open, close it; otherwise, do nothing
     if (grid.isPostOpen) {
-      controller.oneTimeJobs.closePost.create(grid, grid.expandedTile);
+      controller.transientJobs.closePost.create(grid, grid.expandedTile);
     }
   }
 
@@ -431,8 +431,8 @@
         controller.persistentJobs[key].jobs[index] = [];
       });
 
-      Object.keys(controller.oneTimeJobs).forEach(function (key) {
-        controller.oneTimeJobs[key].jobs[index] = [];
+      Object.keys(controller.transientJobs).forEach(function (key) {
+        controller.transientJobs[key].jobs[index] = [];
       });
     }
   }
@@ -2280,10 +2280,10 @@
     annotations.lineAnimationGapDots = [];
 
     for (k = 0, i = 0,
-             iCount = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index].length;
+             iCount = window.hg.controller.transientJobs.line.jobs[annotations.grid.index].length;
          i < iCount;
          i += 1) {
-      line = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index][i];
+      line = window.hg.controller.transientJobs.line.jobs[annotations.grid.index][i];
 
       for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
         annotations.lineAnimationGapDots[k] =
@@ -2312,9 +2312,9 @@
     annotations.lineAnimationLowerNeighborCornerDots = [];
     annotations.lineAnimationUpperNeighborCornerDots = [];
 
-    for (i = 0, iCount = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index].length;
+    for (i = 0, iCount = window.hg.controller.transientJobs.line.jobs[annotations.grid.index].length;
          i < iCount; i += 1) {
-      line = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index][i];
+      line = window.hg.controller.transientJobs.line.jobs[annotations.grid.index][i];
 
       for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
         // Self corner: red dot
@@ -2827,6 +2827,7 @@
           // Does the current tile get to hold content?
           if (contentAreaIndex === grid.actualContentInnerIndices[postDataIndex]) {
             grid.tiles[tileIndex].setContent(grid.postData[postDataIndex]);
+            grid.contentTiles[postDataIndex] = grid.tiles[tileIndex];
             postDataIndex += 1;
           }
           contentAreaIndex += 1;
@@ -3210,6 +3211,7 @@
     grid.svgDefs = null;
     grid.tiles = [];
     grid.borderTiles = [];
+    grid.contentTiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
     grid.originalCenterX = Number.NaN;
@@ -3284,9 +3286,9 @@
   config.emptyTileClickAnimation = 'Radiate Lines'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
 
   config.possibleClickAnimations = {
-    'Radiate Highlight': window.hg.controller.oneTimeJobs.highlightRadiate.create,
-    'Radiate Lines': window.hg.controller.oneTimeJobs.linesRadiate.create,
-    'Random Line': window.hg.controller.oneTimeJobs.line.create,
+    'Radiate Highlight': window.hg.controller.transientJobs.highlightRadiate.create,
+    'Radiate Lines': window.hg.controller.transientJobs.linesRadiate.create,
+    'Random Line': window.hg.controller.transientJobs.line.create,
     'None': function () {}
   };
 
@@ -3341,7 +3343,7 @@
 
         input.grid.setHoveredTile(null);
 
-        window.hg.controller.oneTimeJobs.highlightHover.create(input.grid, tile);
+        window.hg.controller.transientJobs.highlightHover.create(input.grid, tile);
 
         event.stopPropagation();
       }
@@ -3393,7 +3395,7 @@
   function createClickAnimation(grid, tile) {
     if (tile.holdsContent) {
       config.possibleClickAnimations[config.contentTileClickAnimation](grid, tile);
-      window.hg.controller.oneTimeJobs.openPost.create(grid, tile);
+      window.hg.controller.transientJobs.openPost.create(grid, tile);
     } else {
       config.possibleClickAnimations[config.emptyTileClickAnimation](grid, tile);
     }
@@ -4762,6 +4764,726 @@
 
 // TODO: tile.element.classList.add('hg-post-tile') to any tile that contains a TilePost (and remove it when destroying the post)
 // TODO: post.element.style.pointerEvents = 'none';
+
+/**
+ * @typedef {AnimationJob} ColorResetJob
+ */
+
+/**
+ * This module defines a constructor for ColorResetJob objects.
+ *
+ * ColorResetJob objects reset tile color values during each animation frame.
+ *
+ * @module ColorResetJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this ColorResetJob as started.
+   *
+   * @this ColorResetJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this ColorResetJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorResetJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      job.grid.tiles[i].currentHue = job.grid.tiles[i].originalHue;
+      job.grid.tiles[i].currentSaturation = job.grid.tiles[i].originalSaturation;
+      job.grid.tiles[i].currentLightness = job.grid.tiles[i].originalLightness;
+    }
+  }
+
+  /**
+   * Draws the current state of this ColorResetJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorResetJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this ColorResetJob, and returns the element its original form.
+   *
+   * @this ColorResetJob
+   */
+  function cancel() {
+    var job = this;
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function ColorResetJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = function () {};
+
+    job.init();
+
+    console.log('ColorResetJob created');
+  }
+
+  ColorResetJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorResetJob = ColorResetJob;
+
+  console.log('ColorResetJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ColorShiftJob
+ */
+
+/**
+ * This module defines a constructor for ColorShiftJob objects.
+ *
+ * ColorShiftJob objects animate the colors of the tiles in a random fashion.
+ *
+ * @module ColorShiftJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // TODO:
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this ColorShiftJob as started.
+   *
+   * @this ColorShiftJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this ColorShiftJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorShiftJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job;
+
+    job = this;
+
+    // TODO:
+  }
+
+  /**
+   * Draws the current state of this ColorShiftJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorShiftJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this ColorShiftJob.
+   *
+   * @this ColorShiftJob
+   */
+  function cancel() {
+    var job = this;
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function ColorShiftJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = function () {
+      config.computeDependentValues();
+    };
+
+    job.init();
+
+    console.log('ColorShiftJob created');
+  }
+
+  ColorShiftJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorShiftJob = ColorShiftJob;
+
+  console.log('ColorShiftJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ColorWaveJob
+ */
+
+/**
+ * This module defines a constructor for ColorWaveJob objects.
+ *
+ * ColorWaveJob objects animate the tiles of a Grid in order to create waves of color.
+ *
+ * @module ColorWaveJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.period = 1000;
+  config.wavelength = 600;
+  config.originX = -100;
+  config.originY = 1400;
+
+  // Amplitude (will range from negative to positive)
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 5;
+
+  config.opacity = 0.5;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.halfPeriod = config.period / 2;
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this ColorWaveJob
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
+
+    job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsets = [];
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      tile = job.grid.tiles[i];
+
+      deltaX = tile.originalAnchorX - config.originX;
+      deltaY = tile.originalAnchorY - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
+          / halfWaveProgressWavelength;
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * Updates the animation progress of the given tile.
+   *
+   * @param {number} progress
+   * @param {Tile} tile
+   * @param {number} waveProgressOffset
+   */
+  function updateTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+
+    tile.currentHue = tile.currentHue + config.deltaHue * tileProgress * config.opacity;
+    tile.currentSaturation =
+        tile.currentSaturation + config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentLightness =
+        tile.currentLightness + config.deltaLightness * tileProgress * config.opacity;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this ColorWaveJob as started.
+   *
+   * @this ColorWaveJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this ColorWaveJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorWaveJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, progress, i, count;
+
+    job = this;
+
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
+    }
+  }
+
+  /**
+   * Draws the current state of this ColorWaveJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorWaveJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this ColorWaveJob, and returns the element its original form.
+   *
+   * @this ColorWaveJob
+   */
+  function cancel() {
+    var job = this;
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function ColorWaveJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.waveProgressOffsets = null;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = function () {
+      config.computeDependentValues();
+      initTileProgressOffsets.call(job);
+    };
+
+    job.init();
+
+    console.log('ColorWaveJob created');
+  }
+
+  ColorWaveJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorWaveJob = ColorWaveJob;
+
+  console.log('ColorWaveJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DisplacementResetJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementResetJob objects.
+ *
+ * DisplacementResetJob objects reset tile displacement values during each animation frame.
+ *
+ * @module DisplacementResetJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this DisplacementResetJob as started.
+   *
+   * @this DisplacementResetJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this DisplacementResetJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementResetJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      job.grid.tiles[i].anchorX = job.grid.tiles[i].originalAnchorX;
+      job.grid.tiles[i].anchorY = job.grid.tiles[i].originalAnchorY;
+    }
+  }
+
+  /**
+   * Draws the current state of this DisplacementResetJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementResetJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this DisplacementResetJob, and returns the element its original form.
+   *
+   * @this DisplacementResetJob
+   */
+  function cancel() {
+    var job = this;
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function DisplacementResetJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = function () {};
+
+    job.init();
+
+    console.log('DisplacementResetJob created');
+  }
+
+  DisplacementResetJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementResetJob = DisplacementResetJob;
+
+  console.log('DisplacementResetJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DisplacementWaveJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementWaveJob objects.
+ *
+ * DisplacementWaveJob objects animate the tiles of a Grid in order to create waves of
+ * motion.
+ *
+ * @module DisplacementWaveJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.period = 3200;
+  config.wavelength = 1800;
+  config.originX = 0;
+  config.originY = 0;
+
+  // Amplitude (will range from negative to positive)
+  config.tileDeltaX = -15;
+  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.halfPeriod = config.period / 2;
+
+    config.displacementAmplitude =
+        Math.sqrt(config.tileDeltaX * config.tileDeltaX +
+            config.tileDeltaY * config.tileDeltaY);
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this DisplacementWaveJob
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
+
+    job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsets = [];
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      tile = job.grid.tiles[i];
+
+      deltaX = tile.originalAnchorX - config.originX;
+      deltaY = tile.originalAnchorY - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
+          / halfWaveProgressWavelength;
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * Updates the animation progress of the given tile.
+   *
+   * @param {number} progress
+   * @param {Tile} tile
+   * @param {number} waveProgressOffset
+   */
+  function updateTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+
+    tile.anchorX += config.tileDeltaX * tileProgress;
+    tile.anchorY += config.tileDeltaY * tileProgress;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this DisplacementWaveJob as started.
+   *
+   * @this DisplacementWaveJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this DisplacementWaveJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementWaveJob
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, progress, i, count;
+
+    job = this;
+
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+
+    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
+    }
+  }
+
+  /**
+   * Draws the current state of this DisplacementWaveJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementWaveJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this DisplacementWaveJob, and returns the element its original form.
+   *
+   * @this DisplacementWaveJob
+   */
+  function cancel() {
+    var job = this;
+
+    job.isComplete = true;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function DisplacementWaveJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.waveProgressOffsets = null;
+    job.startTime = 0;
+    job.isComplete = false;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = function () {
+      config.computeDependentValues();
+      initTileProgressOffsets.call(job);
+    };
+
+    job.init();
+
+    console.log('DisplacementWaveJob created');
+  }
+
+  DisplacementWaveJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementWaveJob = DisplacementWaveJob;
+
+  console.log('DisplacementWaveJob module loaded');
+})();
 
 /**
  * @typedef {AnimationJob} ClosePostJob
@@ -7221,6 +7943,10 @@
 
     job.grid.annotations.setExpandedAnnotations(true);
 
+    // Start the sub-jobs
+    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
+    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile);
+
     // TODO:
     // - make sure that we are handling three different logical states for all appropriate logic in the app: closed, transitioning, open
 
@@ -7452,7 +8178,8 @@
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
-  // TODO: when multiple PanJobs overlap in execution, the center of the grid deviates from where it should be; fix this
+  // TODO: when multiple PanJobs overlap in execution, the center of the grid deviates from where it should be
+//  **;// TODO: FIX THIS! More generally, it is important that we can pan and displace sectors while the system is in any statec
 
   /**
    * @constructor
@@ -7824,724 +8551,4 @@
   window.hg.TileBorderJob = TileBorderJob;
 
   console.log('TileBorderJob module loaded');
-})();
-
-/**
- * @typedef {AnimationJob} ColorResetJob
- */
-
-/**
- * This module defines a constructor for ColorResetJob objects.
- *
- * ColorResetJob objects reset tile color values during each animation frame.
- *
- * @module ColorResetJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this ColorResetJob as started.
-   *
-   * @this ColorResetJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this ColorResetJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorResetJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, i, count;
-
-    job = this;
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      job.grid.tiles[i].currentHue = job.grid.tiles[i].originalHue;
-      job.grid.tiles[i].currentSaturation = job.grid.tiles[i].originalSaturation;
-      job.grid.tiles[i].currentLightness = job.grid.tiles[i].originalLightness;
-    }
-  }
-
-  /**
-   * Draws the current state of this ColorResetJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorResetJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this ColorResetJob, and returns the element its original form.
-   *
-   * @this ColorResetJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function ColorResetJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.init = function () {};
-
-    job.init();
-
-    console.log('ColorResetJob created');
-  }
-
-  ColorResetJob.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.ColorResetJob = ColorResetJob;
-
-  console.log('ColorResetJob module loaded');
-})();
-
-/**
- * @typedef {AnimationJob} ColorShiftJob
- */
-
-/**
- * This module defines a constructor for ColorShiftJob objects.
- *
- * ColorShiftJob objects animate the colors of the tiles in a random fashion.
- *
- * @module ColorShiftJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  // TODO:
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    // TODO:
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this ColorShiftJob as started.
-   *
-   * @this ColorShiftJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this ColorShiftJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorShiftJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job;
-
-    job = this;
-
-    // TODO:
-  }
-
-  /**
-   * Draws the current state of this ColorShiftJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorShiftJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this ColorShiftJob.
-   *
-   * @this ColorShiftJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function ColorShiftJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-    };
-
-    job.init();
-
-    console.log('ColorShiftJob created');
-  }
-
-  ColorShiftJob.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.ColorShiftJob = ColorShiftJob;
-
-  console.log('ColorShiftJob module loaded');
-})();
-
-/**
- * @typedef {AnimationJob} ColorWaveJob
- */
-
-/**
- * This module defines a constructor for ColorWaveJob objects.
- *
- * ColorWaveJob objects animate the tiles of a Grid in order to create waves of color.
- *
- * @module ColorWaveJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  config.period = 1000;
-  config.wavelength = 600;
-  config.originX = -100;
-  config.originY = 1400;
-
-  // Amplitude (will range from negative to positive)
-  config.deltaHue = 0;
-  config.deltaSaturation = 0;
-  config.deltaLightness = 5;
-
-  config.opacity = 0.5;
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    config.halfPeriod = config.period / 2;
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Calculates a wave offset value for each tile according to their positions in the grid.
-   *
-   * @this ColorWaveJob
-   */
-  function initTileProgressOffsets() {
-    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
-
-    job = this;
-
-    halfWaveProgressWavelength = config.wavelength / 2;
-    job.waveProgressOffsets = [];
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      tile = job.grid.tiles[i];
-
-      deltaX = tile.originalAnchorX - config.originX;
-      deltaY = tile.originalAnchorY - config.originY;
-      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
-
-      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
-          / halfWaveProgressWavelength;
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Updates the animation progress of the given tile.
-   *
-   * @param {number} progress
-   * @param {Tile} tile
-   * @param {number} waveProgressOffset
-   */
-  function updateTile(progress, tile, waveProgressOffset) {
-    var tileProgress =
-        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
-
-    tile.currentHue = tile.currentHue + config.deltaHue * tileProgress * config.opacity;
-    tile.currentSaturation =
-        tile.currentSaturation + config.deltaSaturation * tileProgress * config.opacity;
-    tile.currentLightness =
-        tile.currentLightness + config.deltaLightness * tileProgress * config.opacity;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this ColorWaveJob as started.
-   *
-   * @this ColorWaveJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this ColorWaveJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorWaveJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, progress, i, count;
-
-    job = this;
-
-    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
-    }
-  }
-
-  /**
-   * Draws the current state of this ColorWaveJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorWaveJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this ColorWaveJob, and returns the element its original form.
-   *
-   * @this ColorWaveJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function ColorWaveJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.waveProgressOffsets = null;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-      initTileProgressOffsets.call(job);
-    };
-
-    job.init();
-
-    console.log('ColorWaveJob created');
-  }
-
-  ColorWaveJob.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.ColorWaveJob = ColorWaveJob;
-
-  console.log('ColorWaveJob module loaded');
-})();
-
-/**
- * @typedef {AnimationJob} DisplacementResetJob
- */
-
-/**
- * This module defines a constructor for DisplacementResetJob objects.
- *
- * DisplacementResetJob objects reset tile displacement values during each animation frame.
- *
- * @module DisplacementResetJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this DisplacementResetJob as started.
-   *
-   * @this DisplacementResetJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this DisplacementResetJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this DisplacementResetJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, i, count;
-
-    job = this;
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      job.grid.tiles[i].anchorX = job.grid.tiles[i].originalAnchorX;
-      job.grid.tiles[i].anchorY = job.grid.tiles[i].originalAnchorY;
-    }
-  }
-
-  /**
-   * Draws the current state of this DisplacementResetJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this DisplacementResetJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this DisplacementResetJob, and returns the element its original form.
-   *
-   * @this DisplacementResetJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function DisplacementResetJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.init = function () {};
-
-    job.init();
-
-    console.log('DisplacementResetJob created');
-  }
-
-  DisplacementResetJob.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.DisplacementResetJob = DisplacementResetJob;
-
-  console.log('DisplacementResetJob module loaded');
-})();
-
-/**
- * @typedef {AnimationJob} DisplacementWaveJob
- */
-
-/**
- * This module defines a constructor for DisplacementWaveJob objects.
- *
- * DisplacementWaveJob objects animate the tiles of a Grid in order to create waves of
- * motion.
- *
- * @module DisplacementWaveJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  config.period = 3200;
-  config.wavelength = 1800;
-  config.originX = 0;
-  config.originY = 0;
-
-  // Amplitude (will range from negative to positive)
-  config.tileDeltaX = -15;
-  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    config.halfPeriod = config.period / 2;
-
-    config.displacementAmplitude =
-        Math.sqrt(config.tileDeltaX * config.tileDeltaX +
-            config.tileDeltaY * config.tileDeltaY);
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Calculates a wave offset value for each tile according to their positions in the grid.
-   *
-   * @this DisplacementWaveJob
-   */
-  function initTileProgressOffsets() {
-    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
-
-    job = this;
-
-    halfWaveProgressWavelength = config.wavelength / 2;
-    job.waveProgressOffsets = [];
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      tile = job.grid.tiles[i];
-
-      deltaX = tile.originalAnchorX - config.originX;
-      deltaY = tile.originalAnchorY - config.originY;
-      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
-
-      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
-          / halfWaveProgressWavelength;
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Updates the animation progress of the given tile.
-   *
-   * @param {number} progress
-   * @param {Tile} tile
-   * @param {number} waveProgressOffset
-   */
-  function updateTile(progress, tile, waveProgressOffset) {
-    var tileProgress =
-        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
-
-    tile.anchorX += config.tileDeltaX * tileProgress;
-    tile.anchorY += config.tileDeltaY * tileProgress;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this DisplacementWaveJob as started.
-   *
-   * @this DisplacementWaveJob
-   */
-  function start() {
-    var job = this;
-
-    job.startTime = Date.now();
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this DisplacementWaveJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this DisplacementWaveJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, progress, i, count;
-
-    job = this;
-
-    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
-
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
-    }
-  }
-
-  /**
-   * Draws the current state of this DisplacementWaveJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this DisplacementWaveJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this DisplacementWaveJob, and returns the element its original form.
-   *
-   * @this DisplacementWaveJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function DisplacementWaveJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.waveProgressOffsets = null;
-    job.startTime = 0;
-    job.isComplete = false;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-      initTileProgressOffsets.call(job);
-    };
-
-    job.init();
-
-    console.log('DisplacementWaveJob created');
-  }
-
-  DisplacementWaveJob.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.DisplacementWaveJob = DisplacementWaveJob;
-
-  console.log('DisplacementWaveJob module loaded');
 })();

@@ -52,12 +52,12 @@
     }
   };
 
-  controller.oneTimeJobs = {
+  controller.transientJobs = {
     openPost: {
       constructorName: 'OpenPostJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'openPost'),
+      create: createTransientJob.bind(controller, null, 'openPost'),
       createRandom: openRandomPost,
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'openPost')
     },
@@ -65,7 +65,7 @@
       constructorName: 'ClosePostJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'closePost'),
+      create: createTransientJob.bind(controller, null, 'closePost'),
       createRandom: closePost,
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost')
     },
@@ -73,72 +73,72 @@
       constructorName: 'DisplacementRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'displacementRadiate'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'displacementRadiate'),
+      create: createTransientJob.bind(controller, null, 'displacementRadiate'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'displacementRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'displacementRadiate')
     },
     highlightHover: {
       constructorName: 'HighlightHoverJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'highlightHover'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'highlightHover'),
+      create: createTransientJob.bind(controller, null, 'highlightHover'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'highlightHover'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightHover')
     },
     highlightRadiate: {
       constructorName: 'HighlightRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'highlightRadiate'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'highlightRadiate'),
+      create: createTransientJob.bind(controller, null, 'highlightRadiate'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'highlightRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightRadiate')
     },
     intraTileRadiate: {
       constructorName: 'IntraTileRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'intraTileRadiate'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'intraTileRadiate'),
+      create: createTransientJob.bind(controller, null, 'intraTileRadiate'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'intraTileRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'intraTileRadiate')
     },
     line: {
       constructorName: 'LineJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, randomLineCreator, 'line'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'line'),
+      create: createTransientJob.bind(controller, randomLineCreator, 'line'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'line'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'line')
     },
     linesRadiate: {
       constructorName: 'LinesRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, linesRadiateCreator, 'linesRadiate'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'linesRadiate'),
+      create: createTransientJob.bind(controller, linesRadiateCreator, 'linesRadiate'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'linesRadiate'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'linesRadiate')
     },
     pan: {
       constructorName: 'PanJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'pan'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'pan'),
+      create: createTransientJob.bind(controller, null, 'pan'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'pan'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'pan')
     },
     spread: {
       constructorName: 'SpreadJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'spread'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'spread'),
+      create: createTransientJob.bind(controller, null, 'spread'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'spread'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'spread')
     },
     tileBorder: {
       constructorName: 'TileBorderJob',
       jobs: [],
       timeouts: [],
-      create: createOneTimeJob.bind(controller, null, 'tileBorder'),
-      createRandom: createOneTimeJobWithARandomTile.bind(controller, 'tileBorder'),
+      create: createTransientJob.bind(controller, null, 'tileBorder'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'tileBorder'),
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'tileBorder')
     }
   };
@@ -156,11 +156,11 @@
    * @param {Window.hg.Grid} grid
    */
   function startRecurringAnimations(grid) {
-    Object.keys(controller.oneTimeJobs).forEach(function (key) {
-      var config = window.hg[controller.oneTimeJobs[key].constructorName].config;
+    Object.keys(controller.transientJobs).forEach(function (key) {
+      var config = window.hg[controller.transientJobs[key].constructorName].config;
 
       if (config.isRecurring) {
-        controller.oneTimeJobs[key].toggleRecurrence(grid, true, config.avgDelay,
+        controller.transientJobs[key].toggleRecurrence(grid, true, config.avgDelay,
             config.delayDeviationRange);
       }
     });
@@ -173,8 +173,8 @@
    * @param {Function} onComplete
    * @returns {AnimationJob}
    */
-  function generalOneTimeJobCreator(jobId, grid, tile, onComplete) {
-    return new window.hg[controller.oneTimeJobs[jobId].constructorName](grid, tile, onComplete);
+  function generalTransientJobCreator(jobId, grid, tile, onComplete) {
+    return new window.hg[controller.transientJobs[jobId].constructorName](grid, tile, onComplete);
   }
 
   /**
@@ -183,24 +183,24 @@
    * @param {Grid} grid
    * @param {?Tile} tile
    */
-  function createOneTimeJob(creator, jobId, grid, tile) {
+  function createTransientJob(creator, jobId, grid, tile) {
     var job;
 
-    creator = creator || generalOneTimeJobCreator.bind(controller, jobId);
+    creator = creator || generalTransientJobCreator.bind(controller, jobId);
 
     // Create the job with whatever custom logic is needed for this particular type of job
     job = creator(grid, tile, onComplete);
 
     // Store a reference to this job within the controller
-    controller.oneTimeJobs[jobId].jobs[grid.index].push(job);
+    controller.transientJobs[jobId].jobs[grid.index].push(job);
     window.hg.animator.startJob(job);
 
     // ---  --- //
 
     function onComplete() {
       // Destroy both references to this now-complete job
-      controller.oneTimeJobs[jobId].jobs[grid.index].splice(
-          controller.oneTimeJobs[jobId].jobs[grid.index].indexOf(job), 1);
+      controller.transientJobs[jobId].jobs[grid.index].splice(
+          controller.transientJobs[jobId].jobs[grid.index].indexOf(job), 1);
     }
   }
 
@@ -208,8 +208,8 @@
    * @param {string} jobId
    * @param {Grid} grid
    */
-  function createOneTimeJobWithARandomTile(jobId, grid) {
-    controller.oneTimeJobs[jobId].create(grid, getRandomTile(grid));
+  function createTransientJobWithARandomTile(jobId, grid) {
+    controller.transientJobs[jobId].create(grid, getRandomTile(grid));
   }
 
   /**
@@ -224,7 +224,7 @@
   function toggleJobRecurrence(jobId, grid, isRecurring, avgDelay, delayDeviationRange) {
     var minDelay, maxDelay, actualDelayRange, jobTimeouts;
 
-    jobTimeouts = controller.oneTimeJobs[jobId].timeouts;
+    jobTimeouts = controller.transientJobs[jobId].timeouts;
 
     // Compute the delay deviation range
     minDelay = avgDelay - delayDeviationRange * 0.5;
@@ -250,7 +250,7 @@
      */
     function recur() {
       var delay = Math.random() * actualDelayRange + minDelay;
-      controller.oneTimeJobs[jobId].createRandom(grid);
+      controller.transientJobs[jobId].createRandom(grid);
       jobTimeouts[grid.index] = setTimeout(recur, delay);
     }
   }
@@ -315,8 +315,8 @@
    * @returns {Tile}
    */
   function getRandomContentTile(grid) {
-    var contentIndex = parseInt(Math.random() * grid.actualContentInnerIndices.length);
-    return grid.tiles[grid.actualContentInnerIndices[contentIndex]];
+    var contentIndex = parseInt(Math.random() * grid.contentTiles.length);
+    return grid.contentTiles[contentIndex];
   }
 
   // --- One-time-job creation functions --- //
@@ -342,7 +342,7 @@
 
     // Also store references to each of the individual child lines
     job.lineJobs.forEach(function (lineJob) {
-      controller.oneTimeJobs.line.jobs[grid.index].push(lineJob);
+      controller.transientJobs.line.jobs[grid.index].push(lineJob);
     });
 
     return job;
@@ -352,8 +352,8 @@
     function onAllLinesComplete() {
       // Destroy the references to the individual child lines
       job.lineJobs.forEach(function (lineJob) {
-        controller.oneTimeJobs.line.jobs[grid.index].splice(
-            controller.oneTimeJobs.line.jobs[grid.index].indexOf(lineJob), 1);
+        controller.transientJobs.line.jobs[grid.index].splice(
+            controller.transientJobs.line.jobs[grid.index].indexOf(lineJob), 1);
       });
 
       onComplete();
@@ -369,7 +369,7 @@
   function openRandomPost(grid) {
     // If no post is open, pick a random content tile, and open the post; otherwise, do nothing
     if (!grid.isPostOpen) {
-      controller.oneTimeJobs.closePost.create(grid, getRandomContentTile(grid));
+      controller.transientJobs.openPost.create(grid, getRandomContentTile(grid));
     }
   }
 
@@ -380,7 +380,7 @@
   function closePost(grid) {
     // If a post is open, close it; otherwise, do nothing
     if (grid.isPostOpen) {
-      controller.oneTimeJobs.closePost.create(grid, grid.expandedTile);
+      controller.transientJobs.closePost.create(grid, grid.expandedTile);
     }
   }
 
@@ -431,8 +431,8 @@
         controller.persistentJobs[key].jobs[index] = [];
       });
 
-      Object.keys(controller.oneTimeJobs).forEach(function (key) {
-        controller.oneTimeJobs[key].jobs[index] = [];
+      Object.keys(controller.transientJobs).forEach(function (key) {
+        controller.transientJobs[key].jobs[index] = [];
       });
     }
   }

@@ -278,6 +278,7 @@
           // Does the current tile get to hold content?
           if (contentAreaIndex === grid.actualContentInnerIndices[postDataIndex]) {
             grid.tiles[tileIndex].setContent(grid.postData[postDataIndex]);
+            grid.contentTiles[postDataIndex] = grid.tiles[tileIndex];
             postDataIndex += 1;
           }
           contentAreaIndex += 1;
@@ -661,6 +662,7 @@
     grid.svgDefs = null;
     grid.tiles = [];
     grid.borderTiles = [];
+    grid.contentTiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
     grid.originalCenterX = Number.NaN;

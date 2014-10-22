@@ -30,7 +30,7 @@
    * @param {Grid} grid
    */
   function initDatGui(grid) {
-    var gui, miscellaneousFolder, animationsFolder, oneTimeFolder, persistentFolder;
+    var gui, miscellaneousFolder, animationsFolder, transientFolder, persistentFolder;
 
     parameters.grid = grid;
 
@@ -54,20 +54,20 @@
 
     // One-time animations
 
-    oneTimeFolder = animationsFolder.addFolder('One Time');
-    oneTimeFolder.open();// TODO: remove me
+    transientFolder = animationsFolder.addFolder('One Time');
+    transientFolder.open();// TODO: remove me
 
-    initOpenPostJobFolder(oneTimeFolder);
-    initClosePostJobFolder(oneTimeFolder);
-    initDisplacementRadiateJobFolder(oneTimeFolder);
-    initHighlightHoverJobFolder(oneTimeFolder);
-    initHighlightRadiateJobFolder(oneTimeFolder);
-    initIntraTileRadiateJobFolder(oneTimeFolder);
-    initRandomLineJobFolder(oneTimeFolder);
-    initLinesRadiateJobFolder(oneTimeFolder);
-    initPanJobFolder(oneTimeFolder);
-    initSpreadJobFolder(oneTimeFolder);
-    initTileBorderJobFolder(oneTimeFolder);
+    initOpenPostJobFolder(transientFolder);
+    initClosePostJobFolder(transientFolder);
+    initDisplacementRadiateJobFolder(transientFolder);
+    initHighlightHoverJobFolder(transientFolder);
+    initHighlightRadiateJobFolder(transientFolder);
+    initIntraTileRadiateJobFolder(transientFolder);
+    initRandomLineJobFolder(transientFolder);
+    initLinesRadiateJobFolder(transientFolder);
+    initPanJobFolder(transientFolder);
+    initSpreadJobFolder(transientFolder);
+    initTileBorderJobFolder(transientFolder);
 
     // Persistent animations
 
@@ -231,10 +231,10 @@
     var openPostJobFolder, data;
 
     openPostJobFolder = parentFolder.addFolder('Open Post');
-//    openPostJobFolder.open();// TODO: remove me
+    openPostJobFolder.open();// TODO: remove me
 
     data = {
-      'triggerOpenPost': window.hg.controller.oneTimeJobs.openPost.createRandom.bind(
+      'triggerOpenPost': window.hg.controller.transientJobs.openPost.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -255,7 +255,7 @@
 //    closePostJobFolder.open();// TODO: remove me
 
     data = {
-      'triggerClosePost': window.hg.controller.oneTimeJobs.closePost.createRandom.bind(
+      'triggerClosePost': window.hg.controller.transientJobs.closePost.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -277,7 +277,7 @@
 
     data = {
       'triggerDisplacement':
-          window.hg.controller.oneTimeJobs.displacementRadiate.createRandom.bind(
+          window.hg.controller.transientJobs.displacementRadiate.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -297,7 +297,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.displacementRadiate.toggleRecurrence(
+      window.hg.controller.transientJobs.displacementRadiate.toggleRecurrence(
           parameters.grid,
           window.hg.DisplacementRadiateJob.config.isRecurring,
           window.hg.DisplacementRadiateJob.config.avgDelay,
@@ -321,7 +321,7 @@
     highlightHoverJobFolder = parentFolder.addFolder('Hover Highlight');
 
     data = {
-      'triggerHighlightHover': window.hg.controller.oneTimeJobs.highlightHover.createRandom.bind(
+      'triggerHighlightHover': window.hg.controller.transientJobs.highlightHover.createRandom.bind(
           window.hg.controller, parameters.grid)
     };
 
@@ -348,7 +348,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.highlightHover.toggleRecurrence(
+      window.hg.controller.transientJobs.highlightHover.toggleRecurrence(
           parameters.grid,
           window.hg.HighlightHoverJob.config.isRecurring,
           window.hg.HighlightHoverJob.config.avgDelay,
@@ -373,7 +373,7 @@
 
     data = {
       'triggerHighlightRadiate':
-          window.hg.controller.oneTimeJobs.highlightRadiate.createRandom.bind(
+          window.hg.controller.transientJobs.highlightRadiate.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -403,7 +403,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.highlightRadiate.toggleRecurrence(
+      window.hg.controller.transientJobs.highlightRadiate.toggleRecurrence(
           parameters.grid,
           window.hg.HighlightRadiateJob.config.isRecurring,
           window.hg.HighlightRadiateJob.config.avgDelay,
@@ -422,7 +422,7 @@
 
     data = {
       'triggerIntraTileRadiate':
-          window.hg.controller.oneTimeJobs.intraTileRadiate.createRandom.bind(
+          window.hg.controller.transientJobs.intraTileRadiate.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -443,7 +443,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.intraTileRadiate.toggleRecurrence(
+      window.hg.controller.transientJobs.intraTileRadiate.toggleRecurrence(
           parameters.grid,
           window.hg.IntraTileRadiateJob.config.isRecurring,
           window.hg.IntraTileRadiateJob.config.avgDelay,
@@ -460,7 +460,7 @@
     randomLineJobFolder = parentFolder.addFolder('Random Lines');
 
     data = {
-      'triggerLine': window.hg.controller.oneTimeJobs.line.createRandom.bind(
+      'triggerLine': window.hg.controller.transientJobs.line.createRandom.bind(
           window.hg.controller, parameters.grid)
     };
 
@@ -491,7 +491,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.line.toggleRecurrence(
+      window.hg.controller.transientJobs.line.toggleRecurrence(
           parameters.grid,
           window.hg.LineJob.config.isRecurring,
           window.hg.LineJob.config.avgDelay,
@@ -508,7 +508,7 @@
     linesRadiateJobFolder = parentFolder.addFolder('Radiating Lines');
 
     data = {
-      'triggerLinesRadiate': window.hg.controller.oneTimeJobs.linesRadiate.createRandom.bind(
+      'triggerLinesRadiate': window.hg.controller.transientJobs.linesRadiate.createRandom.bind(
           window.hg.controller, parameters.grid)
     };
 
@@ -539,7 +539,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.linesRadiate.toggleRecurrence(
+      window.hg.controller.transientJobs.linesRadiate.toggleRecurrence(
           parameters.grid,
           window.hg.LinesRadiateJob.config.isRecurring,
           window.hg.LinesRadiateJob.config.avgDelay,
@@ -554,19 +554,16 @@
     var panJobFolder, data;
 
     panJobFolder = parentFolder.addFolder('Pan');
-//    panJobFolder.open();// TODO: remove me
 
     data = {
       'triggerPan':
-          window.hg.controller.oneTimeJobs.pan.createRandom.bind(
+          window.hg.controller.transientJobs.pan.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
     panJobFolder.add(data, 'triggerPan');
 
     panJobFolder.add(window.hg.PanJob.config, 'duration', 10, 10000);
-
-    // TODO:
 
     panJobFolder.add(window.hg.PanJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
@@ -578,7 +575,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.pan.toggleRecurrence(
+      window.hg.controller.transientJobs.pan.toggleRecurrence(
           parameters.grid,
           window.hg.PanJob.config.isRecurring,
           window.hg.PanJob.config.avgDelay,
@@ -593,11 +590,10 @@
     var spreadJobFolder, data;
 
     spreadJobFolder = parentFolder.addFolder('Spread');
-//    spreadJobFolder.open();// TODO: remove me
 
     data = {
       'triggerSpread':
-          window.hg.controller.oneTimeJobs.spread.createRandom.bind(
+          window.hg.controller.transientJobs.spread.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -617,7 +613,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.spread.toggleRecurrence(
+      window.hg.controller.transientJobs.spread.toggleRecurrence(
           parameters.grid,
           window.hg.SpreadJob.config.isRecurring,
           window.hg.SpreadJob.config.avgDelay,
@@ -635,7 +631,7 @@
 //    tileBorderJobFolder.open();// TODO: remove me
 
     data = {
-      'triggerTileBorder': window.hg.controller.oneTimeJobs.tileBorder.createRandom.bind(
+      'triggerTileBorder': window.hg.controller.transientJobs.tileBorder.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -655,7 +651,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.oneTimeJobs.tileBorder.toggleRecurrence(
+      window.hg.controller.transientJobs.tileBorder.toggleRecurrence(
           parameters.grid,
           window.hg.TileBorderJob.config.isRecurring,
           window.hg.TileBorderJob.config.avgDelay,

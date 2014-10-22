@@ -1004,10 +1004,10 @@
     annotations.lineAnimationGapDots = [];
 
     for (k = 0, i = 0,
-             iCount = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index].length;
+             iCount = window.hg.controller.transientJobs.line.jobs[annotations.grid.index].length;
          i < iCount;
          i += 1) {
-      line = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index][i];
+      line = window.hg.controller.transientJobs.line.jobs[annotations.grid.index][i];
 
       for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
         annotations.lineAnimationGapDots[k] =
@@ -1036,9 +1036,9 @@
     annotations.lineAnimationLowerNeighborCornerDots = [];
     annotations.lineAnimationUpperNeighborCornerDots = [];
 
-    for (i = 0, iCount = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index].length;
+    for (i = 0, iCount = window.hg.controller.transientJobs.line.jobs[annotations.grid.index].length;
          i < iCount; i += 1) {
-      line = window.hg.controller.oneTimeJobs.line.jobs[annotations.grid.index][i];
+      line = window.hg.controller.transientJobs.line.jobs[annotations.grid.index][i];
 
       for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
         // Self corner: red dot

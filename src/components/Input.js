@@ -12,9 +12,9 @@
   config.emptyTileClickAnimation = 'Radiate Lines'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
 
   config.possibleClickAnimations = {
-    'Radiate Highlight': window.hg.controller.oneTimeJobs.highlightRadiate.create,
-    'Radiate Lines': window.hg.controller.oneTimeJobs.linesRadiate.create,
-    'Random Line': window.hg.controller.oneTimeJobs.line.create,
+    'Radiate Highlight': window.hg.controller.transientJobs.highlightRadiate.create,
+    'Radiate Lines': window.hg.controller.transientJobs.linesRadiate.create,
+    'Random Line': window.hg.controller.transientJobs.line.create,
     'None': function () {}
   };
 
@@ -69,7 +69,7 @@
 
         input.grid.setHoveredTile(null);
 
-        window.hg.controller.oneTimeJobs.highlightHover.create(input.grid, tile);
+        window.hg.controller.transientJobs.highlightHover.create(input.grid, tile);
 
         event.stopPropagation();
       }
@@ -121,7 +121,7 @@
   function createClickAnimation(grid, tile) {
     if (tile.holdsContent) {
       config.possibleClickAnimations[config.contentTileClickAnimation](grid, tile);
-      window.hg.controller.oneTimeJobs.openPost.create(grid, tile);
+      window.hg.controller.transientJobs.openPost.create(grid, tile);
     } else {
       config.possibleClickAnimations[config.emptyTileClickAnimation](grid, tile);
     }

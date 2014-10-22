@@ -148,6 +148,10 @@
 
     job.grid.annotations.setExpandedAnnotations(true);
 
+    // Start the sub-jobs
+    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
+    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile);
+
     // TODO:
     // - make sure that we are handling three different logical states for all appropriate logic in the app: closed, transitioning, open
 
