@@ -46,9 +46,9 @@
 
     distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
 
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      deltaX = job.grid.tiles[i].originalAnchor.x - job.startPoint.x;
-      deltaY = job.grid.tiles[i].originalAnchor.y - job.startPoint.y;
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      deltaX = job.grid.allTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.allTiles[i].originalAnchor.y - job.startPoint.y;
       job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
     }
   }
@@ -128,13 +128,13 @@
 
       animatedSomeTile = false;
 
-      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
         distance = job.tileDistances[i];
 
         if (distance > currentMinDistance && distance < currentMaxDistance) {
           waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
 
-          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
+          updateTile(job.grid.allTiles[i], waveWidthRatio, oneMinusDurationRatio);
 
           animatedSomeTile = true;
         }

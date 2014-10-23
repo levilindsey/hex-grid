@@ -53,8 +53,8 @@
     halfWaveProgressWavelength = config.wavelength / 2;
     job.waveProgressOffsets = [];
 
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      tile = job.grid.tiles[i];
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      tile = job.grid.allTiles[i];
 
       deltaX = tile.originalAnchor.x - config.originX;
       deltaY = tile.originalAnchor.y - config.originY;
@@ -63,7 +63,7 @@
       job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
           / halfWaveProgressWavelength;
     }
-  }
+  }**;// TODO: will need to add a function to controller that tells all persistent jobs to update whenever the grid.allTiles array is changed
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -114,8 +114,8 @@
 
     progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
 
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      updateTile(progress, job.grid.allTiles[i], job.waveProgressOffsets[i]);
     }
   }
 

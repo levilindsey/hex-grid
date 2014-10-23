@@ -158,11 +158,11 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].currentHue = config.contentTileHue;
-        annotations.grid.tiles[i].currentSaturation = config.contentTileSaturation;
-        annotations.grid.tiles[i].currentLightness = config.contentTileLightness;
+    for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
+      if (annotations.grid.originalTiles[i].holdsContent) {
+        annotations.grid.originalTiles[i].currentHue = config.contentTileHue;
+        annotations.grid.originalTiles[i].currentSaturation = config.contentTileSaturation;
+        annotations.grid.originalTiles[i].currentLightness = config.contentTileLightness;
       }
     }
   }
@@ -178,9 +178,9 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.tiles[i].currentHue = config.borderTileHue;
-      annotations.grid.tiles[i].currentSaturation = config.borderTileSaturation;
-      annotations.grid.tiles[i].currentLightness = config.borderTileLightness;
+      annotations.grid.originalTiles[i].currentHue = config.borderTileHue;
+      annotations.grid.originalTiles[i].currentSaturation = config.borderTileSaturation;
+      annotations.grid.originalTiles[i].currentLightness = config.borderTileLightness;
     }
   }
 
@@ -196,9 +196,9 @@
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
       if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.tiles[i].currentHue = config.cornerTileHue;
-        annotations.grid.tiles[i].currentSaturation = config.cornerTileSaturation;
-        annotations.grid.tiles[i].currentLightness = config.cornerTileLightness;
+        annotations.grid.originalTiles[i].currentHue = config.cornerTileHue;
+        annotations.grid.originalTiles[i].currentSaturation = config.cornerTileSaturation;
+        annotations.grid.originalTiles[i].currentLightness = config.cornerTileLightness;
       }
     }
   }
@@ -213,8 +213,8 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.grid.tiles[i].element.setAttribute('opacity', '0');
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.grid.allTiles[i].element.setAttribute('opacity', '0');
     }
   }
 
@@ -263,7 +263,7 @@
     annotations = this;
     annotations.tileParticleCenters = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.tileParticleCenters[i] =
           document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileParticleCenters[i]);
@@ -285,7 +285,7 @@
     annotations.tileAnchorLines = [];
     annotations.tileAnchorCenters = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.tileAnchorLines[i] =
           document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
@@ -314,7 +314,7 @@
     annotations = this;
     annotations.tileDisplacementCircles = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.tileDisplacementCircles[i] =
           document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileDisplacementCircles[i]);
@@ -336,7 +336,7 @@
     annotations = this;
     annotations.tileInnerRadii = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.tileInnerRadii[i] =
           document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileInnerRadii[i]);
@@ -358,7 +358,7 @@
     annotations = this;
     annotations.tileOuterRadii = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.tileOuterRadii[i] =
           document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
@@ -380,8 +380,8 @@
     annotations = this;
     annotations.neighborLines = [];
 
-    for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
-      tile = annotations.grid.tiles[i];
+    for (i = 0, iCount = annotations.grid.allTiles.length; i < iCount; i += 1) {
+      tile = annotations.grid.allTiles[i];
       neighborStates = tile.getNeighborStates();
       annotations.neighborLines[i] = [];
 
@@ -411,7 +411,7 @@
     annotations = this;
     annotations.forceLines = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.forceLines[i] = document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.forceLines[i]);
 
@@ -431,7 +431,7 @@
     annotations = this;
     annotations.velocityLines = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.velocityLines[i] = document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.velocityLines[i]);
 
@@ -451,10 +451,10 @@
     annotations = this;
     annotations.indexTexts = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.indexTexts[i] = document.createElementNS(window.hg.util.svgNamespace, 'text');
       annotations.indexTexts[i].innerHTML =
-          !isNaN(annotations.grid.tiles[i].index) ? annotations.grid.tiles[i].index : '?';
+          !isNaN(annotations.grid.allTiles[i].index) ? annotations.grid.allTiles[i].index : '?';
       annotations.grid.svg.appendChild(annotations.indexTexts[i]);
 
       annotations.indexTexts[i].setAttribute('font-size', '16');
@@ -532,9 +532,9 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(window.hg.Grid.config.tileHue,
+    for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
+      if (annotations.grid.originalTiles[i].holdsContent) {
+        annotations.grid.originalTiles[i].setColor(window.hg.Grid.config.tileHue,
             window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
       }
     }
@@ -584,8 +584,8 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.grid.tiles[i].element.setAttribute('opacity', '1');
+    for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
+      annotations.grid.originalTiles[i].element.setAttribute('opacity', '1');
     }
   }
 
@@ -879,9 +879,9 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileParticleCenters[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
-      annotations.tileParticleCenters[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.tileParticleCenters[i].setAttribute('cx', annotations.grid.allTiles[i].particle.px);
+      annotations.tileParticleCenters[i].setAttribute('cy', annotations.grid.allTiles[i].particle.py);
     }
   }
 
@@ -895,13 +895,13 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileAnchorLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
-      annotations.tileAnchorLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].currentAnchor.x);
-      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].currentAnchor.y);
-      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].currentAnchor.x);
-      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].currentAnchor.y);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.tileAnchorLines[i].setAttribute('x1', annotations.grid.allTiles[i].particle.px);
+      annotations.tileAnchorLines[i].setAttribute('y1', annotations.grid.allTiles[i].particle.py);
+      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.allTiles[i].currentAnchor.x);
+      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.allTiles[i].currentAnchor.y);
+      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.allTiles[i].currentAnchor.x);
+      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.allTiles[i].currentAnchor.y);
     }
   }
 
@@ -916,9 +916,9 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalAnchor.x;
-      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalAnchor.y;
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      deltaX = annotations.grid.allTiles[i].particle.px - annotations.grid.allTiles[i].originalAnchor.x;
+      deltaY = annotations.grid.allTiles[i].particle.py - annotations.grid.allTiles[i].originalAnchor.y;
 
       angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -928,9 +928,9 @@
 
       annotations.tileDisplacementCircles[i].setAttribute('fill', colorString);
       annotations.tileDisplacementCircles[i]
-          .setAttribute('cx', annotations.grid.tiles[i].particle.px);
+          .setAttribute('cx', annotations.grid.allTiles[i].particle.px);
       annotations.tileDisplacementCircles[i]
-          .setAttribute('cy', annotations.grid.tiles[i].particle.py);
+          .setAttribute('cy', annotations.grid.allTiles[i].particle.py);
     }
   }
 
@@ -944,11 +944,11 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileInnerRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
-      annotations.tileInnerRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.tileInnerRadii[i].setAttribute('cx', annotations.grid.allTiles[i].particle.px);
+      annotations.tileInnerRadii[i].setAttribute('cy', annotations.grid.allTiles[i].particle.py);
       annotations.tileInnerRadii[i].setAttribute('r',
-              annotations.grid.tiles[i].outerRadius * window.hg.Grid.config.sqrtThreeOverTwo);
+              annotations.grid.allTiles[i].outerRadius * window.hg.Grid.config.sqrtThreeOverTwo);
     }
   }
 
@@ -962,10 +962,10 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileOuterRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
-      annotations.tileOuterRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
-      annotations.tileOuterRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.tileOuterRadii[i].setAttribute('cx', annotations.grid.allTiles[i].particle.px);
+      annotations.tileOuterRadii[i].setAttribute('cy', annotations.grid.allTiles[i].particle.py);
+      annotations.tileOuterRadii[i].setAttribute('r', annotations.grid.allTiles[i].outerRadius);
     }
   }
 
@@ -979,8 +979,8 @@
 
     annotations = this;
 
-    for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
-      tile = annotations.grid.tiles[i];
+    for (i = 0, iCount = annotations.grid.allTiles.length; i < iCount; i += 1) {
+      tile = annotations.grid.allTiles[i];
       neighborStates = tile.getNeighborStates();
 
       for (j = 0, jCount = neighborStates.length; j < jCount; j += 1) {
@@ -1006,13 +1006,13 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.forceLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
-      annotations.forceLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.forceLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px +
-          annotations.grid.tiles[i].particle.fx * config.forceLineLengthMultiplier);
-      annotations.forceLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py +
-          annotations.grid.tiles[i].particle.fy * config.forceLineLengthMultiplier);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.forceLines[i].setAttribute('x1', annotations.grid.allTiles[i].particle.px);
+      annotations.forceLines[i].setAttribute('y1', annotations.grid.allTiles[i].particle.py);
+      annotations.forceLines[i].setAttribute('x2', annotations.grid.allTiles[i].particle.px +
+          annotations.grid.allTiles[i].particle.fx * config.forceLineLengthMultiplier);
+      annotations.forceLines[i].setAttribute('y2', annotations.grid.allTiles[i].particle.py +
+          annotations.grid.allTiles[i].particle.fy * config.forceLineLengthMultiplier);
     }
   }
 
@@ -1026,13 +1026,13 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.velocityLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
-      annotations.velocityLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.velocityLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px +
-          annotations.grid.tiles[i].particle.vx * config.velocityLineLengthMultiplier);
-      annotations.velocityLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py +
-          annotations.grid.tiles[i].particle.vy * config.velocityLineLengthMultiplier);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.velocityLines[i].setAttribute('x1', annotations.grid.allTiles[i].particle.px);
+      annotations.velocityLines[i].setAttribute('y1', annotations.grid.allTiles[i].particle.py);
+      annotations.velocityLines[i].setAttribute('x2', annotations.grid.allTiles[i].particle.px +
+          annotations.grid.allTiles[i].particle.vx * config.velocityLineLengthMultiplier);
+      annotations.velocityLines[i].setAttribute('y2', annotations.grid.allTiles[i].particle.py +
+          annotations.grid.allTiles[i].particle.vy * config.velocityLineLengthMultiplier);
     }
   }
 
@@ -1046,9 +1046,9 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.indexTexts[i].setAttribute('x', annotations.grid.tiles[i].particle.px - 10);
-      annotations.indexTexts[i].setAttribute('y', annotations.grid.tiles[i].particle.py + 6);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.indexTexts[i].setAttribute('x', annotations.grid.allTiles[i].particle.px - 10);
+      annotations.indexTexts[i].setAttribute('y', annotations.grid.allTiles[i].particle.py + 6);
     }
   }
 

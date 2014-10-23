@@ -222,7 +222,7 @@
 
     grid = this;
 
-    grid.tiles = [];
+    grid.originalTiles = [];
     grid.borderTiles = [];
     tileIndex = 0;
     contentAreaIndex = 0;
@@ -266,21 +266,21 @@
             ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
                 (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
 
-        grid.tiles[tileIndex] = new window.hg.Tile(grid.svg, grid, anchorX, anchorY,
+        grid.originalTiles[tileIndex] = new window.hg.Tile(grid.svg, grid, anchorX, anchorY,
             config.tileOuterRadius, grid.isVertical, config.tileHue, config.tileSaturation,
             config.tileLightness, null, tileIndex, rowIndex, columnIndex, isMarginTile,
             isBorderTile, isCornerTile, isLargerRow, config.tileMass);
 
         if (isBorderTile) {
-          grid.borderTiles.push(grid.tiles[tileIndex]);
+          grid.borderTiles.push(grid.originalTiles[tileIndex]);
         }
 
         // Is the current tile within the content column?
         if (!isMarginTile) {
           // Does the current tile get to hold content?
           if (contentAreaIndex === grid.actualContentInnerIndices[postDataIndex]) {
-            grid.tiles[tileIndex].setContent(grid.postData[postDataIndex]);
-            grid.contentTiles[postDataIndex] = grid.tiles[tileIndex];
+            grid.originalTiles[tileIndex].setContent(grid.postData[postDataIndex]);
+            grid.contentTiles[postDataIndex] = grid.originalTiles[tileIndex];
             postDataIndex += 1;
           }
           contentAreaIndex += 1;
@@ -294,7 +294,7 @@
 
     setNeighborTiles.call(grid, tilesNeighborDeltaIndices);
 
-    grid.allTiles = grid.tiles;
+    updateAllTilesCollection.call(grid, grid.originalTiles);
   }
 
   /**
@@ -311,14 +311,14 @@
     neighborTiles = [];
 
     // Give each tile references to each of its neighborStates
-    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
+    for (i = 0, iCount = grid.originalTiles.length; i < iCount; i += 1) {
       // Get the neighborStates around the current tile
       for (j = 0, jCount = 6; j < jCount; j += 1) {
         neighborTiles[j] = !isNaN(tilesNeighborDeltaIndices[i][j]) ?
-            grid.tiles[i + tilesNeighborDeltaIndices[i][j]] : null;
+            grid.originalTiles[i + tilesNeighborDeltaIndices[i][j]] : null;
       }
 
-      grid.tiles[i].setNeighborTiles(neighborTiles);
+      grid.originalTiles[i].setNeighborTiles(neighborTiles);
     }
   }
 
@@ -466,13 +466,29 @@
     grid = this;
     svg = grid.svg;
 
-    grid.annotations.destroyAnnotations.call(grid.annotations);
+    grid.annotations.destroyAnnotations();
 
     while (svg.firstChild) {
       svg.removeChild(svg.firstChild);
     }
 
     grid.svg.appendChild(grid.svgDefs);
+  }
+
+  /**
+   * Sets an 'hg-index' attribute on each tile element to match that tile's current index in this
+   * grid's allTiles array.
+   *
+   * @this Grid
+   */
+  function setTileIndexAttributes() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
+      grid.allTiles[i].element.setAttribute('hg-index', i);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -487,7 +503,7 @@
     var grid = this;
 
     console.log('// --- Grid Info: ------- //');
-    console.log('// - Tile count=' + grid.tiles.length);
+    console.log('// - Tile count=' + grid.originalTiles.length);
     console.log('// - Row count=' + grid.rowCount);
     console.log('// - Odd row tile count=' + grid.oddRowTileCount);
     console.log('// - Even row tile count=' + grid.evenRowTileCount);
@@ -509,11 +525,10 @@
 
     clearSvg.call(grid);
     computeGridParameters.call(grid);
-    createTiles.call(grid);
 
     grid.svg.style.height = grid.height + 'px';
 
-    grid.annotations.createAnnotations();
+    createTiles.call(grid);
 
     logGridInfo.call(grid);
   }
@@ -542,8 +557,8 @@
 
     grid = this;
 
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
+      grid.allTiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
     }
   }
 
@@ -558,8 +573,8 @@
 
     grid = this;
 
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].particle.m = mass;
+    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
+      grid.allTiles[i].particle.m = mass;
     }
   }
 
@@ -586,8 +601,8 @@
 
     grid = this;
 
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].update(currentTime, deltaTime);
+    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
+      grid.allTiles[i].update(currentTime, deltaTime);
     }
   }
 
@@ -601,8 +616,8 @@
 
     grid = this;
 
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].draw();
+    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
+      grid.allTiles[i].draw();
     }
   }
 
@@ -637,6 +652,24 @@
     grid.hoveredTile = hoveredTile;
   }
 
+  /**
+   * Sets the allTiles property to be the given array.
+   *
+   * @this Grid
+   * @param {Array.<Tile>} newTiles
+   */
+  function updateAllTilesCollection(newTiles) {
+    var grid = this;
+
+    grid.allTiles = newTiles;
+
+    // Reset the annotations for the new tile collection
+    grid.annotations.destroyAnnotations();
+    grid.annotations.createAnnotations();
+
+    setTileIndexAttributes.call(grid);
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -662,7 +695,7 @@
 
     grid.svg = null;
     grid.svgDefs = null;
-    grid.tiles = [];
+    grid.originalTiles = [];
     grid.borderTiles = [];
     grid.contentTiles = [];
     grid.originalContentInnerIndices = null;
@@ -709,6 +742,7 @@
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
+    grid.updateAllTilesCollection = updateAllTilesCollection;
 
     createSvg.call(grid);
     computeContentIndices.call(grid);

@@ -106,8 +106,8 @@
       var tileIndex;
 
       if (event.target.classList.contains('hg-tile')) {
-        tileIndex = event.target.id.substr(3);
-        return input.grid.tiles[tileIndex];
+        tileIndex = event.target.getAttribute('hg-index');
+        return input.grid.allTiles[tileIndex];
       } else {
         return null;
       }

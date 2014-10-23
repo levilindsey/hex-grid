@@ -39,12 +39,14 @@
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
       job.displacements[i] = {
         tile: job.grid.allTiles[i],
-        displacementX: config.displacementRatio *
+        dx: config.displacementRatio *
             (job.grid.allTiles[i].originalAnchor.x - job.tile.originalAnchor.x),
-        displacementY: config.displacementRatio *
+        dy: config.displacementRatio *
             (job.grid.allTiles[i].originalAnchor.y - job.tile.originalAnchor.y)
       };
     }
+
+    console.log('spread-job.grid.allTiles.length',job.grid.allTiles.length);
   }
 
   /**
@@ -102,8 +104,8 @@
 
       // Displace the tiles
       for (i = 0, count = job.displacements.length; i < count; i += 1) {
-        job.displacements[i].tile.currentAnchor.x += job.displacements[i].displacementX * progress;
-        job.displacements[i].tile.currentAnchor.y += job.displacements[i].displacementY * progress;
+        job.displacements[i].tile.currentAnchor.x += job.displacements[i].dx * progress;
+        job.displacements[i].tile.currentAnchor.y += job.displacements[i].dy * progress;
       }
     }
   }

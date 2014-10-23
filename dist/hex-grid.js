@@ -209,7 +209,7 @@
    * @param {Grid} grid
    */
   function createTransientJobWithARandomTile(jobId, grid) {
-    controller.transientJobs[jobId].create(grid, getRandomTile(grid));
+    controller.transientJobs[jobId].create(grid, getRandomOriginalTile(grid));
   }
 
   /**
@@ -305,9 +305,9 @@
    * @param {Grid} grid
    * @returns {Tile}
    */
-  function getRandomTile(grid) {
-    var tileIndex = parseInt(Math.random() * grid.tiles.length);
-    return grid.tiles[tileIndex];
+  function getRandomOriginalTile(grid) {
+    var tileIndex = parseInt(Math.random() * grid.originalTiles.length);
+    return grid.originalTiles[tileIndex];
   }
 
   /**
@@ -1101,180 +1101,6 @@
 })();
 
 /**
- * This module defines a singleton for animating things.
- *
- * The animator singleton handles the animation loop for the application and updates all
- * registered AnimationJobs during each animation frame.
- *
- * @module animator
- */
-(function () {
-  /**
-   * @typedef {{start: Function, update: Function(number, number), draw: Function, cancel: Function, isComplete: boolean}} AnimationJob
-   */
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var animator = {};
-  var config = {};
-
-  config.deltaTimeUpperThreshold = 200;
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * This is the animation loop that drives all of the animation.
-   */
-  function animationLoop() {
-    var currentTime, deltaTime;
-
-    currentTime = Date.now();
-    deltaTime = currentTime - animator.previousTime;
-    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
-        config.deltaTimeUpperThreshold : deltaTime;
-    animator.isLooping = true;
-
-    if (!animator.isPaused) {
-      updateJobs(currentTime, deltaTime);
-      drawJobs();
-      window.hg.util.requestAnimationFrame(animationLoop);
-    } else {
-      animator.isLooping = false;
-    }
-
-    animator.previousTime = currentTime;
-  }
-
-  /**
-   * Updates all of the active AnimationJobs.
-   *
-   * @param {number} currentTime
-   * @param {number} deltaTime
-   */
-  function updateJobs(currentTime, deltaTime) {
-    var i, count;
-
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].update(currentTime, deltaTime);
-
-      // Remove jobs from the list after they are complete
-      if (animator.jobs[i].isComplete) {
-        removeJob(animator.jobs[i], i);
-        i--;
-        count--;
-      }
-    }
-  }
-
-  /**
-   * Removes the given job from the collection of active, animating jobs.
-   *
-   * @param {AnimationJob} job
-   * @param {number} [index]
-   */
-  function removeJob(job, index) {
-    var count;
-
-    if (typeof index === 'number') {
-      animator.jobs.splice(index, 1);
-    } else {
-      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
-        if (animator.jobs[index] === job) {
-          animator.jobs.splice(index, 1);
-          break;
-        }
-      }
-    }
-
-    // Stop the animation loop when there are no more jobs to animate
-    if (animator.jobs.length === 0) {
-      animator.isPaused = true;
-    }
-  }
-
-  /**
-   * Draws all of the active AnimationJobs.
-   */
-  function drawJobs() {
-    var i, count;
-
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].draw();
-    }
-  }
-
-  /**
-   * Starts the animation loop if it is not already running
-   */
-  function startAnimationLoop() {
-    animator.isPaused = false;
-    if (!animator.isLooping) {
-      animator.previousTime = Date.now();
-      animationLoop();
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public static functions
-
-  /**
-   * Starts the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function startJob(job) {
-//    console.log('Job starting: ' + job.constructor.name);
-
-    job.start();
-    animator.jobs.push(job);
-
-    startAnimationLoop();
-  }
-
-  /**
-   * Cancels the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function cancelJob(job) {
-    console.log('Job cancelling: ' + job.constructor.name);
-
-    job.cancel();
-    removeJob(job);
-  }
-
-  /**
-   * Cancels all running AnimationJobs.
-   */
-  function cancelAll() {
-    while (animator.jobs.length) {
-      cancelJob(animator.jobs[0]);
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this singleton
-
-  animator.jobs = [];
-  animator.previousTime = Date.now();
-  animator.isLooping = false;
-  animator.isPaused = true;
-  animator.startJob = startJob;
-  animator.cancelJob = cancelJob;
-  animator.cancelAll = cancelAll;
-
-  animator.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.animator = animator;
-
-  console.log('animator module loaded');
-})();
-
-/**
  * @typedef {AnimationJob} Annotations
  */
 
@@ -1434,11 +1260,11 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].currentHue = config.contentTileHue;
-        annotations.grid.tiles[i].currentSaturation = config.contentTileSaturation;
-        annotations.grid.tiles[i].currentLightness = config.contentTileLightness;
+    for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
+      if (annotations.grid.originalTiles[i].holdsContent) {
+        annotations.grid.originalTiles[i].currentHue = config.contentTileHue;
+        annotations.grid.originalTiles[i].currentSaturation = config.contentTileSaturation;
+        annotations.grid.originalTiles[i].currentLightness = config.contentTileLightness;
       }
     }
   }
@@ -1454,9 +1280,9 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.tiles[i].currentHue = config.borderTileHue;
-      annotations.grid.tiles[i].currentSaturation = config.borderTileSaturation;
-      annotations.grid.tiles[i].currentLightness = config.borderTileLightness;
+      annotations.grid.originalTiles[i].currentHue = config.borderTileHue;
+      annotations.grid.originalTiles[i].currentSaturation = config.borderTileSaturation;
+      annotations.grid.originalTiles[i].currentLightness = config.borderTileLightness;
     }
   }
 
@@ -1472,9 +1298,9 @@
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
       if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.tiles[i].currentHue = config.cornerTileHue;
-        annotations.grid.tiles[i].currentSaturation = config.cornerTileSaturation;
-        annotations.grid.tiles[i].currentLightness = config.cornerTileLightness;
+        annotations.grid.originalTiles[i].currentHue = config.cornerTileHue;
+        annotations.grid.originalTiles[i].currentSaturation = config.cornerTileSaturation;
+        annotations.grid.originalTiles[i].currentLightness = config.cornerTileLightness;
       }
     }
   }
@@ -1489,8 +1315,8 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.grid.tiles[i].element.setAttribute('opacity', '0');
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.grid.allTiles[i].element.setAttribute('opacity', '0');
     }
   }
 
@@ -1539,7 +1365,7 @@
     annotations = this;
     annotations.tileParticleCenters = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.tileParticleCenters[i] =
           document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileParticleCenters[i]);
@@ -1561,7 +1387,7 @@
     annotations.tileAnchorLines = [];
     annotations.tileAnchorCenters = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.tileAnchorLines[i] =
           document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.tileAnchorLines[i]);
@@ -1590,7 +1416,7 @@
     annotations = this;
     annotations.tileDisplacementCircles = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.tileDisplacementCircles[i] =
           document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileDisplacementCircles[i]);
@@ -1612,7 +1438,7 @@
     annotations = this;
     annotations.tileInnerRadii = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.tileInnerRadii[i] =
           document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileInnerRadii[i]);
@@ -1634,7 +1460,7 @@
     annotations = this;
     annotations.tileOuterRadii = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.tileOuterRadii[i] =
           document.createElementNS(window.hg.util.svgNamespace, 'circle');
       annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
@@ -1656,8 +1482,8 @@
     annotations = this;
     annotations.neighborLines = [];
 
-    for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
-      tile = annotations.grid.tiles[i];
+    for (i = 0, iCount = annotations.grid.allTiles.length; i < iCount; i += 1) {
+      tile = annotations.grid.allTiles[i];
       neighborStates = tile.getNeighborStates();
       annotations.neighborLines[i] = [];
 
@@ -1687,7 +1513,7 @@
     annotations = this;
     annotations.forceLines = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.forceLines[i] = document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.forceLines[i]);
 
@@ -1707,7 +1533,7 @@
     annotations = this;
     annotations.velocityLines = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.velocityLines[i] = document.createElementNS(window.hg.util.svgNamespace, 'line');
       annotations.grid.svg.appendChild(annotations.velocityLines[i]);
 
@@ -1727,10 +1553,10 @@
     annotations = this;
     annotations.indexTexts = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.indexTexts[i] = document.createElementNS(window.hg.util.svgNamespace, 'text');
       annotations.indexTexts[i].innerHTML =
-          !isNaN(annotations.grid.tiles[i].index) ? annotations.grid.tiles[i].index : '?';
+          !isNaN(annotations.grid.allTiles[i].index) ? annotations.grid.allTiles[i].index : '?';
       annotations.grid.svg.appendChild(annotations.indexTexts[i]);
 
       annotations.indexTexts[i].setAttribute('font-size', '16');
@@ -1808,9 +1634,9 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(window.hg.Grid.config.tileHue,
+    for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
+      if (annotations.grid.originalTiles[i].holdsContent) {
+        annotations.grid.originalTiles[i].setColor(window.hg.Grid.config.tileHue,
             window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
       }
     }
@@ -1860,8 +1686,8 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.grid.tiles[i].element.setAttribute('opacity', '1');
+    for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
+      annotations.grid.originalTiles[i].element.setAttribute('opacity', '1');
     }
   }
 
@@ -2155,9 +1981,9 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileParticleCenters[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
-      annotations.tileParticleCenters[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.tileParticleCenters[i].setAttribute('cx', annotations.grid.allTiles[i].particle.px);
+      annotations.tileParticleCenters[i].setAttribute('cy', annotations.grid.allTiles[i].particle.py);
     }
   }
 
@@ -2171,13 +1997,13 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileAnchorLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
-      annotations.tileAnchorLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].currentAnchor.x);
-      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].currentAnchor.y);
-      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].currentAnchor.x);
-      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].currentAnchor.y);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.tileAnchorLines[i].setAttribute('x1', annotations.grid.allTiles[i].particle.px);
+      annotations.tileAnchorLines[i].setAttribute('y1', annotations.grid.allTiles[i].particle.py);
+      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.allTiles[i].currentAnchor.x);
+      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.allTiles[i].currentAnchor.y);
+      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.allTiles[i].currentAnchor.x);
+      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.allTiles[i].currentAnchor.y);
     }
   }
 
@@ -2192,9 +2018,9 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalAnchor.x;
-      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalAnchor.y;
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      deltaX = annotations.grid.allTiles[i].particle.px - annotations.grid.allTiles[i].originalAnchor.x;
+      deltaY = annotations.grid.allTiles[i].particle.py - annotations.grid.allTiles[i].originalAnchor.y;
 
       angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -2204,9 +2030,9 @@
 
       annotations.tileDisplacementCircles[i].setAttribute('fill', colorString);
       annotations.tileDisplacementCircles[i]
-          .setAttribute('cx', annotations.grid.tiles[i].particle.px);
+          .setAttribute('cx', annotations.grid.allTiles[i].particle.px);
       annotations.tileDisplacementCircles[i]
-          .setAttribute('cy', annotations.grid.tiles[i].particle.py);
+          .setAttribute('cy', annotations.grid.allTiles[i].particle.py);
     }
   }
 
@@ -2220,11 +2046,11 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileInnerRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
-      annotations.tileInnerRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.tileInnerRadii[i].setAttribute('cx', annotations.grid.allTiles[i].particle.px);
+      annotations.tileInnerRadii[i].setAttribute('cy', annotations.grid.allTiles[i].particle.py);
       annotations.tileInnerRadii[i].setAttribute('r',
-              annotations.grid.tiles[i].outerRadius * window.hg.Grid.config.sqrtThreeOverTwo);
+              annotations.grid.allTiles[i].outerRadius * window.hg.Grid.config.sqrtThreeOverTwo);
     }
   }
 
@@ -2238,10 +2064,10 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileOuterRadii[i].setAttribute('cx', annotations.grid.tiles[i].particle.px);
-      annotations.tileOuterRadii[i].setAttribute('cy', annotations.grid.tiles[i].particle.py);
-      annotations.tileOuterRadii[i].setAttribute('r', annotations.grid.tiles[i].outerRadius);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.tileOuterRadii[i].setAttribute('cx', annotations.grid.allTiles[i].particle.px);
+      annotations.tileOuterRadii[i].setAttribute('cy', annotations.grid.allTiles[i].particle.py);
+      annotations.tileOuterRadii[i].setAttribute('r', annotations.grid.allTiles[i].outerRadius);
     }
   }
 
@@ -2255,8 +2081,8 @@
 
     annotations = this;
 
-    for (i = 0, iCount = annotations.grid.tiles.length; i < iCount; i += 1) {
-      tile = annotations.grid.tiles[i];
+    for (i = 0, iCount = annotations.grid.allTiles.length; i < iCount; i += 1) {
+      tile = annotations.grid.allTiles[i];
       neighborStates = tile.getNeighborStates();
 
       for (j = 0, jCount = neighborStates.length; j < jCount; j += 1) {
@@ -2282,13 +2108,13 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.forceLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
-      annotations.forceLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.forceLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px +
-          annotations.grid.tiles[i].particle.fx * config.forceLineLengthMultiplier);
-      annotations.forceLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py +
-          annotations.grid.tiles[i].particle.fy * config.forceLineLengthMultiplier);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.forceLines[i].setAttribute('x1', annotations.grid.allTiles[i].particle.px);
+      annotations.forceLines[i].setAttribute('y1', annotations.grid.allTiles[i].particle.py);
+      annotations.forceLines[i].setAttribute('x2', annotations.grid.allTiles[i].particle.px +
+          annotations.grid.allTiles[i].particle.fx * config.forceLineLengthMultiplier);
+      annotations.forceLines[i].setAttribute('y2', annotations.grid.allTiles[i].particle.py +
+          annotations.grid.allTiles[i].particle.fy * config.forceLineLengthMultiplier);
     }
   }
 
@@ -2302,13 +2128,13 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.velocityLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
-      annotations.velocityLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.velocityLines[i].setAttribute('x2', annotations.grid.tiles[i].particle.px +
-          annotations.grid.tiles[i].particle.vx * config.velocityLineLengthMultiplier);
-      annotations.velocityLines[i].setAttribute('y2', annotations.grid.tiles[i].particle.py +
-          annotations.grid.tiles[i].particle.vy * config.velocityLineLengthMultiplier);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.velocityLines[i].setAttribute('x1', annotations.grid.allTiles[i].particle.px);
+      annotations.velocityLines[i].setAttribute('y1', annotations.grid.allTiles[i].particle.py);
+      annotations.velocityLines[i].setAttribute('x2', annotations.grid.allTiles[i].particle.px +
+          annotations.grid.allTiles[i].particle.vx * config.velocityLineLengthMultiplier);
+      annotations.velocityLines[i].setAttribute('y2', annotations.grid.allTiles[i].particle.py +
+          annotations.grid.allTiles[i].particle.vy * config.velocityLineLengthMultiplier);
     }
   }
 
@@ -2322,9 +2148,9 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.indexTexts[i].setAttribute('x', annotations.grid.tiles[i].particle.px - 10);
-      annotations.indexTexts[i].setAttribute('y', annotations.grid.tiles[i].particle.py + 6);
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      annotations.indexTexts[i].setAttribute('x', annotations.grid.allTiles[i].particle.px - 10);
+      annotations.indexTexts[i].setAttribute('y', annotations.grid.allTiles[i].particle.py + 6);
     }
   }
 
@@ -2867,7 +2693,7 @@
 
     grid = this;
 
-    grid.tiles = [];
+    grid.originalTiles = [];
     grid.borderTiles = [];
     tileIndex = 0;
     contentAreaIndex = 0;
@@ -2911,21 +2737,21 @@
             ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
                 (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
 
-        grid.tiles[tileIndex] = new window.hg.Tile(grid.svg, grid, anchorX, anchorY,
+        grid.originalTiles[tileIndex] = new window.hg.Tile(grid.svg, grid, anchorX, anchorY,
             config.tileOuterRadius, grid.isVertical, config.tileHue, config.tileSaturation,
             config.tileLightness, null, tileIndex, rowIndex, columnIndex, isMarginTile,
             isBorderTile, isCornerTile, isLargerRow, config.tileMass);
 
         if (isBorderTile) {
-          grid.borderTiles.push(grid.tiles[tileIndex]);
+          grid.borderTiles.push(grid.originalTiles[tileIndex]);
         }
 
         // Is the current tile within the content column?
         if (!isMarginTile) {
           // Does the current tile get to hold content?
           if (contentAreaIndex === grid.actualContentInnerIndices[postDataIndex]) {
-            grid.tiles[tileIndex].setContent(grid.postData[postDataIndex]);
-            grid.contentTiles[postDataIndex] = grid.tiles[tileIndex];
+            grid.originalTiles[tileIndex].setContent(grid.postData[postDataIndex]);
+            grid.contentTiles[postDataIndex] = grid.originalTiles[tileIndex];
             postDataIndex += 1;
           }
           contentAreaIndex += 1;
@@ -2939,7 +2765,7 @@
 
     setNeighborTiles.call(grid, tilesNeighborDeltaIndices);
 
-    grid.allTiles = grid.tiles;
+    updateAllTilesCollection.call(grid, grid.originalTiles);
   }
 
   /**
@@ -2956,14 +2782,14 @@
     neighborTiles = [];
 
     // Give each tile references to each of its neighborStates
-    for (i = 0, iCount = grid.tiles.length; i < iCount; i += 1) {
+    for (i = 0, iCount = grid.originalTiles.length; i < iCount; i += 1) {
       // Get the neighborStates around the current tile
       for (j = 0, jCount = 6; j < jCount; j += 1) {
         neighborTiles[j] = !isNaN(tilesNeighborDeltaIndices[i][j]) ?
-            grid.tiles[i + tilesNeighborDeltaIndices[i][j]] : null;
+            grid.originalTiles[i + tilesNeighborDeltaIndices[i][j]] : null;
       }
 
-      grid.tiles[i].setNeighborTiles(neighborTiles);
+      grid.originalTiles[i].setNeighborTiles(neighborTiles);
     }
   }
 
@@ -3111,13 +2937,29 @@
     grid = this;
     svg = grid.svg;
 
-    grid.annotations.destroyAnnotations.call(grid.annotations);
+    grid.annotations.destroyAnnotations();
 
     while (svg.firstChild) {
       svg.removeChild(svg.firstChild);
     }
 
     grid.svg.appendChild(grid.svgDefs);
+  }
+
+  /**
+   * Sets an 'hg-index' attribute on each tile element to match that tile's current index in this
+   * grid's allTiles array.
+   *
+   * @this Grid
+   */
+  function setTileIndexAttributes() {
+    var grid, i, count;
+
+    grid = this;
+
+    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
+      grid.allTiles[i].element.setAttribute('hg-index', i);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3132,7 +2974,7 @@
     var grid = this;
 
     console.log('// --- Grid Info: ------- //');
-    console.log('// - Tile count=' + grid.tiles.length);
+    console.log('// - Tile count=' + grid.originalTiles.length);
     console.log('// - Row count=' + grid.rowCount);
     console.log('// - Odd row tile count=' + grid.oddRowTileCount);
     console.log('// - Even row tile count=' + grid.evenRowTileCount);
@@ -3154,11 +2996,10 @@
 
     clearSvg.call(grid);
     computeGridParameters.call(grid);
-    createTiles.call(grid);
 
     grid.svg.style.height = grid.height + 'px';
 
-    grid.annotations.createAnnotations();
+    createTiles.call(grid);
 
     logGridInfo.call(grid);
   }
@@ -3187,8 +3028,8 @@
 
     grid = this;
 
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
+      grid.allTiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
     }
   }
 
@@ -3203,8 +3044,8 @@
 
     grid = this;
 
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].particle.m = mass;
+    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
+      grid.allTiles[i].particle.m = mass;
     }
   }
 
@@ -3231,8 +3072,8 @@
 
     grid = this;
 
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].update(currentTime, deltaTime);
+    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
+      grid.allTiles[i].update(currentTime, deltaTime);
     }
   }
 
@@ -3246,8 +3087,8 @@
 
     grid = this;
 
-    for (i = 0, count = grid.tiles.length; i < count; i += 1) {
-      grid.tiles[i].draw();
+    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
+      grid.allTiles[i].draw();
     }
   }
 
@@ -3282,6 +3123,24 @@
     grid.hoveredTile = hoveredTile;
   }
 
+  /**
+   * Sets the allTiles property to be the given array.
+   *
+   * @this Grid
+   * @param {Array.<Tile>} newTiles
+   */
+  function updateAllTilesCollection(newTiles) {
+    var grid = this;
+
+    grid.allTiles = newTiles;
+
+    // Reset the annotations for the new tile collection
+    grid.annotations.destroyAnnotations();
+    grid.annotations.createAnnotations();
+
+    setTileIndexAttributes.call(grid);
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -3307,7 +3166,7 @@
 
     grid.svg = null;
     grid.svgDefs = null;
-    grid.tiles = [];
+    grid.originalTiles = [];
     grid.borderTiles = [];
     grid.contentTiles = [];
     grid.originalContentInnerIndices = null;
@@ -3354,6 +3213,7 @@
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
+    grid.updateAllTilesCollection = updateAllTilesCollection;
 
     createSvg.call(grid);
     computeContentIndices.call(grid);
@@ -3477,8 +3337,8 @@
       var tileIndex;
 
       if (event.target.classList.contains('hg-tile')) {
-        tileIndex = event.target.id.substr(3);
-        return input.grid.tiles[tileIndex];
+        tileIndex = event.target.getAttribute('hg-index');
+        return input.grid.allTiles[tileIndex];
       } else {
         return null;
       }
@@ -4861,6 +4721,180 @@
 // TODO: post.element.style.pointerEvents = 'none';
 
 /**
+ * This module defines a singleton for animating things.
+ *
+ * The animator singleton handles the animation loop for the application and updates all
+ * registered AnimationJobs during each animation frame.
+ *
+ * @module animator
+ */
+(function () {
+  /**
+   * @typedef {{start: Function, update: Function(number, number), draw: Function, cancel: Function, isComplete: boolean}} AnimationJob
+   */
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var animator = {};
+  var config = {};
+
+  config.deltaTimeUpperThreshold = 200;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * This is the animation loop that drives all of the animation.
+   */
+  function animationLoop() {
+    var currentTime, deltaTime;
+
+    currentTime = Date.now();
+    deltaTime = currentTime - animator.previousTime;
+    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
+        config.deltaTimeUpperThreshold : deltaTime;
+    animator.isLooping = true;
+
+    if (!animator.isPaused) {
+      updateJobs(currentTime, deltaTime);
+      drawJobs();
+      window.hg.util.requestAnimationFrame(animationLoop);
+    } else {
+      animator.isLooping = false;
+    }
+
+    animator.previousTime = currentTime;
+  }
+
+  /**
+   * Updates all of the active AnimationJobs.
+   *
+   * @param {number} currentTime
+   * @param {number} deltaTime
+   */
+  function updateJobs(currentTime, deltaTime) {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].update(currentTime, deltaTime);
+
+      // Remove jobs from the list after they are complete
+      if (animator.jobs[i].isComplete) {
+        removeJob(animator.jobs[i], i);
+        i--;
+        count--;
+      }
+    }
+  }
+
+  /**
+   * Removes the given job from the collection of active, animating jobs.
+   *
+   * @param {AnimationJob} job
+   * @param {number} [index]
+   */
+  function removeJob(job, index) {
+    var count;
+
+    if (typeof index === 'number') {
+      animator.jobs.splice(index, 1);
+    } else {
+      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
+        if (animator.jobs[index] === job) {
+          animator.jobs.splice(index, 1);
+          break;
+        }
+      }
+    }
+
+    // Stop the animation loop when there are no more jobs to animate
+    if (animator.jobs.length === 0) {
+      animator.isPaused = true;
+    }
+  }
+
+  /**
+   * Draws all of the active AnimationJobs.
+   */
+  function drawJobs() {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].draw();
+    }
+  }
+
+  /**
+   * Starts the animation loop if it is not already running
+   */
+  function startAnimationLoop() {
+    animator.isPaused = false;
+    if (!animator.isLooping) {
+      animator.previousTime = Date.now();
+      animationLoop();
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Starts the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function startJob(job) {
+//    console.log('Job starting: ' + job.constructor.name);
+
+    job.start();
+    animator.jobs.push(job);
+
+    startAnimationLoop();
+  }
+
+  /**
+   * Cancels the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function cancelJob(job) {
+    console.log('Job cancelling: ' + job.constructor.name);
+
+    job.cancel();
+    removeJob(job);
+  }
+
+  /**
+   * Cancels all running AnimationJobs.
+   */
+  function cancelAll() {
+    while (animator.jobs.length) {
+      cancelJob(animator.jobs[0]);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  animator.jobs = [];
+  animator.previousTime = Date.now();
+  animator.isLooping = false;
+  animator.isPaused = true;
+  animator.startJob = startJob;
+  animator.cancelJob = cancelJob;
+  animator.cancelAll = cancelAll;
+
+  animator.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.animator = animator;
+
+  console.log('animator module loaded');
+})();
+
+/**
  * @typedef {AnimationJob} ColorResetJob
  */
 
@@ -4912,10 +4946,10 @@
 
     job = this;
 
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      job.grid.tiles[i].currentHue = job.grid.tiles[i].originalHue;
-      job.grid.tiles[i].currentSaturation = job.grid.tiles[i].originalSaturation;
-      job.grid.tiles[i].currentLightness = job.grid.tiles[i].originalLightness;
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].currentHue = job.grid.allTiles[i].originalHue;
+      job.grid.allTiles[i].currentSaturation = job.grid.allTiles[i].originalSaturation;
+      job.grid.allTiles[i].currentLightness = job.grid.allTiles[i].originalLightness;
     }
   }
 
@@ -5153,8 +5187,8 @@
     halfWaveProgressWavelength = config.wavelength / 2;
     job.waveProgressOffsets = [];
 
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      tile = job.grid.tiles[i];
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      tile = job.grid.allTiles[i];
 
       deltaX = tile.originalAnchor.x - config.originX;
       deltaY = tile.originalAnchor.y - config.originY;
@@ -5217,8 +5251,8 @@
 
     progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
 
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      updateTile(progress, job.grid.allTiles[i], job.waveProgressOffsets[i]);
     }
   }
 
@@ -5336,9 +5370,9 @@
     job = this;
 
     // Update the tiles
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      job.grid.tiles[i].currentAnchor.x = job.grid.tiles[i].originalAnchor.x;
-      job.grid.tiles[i].currentAnchor.y = job.grid.tiles[i].originalAnchor.y;
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].currentAnchor.x = job.grid.allTiles[i].originalAnchor.x;
+      job.grid.allTiles[i].currentAnchor.y = job.grid.allTiles[i].originalAnchor.y;
     }
   }
 
@@ -5454,8 +5488,8 @@
     halfWaveProgressWavelength = config.wavelength / 2;
     job.waveProgressOffsets = [];
 
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      tile = job.grid.tiles[i];
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      tile = job.grid.allTiles[i];
 
       deltaX = tile.originalAnchor.x - config.originX;
       deltaY = tile.originalAnchor.y - config.originY;
@@ -5464,7 +5498,7 @@
       job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
           / halfWaveProgressWavelength;
     }
-  }
+  }**;// TODO: will need to add a function to controller that tells all persistent jobs to update whenever the grid.allTiles array is changed
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -5515,8 +5549,8 @@
 
     progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
 
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.tiles[i], job.waveProgressOffsets[i]);
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      updateTile(progress, job.grid.allTiles[i], job.waveProgressOffsets[i]);
     }
   }
 
@@ -5792,13 +5826,13 @@
 //        }
 //      }
 //    } else {
-//      for (i = 0, iCount = job.grid.tiles.length; i < iCount; i += 1) {
+//      for (i = 0, iCount = job.grid.originalTiles.length; i < iCount; i += 1) {
 //        job.displacements[i] = {
-//          tile: job.grid.tiles[i],
+//          tile: job.grid.originalTiles[i],
 //          displacementX: displacementRatio *
-//              (job.grid.tiles[i].originalAnchorX - job.tile.originalAnchorX),
+//              (job.grid.originalTiles[i].originalAnchorX - job.tile.originalAnchorX),
 //          displacementY: displacementRatio *
-//              (job.grid.tiles[i].originalAnchorY - job.tile.originalAnchorY)
+//              (job.grid.originalTiles[i].originalAnchorY - job.tile.originalAnchorY)
 //        };
 //      }
 //    }
@@ -6133,9 +6167,9 @@
 
     distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
 
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      deltaX = job.grid.tiles[i].originalAnchor.x - job.startPoint.x;
-      deltaY = job.grid.tiles[i].originalAnchor.y - job.startPoint.y;
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      deltaX = job.grid.allTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.allTiles[i].originalAnchor.y - job.startPoint.y;
       job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
     }
   }
@@ -6215,13 +6249,13 @@
 
       animatedSomeTile = false;
 
-      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+      for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
         distance = job.tileDistances[i];
 
         if (distance > currentMinDistance && distance < currentMaxDistance) {
           waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
 
-          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
+          updateTile(job.grid.allTiles[i], waveWidthRatio, oneMinusDurationRatio);
 
           animatedSomeTile = true;
         }
@@ -6378,13 +6412,13 @@
 //
 //      animatedSomeTile = false;
 //
-//      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+//      for (i = 0, count = job.grid.originalTiles.length; i < count; i += 1) {
 //        distance = job.tileDistances[i];
 //
 //        if (distance > currentMinDistance && distance < currentMaxDistance) {
 //          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
 //
-//          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
+//          updateTile(job.grid.originalTiles[i], waveWidthRatio, oneMinusDurationRatio);
 //
 //          animatedSomeTile = true;
 //        }
@@ -7943,7 +7977,7 @@
     // TODO: when closing the grid, make sure to:
     // - de-allocate the sector objects and the tile.expandedState properties (sector.destroy)
     // - job.grid.expandedTile = null;
-    // - job.grid.allTiles = job.grid.tiles;
+    // - job.grid.allTiles = job.grid.originalTiles;
 
     job.grid.isTransitioning = false;
 
@@ -7966,8 +8000,8 @@
 
     // Create the sectors
     for (i = 0; i < 6; i += 1) {
-      job.grid.sectors[i] =
-          new window.hg.Sector(job.grid, job.baseTile, i, config.expandedDisplacementTileCount);
+      job.grid.sectors[i] = new window.hg.Sector(job.grid, job.baseTile, i,
+          config.expandedDisplacementTileCount);
     }
 
     // Connect the sectors' tiles' external neighbor states
@@ -7996,7 +8030,7 @@
         k += 1;
       }
     }
-    job.grid.allTiles = allExpandedTiles;
+    job.grid.updateAllTilesCollection(allExpandedTiles);
 
     console.log('open-post-job.grid.allTiles.length',job.grid.allTiles.length);
   }
@@ -8364,12 +8398,14 @@
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
       job.displacements[i] = {
         tile: job.grid.allTiles[i],
-        displacementX: config.displacementRatio *
+        dx: config.displacementRatio *
             (job.grid.allTiles[i].originalAnchor.x - job.tile.originalAnchor.x),
-        displacementY: config.displacementRatio *
+        dy: config.displacementRatio *
             (job.grid.allTiles[i].originalAnchor.y - job.tile.originalAnchor.y)
       };
     }
+
+    console.log('spread-job.grid.allTiles.length',job.grid.allTiles.length);
   }
 
   /**
@@ -8427,8 +8463,8 @@
 
       // Displace the tiles
       for (i = 0, count = job.displacements.length; i < count; i += 1) {
-        job.displacements[i].tile.currentAnchor.x += job.displacements[i].displacementX * progress;
-        job.displacements[i].tile.currentAnchor.y += job.displacements[i].displacementY * progress;
+        job.displacements[i].tile.currentAnchor.x += job.displacements[i].dx * progress;
+        job.displacements[i].tile.currentAnchor.y += job.displacements[i].dy * progress;
       }
     }
   }
@@ -8578,13 +8614,13 @@
 //
 //      animatedSomeTile = false;
 //
-//      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+//      for (i = 0, count = job.grid.originalTiles.length; i < count; i += 1) {
 //        distance = job.tileDistances[i];
 //
 //        if (distance > currentMinDistance && distance < currentMaxDistance) {
 //          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
 //
-//          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
+//          updateTile(job.grid.originalTiles[i], waveWidthRatio, oneMinusDurationRatio);
 //
 //          animatedSomeTile = true;
 //        }

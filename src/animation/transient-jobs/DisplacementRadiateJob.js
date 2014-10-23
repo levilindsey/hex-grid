@@ -62,13 +62,13 @@
 //        }
 //      }
 //    } else {
-//      for (i = 0, iCount = job.grid.tiles.length; i < iCount; i += 1) {
+//      for (i = 0, iCount = job.grid.originalTiles.length; i < iCount; i += 1) {
 //        job.displacements[i] = {
-//          tile: job.grid.tiles[i],
+//          tile: job.grid.originalTiles[i],
 //          displacementX: displacementRatio *
-//              (job.grid.tiles[i].originalAnchorX - job.tile.originalAnchorX),
+//              (job.grid.originalTiles[i].originalAnchorX - job.tile.originalAnchorX),
 //          displacementY: displacementRatio *
-//              (job.grid.tiles[i].originalAnchorY - job.tile.originalAnchorY)
+//              (job.grid.originalTiles[i].originalAnchorY - job.tile.originalAnchorY)
 //        };
 //      }
 //    }

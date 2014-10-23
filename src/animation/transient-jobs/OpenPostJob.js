@@ -52,7 +52,7 @@
     // TODO: when closing the grid, make sure to:
     // - de-allocate the sector objects and the tile.expandedState properties (sector.destroy)
     // - job.grid.expandedTile = null;
-    // - job.grid.allTiles = job.grid.tiles;
+    // - job.grid.allTiles = job.grid.originalTiles;
 
     job.grid.isTransitioning = false;
 
@@ -75,8 +75,8 @@
 
     // Create the sectors
     for (i = 0; i < 6; i += 1) {
-      job.grid.sectors[i] =
-          new window.hg.Sector(job.grid, job.baseTile, i, config.expandedDisplacementTileCount);
+      job.grid.sectors[i] = new window.hg.Sector(job.grid, job.baseTile, i,
+          config.expandedDisplacementTileCount);
     }
 
     // Connect the sectors' tiles' external neighbor states
@@ -105,7 +105,7 @@
         k += 1;
       }
     }
-    job.grid.allTiles = allExpandedTiles;
+    job.grid.updateAllTilesCollection(allExpandedTiles);
 
     console.log('open-post-job.grid.allTiles.length',job.grid.allTiles.length);
   }

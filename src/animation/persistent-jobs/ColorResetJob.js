@@ -50,10 +50,10 @@
 
     job = this;
 
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      job.grid.tiles[i].currentHue = job.grid.tiles[i].originalHue;
-      job.grid.tiles[i].currentSaturation = job.grid.tiles[i].originalSaturation;
-      job.grid.tiles[i].currentLightness = job.grid.tiles[i].originalLightness;
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].currentHue = job.grid.allTiles[i].originalHue;
+      job.grid.allTiles[i].currentSaturation = job.grid.allTiles[i].originalSaturation;
+      job.grid.allTiles[i].currentLightness = job.grid.allTiles[i].originalLightness;
     }
   }
 

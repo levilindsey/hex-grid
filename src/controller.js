@@ -209,7 +209,7 @@
    * @param {Grid} grid
    */
   function createTransientJobWithARandomTile(jobId, grid) {
-    controller.transientJobs[jobId].create(grid, getRandomTile(grid));
+    controller.transientJobs[jobId].create(grid, getRandomOriginalTile(grid));
   }
 
   /**
@@ -305,9 +305,9 @@
    * @param {Grid} grid
    * @returns {Tile}
    */
-  function getRandomTile(grid) {
-    var tileIndex = parseInt(Math.random() * grid.tiles.length);
-    return grid.tiles[tileIndex];
+  function getRandomOriginalTile(grid) {
+    var tileIndex = parseInt(Math.random() * grid.originalTiles.length);
+    return grid.originalTiles[tileIndex];
   }
 
   /**

@@ -81,13 +81,13 @@
 //
 //      animatedSomeTile = false;
 //
-//      for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
+//      for (i = 0, count = job.grid.originalTiles.length; i < count; i += 1) {
 //        distance = job.tileDistances[i];
 //
 //        if (distance > currentMinDistance && distance < currentMaxDistance) {
 //          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
 //
-//          updateTile(job.grid.tiles[i], waveWidthRatio, oneMinusDurationRatio);
+//          updateTile(job.grid.originalTiles[i], waveWidthRatio, oneMinusDurationRatio);
 //
 //          animatedSomeTile = true;
 //        }

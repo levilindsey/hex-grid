@@ -51,9 +51,9 @@
     job = this;
 
     // Update the tiles
-    for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      job.grid.tiles[i].currentAnchor.x = job.grid.tiles[i].originalAnchor.x;
-      job.grid.tiles[i].currentAnchor.y = job.grid.tiles[i].originalAnchor.y;
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].currentAnchor.x = job.grid.allTiles[i].originalAnchor.x;
+      job.grid.allTiles[i].currentAnchor.y = job.grid.allTiles[i].originalAnchor.y;
     }
   }
 
