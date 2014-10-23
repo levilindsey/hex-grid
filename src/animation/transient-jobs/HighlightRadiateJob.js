@@ -47,8 +47,8 @@
     distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      deltaX = job.grid.tiles[i].originalAnchorX - job.startPoint.x;
-      deltaY = job.grid.tiles[i].originalAnchorY - job.startPoint.y;
+      deltaX = job.grid.tiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.tiles[i].originalAnchor.y - job.startPoint.y;
       job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
     }
   }
@@ -182,7 +182,7 @@
     var job = this;
 
     job.grid = grid;
-    job.startPoint = {x: tile.originalAnchorX, y: tile.originalAnchorY};
+    job.startPoint = {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
     job.tileDistances = [];
     job.startTime = 0;
     job.isComplete = false;

@@ -54,8 +54,8 @@
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
-      deltaX = tile.originalAnchorX - config.originX;
-      deltaY = tile.originalAnchorY - config.originY;
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
       length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
       job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)

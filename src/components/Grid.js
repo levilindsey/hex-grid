@@ -71,8 +71,12 @@
     parentHalfWidth = grid.parent.clientWidth * 0.5;
     parentHeight = grid.parent.clientHeight;
 
-    grid.centerX = parentHalfWidth;
-    grid.centerY = parentHeight * 0.5;
+    grid.originalCenter.x = parentHalfWidth;
+    grid.originalCenter.y = parentHeight * 0.5;
+    grid.currentCenter.x = grid.originalCenter.x;
+    grid.currentCenter.y = grid.originalCenter.y;
+    grid.panCenter.x = grid.originalCenter.x;
+    grid.panCenter.y = grid.originalCenter.y;
 
     grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
         grid.parent.clientWidth : config.targetContentAreaWidth;
@@ -663,10 +667,9 @@
     grid.contentTiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
-    grid.centerX = Number.NaN;
-    grid.centerY = Number.NaN;
-    grid.panDisplacementX = 0;**;// TODO: use these
-    grid.panDisplacementY = 0;
+    grid.originalCenter = {x: Number.NaN, y: Number.NaN};
+    grid.currentCenter = {x: Number.NaN, y: Number.NaN};
+    grid.panCenter = {x: Number.NaN, y: Number.NaN};
     grid.isPostOpen = false;
     grid.isTransitioning = false;
     grid.expandedTile = null;

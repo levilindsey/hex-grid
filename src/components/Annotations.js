@@ -271,7 +271,7 @@
   }
 
   /**
-   * Creates a dot at the center of each tile at its anchor position.
+   * Creates a dot at the center of each tile at its currentAnchor position.
    *
    * @this Annotations
    */
@@ -300,7 +300,7 @@
   }
 
   /**
-   * Creates a circle over each tile at its anchor position, which will be used to show colors
+   * Creates a circle over each tile at its currentAnchor position, which will be used to show colors
    * that indicate its displacement from its original position.
    *
    * @this Annotations
@@ -491,21 +491,31 @@
    *
    * @this Annotations
    */
-  function createPanCenterPoints() {**;// TODO: implement this and the other two functions
-    var annotations, i, count;
+  function createPanCenterPoints() {
+    var annotations;
 
     annotations = this;
-    annotations.tileOuterRadii = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileOuterRadii[i] =
-        document.createElementNS(window.hg.util.svgNamespace, 'circle');
-      annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
+    // Current grid center dot
+    annotations.currentGridCenterDot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+    annotations.grid.svg.appendChild(annotations.currentGridCenterDot);
 
-      annotations.tileOuterRadii[i].setAttribute('stroke', 'green');
-      annotations.tileOuterRadii[i].setAttribute('stroke-width', '1');
-      annotations.tileOuterRadii[i].setAttribute('fill', 'transparent');
-    }
+    annotations.currentGridCenterDot.setAttribute('r', '8');
+    annotations.currentGridCenterDot.setAttribute('fill', 'chartreuse');
+
+    // Current pan center dot
+    annotations.panCenterDot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+    annotations.grid.svg.appendChild(annotations.panCenterDot);
+
+    annotations.panCenterDot.setAttribute('r', '5');
+    annotations.panCenterDot.setAttribute('fill', 'red');
+
+    // Original grid center dot
+    annotations.originalGridCenterDot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+    annotations.grid.svg.appendChild(annotations.originalGridCenterDot);
+
+    annotations.originalGridCenterDot.setAttribute('r', '2');
+    annotations.originalGridCenterDot.setAttribute('fill', 'yellow');
   }
 
   // --------------------------------------------------- //
@@ -613,7 +623,7 @@
   }
 
   /**
-   * Destroys a dot at the center of each tile at its anchor position.
+   * Destroys a dot at the center of each tile at its currentAnchor position.
    *
    * @this Annotations
    */
@@ -632,7 +642,7 @@
   }
 
   /**
-   * Destroys a circle over each tile at its anchor position, which will be used to show colors
+   * Destroys a circle over each tile at its currentAnchor position, which will be used to show colors
    * that indicate its displacement from its original position.
    *
    * @this Annotations
@@ -833,6 +843,28 @@
     }
   }
 
+  /**
+   * Destroys the dots at the center of the grid and the center of the viewport and stops highlighting the base tile
+   * for the current pan.
+   *
+   * @this Annotations
+   */
+  function destroyPanCenterPoints() {
+    var annotations;
+
+    annotations = this;
+
+    if (annotations.originalGridCenterDot) {
+      annotations.grid.svg.removeChild(annotations.originalGridCenterDot);
+      annotations.grid.svg.removeChild(annotations.currentGridCenterDot);
+      annotations.grid.svg.removeChild(annotations.panCenterDot);
+
+      annotations.originalGridCenterDot = null;
+      annotations.currentGridCenterDot = null;
+      annotations.panCenterDot = null;
+    }
+  }
+
   // --------------------------------------------------- //
   // Annotation updating functions
 
@@ -853,7 +885,7 @@
   }
 
   /**
-   * Updates a dot at the center of each tile at its anchor position.
+   * Updates a dot at the center of each tile at its currentAnchor position.
    *
    * @this Annotations
    */
@@ -865,15 +897,15 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileAnchorLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
       annotations.tileAnchorLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].anchorX);
-      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].anchorY);
-      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].anchorX);
-      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].anchorY);
+      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].currentAnchor.x);
+      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].currentAnchor.y);
+      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].currentAnchor.x);
+      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].currentAnchor.y);
     }
   }
 
   /**
-   * Updates the color of a circle over each tile at its anchor position according to its
+   * Updates the color of a circle over each tile at its currentAnchor position according to its
    * displacement from its original position.
    *
    * @this Annotations
@@ -884,8 +916,8 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalAnchorX;
-      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalAnchorY;
+      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalAnchor.x;
+      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalAnchor.y;
 
       angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -1114,6 +1146,34 @@
     }
   }
 
+  /**
+   * Updates the dots at the center of the grid and the center of the viewport and highlights the base tile for the
+   * current pan.
+   *
+   * @this Annotations
+   */
+  function updatePanCenterPoints() {
+    var annotations;
+
+    annotations = this;
+
+    if (annotations.originalGridCenterDot) {
+      annotations.originalGridCenterDot.setAttribute('cx', annotations.grid.originalCenter.x);
+      annotations.originalGridCenterDot.setAttribute('cy', annotations.grid.originalCenter.y);
+
+      annotations.currentGridCenterDot.setAttribute('cx', annotations.grid.currentCenter.x);
+      annotations.currentGridCenterDot.setAttribute('cy', annotations.grid.currentCenter.y);
+
+      annotations.panCenterDot.setAttribute('cx', annotations.grid.panCenter.x);
+      annotations.panCenterDot.setAttribute('cy', annotations.grid.panCenter.y);
+
+      // TODO: remove this
+      if (annotations.grid.expandedTile) {
+        annotations.grid.expandedTile.setColor(0, 0, 90);
+      }
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
@@ -1279,6 +1339,10 @@
     annotations.lineAnimationSelfCornerDots = [];
     annotations.lineAnimationLowerNeighborCornerDots = [];
     annotations.lineAnimationUpperNeighborCornerDots = [];
+
+    annotations.originalGridCenterDot = null;
+    annotations.currentGridCenterDot = null;
+    annotations.panCenterDot = null;
 
     annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
     annotations.createAnnotations = createAnnotations;

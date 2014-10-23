@@ -47,28 +47,28 @@
     // Compute the axially-aligned distances between adjacent tiles
 
     sector.majorNeighborDeltaX =
-        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchorX -
-        sector.baseTile.originalAnchorX;
+        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchor.x -
+        sector.baseTile.originalAnchor.x;
     sector.majorNeighborDeltaY =
-        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchorY -
-        sector.baseTile.originalAnchorY;
+        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchor.y -
+        sector.baseTile.originalAnchor.y;
     sector.minorNeighborDeltaX =
-        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchorX -
-        sector.baseTile.originalAnchorX;
+        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchor.x -
+        sector.baseTile.originalAnchor.x;
     sector.minorNeighborDeltaY =
-        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchorY -
-        sector.baseTile.originalAnchorY;
+        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchor.y -
+        sector.baseTile.originalAnchor.y;
 
     // Compute the axially-aligned displacement values of this sector when the grid is expanded
 
     expansionDirectionNeighborIndex = (sector.index + 5) % 6;
 
     expansionDirectionNeighborDeltaX =
-        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchorX -
-        sector.baseTile.originalAnchorX;
+        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchor.x -
+        sector.baseTile.originalAnchor.x;
     expansionDirectionNeighborDeltaY =
-        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchorY -
-        sector.baseTile.originalAnchorY;
+        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchor.y -
+        sector.baseTile.originalAnchor.y;
 
     sector.expandedDisplacementX =
         sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaX;
@@ -202,10 +202,10 @@
     // Determine the bounding box of the re-positioned viewport
     boundingBoxHalfX = window.innerWidth / 2 - Math.abs(sector.expandedDisplacementX) + window.hg.Grid.config.tileShortLengthWithGap;
     boundingBoxHalfY = window.innerHeight / 2 - Math.abs(sector.expandedDisplacementY) + window.hg.Grid.config.tileShortLengthWithGap;
-    minX = sector.baseTile.originalAnchorX - boundingBoxHalfX;
-    maxX = sector.baseTile.originalAnchorX + boundingBoxHalfX;
-    minY = sector.baseTile.originalAnchorY - boundingBoxHalfY;
-    maxY = sector.baseTile.originalAnchorY + boundingBoxHalfY;
+    minX = sector.baseTile.originalAnchor.x - boundingBoxHalfX;
+    maxX = sector.baseTile.originalAnchor.x + boundingBoxHalfX;
+    minY = sector.baseTile.originalAnchor.y - boundingBoxHalfY;
+    maxY = sector.baseTile.originalAnchor.y + boundingBoxHalfY;
 
     // TODO: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is when the viewport's aspect ratio is very large or very small)
     // Collect all of the tiles for this sector into a two-dimensional array
@@ -217,8 +217,8 @@
     function iterateOverTilesInSectorInMajorOrder() {
       var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
-      startX = sector.baseTile.originalAnchorX + sector.majorNeighborDeltaX;
-      startY = sector.baseTile.originalAnchorY + sector.majorNeighborDeltaY;
+      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDeltaX;
+      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDeltaY;
 
       // Set up the first "column"
       majorIndex = 0;
@@ -257,8 +257,8 @@
     function iterateOverTilesInSectorInMinorOrder() {
       var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
-      startX = sector.baseTile.originalAnchorX + sector.majorNeighborDeltaX;
-      startY = sector.baseTile.originalAnchorY + sector.majorNeighborDeltaY;
+      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDeltaX;
+      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDeltaY;
 
       // Set up the first "column"
       majorIndex = 0;

@@ -778,7 +778,7 @@
             //forcedInitialAbsoluteDirection = 1;
           }
         }
-        direction = tile.originalAnchorY < grid.centerY ? 2 : 1;
+        direction = tile.originalAnchor.y < grid.originalCenter.y ? 2 : 1;
       } else if (!tile.neighborStates[1]) { // Right side
         if (tile.isInLargerRow) {
           if (Math.random() < 0.5) {
@@ -801,7 +801,7 @@
             //forcedInitialAbsoluteDirection = 4;
           }
         }
-        direction = tile.originalAnchorY < grid.centerY ? 4 : 5;
+        direction = tile.originalAnchor.y < grid.originalCenter.y ? 4 : 5;
       } else if (!tile.neighborStates[0]) { // Top side
         if (Math.random() < 0.5) {
           corner = 1;
@@ -846,7 +846,7 @@
             //forcedInitialAbsoluteDirection = 3;
           }
         }
-        direction = tile.originalAnchorX < grid.centerX ? 2 : 3;
+        direction = tile.originalAnchor.x < grid.originalCenter.x ? 2 : 3;
       } else if (!tile.neighborStates[3]) { // Bottom side
         if (tile.rowIndex === grid.rowCount - 1) { // Last row
           if (Math.random() < 0.5) {
@@ -869,7 +869,7 @@
             //forcedInitialAbsoluteDirection = 5;
           }
         }
-        direction = tile.originalAnchorX < grid.centerX ? 0 : 5;
+        direction = tile.originalAnchor.x < grid.originalCenter.x ? 0 : 5;
       } else if (!tile.neighborStates[4]) { // Left side
         if (Math.random() < 0.5) {
           corner = 3;

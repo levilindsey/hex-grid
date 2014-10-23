@@ -40,20 +40,20 @@
   /**
    * @this PanJob
    */
-  function setFinalTilePositions() {
+  function setFinalPositions() {
     var job, i, count;
 
     job = this;
 
     // Displace the tiles
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].originalAnchorX += job.displacement.x;
-      job.grid.allTiles[i].originalAnchorY += job.displacement.y;
+      job.grid.allTiles[i].originalAnchor.x += job.displacement.x;
+      job.grid.allTiles[i].originalAnchor.y += job.displacement.y;
     }
 
     // Update the grid
-    job.grid.centerX = job.startPoint.x + job.displacement.x;
-    job.grid.centerY = job.startPoint.y + job.displacement.y;
+    job.grid.panCenter.x += job.displacement.x;
+    job.grid.panCenter.y += job.displacement.y;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -70,10 +70,13 @@
   function start() {
     var job = this;
 
+    job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
+    job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
+
     job.startTime = Date.now();
     job.isComplete = false;
 
-    setFinalTilePositions.call(job);
+    setFinalPositions.call(job);
   }
 
   /**
@@ -100,13 +103,13 @@
 
     // Displace the tiles
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].anchorX += displacementX;
-      job.grid.allTiles[i].anchorY += displacementY;
+      job.grid.allTiles[i].currentAnchor.x += displacementX;
+      job.grid.allTiles[i].currentAnchor.y += displacementY;
     }
 
     // Update the grid
-    job.grid.centerX = job.startPoint.x + displacementX;
-    job.grid.centerY = job.startPoint.y + displacementY;
+    job.grid.currentCenter.x = job.startPoint.x + displacementX;
+    job.grid.currentCenter.y = job.startPoint.y + displacementY;
 
     // Is the job done?
     if (progress === 0) {
@@ -139,9 +142,6 @@
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
-  // TODO: when multiple PanJobs overlap in execution, the center of the grid deviates from where it should be
-//  **;// TODO: FIX THIS! More generally, it is important that we can pan and displace sectors while the system is in any state
-
   /**
    * @constructor
    * @global
@@ -154,12 +154,16 @@
     var job = this;
 
     job.grid = grid;
-    job.endPoint = destinationPoint || {x: tile.originalAnchorX, y: tile.originalAnchorY};
-    job.startPoint = {x: grid.centerX, y: grid.centerY};
-    job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
-    job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
+    job.reverseDisplacement = null;
+    job.displacement = null;
     job.startTime = 0;
     job.isComplete = false;
+
+    // The current viewport coordinates of the point that we would like to move to the center of the viewport
+    job.endPoint = destinationPoint || {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
+
+    // The center of the viewport
+    job.startPoint = {x: grid.originalCenter.x, y: grid.originalCenter.y};
 
     job.start = start;
     job.update = update;

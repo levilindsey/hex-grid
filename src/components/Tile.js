@@ -56,7 +56,7 @@
 
     tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.vertices = [];
-    updateVertices.call(tile, tile.anchorX, tile.anchorY);
+    updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
 
     tile.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
@@ -81,8 +81,8 @@
     tile = this;
 
     tile.particle = {};
-    tile.particle.px = tile.anchorX;
-    tile.particle.py = tile.anchorY;
+    tile.particle.px = tile.currentAnchor.x;
+    tile.particle.py = tile.currentAnchor.y;
     tile.particle.vx = 0;
     tile.particle.vy = 0;
     tile.particle.fx = 0;
@@ -379,10 +379,10 @@
         }
       }
 
-      // --- Spring forces from anchor point --- //
+      // --- Spring forces from currentAnchor point --- //
 
-      lx = tile.anchorX - tile.particle.px;
-      ly = tile.anchorY - tile.particle.py;
+      lx = tile.currentAnchor.x - tile.particle.px;
+      ly = tile.currentAnchor.y - tile.particle.py;
       length = Math.sqrt(lx * lx + ly * ly);
 
       if (length > 0) {
@@ -583,8 +583,8 @@
 
     if (neighborTile) {
       // Determine the distance between these tiles
-      deltaX = tile.anchorX - neighborTile.anchorX;
-      deltaY = tile.anchorY - neighborTile.anchorY;
+      deltaX = tile.currentAnchor.x - neighborTile.currentAnchor.x;
+      deltaY = tile.currentAnchor.y - neighborTile.currentAnchor.y;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
       // Initialize the neighbor relation data from this tile to its neighbor
@@ -673,10 +673,8 @@
     tile.svg = svg;
     tile.grid = grid;
     tile.element = null;
-    tile.anchorX = anchorX;
-    tile.anchorY = anchorY;
-    tile.originalAnchorX = anchorX;
-    tile.originalAnchorY = anchorY;
+    tile.currentAnchor = {x: anchorX, y: anchorY};
+    tile.originalAnchor = {x: anchorX, y: anchorY};
     tile.outerRadius = outerRadius;
     tile.isVertical = isVertical;
 

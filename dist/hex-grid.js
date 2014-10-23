@@ -1547,7 +1547,7 @@
   }
 
   /**
-   * Creates a dot at the center of each tile at its anchor position.
+   * Creates a dot at the center of each tile at its currentAnchor position.
    *
    * @this Annotations
    */
@@ -1576,7 +1576,7 @@
   }
 
   /**
-   * Creates a circle over each tile at its anchor position, which will be used to show colors
+   * Creates a circle over each tile at its currentAnchor position, which will be used to show colors
    * that indicate its displacement from its original position.
    *
    * @this Annotations
@@ -1767,21 +1767,31 @@
    *
    * @this Annotations
    */
-  function createPanCenterPoints() {**;// TODO: implement this and the other two functions
-    var annotations, i, count;
+  function createPanCenterPoints() {
+    var annotations;
 
     annotations = this;
-    annotations.tileOuterRadii = [];
 
-    for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      annotations.tileOuterRadii[i] =
-        document.createElementNS(window.hg.util.svgNamespace, 'circle');
-      annotations.grid.svg.appendChild(annotations.tileOuterRadii[i]);
+    // Current grid center dot
+    annotations.currentGridCenterDot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+    annotations.grid.svg.appendChild(annotations.currentGridCenterDot);
 
-      annotations.tileOuterRadii[i].setAttribute('stroke', 'green');
-      annotations.tileOuterRadii[i].setAttribute('stroke-width', '1');
-      annotations.tileOuterRadii[i].setAttribute('fill', 'transparent');
-    }
+    annotations.currentGridCenterDot.setAttribute('r', '8');
+    annotations.currentGridCenterDot.setAttribute('fill', 'chartreuse');
+
+    // Current pan center dot
+    annotations.panCenterDot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+    annotations.grid.svg.appendChild(annotations.panCenterDot);
+
+    annotations.panCenterDot.setAttribute('r', '5');
+    annotations.panCenterDot.setAttribute('fill', 'red');
+
+    // Original grid center dot
+    annotations.originalGridCenterDot = document.createElementNS(window.hg.util.svgNamespace, 'circle');
+    annotations.grid.svg.appendChild(annotations.originalGridCenterDot);
+
+    annotations.originalGridCenterDot.setAttribute('r', '2');
+    annotations.originalGridCenterDot.setAttribute('fill', 'yellow');
   }
 
   // --------------------------------------------------- //
@@ -1889,7 +1899,7 @@
   }
 
   /**
-   * Destroys a dot at the center of each tile at its anchor position.
+   * Destroys a dot at the center of each tile at its currentAnchor position.
    *
    * @this Annotations
    */
@@ -1908,7 +1918,7 @@
   }
 
   /**
-   * Destroys a circle over each tile at its anchor position, which will be used to show colors
+   * Destroys a circle over each tile at its currentAnchor position, which will be used to show colors
    * that indicate its displacement from its original position.
    *
    * @this Annotations
@@ -2109,6 +2119,28 @@
     }
   }
 
+  /**
+   * Destroys the dots at the center of the grid and the center of the viewport and stops highlighting the base tile
+   * for the current pan.
+   *
+   * @this Annotations
+   */
+  function destroyPanCenterPoints() {
+    var annotations;
+
+    annotations = this;
+
+    if (annotations.originalGridCenterDot) {
+      annotations.grid.svg.removeChild(annotations.originalGridCenterDot);
+      annotations.grid.svg.removeChild(annotations.currentGridCenterDot);
+      annotations.grid.svg.removeChild(annotations.panCenterDot);
+
+      annotations.originalGridCenterDot = null;
+      annotations.currentGridCenterDot = null;
+      annotations.panCenterDot = null;
+    }
+  }
+
   // --------------------------------------------------- //
   // Annotation updating functions
 
@@ -2129,7 +2161,7 @@
   }
 
   /**
-   * Updates a dot at the center of each tile at its anchor position.
+   * Updates a dot at the center of each tile at its currentAnchor position.
    *
    * @this Annotations
    */
@@ -2141,15 +2173,15 @@
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       annotations.tileAnchorLines[i].setAttribute('x1', annotations.grid.tiles[i].particle.px);
       annotations.tileAnchorLines[i].setAttribute('y1', annotations.grid.tiles[i].particle.py);
-      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].anchorX);
-      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].anchorY);
-      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].anchorX);
-      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].anchorY);
+      annotations.tileAnchorLines[i].setAttribute('x2', annotations.grid.tiles[i].currentAnchor.x);
+      annotations.tileAnchorLines[i].setAttribute('y2', annotations.grid.tiles[i].currentAnchor.y);
+      annotations.tileAnchorCenters[i].setAttribute('cx', annotations.grid.tiles[i].currentAnchor.x);
+      annotations.tileAnchorCenters[i].setAttribute('cy', annotations.grid.tiles[i].currentAnchor.y);
     }
   }
 
   /**
-   * Updates the color of a circle over each tile at its anchor position according to its
+   * Updates the color of a circle over each tile at its currentAnchor position according to its
    * displacement from its original position.
    *
    * @this Annotations
@@ -2160,8 +2192,8 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
-      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalAnchorX;
-      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalAnchorY;
+      deltaX = annotations.grid.tiles[i].particle.px - annotations.grid.tiles[i].originalAnchor.x;
+      deltaY = annotations.grid.tiles[i].particle.py - annotations.grid.tiles[i].originalAnchor.y;
 
       angle = Math.atan2(deltaX, deltaY) * 180 / Math.PI;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -2390,6 +2422,34 @@
     }
   }
 
+  /**
+   * Updates the dots at the center of the grid and the center of the viewport and highlights the base tile for the
+   * current pan.
+   *
+   * @this Annotations
+   */
+  function updatePanCenterPoints() {
+    var annotations;
+
+    annotations = this;
+
+    if (annotations.originalGridCenterDot) {
+      annotations.originalGridCenterDot.setAttribute('cx', annotations.grid.originalCenter.x);
+      annotations.originalGridCenterDot.setAttribute('cy', annotations.grid.originalCenter.y);
+
+      annotations.currentGridCenterDot.setAttribute('cx', annotations.grid.currentCenter.x);
+      annotations.currentGridCenterDot.setAttribute('cy', annotations.grid.currentCenter.y);
+
+      annotations.panCenterDot.setAttribute('cx', annotations.grid.panCenter.x);
+      annotations.panCenterDot.setAttribute('cy', annotations.grid.panCenter.y);
+
+      // TODO: remove this
+      if (annotations.grid.expandedTile) {
+        annotations.grid.expandedTile.setColor(0, 0, 90);
+      }
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
@@ -2556,6 +2616,10 @@
     annotations.lineAnimationLowerNeighborCornerDots = [];
     annotations.lineAnimationUpperNeighborCornerDots = [];
 
+    annotations.originalGridCenterDot = null;
+    annotations.currentGridCenterDot = null;
+    annotations.panCenterDot = null;
+
     annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
     annotations.createAnnotations = createAnnotations;
     annotations.destroyAnnotations = destroyAnnotations;
@@ -2649,8 +2713,12 @@
     parentHalfWidth = grid.parent.clientWidth * 0.5;
     parentHeight = grid.parent.clientHeight;
 
-    grid.centerX = parentHalfWidth;
-    grid.centerY = parentHeight * 0.5;
+    grid.originalCenter.x = parentHalfWidth;
+    grid.originalCenter.y = parentHeight * 0.5;
+    grid.currentCenter.x = grid.originalCenter.x;
+    grid.currentCenter.y = grid.originalCenter.y;
+    grid.panCenter.x = grid.originalCenter.x;
+    grid.panCenter.y = grid.originalCenter.y;
 
     grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
         grid.parent.clientWidth : config.targetContentAreaWidth;
@@ -3241,10 +3309,9 @@
     grid.contentTiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
-    grid.centerX = Number.NaN;
-    grid.centerY = Number.NaN;
-    grid.panDisplacementX = 0;**;// TODO: use these
-    grid.panDisplacementY = 0;
+    grid.originalCenter = {x: Number.NaN, y: Number.NaN};
+    grid.currentCenter = {x: Number.NaN, y: Number.NaN};
+    grid.panCenter = {x: Number.NaN, y: Number.NaN};
     grid.isPostOpen = false;
     grid.isTransitioning = false;
     grid.expandedTile = null;
@@ -3510,28 +3577,28 @@
     // Compute the axially-aligned distances between adjacent tiles
 
     sector.majorNeighborDeltaX =
-        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchorX -
-        sector.baseTile.originalAnchorX;
+        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchor.x -
+        sector.baseTile.originalAnchor.x;
     sector.majorNeighborDeltaY =
-        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchorY -
-        sector.baseTile.originalAnchorY;
+        sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchor.y -
+        sector.baseTile.originalAnchor.y;
     sector.minorNeighborDeltaX =
-        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchorX -
-        sector.baseTile.originalAnchorX;
+        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchor.x -
+        sector.baseTile.originalAnchor.x;
     sector.minorNeighborDeltaY =
-        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchorY -
-        sector.baseTile.originalAnchorY;
+        sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchor.y -
+        sector.baseTile.originalAnchor.y;
 
     // Compute the axially-aligned displacement values of this sector when the grid is expanded
 
     expansionDirectionNeighborIndex = (sector.index + 5) % 6;
 
     expansionDirectionNeighborDeltaX =
-        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchorX -
-        sector.baseTile.originalAnchorX;
+        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchor.x -
+        sector.baseTile.originalAnchor.x;
     expansionDirectionNeighborDeltaY =
-        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchorY -
-        sector.baseTile.originalAnchorY;
+        sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchor.y -
+        sector.baseTile.originalAnchor.y;
 
     sector.expandedDisplacementX =
         sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaX;
@@ -3665,10 +3732,10 @@
     // Determine the bounding box of the re-positioned viewport
     boundingBoxHalfX = window.innerWidth / 2 - Math.abs(sector.expandedDisplacementX) + window.hg.Grid.config.tileShortLengthWithGap;
     boundingBoxHalfY = window.innerHeight / 2 - Math.abs(sector.expandedDisplacementY) + window.hg.Grid.config.tileShortLengthWithGap;
-    minX = sector.baseTile.originalAnchorX - boundingBoxHalfX;
-    maxX = sector.baseTile.originalAnchorX + boundingBoxHalfX;
-    minY = sector.baseTile.originalAnchorY - boundingBoxHalfY;
-    maxY = sector.baseTile.originalAnchorY + boundingBoxHalfY;
+    minX = sector.baseTile.originalAnchor.x - boundingBoxHalfX;
+    maxX = sector.baseTile.originalAnchor.x + boundingBoxHalfX;
+    minY = sector.baseTile.originalAnchor.y - boundingBoxHalfY;
+    maxY = sector.baseTile.originalAnchor.y + boundingBoxHalfY;
 
     // TODO: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is when the viewport's aspect ratio is very large or very small)
     // Collect all of the tiles for this sector into a two-dimensional array
@@ -3680,8 +3747,8 @@
     function iterateOverTilesInSectorInMajorOrder() {
       var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
-      startX = sector.baseTile.originalAnchorX + sector.majorNeighborDeltaX;
-      startY = sector.baseTile.originalAnchorY + sector.majorNeighborDeltaY;
+      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDeltaX;
+      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDeltaY;
 
       // Set up the first "column"
       majorIndex = 0;
@@ -3720,8 +3787,8 @@
     function iterateOverTilesInSectorInMinorOrder() {
       var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
-      startX = sector.baseTile.originalAnchorX + sector.majorNeighborDeltaX;
-      startY = sector.baseTile.originalAnchorY + sector.majorNeighborDeltaY;
+      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDeltaX;
+      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDeltaY;
 
       // Set up the first "column"
       majorIndex = 0;
@@ -4103,7 +4170,7 @@
 
     tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.vertices = [];
-    updateVertices.call(tile, tile.anchorX, tile.anchorY);
+    updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
 
     tile.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
@@ -4128,8 +4195,8 @@
     tile = this;
 
     tile.particle = {};
-    tile.particle.px = tile.anchorX;
-    tile.particle.py = tile.anchorY;
+    tile.particle.px = tile.currentAnchor.x;
+    tile.particle.py = tile.currentAnchor.y;
     tile.particle.vx = 0;
     tile.particle.vy = 0;
     tile.particle.fx = 0;
@@ -4426,10 +4493,10 @@
         }
       }
 
-      // --- Spring forces from anchor point --- //
+      // --- Spring forces from currentAnchor point --- //
 
-      lx = tile.anchorX - tile.particle.px;
-      ly = tile.anchorY - tile.particle.py;
+      lx = tile.currentAnchor.x - tile.particle.px;
+      ly = tile.currentAnchor.y - tile.particle.py;
       length = Math.sqrt(lx * lx + ly * ly);
 
       if (length > 0) {
@@ -4630,8 +4697,8 @@
 
     if (neighborTile) {
       // Determine the distance between these tiles
-      deltaX = tile.anchorX - neighborTile.anchorX;
-      deltaY = tile.anchorY - neighborTile.anchorY;
+      deltaX = tile.currentAnchor.x - neighborTile.currentAnchor.x;
+      deltaY = tile.currentAnchor.y - neighborTile.currentAnchor.y;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
       // Initialize the neighbor relation data from this tile to its neighbor
@@ -4720,10 +4787,8 @@
     tile.svg = svg;
     tile.grid = grid;
     tile.element = null;
-    tile.anchorX = anchorX;
-    tile.anchorY = anchorY;
-    tile.originalAnchorX = anchorX;
-    tile.originalAnchorY = anchorY;
+    tile.currentAnchor = {x: anchorX, y: anchorY};
+    tile.originalAnchor = {x: anchorX, y: anchorY};
     tile.outerRadius = outerRadius;
     tile.isVertical = isVertical;
 
@@ -5088,8 +5153,8 @@
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
-      deltaX = tile.originalAnchorX - config.originX;
-      deltaY = tile.originalAnchorY - config.originY;
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
       length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
       job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
@@ -5267,10 +5332,15 @@
 
     job = this;
 
+    // Update the tiles
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      job.grid.tiles[i].anchorX = job.grid.tiles[i].originalAnchorX;
-      job.grid.tiles[i].anchorY = job.grid.tiles[i].originalAnchorY;
+      job.grid.tiles[i].currentAnchor.x = job.grid.tiles[i].originalAnchor.x;
+      job.grid.tiles[i].currentAnchor.y = job.grid.tiles[i].originalAnchor.y;
     }
+
+    // Update the grid
+    job.grid.currentCenter.x = job.grid.panCenter.x;
+    job.grid.currentCenter.y = job.grid.panCenter.y;
   }
 
   /**
@@ -5388,8 +5458,8 @@
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
       tile = job.grid.tiles[i];
 
-      deltaX = tile.originalAnchorX - config.originX;
-      deltaY = tile.originalAnchorY - config.originY;
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
       length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
       job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
@@ -5411,8 +5481,8 @@
     var tileProgress =
         Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.anchorX += config.tileDeltaX * tileProgress;
-    tile.anchorY += config.tileDeltaY * tileProgress;
+    tile.currentAnchor.x += config.tileDeltaX * tileProgress;
+    tile.currentAnchor.y += config.tileDeltaY * tileProgress;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -6065,8 +6135,8 @@
     distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
 
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      deltaX = job.grid.tiles[i].originalAnchorX - job.startPoint.x;
-      deltaY = job.grid.tiles[i].originalAnchorY - job.startPoint.y;
+      deltaX = job.grid.tiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.tiles[i].originalAnchor.y - job.startPoint.y;
       job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
     }
   }
@@ -6200,7 +6270,7 @@
     var job = this;
 
     job.grid = grid;
-    job.startPoint = {x: tile.originalAnchorX, y: tile.originalAnchorY};
+    job.startPoint = {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
     job.tileDistances = [];
     job.startTime = 0;
     job.isComplete = false;
@@ -7169,7 +7239,7 @@
             //forcedInitialAbsoluteDirection = 1;
           }
         }
-        direction = tile.originalAnchorY < grid.centerY ? 2 : 1;
+        direction = tile.originalAnchor.y < grid.originalCenter.y ? 2 : 1;
       } else if (!tile.neighborStates[1]) { // Right side
         if (tile.isInLargerRow) {
           if (Math.random() < 0.5) {
@@ -7192,7 +7262,7 @@
             //forcedInitialAbsoluteDirection = 4;
           }
         }
-        direction = tile.originalAnchorY < grid.centerY ? 4 : 5;
+        direction = tile.originalAnchor.y < grid.originalCenter.y ? 4 : 5;
       } else if (!tile.neighborStates[0]) { // Top side
         if (Math.random() < 0.5) {
           corner = 1;
@@ -7237,7 +7307,7 @@
             //forcedInitialAbsoluteDirection = 3;
           }
         }
-        direction = tile.originalAnchorX < grid.centerX ? 2 : 3;
+        direction = tile.originalAnchor.x < grid.originalCenter.x ? 2 : 3;
       } else if (!tile.neighborStates[3]) { // Bottom side
         if (tile.rowIndex === grid.rowCount - 1) { // Last row
           if (Math.random() < 0.5) {
@@ -7260,7 +7330,7 @@
             //forcedInitialAbsoluteDirection = 5;
           }
         }
-        direction = tile.originalAnchorX < grid.centerX ? 0 : 5;
+        direction = tile.originalAnchor.x < grid.originalCenter.x ? 0 : 5;
       } else if (!tile.neighborStates[4]) { // Left side
         if (Math.random() < 0.5) {
           corner = 3;
@@ -8106,20 +8176,20 @@
   /**
    * @this PanJob
    */
-  function setFinalTilePositions() {
+  function setFinalPositions() {
     var job, i, count;
 
     job = this;
 
     // Displace the tiles
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].originalAnchorX += job.displacement.x;
-      job.grid.allTiles[i].originalAnchorY += job.displacement.y;
+      job.grid.allTiles[i].originalAnchor.x += job.displacement.x;
+      job.grid.allTiles[i].originalAnchor.y += job.displacement.y;
     }
 
     // Update the grid
-    job.grid.centerX = job.startPoint.x + job.displacement.x;
-    job.grid.centerY = job.startPoint.y + job.displacement.y;
+    job.grid.panCenter.x += job.displacement.x;
+    job.grid.panCenter.y += job.displacement.y;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -8136,10 +8206,13 @@
   function start() {
     var job = this;
 
+    job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
+    job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
+
     job.startTime = Date.now();
     job.isComplete = false;
 
-    setFinalTilePositions.call(job);
+    setFinalPositions.call(job);
   }
 
   /**
@@ -8166,13 +8239,13 @@
 
     // Displace the tiles
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].anchorX += displacementX;
-      job.grid.allTiles[i].anchorY += displacementY;
+      job.grid.allTiles[i].currentAnchor.x += displacementX;
+      job.grid.allTiles[i].currentAnchor.y += displacementY;
     }
 
     // Update the grid
-    job.grid.centerX = job.startPoint.x + displacementX;
-    job.grid.centerY = job.startPoint.y + displacementY;
+    job.grid.currentCenter.x = job.startPoint.x + displacementX;
+    job.grid.currentCenter.y = job.startPoint.y + displacementY;
 
     // Is the job done?
     if (progress === 0) {
@@ -8205,9 +8278,6 @@
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
-  // TODO: when multiple PanJobs overlap in execution, the center of the grid deviates from where it should be
-//  **;// TODO: FIX THIS! More generally, it is important that we can pan and displace sectors while the system is in any state
-
   /**
    * @constructor
    * @global
@@ -8220,12 +8290,16 @@
     var job = this;
 
     job.grid = grid;
-    job.endPoint = destinationPoint || {x: tile.originalAnchorX, y: tile.originalAnchorY};
-    job.startPoint = {x: grid.centerX, y: grid.centerY};
-    job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
-    job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
+    job.reverseDisplacement = null;
+    job.displacement = null;
     job.startTime = 0;
     job.isComplete = false;
+
+    // The current viewport coordinates of the point that we would like to move to the center of the viewport
+    job.endPoint = destinationPoint || {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
+
+    // The center of the viewport
+    job.startPoint = {x: grid.originalCenter.x, y: grid.originalCenter.y};
 
     job.start = start;
     job.update = update;
@@ -8287,9 +8361,9 @@
       job.displacements[i] = {
         tile: job.grid.allTiles[i],
         displacementX: config.displacementRatio *
-            (job.grid.allTiles[i].originalAnchorX - job.tile.originalAnchorX),
+            (job.grid.allTiles[i].originalAnchor.x - job.tile.originalAnchor.x),
         displacementY: config.displacementRatio *
-            (job.grid.allTiles[i].originalAnchorY - job.tile.originalAnchorY)
+            (job.grid.allTiles[i].originalAnchor.y - job.tile.originalAnchor.y)
       };
     }
   }
@@ -8349,8 +8423,8 @@
 
       // Displace the tiles
       for (i = 0, count = job.displacements.length; i < count; i += 1) {
-        job.displacements[i].tile.anchorX += job.displacements[i].displacementX * progress;
-        job.displacements[i].tile.anchorY += job.displacements[i].displacementY * progress;
+        job.displacements[i].tile.currentAnchor.x += job.displacements[i].displacementX * progress;
+        job.displacements[i].tile.currentAnchor.y += job.displacements[i].displacementY * progress;
       }
     }
   }

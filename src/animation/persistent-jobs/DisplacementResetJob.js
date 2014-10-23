@@ -50,10 +50,15 @@
 
     job = this;
 
+    // Update the tiles
     for (i = 0, count = job.grid.tiles.length; i < count; i += 1) {
-      job.grid.tiles[i].anchorX = job.grid.tiles[i].originalAnchorX;
-      job.grid.tiles[i].anchorY = job.grid.tiles[i].originalAnchorY;
+      job.grid.tiles[i].currentAnchor.x = job.grid.tiles[i].originalAnchor.x;
+      job.grid.tiles[i].currentAnchor.y = job.grid.tiles[i].originalAnchor.y;
     }
+
+    // Update the grid
+    job.grid.currentCenter.x = job.grid.panCenter.x;
+    job.grid.currentCenter.y = job.grid.panCenter.y;
   }
 
   /**
