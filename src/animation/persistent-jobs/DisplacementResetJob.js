@@ -55,10 +55,6 @@
       job.grid.tiles[i].currentAnchor.x = job.grid.tiles[i].originalAnchor.x;
       job.grid.tiles[i].currentAnchor.y = job.grid.tiles[i].originalAnchor.y;
     }
-
-    // Update the grid
-    job.grid.currentCenter.x = job.grid.panCenter.x;
-    job.grid.currentCenter.y = job.grid.panCenter.y;
   }
 
   /**

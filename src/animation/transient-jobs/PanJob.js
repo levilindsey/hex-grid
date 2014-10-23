@@ -18,8 +18,8 @@
   config.displacementRatio = 0.28;
 
   config.isRecurring = false;
-  config.avgDelay = 4000;
-  config.delayDeviationRange = 3800;
+  config.avgDelay = 300;
+  config.delayDeviationRange = 0;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -50,6 +50,8 @@
       job.grid.allTiles[i].originalAnchor.x += job.displacement.x;
       job.grid.allTiles[i].originalAnchor.y += job.displacement.y;
     }
+
+    console.log('pan-job.grid.allTiles.length',job.grid.allTiles.length);
 
     // Update the grid
     job.grid.panCenter.x += job.displacement.x;
@@ -108,8 +110,8 @@
     }
 
     // Update the grid
-    job.grid.currentCenter.x = job.startPoint.x + displacementX;
-    job.grid.currentCenter.y = job.startPoint.y + displacementY;
+    job.grid.currentCenter.x = job.grid.panCenter.x + displacementX;
+    job.grid.currentCenter.y = job.grid.panCenter.y + displacementY;
 
     // Is the job done?
     if (progress === 0) {
@@ -154,6 +156,7 @@
     var job = this;
 
     job.grid = grid;
+    job.baseTile = tile;
     job.reverseDisplacement = null;
     job.displacement = null;
     job.startTime = 0;

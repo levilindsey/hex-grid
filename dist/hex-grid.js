@@ -1312,19 +1312,19 @@
       enabled: true,
       create: fillContentTiles,
       destroy: unfillContentTiles,
-      update: function () {/* Do nothing */}
+      update: fillContentTiles
     },
     'borderTiles': {
       enabled: false,
       create: fillBorderTiles,
       destroy: unfillBorderTiles,
-      update: function () {/* Do nothing */}
+      update: fillBorderTiles
     },
     'cornerTiles': {
       enabled: false,
       create: fillCornerTiles,
       destroy: unfillCornerTiles,
-      update: function () {/* Do nothing */}
+      update: fillCornerTiles
     },
     'transparentTiles': {
       enabled: false,
@@ -1406,9 +1406,9 @@
     },
     'sectorColors': {
       enabled: true,
-      create: createSectorColors,
-      destroy: destroySectorColors,
-      update: function () {/* Do nothing */}
+      create: fillSectorColors,
+      destroy: unfillSectorColors,
+      update: fillSectorColors
     },
     'panCenterPoints': {
       enabled: true,
@@ -1436,8 +1436,9 @@
 
     for (i = 0, count = annotations.grid.tiles.length; i < count; i += 1) {
       if (annotations.grid.tiles[i].holdsContent) {
-        annotations.grid.tiles[i].setColor(config.contentTileHue, config.contentTileSaturation,
-            config.contentTileLightness);
+        annotations.grid.tiles[i].currentHue = config.contentTileHue;
+        annotations.grid.tiles[i].currentSaturation = config.contentTileSaturation;
+        annotations.grid.tiles[i].currentLightness = config.contentTileLightness;
       }
     }
   }
@@ -1453,8 +1454,9 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(config.borderTileHue, config.borderTileSaturation,
-          config.borderTileLightness);
+      annotations.grid.tiles[i].currentHue = config.borderTileHue;
+      annotations.grid.tiles[i].currentSaturation = config.borderTileSaturation;
+      annotations.grid.tiles[i].currentLightness = config.borderTileLightness;
     }
   }
 
@@ -1470,8 +1472,9 @@
 
     for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
       if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.borderTiles[i].setColor(config.cornerTileHue,
-            config.cornerTileSaturation, config.cornerTileLightness);
+        annotations.grid.tiles[i].currentHue = config.cornerTileHue;
+        annotations.grid.tiles[i].currentSaturation = config.cornerTileSaturation;
+        annotations.grid.tiles[i].currentLightness = config.cornerTileLightness;
       }
     }
   }
@@ -1741,19 +1744,17 @@
    *
    * @this Annotations
    */
-  function createSectorColors() {
+  function fillSectorColors() {
     var annotations, i, iCount, j, jCount, sector, sectorHue;
 
     annotations = this;
 
     if (annotations.grid.sectors) {
       for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
-
         sector = annotations.grid.sectors[i];
         sectorHue = 60 * i + 20;
 
         for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
-
           sector.tiles[j].setColor(sectorHue, window.hg.Grid.config.tileSaturation,
               window.hg.Grid.config.tileLightness);
         }
@@ -2092,7 +2093,7 @@
    *
    * @this Annotations
    */
-  function destroySectorColors() {
+  function unfillSectorColors() {
     var annotations, i, iCount, j, jCount, sector, sectorHue;
 
     annotations = this;
@@ -2429,7 +2430,7 @@
    * @this Annotations
    */
   function updatePanCenterPoints() {
-    var annotations;
+    var annotations, panJob;
 
     annotations = this;
 
@@ -2443,9 +2444,11 @@
       annotations.panCenterDot.setAttribute('cx', annotations.grid.panCenter.x);
       annotations.panCenterDot.setAttribute('cy', annotations.grid.panCenter.y);
 
-      // TODO: remove this
-      if (annotations.grid.expandedTile) {
-        annotations.grid.expandedTile.setColor(0, 0, 90);
+      panJob = window.hg.controller.transientJobs.pan.jobs[annotations.grid.index][0];
+      if (panJob) {
+        panJob.baseTile.currentHue = 0;
+        panJob.baseTile.currentSaturation = 0;
+        panJob.baseTile.currentLightness = 90;
       }
     }
   }
@@ -2525,10 +2528,10 @@
     }
 
     if (isExpanded && annotations.annotations.sectorColors.enabled) {
-      destroySectorColors.call(annotations);
-      createSectorColors.call(annotations);
+      unfillSectorColors.call(annotations);
+      fillSectorColors.call(annotations);
     } else {
-      destroySectorColors.call(annotations);
+      unfillSectorColors.call(annotations);
     }
   }
 
@@ -5337,10 +5340,6 @@
       job.grid.tiles[i].currentAnchor.x = job.grid.tiles[i].originalAnchor.x;
       job.grid.tiles[i].currentAnchor.y = job.grid.tiles[i].originalAnchor.y;
     }
-
-    // Update the grid
-    job.grid.currentCenter.x = job.grid.panCenter.x;
-    job.grid.currentCenter.y = job.grid.panCenter.y;
   }
 
   /**
@@ -7998,6 +7997,8 @@
       }
     }
     job.grid.allTiles = allExpandedTiles;
+
+    console.log('open-post-job.grid.allTiles.length',job.grid.allTiles.length);
   }
 
   /**
@@ -8154,8 +8155,8 @@
   config.displacementRatio = 0.28;
 
   config.isRecurring = false;
-  config.avgDelay = 4000;
-  config.delayDeviationRange = 3800;
+  config.avgDelay = 300;
+  config.delayDeviationRange = 0;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -8186,6 +8187,8 @@
       job.grid.allTiles[i].originalAnchor.x += job.displacement.x;
       job.grid.allTiles[i].originalAnchor.y += job.displacement.y;
     }
+
+    console.log('pan-job.grid.allTiles.length',job.grid.allTiles.length);
 
     // Update the grid
     job.grid.panCenter.x += job.displacement.x;
@@ -8244,8 +8247,8 @@
     }
 
     // Update the grid
-    job.grid.currentCenter.x = job.startPoint.x + displacementX;
-    job.grid.currentCenter.y = job.startPoint.y + displacementY;
+    job.grid.currentCenter.x = job.grid.panCenter.x + displacementX;
+    job.grid.currentCenter.y = job.grid.panCenter.y + displacementY;
 
     // Is the job done?
     if (progress === 0) {
@@ -8290,6 +8293,7 @@
     var job = this;
 
     job.grid = grid;
+    job.baseTile = tile;
     job.reverseDisplacement = null;
     job.displacement = null;
     job.startTime = 0;

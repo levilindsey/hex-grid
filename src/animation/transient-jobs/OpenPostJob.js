@@ -106,6 +106,8 @@
       }
     }
     job.grid.allTiles = allExpandedTiles;
+
+    console.log('open-post-job.grid.allTiles.length',job.grid.allTiles.length);
   }
 
   /**
