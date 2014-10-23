@@ -445,15 +445,24 @@
 
     grid.resize();
 
+    window.hg.animator.cancelAll();
+
+    resetPersistentJobs(grid);
+
+    window.hg.animator.startJob(grid);
+    window.hg.animator.startJob(internal.annotations[grid.index]);
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function resetPersistentJobs(grid) {
     controller.persistentJobs.colorReset.restart(grid);
     controller.persistentJobs.displacementReset.restart(grid);
 
     controller.persistentJobs.colorShift.restart(grid);
     controller.persistentJobs.colorWave.restart(grid);
     controller.persistentJobs.displacementWave.restart(grid);
-
-    window.hg.animator.startJob(grid);
-    window.hg.animator.startJob(internal.annotations[grid.index]);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -463,6 +472,7 @@
 
   controller.createNewHexGrid = createNewHexGrid;
   controller.resetGrid = resetGrid;
+  controller.resetPersistentJobs = resetPersistentJobs;
 
   // Expose this module
   window.hg = window.hg || {};

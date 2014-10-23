@@ -63,7 +63,7 @@
       job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
           / halfWaveProgressWavelength;
     }
-  }**;// TODO: will need to add a function to controller that tells all persistent jobs to update whenever the grid.allTiles array is changed
+  }
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions

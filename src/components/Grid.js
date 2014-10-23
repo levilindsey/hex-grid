@@ -145,9 +145,14 @@
           grid.oddRowContentTileCount : grid.evenRowContentTileCount;
       rowIndex += 1;
     }
-    grid.rowCount = rowIndex > grid.rowCount ? rowIndex : grid.rowCount;
 
-    grid.height = (grid.rowCount - 2) * grid.rowDeltaY;
+    // Make sure the grid element is tall enough to contain the needed number of rows
+    if (rowIndex > grid.rowCount) {
+      grid.rowCount = rowIndex;
+      grid.height = (grid.rowCount - 2) * grid.rowDeltaY;
+    } else {
+      grid.height = parentHeight;
+    }
   }
 
   /**

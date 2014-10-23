@@ -53,6 +53,8 @@
     // - de-allocate the sector objects and the tile.expandedState properties (sector.destroy)
     // - job.grid.expandedTile = null;
     // - job.grid.allTiles = job.grid.originalTiles;
+    // - job.grid.parent.style.overflow = 'auto';
+    // - window.hg.controller.resetPersistentJobs(job.grid);
 
     job.grid.isTransitioning = false;
 
@@ -146,8 +148,14 @@
     job.grid.isTransitioning = true;
     job.grid.expandedTile = job.baseTile;
 
+    // Turn scrolling off while the grid is expanded
+    job.grid.parent.style.overflow = 'hidden';
+
     createSectors.call(job);
 
+    window.hg.controller.resetPersistentJobs(job.grid);
+
+    // TODO: this should instead fade out the old persistent animations and fade in the new ones
     job.grid.annotations.setExpandedAnnotations(true);
 
     // Start the sub-jobs
@@ -157,10 +165,7 @@
     // TODO:
     // - make sure that we are handling three different logical states for all appropriate logic in the app: closed, transitioning, open
 
-    // TODO:
-    // - deactivate all neighbor forces
-    // - start tapering all current animations to zero
-    // - start the panning animation to center on the given tile position
+    // TODO: deactivate all neighbor forces?
 
     // TODO: use an ease-out curve for the overall expansion animation (same for closing)
   }
