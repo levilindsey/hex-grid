@@ -167,7 +167,7 @@
   }
 
   /**
-   * @param {string} jobId
+   * @param {String} jobId
    * @param {Grid} grid
    * @param {Tile} tile
    * @param {Function} onComplete
@@ -205,7 +205,7 @@
   }
 
   /**
-   * @param {string} jobId
+   * @param {String} jobId
    * @param {Grid} grid
    */
   function createTransientJobWithARandomTile(jobId, grid) {
@@ -215,11 +215,11 @@
   /**
    * Toggles whether an AnimationJob is automatically repeated.
    *
-   * @param {string} jobId
+   * @param {String} jobId
    * @param {Grid} grid
-   * @param {boolean} isRecurring
-   * @param {number} avgDelay
-   * @param {number} delayDeviationRange
+   * @param {Boolean} isRecurring
+   * @param {Number} avgDelay
+   * @param {Number} delayDeviationRange
    */
   function toggleJobRecurrence(jobId, grid, isRecurring, avgDelay, delayDeviationRange) {
     var minDelay, maxDelay, actualDelayRange, jobTimeouts;
@@ -256,7 +256,7 @@
   }
 
   /**
-   * @param {string} jobId
+   * @param {String} jobId
    * @param {Grid} grid
    */
   function createPersistentJob(jobId, grid) {
@@ -270,9 +270,9 @@
   }
 
   /**
-   * @param {string} jobId
+   * @param {String} jobId
    * @param {Grid} grid
-   * @param {number} [jobIndex] If not given, ALL persistent jobs (of this bound type) will be
+   * @param {Number} [jobIndex] If not given, ALL persistent jobs (of this bound type) will be
    * restarted for the given grid.
    */
   function restartPersistentJob(jobId, grid, jobIndex) {
@@ -392,7 +392,7 @@
    *
    * @param {HTMLElement} parent
    * @param {Array.<Object>} tileData
-   * @param {boolean} isVertical
+   * @param {Boolean} isVertical
    * @returns {Window.hg.Grid}
    */
   function createNewHexGrid(parent, tileData, isVertical) {

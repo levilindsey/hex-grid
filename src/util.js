@@ -234,7 +234,7 @@
    *
    * @param {String} queryString The query string containing the parameter.
    * @param {String} name The (non-encoded) name of the parameter value to retrieve.
-   * @returns {string} The query string parameter value, or null if the parameter was not found.
+   * @returns {String} The query string parameter value, or null if the parameter was not found.
    */
   function getQueryStringParameterValue(queryString, name) {
     var regex, results;
@@ -386,9 +386,9 @@
    * Calculates the x and y coordinates represented by the given Bezier curve at the given
    * percentage.
    *
-   * @param {number} percent Expressed as a number between 0 and 1.
-   * @param {Array.<{x: number, y: number}>} controlPoints
-   * @returns {{x: number, y: number}}
+   * @param {Number} percent Expressed as a number between 0 and 1.
+   * @param {Array.<{x:Number,y:Number}>} controlPoints
+   * @returns {{x:Number,y:Number}}
    */
   function getXYFromPercentWithBezier(percent, controlPoints) {
     var x, y, oneMinusPercent, tmp1, tmp2, tmp3, tmp4;
@@ -416,7 +416,7 @@
    * manner.
    *
    * @param {HTMLElement} element
-   * @param {string} transform
+   * @param {String} transform
    */
   function applyTransform(element, transform) {
     element.style.webkitTransform = transform;
@@ -456,10 +456,10 @@
    *
    * This is an implementation of the even-odd rule algorithm.
    *
-   * @param {number} pointX
-   * @param {number} pointY
-   * @param {Array.<number>} coordinates
-   * @param {boolean} isClosed
+   * @param {Number} pointX
+   * @param {Number} pointY
+   * @param {Array.<Number>} coordinates
+   * @param {Boolean} isClosed
    */
   function isPointInsidePolyline(pointX, pointY, coordinates, isClosed) {
     var pointIsInside, i, count, p1X, p1Y, p2X, p2Y, previousX, previousY, currentX, currentY;
@@ -533,8 +533,8 @@
   /**
    * Converts the given HSL color values to HSV color values.
    *
-   * @param {{h:number,s:number,l:number}} hsl
-   * @returns {{h:number,s:number,v:number}}
+   * @param {{h:Number,s:Number,l:Number}} hsl
+   * @returns {{h:Number,s:Number,v:Number}}
    */
   function hslToHsv(hsl) {
     var temp = hsl.s * (hsl.l < 0.5 ? hsl.l : 1 - hsl.l);
@@ -548,8 +548,8 @@
   /**
    * Converts the given HSV color values to HSL color values.
    *
-   * @param {{h:number,s:number,v:number}} hsv
-   * @returns {{h:number,s:number,l:number}}
+   * @param {{h:Number,s:Number,v:Number}} hsv
+   * @returns {{h:Number,s:Number,l:Number}}
    */
   function hsvToHsl(hsv) {
     var temp = (2 - hsv.s) * hsv.v;
@@ -565,7 +565,7 @@
    * given class.
    *
    * @param {?HTMLElement} element
-   * @param {string} className
+   * @param {String} className
    * @returns {?HTMLElement}
    */
   function findClassInSelfOrAncestors(element, className) {

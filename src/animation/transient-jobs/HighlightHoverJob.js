@@ -48,15 +48,15 @@
    * Updates the color of the given tile according to the given durationRatio.
    *
    * @param {Tile} tile
-   * @param {number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
    * duration.
    */
   function updateTile(tile, oneMinusDurationRatio) {
     var opacity = config.opacity * oneMinusDurationRatio;
 
-    tile.currentHue = tile.currentHue + config.deltaHue * opacity;
-    tile.currentSaturation = tile.currentSaturation + config.deltaSaturation * opacity;
-    tile.currentLightness = tile.currentLightness + config.deltaLightness * opacity;
+    tile.currentColor.h = tile.currentColor.h + config.deltaHue * opacity;
+    tile.currentColor.s = tile.currentColor.s + config.deltaSaturation * opacity;
+    tile.currentColor.l = tile.currentColor.l + config.deltaLightness * opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -80,8 +80,8 @@
    * This should be called from the overall animation loop.
    *
    * @this HighlightHoverJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, oneMinusDurationRatio;

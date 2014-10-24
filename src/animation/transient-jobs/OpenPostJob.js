@@ -17,25 +17,8 @@
 
   config.expandedDisplacementTileCount = 3;
 
-  // TODO:
-
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
-
-  /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
-   */
-  function checkForComplete() {
-    var job = this;
-
-    // TODO:
-//    if (???) {
-//      console.log('OpenPostJob completed');
-//
-//      job.isComplete = true;
-//      job.onComplete(true);
-//    }
-  }
 
   /**
    * @this OpenPostJob
@@ -50,7 +33,8 @@
     // - keep the sectors to re-use for closing
 
     // TODO: when closing the grid, make sure to:
-    // - de-allocate the sector objects and the tile.expandedState properties (sector.destroy)
+    // - job.grid.sectors[i].destroy();
+    // - job.grid.sectors = [];
     // - job.grid.expandedTile = null;
     // - job.grid.allTiles = job.grid.originalTiles;
     // - job.grid.parent.style.overflow = 'auto';
@@ -98,18 +82,15 @@
 
     // Give the grid a reference to the new complete collection of all tiles
     allExpandedTiles = [];
-    k = 0;
-    for (i = 0; i < 6; i += 1) {
+    for (k = 0, i = 0; i < 6; i += 1) {
       sectorTiles = job.grid.sectors[i].tiles;
 
-      for (j = 0, jCount = sectorTiles.length; j < jCount; j += 1) {
+      for (j = 0, jCount = sectorTiles.length; j < jCount; j += 1, k += 1) {
         allExpandedTiles[k] = sectorTiles[j];
-        k += 1;
       }
     }
+    allExpandedTiles[k] = job.baseTile;
     job.grid.updateAllTilesCollection(allExpandedTiles);
-
-    console.log('open-post-job.grid.allTiles.length',job.grid.allTiles.length);
   }
 
   /**
@@ -164,10 +145,7 @@
 
     // TODO:
     // - make sure that we are handling three different logical states for all appropriate logic in the app: closed, transitioning, open
-
-    // TODO: deactivate all neighbor forces?
-
-    // TODO: use an ease-out curve for the overall expansion animation (same for closing)
+    // - turn off the recurring LineJobs/LinesRadiateJobs
   }
 
   /**
@@ -176,17 +154,33 @@
    * This should be called from the overall animation loop.
    *
    * @this OpenPostJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job = this;
+    var job, progress, i, x, y;
 
-    // TODO:
-    // - update the base offsets for each of the six sectors
-    // -
+    job = this;
 
-    checkForComplete.call(job);
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / config.duration;
+    progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress > 1 ? 1 : progress;
+
+    // Update the offsets for each of the six sectors
+    for (i = 0; i < 6; i += 1) {
+      x = job.grid.sectors[i].originalAnchor.x + job.grid.sectors[i].expandedDisplacement.x * progress;
+      y = job.grid.sectors[i].originalAnchor.y + job.grid.sectors[i].expandedDisplacement.y * progress;
+      job.grid.sectors[i].setSectorPosition(x, y);
+    }
+
+    // Update the opacity of the center tile
+    job.baseTile.element.style.opacity = 1 - progress;
+
+    // Is the job done?
+    if (progress === 1) {
+      handleComplete.call(job, false);
+    }
   }
 
   /**
@@ -197,9 +191,7 @@
    * @this OpenPostJob
    */
   function draw() {
-    var job = this;
-
-    // TODO:
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**

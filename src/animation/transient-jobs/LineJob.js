@@ -139,9 +139,9 @@
     progress = job.ellapsedTime / job.duration;
     oneMinusProgress = 1 - progress;
 
-    job.currentHue = oneMinusProgress * job.startHue + progress * job.endHue;
-    job.currentSaturation = oneMinusProgress * job.startSaturation + progress * job.endSaturation;
-    job.currentLightness = oneMinusProgress * job.startLightness + progress * job.endLightness;
+    job.currentColor.h = oneMinusProgress * job.startHue + progress * job.endHue;
+    job.currentColor.s = oneMinusProgress * job.startSaturation + progress * job.endSaturation;
+    job.currentColor.l = oneMinusProgress * job.startLightness + progress * job.endLightness;
     job.currentOpacity = oneMinusProgress * job.startOpacity + progress * job.endOpacity;
   }
 
@@ -325,9 +325,9 @@
   /**
    * Translates the givern relative direction to an absolute direction.
    *
-   * @param {number} relativeDirection
-   * @param {number} corner
-   * @returns {number}
+   * @param {Number} relativeDirection
+   * @param {Number} corner
+   * @returns {Number}
    */
   function relativeToAbsoluteDirection(relativeDirection, corner) {
     switch (relativeDirection) {
@@ -447,12 +447,12 @@
    * Calculates the point in the middle of the gap between tiles at the given corner.
    *
    * @param {Tile} tile
-   * @param {number} corner
+   * @param {Number} corner
    * @param {Object} lowerNeighbor
    * @param {Object} upperNeighbor
-   * @param {number} lowerNeighborCorner
-   * @param {number} upperNeighborCorner
-   * @returns {{x:number,y:number}}
+   * @param {Number} lowerNeighborCorner
+   * @param {Number} upperNeighborCorner
+   * @returns {{x:Number,y:Number}}
    */
   function computeCornerGapPoint(tile, corner, lowerNeighbor, upperNeighbor, lowerNeighborCorner,
                              upperNeighborCorner) {
@@ -570,8 +570,8 @@
 
     // Update the attributes of the polyline SVG element
     job.polyline.setAttribute('points', pointsString);
-    job.polyline.setAttribute('stroke', 'hsl(' + job.currentHue + ',' + job.currentSaturation +
-        '%,' + job.currentLightness + '%)');
+    job.polyline.setAttribute('stroke', 'hsl(' + job.currentColor.h + ',' + job.currentColor.s +
+        '%,' + job.currentColor.l + '%)');
     job.polyline.setAttribute('stroke-opacity', job.currentOpacity);
     job.polyline.setAttribute('stroke-width', job.lineWidth);
   }
@@ -600,8 +600,8 @@
    * This should be called from the overall animation loop.
    *
    * @this LineJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job = this;
@@ -657,11 +657,11 @@
    * @global
    * @param {Grid} grid
    * @param {Tile} tile
-   * @param {number} corner
-   * @param {number} direction
-   * @param {number} forcedInitialRelativeDirection
+   * @param {Number} corner
+   * @param {Number} direction
+   * @param {Number} forcedInitialRelativeDirection
    * @param {Function} [onComplete]
-   * @param {{x:number,y:number}} extraStartPoint
+   * @param {{x:Number,y:Number}} extraStartPoint
    * @throws {Error}
    */
   function LineJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
@@ -692,7 +692,12 @@
 
     job.startHue = Number.NaN;
     job.endHue = Number.NaN;
-    job.currentHue = Number.NaN;
+    job.currentColor = {
+      h: Number.NaN,
+      s: config.startSaturation,
+      l: config.startLightness
+    };
+    job.currentOpacity = config.startOpacity;
 
     job.duration = config.duration;
     job.lineWidth = config.lineWidth;
@@ -712,10 +717,6 @@
     job.blurStdDeviation = config.blurStdDeviation;
     job.isBlurOn = config.isBlurOn;
 
-    job.currentSaturation = config.startSaturation;
-    job.currentLightness = config.startLightness;
-    job.currentOpacity = config.startOpacity;
-
     job.onComplete = onComplete || function () {};
 
     job.start = start;
@@ -729,13 +730,13 @@
 
     if (!checkIsValidInitialCornerConfiguration(job)) {
       throw new Error('LineJob created with invalid initial corner configuration: ' +
-          'tileIndex=' + tile.index + ', corner=' + corner + ', direction=' + direction);
+          'tileIndex=' + tile.originalIndex + ', corner=' + corner + ', direction=' + direction);
     } else {
       determineNeighbors.call(job);
       createHues.call(job);
       createPolyline.call(job);
 
-      console.log('LineJob created: tileIndex=' + tile.index + ', corner=' + corner +
+      console.log('LineJob created: tileIndex=' + tile.originalIndex + ', corner=' + corner +
           ', direction=' + direction);
     }
   }
@@ -751,7 +752,7 @@
 
     // Pick a random, non-corner, border tile to start from
     do {
-      tile = grid.borderTiles[parseInt(Math.random() * grid.borderTiles.length)];
+      tile = grid.originalBorderTiles[parseInt(Math.random() * grid.originalBorderTiles.length)];
     } while (tile.isCornerTile);
 
     // Determine which corner and direction to use based on the selected tile

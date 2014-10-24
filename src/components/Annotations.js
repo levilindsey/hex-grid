@@ -32,115 +32,156 @@
   config.cornerTileLightness = 30;
 
   config.annotations = {
+    'sectorColors': {
+      enabled: true,
+      create: fillSectorColors,
+      destroy: function () {},
+      update: fillSectorColors,
+      priority: 0
+    },
     'contentTiles': {
       enabled: true,
       create: fillContentTiles,
-      destroy: unfillContentTiles,
-      update: fillContentTiles
+      destroy: function () {},
+      update: fillContentTiles,
+      priority: 100
     },
     'borderTiles': {
-      enabled: false,
+      enabled: true,
       create: fillBorderTiles,
-      destroy: unfillBorderTiles,
-      update: fillBorderTiles
+      destroy: function () {},
+      update: fillBorderTiles,
+      priority: 200
     },
     'cornerTiles': {
       enabled: false,
       create: fillCornerTiles,
-      destroy: unfillCornerTiles,
-      update: fillCornerTiles
+      destroy: function () {},
+      update: fillCornerTiles,
+      priority: 300
     },
     'transparentTiles': {
       enabled: false,
       create: makeTilesTransparent,
       destroy: makeTilesVisible,
-      update: function () {/* Do nothing */}
+      update: function () {},
+      priority: 400
     },
     'tileAnchorCenters': {
-      enabled: false,
+      enabled: true,
       create: createTileAnchorCenters,
       destroy: destroyTileAnchorCenters,
-      update: updateTileAnchorCenters
+      update: updateTileAnchorCenters,
+      priority: 500
     },
     'tileParticleCenters': {
       enabled: false,
       create: createTileParticleCenters,
       destroy: destroyTileParticleCenters,
-      update: updateTileParticleCenters
+      update: updateTileParticleCenters,
+      priority: 600
     },
     'tileDisplacementColors': {
       enabled: false,
       create: createTileDisplacementColors,
       destroy: destroyTileDisplacementColors,
-      update: updateTileDisplacementColors
+      update: updateTileDisplacementColors,
+      priority: 700
     },
     'tileInnerRadii': {
       enabled: false,
       create: createTileInnerRadii,
       destroy: destroyTileInnerRadii,
-      update: updateTileInnerRadii
+      update: updateTileInnerRadii,
+      priority: 800
     },
     'tileOuterRadii': {
       enabled: false,
       create: createTileOuterRadii,
       destroy: destroyTileOuterRadii,
-      update: updateTileOuterRadii
+      update: updateTileOuterRadii,
+      priority: 900
     },
     'tileIndices': {
       enabled: true,
       create: createTileIndices,
       destroy: destroyTileIndices,
-      update: updateTileIndices
+      update: updateTileIndices,
+      priority: 1000
     },
     'tileForces': {
-      enabled: false,
+      enabled: true,
       create: createTileForces,
       destroy: destroyTileForces,
-      update: updateTileForces
+      update: updateTileForces,
+      priority: 1100
     },
     'tileVelocities': {
-      enabled: false,
+      enabled: true,
       create: createTileVelocities,
       destroy: destroyTileVelocities,
-      update: updateTileVelocities
+      update: updateTileVelocities,
+      priority: 1200
     },
     'tileNeighborConnections': {
       enabled: true,
       create: createTileNeighborConnections,
       destroy: destroyTileNeighborConnections,
-      update: updateTileNeighborConnections
+      update: updateTileNeighborConnections,
+      priority: 1300
     },
     'contentAreaGuidelines': {
       enabled: false,
       create: drawContentAreaGuideLines,
       destroy: removeContentAreaGuideLines,
-      update:  function () {/* Do nothing */}
+      update:  function () {},
+      priority: 1400
     },
     'lineAnimationGapPoints': {
       enabled: false,
-      create: function () {/* Do nothing */},
+      create: function () {},
       destroy: destroyLineAnimationGapPoints,
-      update:  updateLineAnimationGapPoints
+      update:  updateLineAnimationGapPoints,
+      priority: 1500
     },
     'lineAnimationCornerData': {
       enabled: false,
-      create: function () {/* Do nothing */},
+      create: function () {},
       destroy: destroyLineAnimationCornerConfigurations,
-      update:  updateLineAnimationCornerConfigurations
-    },
-    'sectorColors': {
-      enabled: true,
-      create: fillSectorColors,
-      destroy: unfillSectorColors,
-      update: fillSectorColors
+      update:  updateLineAnimationCornerConfigurations,
+      priority: 1600
     },
     'panCenterPoints': {
       enabled: true,
       create: createPanCenterPoints,
       destroy: destroyPanCenterPoints,
-      update: updatePanCenterPoints
+      update: updatePanCenterPoints,
+      priority: 1700
+    },
+    'sectorAnchorCenters': {
+      enabled: true,
+      create: createSectorAnchorCenters,
+      destroy: destroySectorAnchorCenters,
+      update: updateSectorAnchorCenters,
+      priority: 1800
     }
   };
+
+  config.annotationsArray = [];
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.annotationsArray = Object.keys(config.annotations).map(function (key) {
+      return config.annotations[key];
+    });
+
+    config.annotationsArray.sort(function comparator(a, b) {
+      return a.priority - b.priority;
+    });
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -160,9 +201,9 @@
 
     for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
       if (annotations.grid.originalTiles[i].holdsContent) {
-        annotations.grid.originalTiles[i].currentHue = config.contentTileHue;
-        annotations.grid.originalTiles[i].currentSaturation = config.contentTileSaturation;
-        annotations.grid.originalTiles[i].currentLightness = config.contentTileLightness;
+        annotations.grid.originalTiles[i].currentColor.h = config.contentTileHue;
+        annotations.grid.originalTiles[i].currentColor.s = config.contentTileSaturation;
+        annotations.grid.originalTiles[i].currentColor.l = config.contentTileLightness;
       }
     }
   }
@@ -177,10 +218,12 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.originalTiles[i].currentHue = config.borderTileHue;
-      annotations.grid.originalTiles[i].currentSaturation = config.borderTileSaturation;
-      annotations.grid.originalTiles[i].currentLightness = config.borderTileLightness;
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      if (annotations.grid.allTiles[i].isBorderTile) {
+        annotations.grid.allTiles[i].currentColor.h = config.borderTileHue;
+        annotations.grid.allTiles[i].currentColor.s = config.borderTileSaturation;
+        annotations.grid.allTiles[i].currentColor.l = config.borderTileLightness;
+      }
     }
   }
 
@@ -194,11 +237,11 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.originalTiles[i].currentHue = config.cornerTileHue;
-        annotations.grid.originalTiles[i].currentSaturation = config.cornerTileSaturation;
-        annotations.grid.originalTiles[i].currentLightness = config.cornerTileLightness;
+    for (i = 0, count = annotations.grid.originalBorderTiles.length; i < count; i += 1) {
+      if (annotations.grid.originalBorderTiles[i].isCornerTile) {
+        annotations.grid.originalTiles[i].currentColor.h = config.cornerTileHue;
+        annotations.grid.originalTiles[i].currentColor.s = config.cornerTileSaturation;
+        annotations.grid.originalTiles[i].currentColor.l = config.cornerTileLightness;
       }
     }
   }
@@ -454,7 +497,7 @@
     for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.indexTexts[i] = document.createElementNS(window.hg.util.svgNamespace, 'text');
       annotations.indexTexts[i].innerHTML =
-          !isNaN(annotations.grid.allTiles[i].index) ? annotations.grid.allTiles[i].index : '?';
+          !isNaN(annotations.grid.allTiles[i].originalIndex) ? annotations.grid.allTiles[i].originalIndex : '?';
       annotations.grid.svg.appendChild(annotations.indexTexts[i]);
 
       annotations.indexTexts[i].setAttribute('font-size', '16');
@@ -473,15 +516,14 @@
 
     annotations = this;
 
-    if (annotations.grid.sectors) {
-      for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
-        sector = annotations.grid.sectors[i];
-        sectorHue = 60 * i + 20;
+    for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
+      sector = annotations.grid.sectors[i];
+      sectorHue = 60 * i + 20;
 
-        for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
-          sector.tiles[j].setColor(sectorHue, window.hg.Grid.config.tileSaturation,
-              window.hg.Grid.config.tileLightness);
-        }
+      for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
+        sector.tiles[j].currentColor.h = sectorHue;
+        sector.tiles[j].currentColor.s = window.hg.Grid.config.tileSaturation;
+        sector.tiles[j].currentColor.l = window.hg.Grid.config.tileLightness;
       }
     }
   }
@@ -519,60 +561,37 @@
     annotations.originalGridCenterDot.setAttribute('fill', 'yellow');
   }
 
+  /**
+   * Creates a dot at the anchor position of each sector.
+   *
+   * @this Annotations
+   */
+  function createSectorAnchorCenters() {
+    var annotations, i;
+
+    annotations = this;
+    annotations.sectorAnchorLines = [];
+    annotations.sectorAnchorCenters = [];
+
+    for (i = 0; i < annotations.grid.sectors.length; i += 1) {
+      annotations.sectorAnchorLines[i] =
+          document.createElementNS(window.hg.util.svgNamespace, 'line');
+      annotations.grid.svg.appendChild(annotations.sectorAnchorLines[i]);
+
+      annotations.sectorAnchorLines[i].setAttribute('stroke', '#999999');
+      annotations.sectorAnchorLines[i].setAttribute('stroke-width', '2');
+
+      annotations.sectorAnchorCenters[i] =
+          document.createElementNS(window.hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.sectorAnchorCenters[i]);
+
+      annotations.sectorAnchorCenters[i].setAttribute('r', '5');
+      annotations.sectorAnchorCenters[i].setAttribute('fill', '#BBBBBB');
+    }
+  }
+
   // --------------------------------------------------- //
   // Annotation destruction functions
-
-  /**
-   * Draws content tiles with a different color.
-   *
-   * @this Annotations
-   */
-  function unfillContentTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
-      if (annotations.grid.originalTiles[i].holdsContent) {
-        annotations.grid.originalTiles[i].setColor(window.hg.Grid.config.tileHue,
-            window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
-      }
-    }
-  }
-
-  /**
-   * Draws border tiles with a different color.
-   *
-   * @this Annotations
-   */
-  function unfillBorderTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(window.hg.Grid.config.tileHue,
-          window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
-    }
-  }
-
-  /**
-   * Draws corner tiles with a different color.
-   *
-   * @this Annotations
-   */
-  function unfillCornerTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.borderTiles[i].setColor(window.hg.Grid.config.tileHue,
-            window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
-      }
-    }
-  }
 
   /**
    * Draws all of the tiles as transparent.
@@ -813,38 +832,6 @@
   }
 
   /**
-   * Draws the tiles of each Sector with a different color.
-   *
-   * @this Annotations
-   */
-  function unfillSectorColors() {
-    var annotations, i, iCount, j, jCount, sector, sectorHue;
-
-    annotations = this;
-
-    if (annotations.grid.sectors) {
-      for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
-
-        sector = annotations.grid.sectors[i];
-        sectorHue = 60 * i;
-
-        for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
-
-          sector.tiles[j].setColor(sectorHue, window.hg.Grid.config.tileSaturation,
-              window.hg.Grid.config.tileLightness);
-        }
-      }
-
-      // Reset any other tile-color annotations
-      ['contentTiles', 'borderTiles', 'cornerTiles'].forEach(function (key) {
-        if (annotations.annotations[key].enabled) {
-          annotations.annotations[key].create.call(annotations);
-        }
-      });
-    }
-  }
-
-  /**
    * Destroys the dots at the center of the grid and the center of the viewport and stops highlighting the base tile
    * for the current pan.
    *
@@ -864,6 +851,25 @@
       annotations.currentGridCenterDot = null;
       annotations.panCenterDot = null;
     }
+  }
+
+  /**
+   * Destroys a dot at the anchor position of each sector.
+   *
+   * @this Annotations
+   */
+  function destroySectorAnchorCenters() {
+    var annotations, i;
+
+    annotations = this;
+
+    for (i = 0; i < annotations.sectorAnchorLines.length; i += 1) {
+      annotations.grid.svg.removeChild(annotations.sectorAnchorLines[i]);
+      annotations.grid.svg.removeChild(annotations.sectorAnchorCenters[i]);
+    }
+
+    annotations.sectorAnchorLines = [];
+    annotations.sectorAnchorCenters = [];
   }
 
   // --------------------------------------------------- //
@@ -1170,11 +1176,40 @@
 
       panJob = window.hg.controller.transientJobs.pan.jobs[annotations.grid.index][0];
       if (panJob) {
-        panJob.baseTile.currentHue = 0;
-        panJob.baseTile.currentSaturation = 0;
-        panJob.baseTile.currentLightness = 90;
+        panJob.baseTile.currentColor.h = 0;
+        panJob.baseTile.currentColor.s = 0;
+        panJob.baseTile.currentColor.l = 90;
       }
     }
+  }
+
+  /**
+   * Updates a dot at the anchor position of each sector.
+   *
+   * @this Annotations
+   */
+  function updateSectorAnchorCenters() {
+    var annotations, i;
+
+    annotations = this;
+
+    for (i = 0; i < annotations.sectorAnchorLines.length; i += 1) {
+      annotations.sectorAnchorLines[i].setAttribute('x1',
+          annotations.grid.sectors[i].originalAnchor.x);
+      annotations.sectorAnchorLines[i].setAttribute('y1',
+          annotations.grid.sectors[i].originalAnchor.y);
+      annotations.sectorAnchorLines[i].setAttribute('x2',
+          annotations.grid.sectors[i].currentAnchor.x);
+      annotations.sectorAnchorLines[i].setAttribute('y2',
+          annotations.grid.sectors[i].currentAnchor.y);
+      annotations.sectorAnchorCenters[i].setAttribute('cx',
+          annotations.grid.sectors[i].currentAnchor.x);
+      annotations.sectorAnchorCenters[i].setAttribute('cy',
+          annotations.grid.sectors[i].currentAnchor.y);
+    }
+
+    annotations.sectorAnchorLines = [];
+    annotations.sectorAnchorCenters = [];
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -1184,8 +1219,8 @@
    * Toggles whether the given annotation is enabled.
    *
    * @this Annotations
-   * @param {string} annotation
-   * @param {boolean} enabled
+   * @param {String} annotation
+   * @param {Boolean} enabled
    * @throws {Error}
    */
   function toggleAnnotationEnabled(annotation, enabled) {
@@ -1209,13 +1244,13 @@
    * @this Annotations
    */
   function createAnnotations() {
-    var annotations, key;
+    var annotations, i, count;
 
     annotations = this;
 
-    for (key in annotations.annotations) {
-      if (annotations.annotations[key].enabled) {
-        annotations.annotations[key].create.call(annotations);
+    for (i = 0, count = config.annotationsArray.length; i < count; i += 1) {
+      if (config.annotationsArray[i].enabled) {
+        config.annotationsArray[i].create.call(annotations);
       }
     }
   }
@@ -1226,12 +1261,12 @@
    * @this Annotations
    */
   function destroyAnnotations() {
-    var annotations, key;
+    var annotations, i, count;
 
     annotations = this;
 
-    for (key in annotations.annotations) {
-      annotations.annotations[key].destroy.call(annotations);
+    for (i = 0, count = config.annotationsArray.length; i < count; i += 1) {
+      config.annotationsArray[i].destroy.call(annotations);
     }
   }
 
@@ -1239,7 +1274,7 @@
    * Updates the annotation states to reflect whether the grid is currently expanded.
    *
    * @this Annotations
-   * @param {boolean} isExpanded
+   * @param {Boolean} isExpanded
    */
   function setExpandedAnnotations(isExpanded) {
     var annotations;
@@ -1249,13 +1284,6 @@
     if (annotations.annotations.tileNeighborConnections.enabled) {
       destroyTileNeighborConnections.call(annotations);
       createTileNeighborConnections.call(annotations);
-    }
-
-    if (isExpanded && annotations.annotations.sectorColors.enabled) {
-      unfillSectorColors.call(annotations);
-      fillSectorColors.call(annotations);
-    } else {
-      unfillSectorColors.call(annotations);
     }
   }
 
@@ -1274,17 +1302,17 @@
    * Updates the animation progress of this AnimationJob to match the given time.
    *
    * @this Annotations
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var annotations, key;
+    var annotations, i, count;
 
     annotations = this;
 
-    for (key in annotations.annotations) {
-      if (annotations.annotations[key].enabled) {
-        annotations.annotations[key].update.call(annotations);
+    for (i = 0, count = config.annotationsArray.length; i < count; i += 1) {
+      if (config.annotationsArray[i].enabled) {
+        config.annotationsArray[i].update.call(annotations);
       }
     }
   }
@@ -1342,6 +1370,8 @@
     annotations.lineAnimationSelfCornerDots = [];
     annotations.lineAnimationLowerNeighborCornerDots = [];
     annotations.lineAnimationUpperNeighborCornerDots = [];
+    annotations.sectorAnchorLines = [];
+    annotations.sectorAnchorCenters = [];
 
     annotations.originalGridCenterDot = null;
     annotations.currentGridCenterDot = null;

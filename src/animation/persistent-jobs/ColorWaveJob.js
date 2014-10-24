@@ -69,19 +69,19 @@
   /**
    * Updates the animation progress of the given tile.
    *
-   * @param {number} progress
+   * @param {Number} progress
    * @param {Tile} tile
-   * @param {number} waveProgressOffset
+   * @param {Number} waveProgressOffset
    */
   function updateTile(progress, tile, waveProgressOffset) {
     var tileProgress =
         Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.currentHue = tile.currentHue + config.deltaHue * tileProgress * config.opacity;
-    tile.currentSaturation =
-        tile.currentSaturation + config.deltaSaturation * tileProgress * config.opacity;
-    tile.currentLightness =
-        tile.currentLightness + config.deltaLightness * tileProgress * config.opacity;
+    tile.currentColor.h = tile.currentColor.h + config.deltaHue * tileProgress * config.opacity;
+    tile.currentColor.s =
+        tile.currentColor.s + config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentColor.l =
+        tile.currentColor.l + config.deltaLightness * tileProgress * config.opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -105,8 +105,8 @@
    * This should be called from the overall animation loop.
    *
    * @this ColorWaveJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, progress, i, count;

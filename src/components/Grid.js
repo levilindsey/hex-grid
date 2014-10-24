@@ -228,7 +228,7 @@
     grid = this;
 
     grid.originalTiles = [];
-    grid.borderTiles = [];
+    grid.originalBorderTiles = [];
     tileIndex = 0;
     contentAreaIndex = 0;
     postDataIndex = 0;
@@ -277,7 +277,7 @@
             isBorderTile, isCornerTile, isLargerRow, config.tileMass);
 
         if (isBorderTile) {
-          grid.borderTiles.push(grid.originalTiles[tileIndex]);
+          grid.originalBorderTiles.push(grid.originalTiles[tileIndex]);
         }
 
         // Is the current tile within the content column?
@@ -306,7 +306,7 @@
    * Connects each tile with references to its neighborStates.
    *
    * @this Grid
-   * @param {Array.<Array.<number>>} tilesNeighborDeltaIndices
+   * @param {Array.<Array.<Number>>} tilesNeighborDeltaIndices
    */
   function setNeighborTiles(tilesNeighborDeltaIndices) {
     var grid, i, j, iCount, jCount, neighborTiles;
@@ -333,13 +333,13 @@
    * NaN is used to represent the tile not having a neighbor on that side.
    *
    * @this Grid
-   * @param {number} rowIndex
-   * @param {number} rowCount
-   * @param {number} columnIndex
-   * @param {number} columnCount
-   * @param {boolean} isLargerRow
-   * @param {Array.<number>} defaultNeighborDeltaIndices
-   * @returns {Array.<number>}
+   * @param {Number} rowIndex
+   * @param {Number} rowCount
+   * @param {Number} columnIndex
+   * @param {Number} columnCount
+   * @param {Boolean} isLargerRow
+   * @param {Array.<Number>} defaultNeighborDeltaIndices
+   * @returns {Array.<Number>}
    */
   function getNeighborDeltaIndices(rowIndex, rowCount, columnIndex, columnCount, isLargerRow,
                                    defaultNeighborDeltaIndices) {
@@ -430,7 +430,7 @@
    * Calculates the index offsets of the neighborStates of a tile.
    *
    * @this Grid
-   * @returns {Array.<number>}
+   * @returns {Array.<Number>}
    */
   function getDefaultNeighborDeltaIndices() {
     var grid, maxColumnCount, neighborDeltaIndices;
@@ -571,7 +571,7 @@
    * Sets the mass of this grid's tiles.
    *
    * @this Grid
-   * @param {number} mass
+   * @param {Number} mass
    */
   function updateTileMass(mass) {
     var grid, i, count;
@@ -598,8 +598,8 @@
    * Updates the animation progress of this AnimationJob to match the given time.
    *
    * @this Grid
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var grid, i, count;
@@ -681,10 +681,10 @@
   /**
    * @global
    * @constructor
-   * @param {number} index
+   * @param {Number} index
    * @param {HTMLElement} parent
    * @param {Array.<Object>} postData
-   * @param {boolean} [isVertical]
+   * @param {Boolean} [isVertical]
    */
   function Grid(index, parent, postData, isVertical) {
     var grid = this;
@@ -701,7 +701,7 @@
     grid.svg = null;
     grid.svgDefs = null;
     grid.originalTiles = [];
-    grid.borderTiles = [];
+    grid.originalBorderTiles = [];
     grid.contentTiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
@@ -711,7 +711,7 @@
     grid.isPostOpen = false;
     grid.isTransitioning = false;
     grid.expandedTile = null;
-    grid.sectors = null;
+    grid.sectors = [];
     grid.allTiles = null;
 
     grid.annotations = new window.hg.Annotations(grid);

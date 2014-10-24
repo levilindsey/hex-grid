@@ -42,8 +42,8 @@
    * This should be called from the overall animation loop.
    *
    * @this ColorResetJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, i, count;
@@ -51,9 +51,9 @@
     job = this;
 
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].currentHue = job.grid.allTiles[i].originalHue;
-      job.grid.allTiles[i].currentSaturation = job.grid.allTiles[i].originalSaturation;
-      job.grid.allTiles[i].currentLightness = job.grid.allTiles[i].originalLightness;
+      job.grid.allTiles[i].currentColor.h = job.grid.allTiles[i].originalColor.h;
+      job.grid.allTiles[i].currentColor.s = job.grid.allTiles[i].originalColor.s;
+      job.grid.allTiles[i].currentColor.l = job.grid.allTiles[i].originalColor.l;
     }
   }
 

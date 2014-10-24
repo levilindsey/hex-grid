@@ -167,7 +167,7 @@
   }
 
   /**
-   * @param {string} jobId
+   * @param {String} jobId
    * @param {Grid} grid
    * @param {Tile} tile
    * @param {Function} onComplete
@@ -205,7 +205,7 @@
   }
 
   /**
-   * @param {string} jobId
+   * @param {String} jobId
    * @param {Grid} grid
    */
   function createTransientJobWithARandomTile(jobId, grid) {
@@ -215,11 +215,11 @@
   /**
    * Toggles whether an AnimationJob is automatically repeated.
    *
-   * @param {string} jobId
+   * @param {String} jobId
    * @param {Grid} grid
-   * @param {boolean} isRecurring
-   * @param {number} avgDelay
-   * @param {number} delayDeviationRange
+   * @param {Boolean} isRecurring
+   * @param {Number} avgDelay
+   * @param {Number} delayDeviationRange
    */
   function toggleJobRecurrence(jobId, grid, isRecurring, avgDelay, delayDeviationRange) {
     var minDelay, maxDelay, actualDelayRange, jobTimeouts;
@@ -256,7 +256,7 @@
   }
 
   /**
-   * @param {string} jobId
+   * @param {String} jobId
    * @param {Grid} grid
    */
   function createPersistentJob(jobId, grid) {
@@ -270,9 +270,9 @@
   }
 
   /**
-   * @param {string} jobId
+   * @param {String} jobId
    * @param {Grid} grid
-   * @param {number} [jobIndex] If not given, ALL persistent jobs (of this bound type) will be
+   * @param {Number} [jobIndex] If not given, ALL persistent jobs (of this bound type) will be
    * restarted for the given grid.
    */
   function restartPersistentJob(jobId, grid, jobIndex) {
@@ -392,7 +392,7 @@
    *
    * @param {HTMLElement} parent
    * @param {Array.<Object>} tileData
-   * @param {boolean} isVertical
+   * @param {Boolean} isVertical
    * @returns {Window.hg.Grid}
    */
   function createNewHexGrid(parent, tileData, isVertical) {
@@ -719,7 +719,7 @@
    *
    * @param {String} queryString The query string containing the parameter.
    * @param {String} name The (non-encoded) name of the parameter value to retrieve.
-   * @returns {string} The query string parameter value, or null if the parameter was not found.
+   * @returns {String} The query string parameter value, or null if the parameter was not found.
    */
   function getQueryStringParameterValue(queryString, name) {
     var regex, results;
@@ -871,9 +871,9 @@
    * Calculates the x and y coordinates represented by the given Bezier curve at the given
    * percentage.
    *
-   * @param {number} percent Expressed as a number between 0 and 1.
-   * @param {Array.<{x: number, y: number}>} controlPoints
-   * @returns {{x: number, y: number}}
+   * @param {Number} percent Expressed as a number between 0 and 1.
+   * @param {Array.<{x:Number,y:Number}>} controlPoints
+   * @returns {{x:Number,y:Number}}
    */
   function getXYFromPercentWithBezier(percent, controlPoints) {
     var x, y, oneMinusPercent, tmp1, tmp2, tmp3, tmp4;
@@ -901,7 +901,7 @@
    * manner.
    *
    * @param {HTMLElement} element
-   * @param {string} transform
+   * @param {String} transform
    */
   function applyTransform(element, transform) {
     element.style.webkitTransform = transform;
@@ -941,10 +941,10 @@
    *
    * This is an implementation of the even-odd rule algorithm.
    *
-   * @param {number} pointX
-   * @param {number} pointY
-   * @param {Array.<number>} coordinates
-   * @param {boolean} isClosed
+   * @param {Number} pointX
+   * @param {Number} pointY
+   * @param {Array.<Number>} coordinates
+   * @param {Boolean} isClosed
    */
   function isPointInsidePolyline(pointX, pointY, coordinates, isClosed) {
     var pointIsInside, i, count, p1X, p1Y, p2X, p2Y, previousX, previousY, currentX, currentY;
@@ -1018,8 +1018,8 @@
   /**
    * Converts the given HSL color values to HSV color values.
    *
-   * @param {{h:number,s:number,l:number}} hsl
-   * @returns {{h:number,s:number,v:number}}
+   * @param {{h:Number,s:Number,l:Number}} hsl
+   * @returns {{h:Number,s:Number,v:Number}}
    */
   function hslToHsv(hsl) {
     var temp = hsl.s * (hsl.l < 0.5 ? hsl.l : 1 - hsl.l);
@@ -1033,8 +1033,8 @@
   /**
    * Converts the given HSV color values to HSL color values.
    *
-   * @param {{h:number,s:number,v:number}} hsv
-   * @returns {{h:number,s:number,l:number}}
+   * @param {{h:Number,s:Number,v:Number}} hsv
+   * @returns {{h:Number,s:Number,l:Number}}
    */
   function hsvToHsl(hsv) {
     var temp = (2 - hsv.s) * hsv.v;
@@ -1050,7 +1050,7 @@
    * given class.
    *
    * @param {?HTMLElement} element
-   * @param {string} className
+   * @param {String} className
    * @returns {?HTMLElement}
    */
   function findClassInSelfOrAncestors(element, className) {
@@ -1120,7 +1120,7 @@
  */
 (function () {
   /**
-   * @typedef {{start: Function, update: Function(number, number), draw: Function, cancel: Function, isComplete: boolean}} AnimationJob
+   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, isComplete: Boolean}} AnimationJob
    */
 
   // ------------------------------------------------------------------------------------------- //
@@ -1160,8 +1160,8 @@
   /**
    * Updates all of the active AnimationJobs.
    *
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function updateJobs(currentTime, deltaTime) {
     var i, count;
@@ -1182,7 +1182,7 @@
    * Removes the given job from the collection of active, animating jobs.
    *
    * @param {AnimationJob} job
-   * @param {number} [index]
+   * @param {Number} [index]
    */
   function removeJob(job, index) {
     var count;
@@ -1318,115 +1318,156 @@
   config.cornerTileLightness = 30;
 
   config.annotations = {
+    'sectorColors': {
+      enabled: true,
+      create: fillSectorColors,
+      destroy: function () {},
+      update: fillSectorColors,
+      priority: 0
+    },
     'contentTiles': {
       enabled: true,
       create: fillContentTiles,
-      destroy: unfillContentTiles,
-      update: fillContentTiles
+      destroy: function () {},
+      update: fillContentTiles,
+      priority: 100
     },
     'borderTiles': {
-      enabled: false,
+      enabled: true,
       create: fillBorderTiles,
-      destroy: unfillBorderTiles,
-      update: fillBorderTiles
+      destroy: function () {},
+      update: fillBorderTiles,
+      priority: 200
     },
     'cornerTiles': {
       enabled: false,
       create: fillCornerTiles,
-      destroy: unfillCornerTiles,
-      update: fillCornerTiles
+      destroy: function () {},
+      update: fillCornerTiles,
+      priority: 300
     },
     'transparentTiles': {
       enabled: false,
       create: makeTilesTransparent,
       destroy: makeTilesVisible,
-      update: function () {/* Do nothing */}
+      update: function () {},
+      priority: 400
     },
     'tileAnchorCenters': {
-      enabled: false,
+      enabled: true,
       create: createTileAnchorCenters,
       destroy: destroyTileAnchorCenters,
-      update: updateTileAnchorCenters
+      update: updateTileAnchorCenters,
+      priority: 500
     },
     'tileParticleCenters': {
       enabled: false,
       create: createTileParticleCenters,
       destroy: destroyTileParticleCenters,
-      update: updateTileParticleCenters
+      update: updateTileParticleCenters,
+      priority: 600
     },
     'tileDisplacementColors': {
       enabled: false,
       create: createTileDisplacementColors,
       destroy: destroyTileDisplacementColors,
-      update: updateTileDisplacementColors
+      update: updateTileDisplacementColors,
+      priority: 700
     },
     'tileInnerRadii': {
       enabled: false,
       create: createTileInnerRadii,
       destroy: destroyTileInnerRadii,
-      update: updateTileInnerRadii
+      update: updateTileInnerRadii,
+      priority: 800
     },
     'tileOuterRadii': {
       enabled: false,
       create: createTileOuterRadii,
       destroy: destroyTileOuterRadii,
-      update: updateTileOuterRadii
+      update: updateTileOuterRadii,
+      priority: 900
     },
     'tileIndices': {
       enabled: true,
       create: createTileIndices,
       destroy: destroyTileIndices,
-      update: updateTileIndices
+      update: updateTileIndices,
+      priority: 1000
     },
     'tileForces': {
-      enabled: false,
+      enabled: true,
       create: createTileForces,
       destroy: destroyTileForces,
-      update: updateTileForces
+      update: updateTileForces,
+      priority: 1100
     },
     'tileVelocities': {
-      enabled: false,
+      enabled: true,
       create: createTileVelocities,
       destroy: destroyTileVelocities,
-      update: updateTileVelocities
+      update: updateTileVelocities,
+      priority: 1200
     },
     'tileNeighborConnections': {
       enabled: true,
       create: createTileNeighborConnections,
       destroy: destroyTileNeighborConnections,
-      update: updateTileNeighborConnections
+      update: updateTileNeighborConnections,
+      priority: 1300
     },
     'contentAreaGuidelines': {
       enabled: false,
       create: drawContentAreaGuideLines,
       destroy: removeContentAreaGuideLines,
-      update:  function () {/* Do nothing */}
+      update:  function () {},
+      priority: 1400
     },
     'lineAnimationGapPoints': {
       enabled: false,
-      create: function () {/* Do nothing */},
+      create: function () {},
       destroy: destroyLineAnimationGapPoints,
-      update:  updateLineAnimationGapPoints
+      update:  updateLineAnimationGapPoints,
+      priority: 1500
     },
     'lineAnimationCornerData': {
       enabled: false,
-      create: function () {/* Do nothing */},
+      create: function () {},
       destroy: destroyLineAnimationCornerConfigurations,
-      update:  updateLineAnimationCornerConfigurations
-    },
-    'sectorColors': {
-      enabled: true,
-      create: fillSectorColors,
-      destroy: unfillSectorColors,
-      update: fillSectorColors
+      update:  updateLineAnimationCornerConfigurations,
+      priority: 1600
     },
     'panCenterPoints': {
       enabled: true,
       create: createPanCenterPoints,
       destroy: destroyPanCenterPoints,
-      update: updatePanCenterPoints
+      update: updatePanCenterPoints,
+      priority: 1700
+    },
+    'sectorAnchorCenters': {
+      enabled: true,
+      create: createSectorAnchorCenters,
+      destroy: destroySectorAnchorCenters,
+      update: updateSectorAnchorCenters,
+      priority: 1800
     }
   };
+
+  config.annotationsArray = [];
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.annotationsArray = Object.keys(config.annotations).map(function (key) {
+      return config.annotations[key];
+    });
+
+    config.annotationsArray.sort(function comparator(a, b) {
+      return a.priority - b.priority;
+    });
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -1446,9 +1487,9 @@
 
     for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
       if (annotations.grid.originalTiles[i].holdsContent) {
-        annotations.grid.originalTiles[i].currentHue = config.contentTileHue;
-        annotations.grid.originalTiles[i].currentSaturation = config.contentTileSaturation;
-        annotations.grid.originalTiles[i].currentLightness = config.contentTileLightness;
+        annotations.grid.originalTiles[i].currentColor.h = config.contentTileHue;
+        annotations.grid.originalTiles[i].currentColor.s = config.contentTileSaturation;
+        annotations.grid.originalTiles[i].currentColor.l = config.contentTileLightness;
       }
     }
   }
@@ -1463,10 +1504,12 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.originalTiles[i].currentHue = config.borderTileHue;
-      annotations.grid.originalTiles[i].currentSaturation = config.borderTileSaturation;
-      annotations.grid.originalTiles[i].currentLightness = config.borderTileLightness;
+    for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
+      if (annotations.grid.allTiles[i].isBorderTile) {
+        annotations.grid.allTiles[i].currentColor.h = config.borderTileHue;
+        annotations.grid.allTiles[i].currentColor.s = config.borderTileSaturation;
+        annotations.grid.allTiles[i].currentColor.l = config.borderTileLightness;
+      }
     }
   }
 
@@ -1480,11 +1523,11 @@
 
     annotations = this;
 
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.originalTiles[i].currentHue = config.cornerTileHue;
-        annotations.grid.originalTiles[i].currentSaturation = config.cornerTileSaturation;
-        annotations.grid.originalTiles[i].currentLightness = config.cornerTileLightness;
+    for (i = 0, count = annotations.grid.originalBorderTiles.length; i < count; i += 1) {
+      if (annotations.grid.originalBorderTiles[i].isCornerTile) {
+        annotations.grid.originalTiles[i].currentColor.h = config.cornerTileHue;
+        annotations.grid.originalTiles[i].currentColor.s = config.cornerTileSaturation;
+        annotations.grid.originalTiles[i].currentColor.l = config.cornerTileLightness;
       }
     }
   }
@@ -1740,7 +1783,7 @@
     for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
       annotations.indexTexts[i] = document.createElementNS(window.hg.util.svgNamespace, 'text');
       annotations.indexTexts[i].innerHTML =
-          !isNaN(annotations.grid.allTiles[i].index) ? annotations.grid.allTiles[i].index : '?';
+          !isNaN(annotations.grid.allTiles[i].originalIndex) ? annotations.grid.allTiles[i].originalIndex : '?';
       annotations.grid.svg.appendChild(annotations.indexTexts[i]);
 
       annotations.indexTexts[i].setAttribute('font-size', '16');
@@ -1759,15 +1802,14 @@
 
     annotations = this;
 
-    if (annotations.grid.sectors) {
-      for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
-        sector = annotations.grid.sectors[i];
-        sectorHue = 60 * i + 20;
+    for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
+      sector = annotations.grid.sectors[i];
+      sectorHue = 60 * i + 20;
 
-        for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
-          sector.tiles[j].setColor(sectorHue, window.hg.Grid.config.tileSaturation,
-              window.hg.Grid.config.tileLightness);
-        }
+      for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
+        sector.tiles[j].currentColor.h = sectorHue;
+        sector.tiles[j].currentColor.s = window.hg.Grid.config.tileSaturation;
+        sector.tiles[j].currentColor.l = window.hg.Grid.config.tileLightness;
       }
     }
   }
@@ -1805,60 +1847,37 @@
     annotations.originalGridCenterDot.setAttribute('fill', 'yellow');
   }
 
+  /**
+   * Creates a dot at the anchor position of each sector.
+   *
+   * @this Annotations
+   */
+  function createSectorAnchorCenters() {
+    var annotations, i;
+
+    annotations = this;
+    annotations.sectorAnchorLines = [];
+    annotations.sectorAnchorCenters = [];
+
+    for (i = 0; i < annotations.grid.sectors.length; i += 1) {
+      annotations.sectorAnchorLines[i] =
+          document.createElementNS(window.hg.util.svgNamespace, 'line');
+      annotations.grid.svg.appendChild(annotations.sectorAnchorLines[i]);
+
+      annotations.sectorAnchorLines[i].setAttribute('stroke', '#999999');
+      annotations.sectorAnchorLines[i].setAttribute('stroke-width', '2');
+
+      annotations.sectorAnchorCenters[i] =
+          document.createElementNS(window.hg.util.svgNamespace, 'circle');
+      annotations.grid.svg.appendChild(annotations.sectorAnchorCenters[i]);
+
+      annotations.sectorAnchorCenters[i].setAttribute('r', '5');
+      annotations.sectorAnchorCenters[i].setAttribute('fill', '#BBBBBB');
+    }
+  }
+
   // --------------------------------------------------- //
   // Annotation destruction functions
-
-  /**
-   * Draws content tiles with a different color.
-   *
-   * @this Annotations
-   */
-  function unfillContentTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
-      if (annotations.grid.originalTiles[i].holdsContent) {
-        annotations.grid.originalTiles[i].setColor(window.hg.Grid.config.tileHue,
-            window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
-      }
-    }
-  }
-
-  /**
-   * Draws border tiles with a different color.
-   *
-   * @this Annotations
-   */
-  function unfillBorderTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      annotations.grid.borderTiles[i].setColor(window.hg.Grid.config.tileHue,
-          window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
-    }
-  }
-
-  /**
-   * Draws corner tiles with a different color.
-   *
-   * @this Annotations
-   */
-  function unfillCornerTiles() {
-    var annotations, i, count;
-
-    annotations = this;
-
-    for (i = 0, count = annotations.grid.borderTiles.length; i < count; i += 1) {
-      if (annotations.grid.borderTiles[i].isCornerTile) {
-        annotations.grid.borderTiles[i].setColor(window.hg.Grid.config.tileHue,
-            window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness);
-      }
-    }
-  }
 
   /**
    * Draws all of the tiles as transparent.
@@ -2099,38 +2118,6 @@
   }
 
   /**
-   * Draws the tiles of each Sector with a different color.
-   *
-   * @this Annotations
-   */
-  function unfillSectorColors() {
-    var annotations, i, iCount, j, jCount, sector, sectorHue;
-
-    annotations = this;
-
-    if (annotations.grid.sectors) {
-      for (i = 0, iCount = annotations.grid.sectors.length; i < iCount; i += 1) {
-
-        sector = annotations.grid.sectors[i];
-        sectorHue = 60 * i;
-
-        for (j = 0, jCount = sector.tiles.length; j < jCount; j += 1) {
-
-          sector.tiles[j].setColor(sectorHue, window.hg.Grid.config.tileSaturation,
-              window.hg.Grid.config.tileLightness);
-        }
-      }
-
-      // Reset any other tile-color annotations
-      ['contentTiles', 'borderTiles', 'cornerTiles'].forEach(function (key) {
-        if (annotations.annotations[key].enabled) {
-          annotations.annotations[key].create.call(annotations);
-        }
-      });
-    }
-  }
-
-  /**
    * Destroys the dots at the center of the grid and the center of the viewport and stops highlighting the base tile
    * for the current pan.
    *
@@ -2150,6 +2137,25 @@
       annotations.currentGridCenterDot = null;
       annotations.panCenterDot = null;
     }
+  }
+
+  /**
+   * Destroys a dot at the anchor position of each sector.
+   *
+   * @this Annotations
+   */
+  function destroySectorAnchorCenters() {
+    var annotations, i;
+
+    annotations = this;
+
+    for (i = 0; i < annotations.sectorAnchorLines.length; i += 1) {
+      annotations.grid.svg.removeChild(annotations.sectorAnchorLines[i]);
+      annotations.grid.svg.removeChild(annotations.sectorAnchorCenters[i]);
+    }
+
+    annotations.sectorAnchorLines = [];
+    annotations.sectorAnchorCenters = [];
   }
 
   // --------------------------------------------------- //
@@ -2456,11 +2462,40 @@
 
       panJob = window.hg.controller.transientJobs.pan.jobs[annotations.grid.index][0];
       if (panJob) {
-        panJob.baseTile.currentHue = 0;
-        panJob.baseTile.currentSaturation = 0;
-        panJob.baseTile.currentLightness = 90;
+        panJob.baseTile.currentColor.h = 0;
+        panJob.baseTile.currentColor.s = 0;
+        panJob.baseTile.currentColor.l = 90;
       }
     }
+  }
+
+  /**
+   * Updates a dot at the anchor position of each sector.
+   *
+   * @this Annotations
+   */
+  function updateSectorAnchorCenters() {
+    var annotations, i;
+
+    annotations = this;
+
+    for (i = 0; i < annotations.sectorAnchorLines.length; i += 1) {
+      annotations.sectorAnchorLines[i].setAttribute('x1',
+          annotations.grid.sectors[i].originalAnchor.x);
+      annotations.sectorAnchorLines[i].setAttribute('y1',
+          annotations.grid.sectors[i].originalAnchor.y);
+      annotations.sectorAnchorLines[i].setAttribute('x2',
+          annotations.grid.sectors[i].currentAnchor.x);
+      annotations.sectorAnchorLines[i].setAttribute('y2',
+          annotations.grid.sectors[i].currentAnchor.y);
+      annotations.sectorAnchorCenters[i].setAttribute('cx',
+          annotations.grid.sectors[i].currentAnchor.x);
+      annotations.sectorAnchorCenters[i].setAttribute('cy',
+          annotations.grid.sectors[i].currentAnchor.y);
+    }
+
+    annotations.sectorAnchorLines = [];
+    annotations.sectorAnchorCenters = [];
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -2470,8 +2505,8 @@
    * Toggles whether the given annotation is enabled.
    *
    * @this Annotations
-   * @param {string} annotation
-   * @param {boolean} enabled
+   * @param {String} annotation
+   * @param {Boolean} enabled
    * @throws {Error}
    */
   function toggleAnnotationEnabled(annotation, enabled) {
@@ -2495,13 +2530,13 @@
    * @this Annotations
    */
   function createAnnotations() {
-    var annotations, key;
+    var annotations, i, count;
 
     annotations = this;
 
-    for (key in annotations.annotations) {
-      if (annotations.annotations[key].enabled) {
-        annotations.annotations[key].create.call(annotations);
+    for (i = 0, count = config.annotationsArray.length; i < count; i += 1) {
+      if (config.annotationsArray[i].enabled) {
+        config.annotationsArray[i].create.call(annotations);
       }
     }
   }
@@ -2512,12 +2547,12 @@
    * @this Annotations
    */
   function destroyAnnotations() {
-    var annotations, key;
+    var annotations, i, count;
 
     annotations = this;
 
-    for (key in annotations.annotations) {
-      annotations.annotations[key].destroy.call(annotations);
+    for (i = 0, count = config.annotationsArray.length; i < count; i += 1) {
+      config.annotationsArray[i].destroy.call(annotations);
     }
   }
 
@@ -2525,7 +2560,7 @@
    * Updates the annotation states to reflect whether the grid is currently expanded.
    *
    * @this Annotations
-   * @param {boolean} isExpanded
+   * @param {Boolean} isExpanded
    */
   function setExpandedAnnotations(isExpanded) {
     var annotations;
@@ -2535,13 +2570,6 @@
     if (annotations.annotations.tileNeighborConnections.enabled) {
       destroyTileNeighborConnections.call(annotations);
       createTileNeighborConnections.call(annotations);
-    }
-
-    if (isExpanded && annotations.annotations.sectorColors.enabled) {
-      unfillSectorColors.call(annotations);
-      fillSectorColors.call(annotations);
-    } else {
-      unfillSectorColors.call(annotations);
     }
   }
 
@@ -2560,17 +2588,17 @@
    * Updates the animation progress of this AnimationJob to match the given time.
    *
    * @this Annotations
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var annotations, key;
+    var annotations, i, count;
 
     annotations = this;
 
-    for (key in annotations.annotations) {
-      if (annotations.annotations[key].enabled) {
-        annotations.annotations[key].update.call(annotations);
+    for (i = 0, count = config.annotationsArray.length; i < count; i += 1) {
+      if (config.annotationsArray[i].enabled) {
+        config.annotationsArray[i].update.call(annotations);
       }
     }
   }
@@ -2628,6 +2656,8 @@
     annotations.lineAnimationSelfCornerDots = [];
     annotations.lineAnimationLowerNeighborCornerDots = [];
     annotations.lineAnimationUpperNeighborCornerDots = [];
+    annotations.sectorAnchorLines = [];
+    annotations.sectorAnchorCenters = [];
 
     annotations.originalGridCenterDot = null;
     annotations.currentGridCenterDot = null;
@@ -2883,7 +2913,7 @@
     grid = this;
 
     grid.originalTiles = [];
-    grid.borderTiles = [];
+    grid.originalBorderTiles = [];
     tileIndex = 0;
     contentAreaIndex = 0;
     postDataIndex = 0;
@@ -2932,7 +2962,7 @@
             isBorderTile, isCornerTile, isLargerRow, config.tileMass);
 
         if (isBorderTile) {
-          grid.borderTiles.push(grid.originalTiles[tileIndex]);
+          grid.originalBorderTiles.push(grid.originalTiles[tileIndex]);
         }
 
         // Is the current tile within the content column?
@@ -2961,7 +2991,7 @@
    * Connects each tile with references to its neighborStates.
    *
    * @this Grid
-   * @param {Array.<Array.<number>>} tilesNeighborDeltaIndices
+   * @param {Array.<Array.<Number>>} tilesNeighborDeltaIndices
    */
   function setNeighborTiles(tilesNeighborDeltaIndices) {
     var grid, i, j, iCount, jCount, neighborTiles;
@@ -2988,13 +3018,13 @@
    * NaN is used to represent the tile not having a neighbor on that side.
    *
    * @this Grid
-   * @param {number} rowIndex
-   * @param {number} rowCount
-   * @param {number} columnIndex
-   * @param {number} columnCount
-   * @param {boolean} isLargerRow
-   * @param {Array.<number>} defaultNeighborDeltaIndices
-   * @returns {Array.<number>}
+   * @param {Number} rowIndex
+   * @param {Number} rowCount
+   * @param {Number} columnIndex
+   * @param {Number} columnCount
+   * @param {Boolean} isLargerRow
+   * @param {Array.<Number>} defaultNeighborDeltaIndices
+   * @returns {Array.<Number>}
    */
   function getNeighborDeltaIndices(rowIndex, rowCount, columnIndex, columnCount, isLargerRow,
                                    defaultNeighborDeltaIndices) {
@@ -3085,7 +3115,7 @@
    * Calculates the index offsets of the neighborStates of a tile.
    *
    * @this Grid
-   * @returns {Array.<number>}
+   * @returns {Array.<Number>}
    */
   function getDefaultNeighborDeltaIndices() {
     var grid, maxColumnCount, neighborDeltaIndices;
@@ -3226,7 +3256,7 @@
    * Sets the mass of this grid's tiles.
    *
    * @this Grid
-   * @param {number} mass
+   * @param {Number} mass
    */
   function updateTileMass(mass) {
     var grid, i, count;
@@ -3253,8 +3283,8 @@
    * Updates the animation progress of this AnimationJob to match the given time.
    *
    * @this Grid
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var grid, i, count;
@@ -3336,10 +3366,10 @@
   /**
    * @global
    * @constructor
-   * @param {number} index
+   * @param {Number} index
    * @param {HTMLElement} parent
    * @param {Array.<Object>} postData
-   * @param {boolean} [isVertical]
+   * @param {Boolean} [isVertical]
    */
   function Grid(index, parent, postData, isVertical) {
     var grid = this;
@@ -3356,7 +3386,7 @@
     grid.svg = null;
     grid.svgDefs = null;
     grid.originalTiles = [];
-    grid.borderTiles = [];
+    grid.originalBorderTiles = [];
     grid.contentTiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
@@ -3366,7 +3396,7 @@
     grid.isPostOpen = false;
     grid.isTransitioning = false;
     grid.expandedTile = null;
-    grid.sectors = null;
+    grid.sectors = [];
     grid.allTiles = null;
 
     grid.annotations = new window.hg.Annotations(grid);
@@ -3628,16 +3658,16 @@
 
     // Compute the axially-aligned distances between adjacent tiles
 
-    sector.majorNeighborDeltaX =
+    sector.majorNeighborDelta.x =
         sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchor.x -
         sector.baseTile.originalAnchor.x;
-    sector.majorNeighborDeltaY =
+    sector.majorNeighborDelta.y =
         sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchor.y -
         sector.baseTile.originalAnchor.y;
-    sector.minorNeighborDeltaX =
+    sector.minorNeighborDelta.x =
         sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchor.x -
         sector.baseTile.originalAnchor.x;
-    sector.minorNeighborDeltaY =
+    sector.minorNeighborDelta.y =
         sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchor.y -
         sector.baseTile.originalAnchor.y;
 
@@ -3652,10 +3682,15 @@
         sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchor.y -
         sector.baseTile.originalAnchor.y;
 
-    sector.expandedDisplacementX =
+    sector.expandedDisplacement.x =
         sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaX;
-    sector.expandedDisplacementY =
+    sector.expandedDisplacement.y =
         sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaY;
+
+    sector.originalAnchor.x = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
+    sector.originalAnchor.y = sector.baseTile.originalAnchor.y + sector.majorNeighborDelta.y;
+    sector.currentAnchor.x = sector.originalAnchor.x;
+    sector.currentAnchor.y = sector.originalAnchor.y;
   }
 
   /**
@@ -3688,7 +3723,11 @@
   /**
    * Collects references to the pre-existing tiles that lie within this sector.
    *
-   * ASSUMPTION: the baseTile is not a border tile (i.e., it has six neighbors)
+   * PRE-CONDITION: The baseTile is not a border tile (i.e., it has six neighbors).
+   *
+   * POST-CONDITION: This double-pass major-to-minor line-iteration algorithm is NOT guaranteed to
+   * collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is
+   * when the viewport's aspect ratio is very large or very small).
    *
    * @this Sector
    */
@@ -3697,7 +3736,6 @@
 
     sector = this;
 
-    // TODO: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is when the viewport's aspect ratio is very large or very small)
     // Collect all of the tiles for this sector into a two-dimensional array
     iterateOverTilesInSectorInMajorOrder();
     iterateOverTilesInSectorInMinorOrder();
@@ -3772,7 +3810,11 @@
   /**
    * Creates new tiles that will be shown within this sector.
    *
-   * ASSUMPTION: the baseTile is not a border tile (i.e., it has six neighbors)
+   * PRE-CONDITION: The baseTile is not a border tile (i.e., it has six neighbors).
+   *
+   * POST-CONDITION: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to
+   * collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is
+   * when the viewport's aspect ratio is very large or very small).
    *
    * @this Sector
    */
@@ -3782,14 +3824,13 @@
     sector = this;
 
     // Determine the bounding box of the re-positioned viewport
-    boundingBoxHalfX = window.innerWidth / 2 - Math.abs(sector.expandedDisplacementX) + window.hg.Grid.config.tileShortLengthWithGap;
-    boundingBoxHalfY = window.innerHeight / 2 - Math.abs(sector.expandedDisplacementY) + window.hg.Grid.config.tileShortLengthWithGap;
+    boundingBoxHalfX = window.innerWidth / 2 - Math.abs(sector.expandedDisplacement.x) + window.hg.Grid.config.tileShortLengthWithGap;
+    boundingBoxHalfY = window.innerHeight / 2 - Math.abs(sector.expandedDisplacement.y) + window.hg.Grid.config.tileShortLengthWithGap;
     minX = sector.baseTile.originalAnchor.x - boundingBoxHalfX;
     maxX = sector.baseTile.originalAnchor.x + boundingBoxHalfX;
     minY = sector.baseTile.originalAnchor.y - boundingBoxHalfY;
     maxY = sector.baseTile.originalAnchor.y + boundingBoxHalfY;
 
-    // TODO: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is when the viewport's aspect ratio is very large or very small)
     // Collect all of the tiles for this sector into a two-dimensional array
     iterateOverTilesInSectorInMajorOrder();
     iterateOverTilesInSectorInMinorOrder();
@@ -3799,8 +3840,8 @@
     function iterateOverTilesInSectorInMajorOrder() {
       var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
-      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDeltaX;
-      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDeltaY;
+      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
+      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDelta.y;
 
       // Set up the first "column"
       majorIndex = 0;
@@ -3822,16 +3863,16 @@
 
           // Set up the next "column"
           minorIndex++;
-          anchorX += sector.minorNeighborDeltaX;
-          anchorY += sector.minorNeighborDeltaY;
+          anchorX += sector.minorNeighborDelta.x;
+          anchorY += sector.minorNeighborDelta.y;
 
         } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
 
         // Set up the next "row"
         majorIndex++;
         minorIndex = 0;
-        anchorX = startX + majorIndex * sector.majorNeighborDeltaX;
-        anchorY = startY + majorIndex * sector.majorNeighborDeltaY;
+        anchorX = startX + majorIndex * sector.majorNeighborDelta.x;
+        anchorY = startY + majorIndex * sector.majorNeighborDelta.y;
 
       } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
     }
@@ -3839,8 +3880,8 @@
     function iterateOverTilesInSectorInMinorOrder() {
       var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
-      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDeltaX;
-      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDeltaY;
+      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
+      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDelta.y;
 
       // Set up the first "column"
       majorIndex = 0;
@@ -3862,16 +3903,16 @@
 
           // Set up the next "row"
           majorIndex++;
-          anchorX += sector.majorNeighborDeltaX;
-          anchorY += sector.majorNeighborDeltaY;
+          anchorX += sector.majorNeighborDelta.x;
+          anchorY += sector.majorNeighborDelta.y;
 
         } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
 
         // Set up the next "column"
         majorIndex = 0;
         minorIndex++;
-        anchorX = startX + minorIndex * sector.minorNeighborDeltaX;
-        anchorY = startY + minorIndex * sector.minorNeighborDeltaY;
+        anchorX = startX + minorIndex * sector.minorNeighborDelta.x;
+        anchorY = startY + minorIndex * sector.minorNeighborDelta.y;
 
       } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
     }
@@ -3884,13 +3925,18 @@
    *
    * @this Sector
    * @param {Tile} tile
-   * @param {number} majorIndex
-   * @param {number} minorIndex
+   * @param {Number} majorIndex
+   * @param {Number} minorIndex
    */
   function addOldTileToSector(tile, majorIndex, minorIndex) {
     var sector = this;
+
     sector.tilesByIndex[majorIndex][minorIndex] = tile;
+
     window.hg.Tile.initializeTileExpandedState(tile, sector, majorIndex, minorIndex);
+
+    tile.sectorAnchorOffset.x = tile.originalAnchor.x - sector.originalAnchor.x;
+    tile.sectorAnchorOffset.y = tile.originalAnchor.y - sector.originalAnchor.y;
   }
 
   /**
@@ -3899,23 +3945,19 @@
    * Initializes the new tile's expandedState configuration.
    *
    * @this Sector
-   * @param {number} majorIndex
-   * @param {number} minorIndex
-   * @param {number} anchorX
-   * @param {number} anchorY
+   * @param {Number} majorIndex
+   * @param {Number} minorIndex
+   * @param {Number} anchorX
+   * @param {Number} anchorY
    */
   function createNewTileInSector(majorIndex, minorIndex, anchorX, anchorY) {
     var sector = this;
-    // TODO: some of the later parameters will need to be set in order for some animations to work
-    //   - (BUT, the better solution is probably to just disable those animations for the expanded grid)
+
     var tile = new window.hg.Tile(sector.grid.svg, sector.grid, anchorX, anchorY,
         window.hg.Grid.config.tileOuterRadius, sector.grid.isVertical, window.hg.Grid.config.tileHue,
         window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness, null, Number.NaN, Number.NaN,
         Number.NaN, true, false, false, false, window.hg.Grid.config.tileMass);
-//      new window.hg.Tile(grid.svg, grid, anchorX, anchorY, config.tileOuterRadius,
-//          grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-//          tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
-//          isLargerRow, config.tileMass);
+
     addOldTileToSector.call(sector, tile, majorIndex, minorIndex);
     sector.newTiles[sector.newTiles.length] = tile;
 
@@ -3926,8 +3968,8 @@
    * Calculates and stores the internal neighbor states for the expanded grid configuration for
    * each tile in this Sector.
    *
-   * NOTE: this does not address external neighbor relations for tiles that lie on the outside
-   * edge of this sector.
+   * POST-CONDITION: this does not address external neighbor relations for tiles that lie on the
+   * outside edge of this sector.
    *
    * @this Sector
    */
@@ -4030,71 +4072,84 @@
    */
   function initializeExpandedStateExternalTileNeighbors(sectors) {
 
-    var sector, edgeTiles, minorIndex, count, lowerNeighborIndex, upperNeighborIndex,
-        neighborSector, neighborMajorIndex;
+    var sector, innerEdgeTiles, neighborTileArrays, i, count, lowerNeighborIndex,
+        upperNeighborIndex, innerEdgeNeighborSector, outerEdgeNeighborSector, neighborMajorIndex;
 
     sector = this;
-
-    edgeTiles = sector.tilesByIndex[0];
 
     lowerNeighborIndex = (sector.index + 2) % 6;
     upperNeighborIndex = (sector.index + 3) % 6;
 
-    neighborSector = sectors[(sector.index + 1) % 6];
+    innerEdgeNeighborSector = sectors[(sector.index + 1) % 6];
+    outerEdgeNeighborSector = sectors[(sector.index + 5) % 6];
 
-    minorIndex = sector.expandedDisplacementTileCount;
+    innerEdgeTiles = sector.tilesByIndex[0];
+    neighborTileArrays = outerEdgeNeighborSector.tilesByIndex;
+
+    i = sector.expandedDisplacementTileCount;
     neighborMajorIndex = 0;
 
     // --- Handle the first edge tile --- //
 
-    if (edgeTiles[minorIndex]) {
+    if (innerEdgeTiles[i]) {
       // The first edge tile with an external neighbor will only have the lower neighbor
-      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
-          neighborSector.tilesByIndex[neighborMajorIndex][0]);
-      edgeTiles[minorIndex].expandedState.isBorderTile = true;
+      window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], lowerNeighborIndex,
+          innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
+      innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Handle the middle edge tiles --- //
 
-    for (minorIndex += 1, count = edgeTiles.length - 1; minorIndex < count; minorIndex += 1) {
+    for (i += 1, count = innerEdgeTiles.length - 1; i < count; i += 1) {
 
       // The upper neighbor for the last tile
-      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
-          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+      window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], upperNeighborIndex,
+          innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
 
       neighborMajorIndex += 1;
 
       // The lower neighbor for the last tile
-      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
-          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+      window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], lowerNeighborIndex,
+          innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
     }
 
     // --- Handle the last edge tile --- //
 
-    if (edgeTiles[minorIndex]) {
+    if (innerEdgeTiles[i]) {
       // The upper neighbor for the last tile
-      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
-          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+      window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], upperNeighborIndex,
+          innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
 
       neighborMajorIndex += 1;
 
       // The last edge tile with an external neighbor might not have the lower neighbor
-      if (neighborSector.tilesByIndex[neighborMajorIndex] &&
-          neighborSector.tilesByIndex[neighborMajorIndex][0]) {
-        window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
-            neighborSector.tilesByIndex[neighborMajorIndex][0]);
+      if (innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex] &&
+          innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]) {
+        window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], lowerNeighborIndex,
+            innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
       }
-      edgeTiles[minorIndex].expandedState.isBorderTile = true;
+      innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Mark the inner edge tiles as border tiles --- //
 
-    for (minorIndex = 0; minorIndex < sector.expandedDisplacementTileCount; minorIndex += 1) {
-
-      edgeTiles[minorIndex].expandedState.isBorderTile = true;
+    for (i = 0, count = sector.expandedDisplacementTileCount;
+         i < count; i += 1) {
+      innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
-    // TODO: Mark the outer edge tiles as border tiles?
+    // --- Mark the outer edge tiles as border tiles --- //
+
+    for (i = innerEdgeTiles[0].length - 1 - sector.expandedDisplacementTileCount,
+             count = neighborTileArrays.length; i < count; i += 1) {
+      neighborTileArrays[i][0].expandedState.isBorderTile = true;
+    }
+
+    // --- Mark the outermost sector tiles as border tiles --- //
+
+    for (i = 0, count = sector.tilesByIndex.length; i < count; i += 1) {
+      sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
+    }
   }
 
   /**
@@ -4113,6 +4168,27 @@
     }
   }
 
+  /**
+   * Updates the position of this Sector and the positions of all of its Tiles.
+   *
+   * @this Sector
+   * @param {Number} x
+   * @param {Number} y
+   */
+  function setSectorPosition(x, y) {
+    var sector, i, count;
+
+    sector = this;
+
+    sector.currentAnchor.x = x;
+    sector.currentAnchor.y = y;
+
+    for (i = 0, count = sector.tiles.length; i < count; i += 1) {
+      sector.tiles[i].originalAnchor.x = x + sector.tiles[i].sectorAnchorOffset.x;
+      sector.tiles[i].originalAnchor.y = y + sector.tiles[i].sectorAnchorOffset.y;
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -4121,11 +4197,11 @@
    * @constructor
    * @param {Grid} grid
    * @param {Tile} baseTile
-   * @param {number} sectorIndex
-   * @param {number} expandedDisplacementTileCount
+   * @param {Number} sectorIndex
+   * @param {Number} expandedDisplacementTileCount
    *
-   * PRE-CONDITION: the given baseTile is not a border tile (i.e., it has six neighbors)
-   * PRE-CONDITION: the grid is in a closed state
+   * PRE-CONDITION: The given baseTile is not a border tile (i.e., it has six neighbors).
+   * PRE-CONDITION: The grid is in a closed state.
    *
    * POST-CONDITION: This sector is NOT guaranteed to collect all of the pre-existing tiles in the
    * sector nor to create all of the needed new tiles in the sector (but it probably will).
@@ -4137,12 +4213,11 @@
     sector.baseTile = baseTile;
     sector.index = sectorIndex;
     sector.expandedDisplacementTileCount = expandedDisplacementTileCount;
-    sector.majorNeighborDeltaX = Number.NaN;
-    sector.majorNeighborDeltaY = Number.NaN;
-    sector.minorNeighborDeltaX = Number.NaN;
-    sector.minorNeighborDeltaY = Number.NaN;
-    sector.expandedDisplacementX = Number.NaN;
-    sector.expandedDisplacementY = Number.NaN;
+    sector.originalAnchor = {x: Number.NaN, y: Number.NaN};
+    sector.currentAnchor = {x: Number.NaN, y: Number.NaN};
+    sector.majorNeighborDelta = {x: Number.NaN, y: Number.NaN};
+    sector.minorNeighborDelta = {x: Number.NaN, y: Number.NaN};
+    sector.expandedDisplacement = {x: Number.NaN, y: Number.NaN};
     sector.tiles = null;
     sector.tilesByIndex = null;
     sector.newTiles = null;
@@ -4150,6 +4225,7 @@
     sector.initializeExpandedStateExternalTileNeighbors =
         initializeExpandedStateExternalTileNeighbors;
     sector.destroy = destroy;
+    sector.setSectorPosition = setSectorPosition;
 
     setUpExpandedDisplacementValues.call(sector);
     setUpTiles.call(sector);
@@ -4218,7 +4294,7 @@
 
     tile = this;
 
-    id = !isNaN(tile.index) ? tile.index : parseInt(Math.random() * 1000000 + 1000);
+    id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
     tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.vertices = [];
@@ -4239,7 +4315,7 @@
    * Creates the particle properties for this tile.
    *
    * @this Tile
-   * @param {number} mass
+   * @param {Number} mass
    */
   function createParticle(mass) {
     var tile;
@@ -4262,8 +4338,8 @@
    * Computes and stores the locations of the vertices of the hexagon for this tile.
    *
    * @this Tile
-   * @param {number} anchorX
-   * @param {number} anchorY
+   * @param {Number} anchorX
+   * @param {Number} anchorY
    */
   function updateVertices(anchorX, anchorY) {
     var tile, trigIndex, coordIndex;
@@ -4335,9 +4411,9 @@
   /**
    * Computes the offsets of the vertices from the center of the hexagon.
    *
-   * @param {number} radius
-   * @param {boolean} isVertical
-   * @returns {Array.<number>}
+   * @param {Number} radius
+   * @param {Boolean} isVertical
+   * @returns {Array.<Number>}
    */
   function computeVertexDeltas(radius, isVertical) {
     var trigIndex, coordIndex, sines, cosines, vertexDeltas;
@@ -4410,9 +4486,9 @@
    * Sets this tile's color values.
    *
    * @this Tile
-   * @param {number} hue
-   * @param {number} saturation
-   * @param {number} lightness
+   * @param {Number} hue
+   * @param {Number} saturation
+   * @param {Number} lightness
    */
   function setColor(hue, saturation, lightness) {
     var tile = this;
@@ -4423,20 +4499,20 @@
       lightness = lightness + window.hg.HighlightHoverJob.config.deltaLightness;
     }
 
-    tile.originalHue = hue;
-    tile.originalSaturation = saturation;
-    tile.originalLightness = lightness;
+    tile.originalColor.h = hue;
+    tile.originalColor.s = saturation;
+    tile.originalColor.l = lightness;
     
-    tile.currentHue = hue;
-    tile.currentSaturation = saturation;
-    tile.currentLightness = lightness;
+    tile.currentColor.h = hue;
+    tile.currentColor.s = saturation;
+    tile.currentColor.l = lightness;
   }
 
   /**
    * Sets whether this tile is highlighted.
    *
    * @this Tile
-   * @param {boolean} isHighlighted
+   * @param {Boolean} isHighlighted
    */
   function setIsHighlighted(isHighlighted) {
     var tile, hue, saturation, lightness;
@@ -4446,36 +4522,36 @@
     if (isHighlighted) {
       if (tile.isHighlighted) {
         // Nothing is changing
-        hue = tile.originalHue;
-        saturation = tile.originalSaturation;
-        lightness = tile.originalLightness;
+        hue = tile.originalColor.h;
+        saturation = tile.originalColor.s;
+        lightness = tile.originalColor.l;
       } else {
         // Add the highlight
-        hue = tile.originalHue + window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
-        saturation = tile.originalSaturation + window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
-        lightness = tile.originalLightness + window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
+        hue = tile.originalColor.h + window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalColor.s + window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalColor.l + window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
       }
     } else {
       if (tile.isHighlighted) {
         // Remove the highlight
-        hue = tile.originalHue - window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
-        saturation = tile.originalSaturation - window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
-        lightness = tile.originalLightness - window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
+        hue = tile.originalColor.h - window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalColor.s - window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalColor.l - window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
       } else {
         // Nothing is changing
-        hue = tile.originalHue;
-        saturation = tile.originalSaturation;
-        lightness = tile.originalLightness;
+        hue = tile.originalColor.h;
+        saturation = tile.originalColor.s;
+        lightness = tile.originalColor.l;
       }
     }
 
-    tile.originalHue = hue;
-    tile.originalSaturation = saturation;
-    tile.originalLightness = lightness;
+    tile.originalColor.h = hue;
+    tile.originalColor.s = saturation;
+    tile.originalColor.l = lightness;
 
-    tile.currentHue = hue;
-    tile.currentSaturation = saturation;
-    tile.currentLightness = lightness;
+    tile.currentColor.h = hue;
+    tile.currentColor.s = saturation;
+    tile.currentColor.l = lightness;
 
     tile.isHighlighted = isHighlighted;
   }
@@ -4484,8 +4560,8 @@
    * Update the state of this tile particle for the current time step.
    *
    * @this Tile
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var tile, i, count, neighborStates, isBorderTile, neighborState, lx, ly, lDotX, lDotY,
@@ -4591,7 +4667,7 @@
           afy = ap.fy,
           afAccx = ap.forceAccumulatorX,
           afAccy = ap.forceAccumulatorY;
-      if (tile.index === 0) {
+      if (tile.originalIndex === 0) {
         //console.log('tile 0!');
       }
       if (isNaN(tile.particle.px)) {
@@ -4662,9 +4738,9 @@
 
     // --- Set the color --- //
 
-    colorString = 'hsl(' + tile.currentHue + ',' +
-        tile.currentSaturation + '%,' +
-        tile.currentLightness + '%)';
+    colorString = 'hsl(' + tile.currentColor.h + ',' +
+        tile.currentColor.s + '%,' +
+        tile.currentColor.l + '%)';
     tile.element.setAttribute('fill', colorString);
   }
 
@@ -4672,8 +4748,8 @@
    * Adds the given force, which will take effect during the next call to update.
    *
    * @this Tile
-   * @param {number} fx
-   * @param {number} fy
+   * @param {Number} fx
+   * @param {Number} fy
    */
   function applyExternalForce(fx, fy) {
     var tile;
@@ -4688,8 +4764,8 @@
    * Fixes the position of this tile to the given coordinates.
    *
    * @this Tile
-   * @param {number} px
-   * @param {number} py
+   * @param {Number} px
+   * @param {Number} py
    */
   function fixPosition(px, py) {
     var tile;
@@ -4710,7 +4786,7 @@
   }
 
   /**
-   * @returns {boolean}
+   * @returns {Boolean}
    */
   function getIsBorderTile() {
     var tile = this;
@@ -4718,7 +4794,7 @@
   }
 
   /**
-   * @param {boolean} isBorderTile
+   * @param {Boolean} isBorderTile
    */
   function setIsBorderTile(isBorderTile) {
     var tile = this;
@@ -4738,7 +4814,7 @@
    * sets the reciprocal state for the neighbor tile.
    *
    * @param {Tile} tile
-   * @param {number} neighborRelationIndex
+   * @param {Number} neighborRelationIndex
    * @param {?Tile} neighborTile
    */
   function setTileNeighborState(tile, neighborRelationIndex, neighborTile) {
@@ -4793,8 +4869,8 @@
   /**
    * @param {Tile} tile
    * @param {Sector} sector
-   * @param {number} majorIndex
-   * @param {number} minorIndex
+   * @param {Number} majorIndex
+   * @param {Number} minorIndex
    */
   function initializeTileExpandedState(tile, sector, majorIndex, minorIndex) {
     tile.expandedState = {
@@ -4814,22 +4890,22 @@
    * @global
    * @param {HTMLElement} svg
    * @param {Grid} grid
-   * @param {number} anchorX
-   * @param {number} anchorY
-   * @param {number} outerRadius
-   * @param {boolean} isVertical
-   * @param {number} hue
-   * @param {number} saturation
-   * @param {number} lightness
+   * @param {Number} anchorX
+   * @param {Number} anchorY
+   * @param {Number} outerRadius
+   * @param {Boolean} isVertical
+   * @param {Number} hue
+   * @param {Number} saturation
+   * @param {Number} lightness
    * @param {?Object} postData
-   * @param {number} tileIndex
-   * @param {number} rowIndex
-   * @param {number} columnIndex
-   * @param {boolean} isMarginTile
-   * @param {boolean} isBorderTile
-   * @param {boolean} isCornerTile
-   * @param {boolean} isInLargerRow
-   * @param {number} mass
+   * @param {Number} tileIndex
+   * @param {Number} rowIndex
+   * @param {Number} columnIndex
+   * @param {Boolean} isMarginTile
+   * @param {Boolean} isBorderTile
+   * @param {Boolean} isCornerTile
+   * @param {Boolean} isInLargerRow
+   * @param {Number} mass
    */
   function Tile(svg, grid, anchorX, anchorY, outerRadius, isVertical, hue, saturation, lightness,
                    postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
@@ -4841,20 +4917,17 @@
     tile.element = null;
     tile.currentAnchor = {x: anchorX, y: anchorY};
     tile.originalAnchor = {x: anchorX, y: anchorY};
+    tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
     tile.outerRadius = outerRadius;
     tile.isVertical = isVertical;
 
-    tile.originalHue = hue;
-    tile.originalSaturation = saturation;
-    tile.originalLightness = lightness;
-    tile.currentHue = hue;
-    tile.currentSaturation = saturation;
-    tile.currentLightness = lightness;
+    tile.originalColor = {h: hue, s: saturation, l: lightness};
+    tile.currentColor = {h: hue, s: saturation, l: lightness};
 
     tile.postData = postData;
     tile.holdsContent = !!postData;
     tile.tilePost = null;
-    tile.index = tileIndex;
+    tile.originalIndex = tileIndex;
     tile.rowIndex = rowIndex;
     tile.columnIndex = columnIndex;
     tile.isMarginTile = isMarginTile;
@@ -4953,8 +5026,8 @@
    * This should be called from the overall animation loop.
    *
    * @this ColorResetJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, i, count;
@@ -4962,9 +5035,9 @@
     job = this;
 
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].currentHue = job.grid.allTiles[i].originalHue;
-      job.grid.allTiles[i].currentSaturation = job.grid.allTiles[i].originalSaturation;
-      job.grid.allTiles[i].currentLightness = job.grid.allTiles[i].originalLightness;
+      job.grid.allTiles[i].currentColor.h = job.grid.allTiles[i].originalColor.h;
+      job.grid.allTiles[i].currentColor.s = job.grid.allTiles[i].originalColor.s;
+      job.grid.allTiles[i].currentColor.l = job.grid.allTiles[i].originalColor.l;
     }
   }
 
@@ -5079,8 +5152,8 @@
    * This should be called from the overall animation loop.
    *
    * @this ColorShiftJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job;
@@ -5220,19 +5293,19 @@
   /**
    * Updates the animation progress of the given tile.
    *
-   * @param {number} progress
+   * @param {Number} progress
    * @param {Tile} tile
-   * @param {number} waveProgressOffset
+   * @param {Number} waveProgressOffset
    */
   function updateTile(progress, tile, waveProgressOffset) {
     var tileProgress =
         Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.currentHue = tile.currentHue + config.deltaHue * tileProgress * config.opacity;
-    tile.currentSaturation =
-        tile.currentSaturation + config.deltaSaturation * tileProgress * config.opacity;
-    tile.currentLightness =
-        tile.currentLightness + config.deltaLightness * tileProgress * config.opacity;
+    tile.currentColor.h = tile.currentColor.h + config.deltaHue * tileProgress * config.opacity;
+    tile.currentColor.s =
+        tile.currentColor.s + config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentColor.l =
+        tile.currentColor.l + config.deltaLightness * tileProgress * config.opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -5256,8 +5329,8 @@
    * This should be called from the overall animation loop.
    *
    * @this ColorWaveJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, progress, i, count;
@@ -5376,8 +5449,8 @@
    * This should be called from the overall animation loop.
    *
    * @this DisplacementResetJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, i, count;
@@ -5521,9 +5594,9 @@
   /**
    * Updates the animation progress of the given tile.
    *
-   * @param {number} progress
+   * @param {Number} progress
    * @param {Tile} tile
-   * @param {number} waveProgressOffset
+   * @param {Number} waveProgressOffset
    */
   function updateTile(progress, tile, waveProgressOffset) {
     var tileProgress =
@@ -5554,8 +5627,8 @@
    * This should be called from the overall animation loop.
    *
    * @this DisplacementWaveJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, progress, i, count;
@@ -5706,8 +5779,8 @@
    * This should be called from the overall animation loop.
    *
    * @this ClosePostJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job = this;
@@ -5890,8 +5963,8 @@
    * This should be called from the overall animation loop.
    *
    * @this DisplacementRadiateJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     // TODO:
@@ -6027,15 +6100,15 @@
    * Updates the color of the given tile according to the given durationRatio.
    *
    * @param {Tile} tile
-   * @param {number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
    * duration.
    */
   function updateTile(tile, oneMinusDurationRatio) {
     var opacity = config.opacity * oneMinusDurationRatio;
 
-    tile.currentHue = tile.currentHue + config.deltaHue * opacity;
-    tile.currentSaturation = tile.currentSaturation + config.deltaSaturation * opacity;
-    tile.currentLightness = tile.currentLightness + config.deltaLightness * opacity;
+    tile.currentColor.h = tile.currentColor.h + config.deltaHue * opacity;
+    tile.currentColor.s = tile.currentColor.s + config.deltaSaturation * opacity;
+    tile.currentColor.l = tile.currentColor.l + config.deltaLightness * opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -6059,8 +6132,8 @@
    * This should be called from the overall animation loop.
    *
    * @this HighlightHoverJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, oneMinusDurationRatio;
@@ -6209,19 +6282,19 @@
    * Updates the color of the given tile according to the given waveWidthRatio and durationRatio.
    *
    * @param {Tile} tile
-   * @param {number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
    * shimmer distances.
-   * @param {number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
    * duration.
    */
   function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
     var opacity = config.opacity * oneMinusDurationRatio;
 
-    tile.currentHue = tile.currentHue + config.deltaHue * waveWidthRatio * opacity;
-    tile.currentSaturation =
-        tile.currentSaturation + config.deltaSaturation * waveWidthRatio * opacity;
-    tile.currentLightness =
-        tile.currentLightness + config.deltaLightness * waveWidthRatio * opacity;
+    tile.currentColor.h = tile.currentColor.h + config.deltaHue * waveWidthRatio * opacity;
+    tile.currentColor.s =
+        tile.currentColor.s + config.deltaSaturation * waveWidthRatio * opacity;
+    tile.currentColor.l =
+        tile.currentColor.l + config.deltaLightness * waveWidthRatio * opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -6245,8 +6318,8 @@
    * This should be called from the overall animation loop.
    *
    * @this HighlightRadiateJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
@@ -6407,8 +6480,8 @@
    * This should be called from the overall animation loop.
    *
    * @this IntraTileRadiateJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     // TODO:
@@ -6648,9 +6721,9 @@
     progress = job.ellapsedTime / job.duration;
     oneMinusProgress = 1 - progress;
 
-    job.currentHue = oneMinusProgress * job.startHue + progress * job.endHue;
-    job.currentSaturation = oneMinusProgress * job.startSaturation + progress * job.endSaturation;
-    job.currentLightness = oneMinusProgress * job.startLightness + progress * job.endLightness;
+    job.currentColor.h = oneMinusProgress * job.startHue + progress * job.endHue;
+    job.currentColor.s = oneMinusProgress * job.startSaturation + progress * job.endSaturation;
+    job.currentColor.l = oneMinusProgress * job.startLightness + progress * job.endLightness;
     job.currentOpacity = oneMinusProgress * job.startOpacity + progress * job.endOpacity;
   }
 
@@ -6834,9 +6907,9 @@
   /**
    * Translates the givern relative direction to an absolute direction.
    *
-   * @param {number} relativeDirection
-   * @param {number} corner
-   * @returns {number}
+   * @param {Number} relativeDirection
+   * @param {Number} corner
+   * @returns {Number}
    */
   function relativeToAbsoluteDirection(relativeDirection, corner) {
     switch (relativeDirection) {
@@ -6956,12 +7029,12 @@
    * Calculates the point in the middle of the gap between tiles at the given corner.
    *
    * @param {Tile} tile
-   * @param {number} corner
+   * @param {Number} corner
    * @param {Object} lowerNeighbor
    * @param {Object} upperNeighbor
-   * @param {number} lowerNeighborCorner
-   * @param {number} upperNeighborCorner
-   * @returns {{x:number,y:number}}
+   * @param {Number} lowerNeighborCorner
+   * @param {Number} upperNeighborCorner
+   * @returns {{x:Number,y:Number}}
    */
   function computeCornerGapPoint(tile, corner, lowerNeighbor, upperNeighbor, lowerNeighborCorner,
                              upperNeighborCorner) {
@@ -7079,8 +7152,8 @@
 
     // Update the attributes of the polyline SVG element
     job.polyline.setAttribute('points', pointsString);
-    job.polyline.setAttribute('stroke', 'hsl(' + job.currentHue + ',' + job.currentSaturation +
-        '%,' + job.currentLightness + '%)');
+    job.polyline.setAttribute('stroke', 'hsl(' + job.currentColor.h + ',' + job.currentColor.s +
+        '%,' + job.currentColor.l + '%)');
     job.polyline.setAttribute('stroke-opacity', job.currentOpacity);
     job.polyline.setAttribute('stroke-width', job.lineWidth);
   }
@@ -7109,8 +7182,8 @@
    * This should be called from the overall animation loop.
    *
    * @this LineJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job = this;
@@ -7166,11 +7239,11 @@
    * @global
    * @param {Grid} grid
    * @param {Tile} tile
-   * @param {number} corner
-   * @param {number} direction
-   * @param {number} forcedInitialRelativeDirection
+   * @param {Number} corner
+   * @param {Number} direction
+   * @param {Number} forcedInitialRelativeDirection
    * @param {Function} [onComplete]
-   * @param {{x:number,y:number}} extraStartPoint
+   * @param {{x:Number,y:Number}} extraStartPoint
    * @throws {Error}
    */
   function LineJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
@@ -7201,7 +7274,12 @@
 
     job.startHue = Number.NaN;
     job.endHue = Number.NaN;
-    job.currentHue = Number.NaN;
+    job.currentColor = {
+      h: Number.NaN,
+      s: config.startSaturation,
+      l: config.startLightness
+    };
+    job.currentOpacity = config.startOpacity;
 
     job.duration = config.duration;
     job.lineWidth = config.lineWidth;
@@ -7221,10 +7299,6 @@
     job.blurStdDeviation = config.blurStdDeviation;
     job.isBlurOn = config.isBlurOn;
 
-    job.currentSaturation = config.startSaturation;
-    job.currentLightness = config.startLightness;
-    job.currentOpacity = config.startOpacity;
-
     job.onComplete = onComplete || function () {};
 
     job.start = start;
@@ -7238,13 +7312,13 @@
 
     if (!checkIsValidInitialCornerConfiguration(job)) {
       throw new Error('LineJob created with invalid initial corner configuration: ' +
-          'tileIndex=' + tile.index + ', corner=' + corner + ', direction=' + direction);
+          'tileIndex=' + tile.originalIndex + ', corner=' + corner + ', direction=' + direction);
     } else {
       determineNeighbors.call(job);
       createHues.call(job);
       createPolyline.call(job);
 
-      console.log('LineJob created: tileIndex=' + tile.index + ', corner=' + corner +
+      console.log('LineJob created: tileIndex=' + tile.originalIndex + ', corner=' + corner +
           ', direction=' + direction);
     }
   }
@@ -7260,7 +7334,7 @@
 
     // Pick a random, non-corner, border tile to start from
     do {
-      tile = grid.borderTiles[parseInt(Math.random() * grid.borderTiles.length)];
+      tile = grid.originalBorderTiles[parseInt(Math.random() * grid.originalBorderTiles.length)];
     } while (tile.isCornerTile);
 
     // Determine which corner and direction to use based on the selected tile
@@ -7830,8 +7904,8 @@
    * This should be called from the overall animation loop.
    *
    * @this LinesRadiateJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, i, count;
@@ -7926,7 +8000,7 @@
 
     createLineJobs.call(job);
 
-    console.log('LinesRadiateJob created: tileIndex=' + tile.index);
+    console.log('LinesRadiateJob created: tileIndex=' + tile.originalIndex);
   }
 
   LinesRadiateJob.config = config;
@@ -7957,25 +8031,8 @@
 
   config.expandedDisplacementTileCount = 3;
 
-  // TODO:
-
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
-
-  /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
-   */
-  function checkForComplete() {
-    var job = this;
-
-    // TODO:
-//    if (???) {
-//      console.log('OpenPostJob completed');
-//
-//      job.isComplete = true;
-//      job.onComplete(true);
-//    }
-  }
 
   /**
    * @this OpenPostJob
@@ -7990,7 +8047,8 @@
     // - keep the sectors to re-use for closing
 
     // TODO: when closing the grid, make sure to:
-    // - de-allocate the sector objects and the tile.expandedState properties (sector.destroy)
+    // - job.grid.sectors[i].destroy();
+    // - job.grid.sectors = [];
     // - job.grid.expandedTile = null;
     // - job.grid.allTiles = job.grid.originalTiles;
     // - job.grid.parent.style.overflow = 'auto';
@@ -8038,18 +8096,15 @@
 
     // Give the grid a reference to the new complete collection of all tiles
     allExpandedTiles = [];
-    k = 0;
-    for (i = 0; i < 6; i += 1) {
+    for (k = 0, i = 0; i < 6; i += 1) {
       sectorTiles = job.grid.sectors[i].tiles;
 
-      for (j = 0, jCount = sectorTiles.length; j < jCount; j += 1) {
+      for (j = 0, jCount = sectorTiles.length; j < jCount; j += 1, k += 1) {
         allExpandedTiles[k] = sectorTiles[j];
-        k += 1;
       }
     }
+    allExpandedTiles[k] = job.baseTile;
     job.grid.updateAllTilesCollection(allExpandedTiles);
-
-    console.log('open-post-job.grid.allTiles.length',job.grid.allTiles.length);
   }
 
   /**
@@ -8104,10 +8159,7 @@
 
     // TODO:
     // - make sure that we are handling three different logical states for all appropriate logic in the app: closed, transitioning, open
-
-    // TODO: deactivate all neighbor forces?
-
-    // TODO: use an ease-out curve for the overall expansion animation (same for closing)
+    // - turn off the recurring LineJobs/LinesRadiateJobs
   }
 
   /**
@@ -8116,17 +8168,33 @@
    * This should be called from the overall animation loop.
    *
    * @this OpenPostJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job = this;
+    var job, progress, i, x, y;
 
-    // TODO:
-    // - update the base offsets for each of the six sectors
-    // -
+    job = this;
 
-    checkForComplete.call(job);
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / config.duration;
+    progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress > 1 ? 1 : progress;
+
+    // Update the offsets for each of the six sectors
+    for (i = 0; i < 6; i += 1) {
+      x = job.grid.sectors[i].originalAnchor.x + job.grid.sectors[i].expandedDisplacement.x * progress;
+      y = job.grid.sectors[i].originalAnchor.y + job.grid.sectors[i].expandedDisplacement.y * progress;
+      job.grid.sectors[i].setSectorPosition(x, y);
+    }
+
+    // Update the opacity of the center tile
+    job.baseTile.element.style.opacity = 1 - progress;
+
+    // Is the job done?
+    if (progress === 1) {
+      handleComplete.call(job, false);
+    }
   }
 
   /**
@@ -8137,9 +8205,7 @@
    * @this OpenPostJob
    */
   function draw() {
-    var job = this;
-
-    // TODO:
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
@@ -8242,8 +8308,6 @@
       job.grid.allTiles[i].originalAnchor.y += job.displacement.y;
     }
 
-    console.log('pan-job.grid.allTiles.length',job.grid.allTiles.length);
-
     // Update the grid
     job.grid.panCenter.x += job.displacement.x;
     job.grid.panCenter.y += job.displacement.y;
@@ -8278,8 +8342,8 @@
    * This should be called from the overall animation loop.
    *
    * @this PanJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, progress, i, count, displacementX, displacementY;
@@ -8341,7 +8405,7 @@
    * @param {Grid} grid
    * @param {?Tile} tile
    * @param {Function} onComplete
-   * @param {{x:number,y:number}} [destinationPoint]
+   * @param {{x:Number,y:Number}} [destinationPoint]
    */
   function PanJob(grid, tile, onComplete, destinationPoint) {
     var job = this;
@@ -8465,8 +8529,8 @@
    * This should be called from the overall animation loop.
    *
    * @this SpreadJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, progress, i, count;
@@ -8614,8 +8678,8 @@
    * This should be called from the overall animation loop.
    *
    * @this TileBorderJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     // TODO:

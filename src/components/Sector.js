@@ -46,16 +46,16 @@
 
     // Compute the axially-aligned distances between adjacent tiles
 
-    sector.majorNeighborDeltaX =
+    sector.majorNeighborDelta.x =
         sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchor.x -
         sector.baseTile.originalAnchor.x;
-    sector.majorNeighborDeltaY =
+    sector.majorNeighborDelta.y =
         sector.baseTile.neighborStates[sector.majorNeighborIndex].tile.originalAnchor.y -
         sector.baseTile.originalAnchor.y;
-    sector.minorNeighborDeltaX =
+    sector.minorNeighborDelta.x =
         sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchor.x -
         sector.baseTile.originalAnchor.x;
-    sector.minorNeighborDeltaY =
+    sector.minorNeighborDelta.y =
         sector.baseTile.neighborStates[sector.minorNeighborIndex].tile.originalAnchor.y -
         sector.baseTile.originalAnchor.y;
 
@@ -70,10 +70,15 @@
         sector.baseTile.neighborStates[expansionDirectionNeighborIndex].tile.originalAnchor.y -
         sector.baseTile.originalAnchor.y;
 
-    sector.expandedDisplacementX =
+    sector.expandedDisplacement.x =
         sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaX;
-    sector.expandedDisplacementY =
+    sector.expandedDisplacement.y =
         sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaY;
+
+    sector.originalAnchor.x = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
+    sector.originalAnchor.y = sector.baseTile.originalAnchor.y + sector.majorNeighborDelta.y;
+    sector.currentAnchor.x = sector.originalAnchor.x;
+    sector.currentAnchor.y = sector.originalAnchor.y;
   }
 
   /**
@@ -106,7 +111,11 @@
   /**
    * Collects references to the pre-existing tiles that lie within this sector.
    *
-   * ASSUMPTION: the baseTile is not a border tile (i.e., it has six neighbors)
+   * PRE-CONDITION: The baseTile is not a border tile (i.e., it has six neighbors).
+   *
+   * POST-CONDITION: This double-pass major-to-minor line-iteration algorithm is NOT guaranteed to
+   * collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is
+   * when the viewport's aspect ratio is very large or very small).
    *
    * @this Sector
    */
@@ -115,7 +124,6 @@
 
     sector = this;
 
-    // TODO: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is when the viewport's aspect ratio is very large or very small)
     // Collect all of the tiles for this sector into a two-dimensional array
     iterateOverTilesInSectorInMajorOrder();
     iterateOverTilesInSectorInMinorOrder();
@@ -190,7 +198,11 @@
   /**
    * Creates new tiles that will be shown within this sector.
    *
-   * ASSUMPTION: the baseTile is not a border tile (i.e., it has six neighbors)
+   * PRE-CONDITION: The baseTile is not a border tile (i.e., it has six neighbors).
+   *
+   * POST-CONDITION: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to
+   * collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is
+   * when the viewport's aspect ratio is very large or very small).
    *
    * @this Sector
    */
@@ -200,14 +212,13 @@
     sector = this;
 
     // Determine the bounding box of the re-positioned viewport
-    boundingBoxHalfX = window.innerWidth / 2 - Math.abs(sector.expandedDisplacementX) + window.hg.Grid.config.tileShortLengthWithGap;
-    boundingBoxHalfY = window.innerHeight / 2 - Math.abs(sector.expandedDisplacementY) + window.hg.Grid.config.tileShortLengthWithGap;
+    boundingBoxHalfX = window.innerWidth / 2 - Math.abs(sector.expandedDisplacement.x) + window.hg.Grid.config.tileShortLengthWithGap;
+    boundingBoxHalfY = window.innerHeight / 2 - Math.abs(sector.expandedDisplacement.y) + window.hg.Grid.config.tileShortLengthWithGap;
     minX = sector.baseTile.originalAnchor.x - boundingBoxHalfX;
     maxX = sector.baseTile.originalAnchor.x + boundingBoxHalfX;
     minY = sector.baseTile.originalAnchor.y - boundingBoxHalfY;
     maxY = sector.baseTile.originalAnchor.y + boundingBoxHalfY;
 
-    // TODO: this double-pass major-to-minor line-iteration algorithm is NOT guaranteed to collect all of the tiles in the viewport (but it is likely to) (the breaking edge case is when the viewport's aspect ratio is very large or very small)
     // Collect all of the tiles for this sector into a two-dimensional array
     iterateOverTilesInSectorInMajorOrder();
     iterateOverTilesInSectorInMinorOrder();
@@ -217,8 +228,8 @@
     function iterateOverTilesInSectorInMajorOrder() {
       var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
-      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDeltaX;
-      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDeltaY;
+      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
+      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDelta.y;
 
       // Set up the first "column"
       majorIndex = 0;
@@ -240,16 +251,16 @@
 
           // Set up the next "column"
           minorIndex++;
-          anchorX += sector.minorNeighborDeltaX;
-          anchorY += sector.minorNeighborDeltaY;
+          anchorX += sector.minorNeighborDelta.x;
+          anchorY += sector.minorNeighborDelta.y;
 
         } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
 
         // Set up the next "row"
         majorIndex++;
         minorIndex = 0;
-        anchorX = startX + majorIndex * sector.majorNeighborDeltaX;
-        anchorY = startY + majorIndex * sector.majorNeighborDeltaY;
+        anchorX = startX + majorIndex * sector.majorNeighborDelta.x;
+        anchorY = startY + majorIndex * sector.majorNeighborDelta.y;
 
       } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
     }
@@ -257,8 +268,8 @@
     function iterateOverTilesInSectorInMinorOrder() {
       var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
-      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDeltaX;
-      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDeltaY;
+      startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
+      startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDelta.y;
 
       // Set up the first "column"
       majorIndex = 0;
@@ -280,16 +291,16 @@
 
           // Set up the next "row"
           majorIndex++;
-          anchorX += sector.majorNeighborDeltaX;
-          anchorY += sector.majorNeighborDeltaY;
+          anchorX += sector.majorNeighborDelta.x;
+          anchorY += sector.majorNeighborDelta.y;
 
         } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
 
         // Set up the next "column"
         majorIndex = 0;
         minorIndex++;
-        anchorX = startX + minorIndex * sector.minorNeighborDeltaX;
-        anchorY = startY + minorIndex * sector.minorNeighborDeltaY;
+        anchorX = startX + minorIndex * sector.minorNeighborDelta.x;
+        anchorY = startY + minorIndex * sector.minorNeighborDelta.y;
 
       } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
     }
@@ -302,13 +313,18 @@
    *
    * @this Sector
    * @param {Tile} tile
-   * @param {number} majorIndex
-   * @param {number} minorIndex
+   * @param {Number} majorIndex
+   * @param {Number} minorIndex
    */
   function addOldTileToSector(tile, majorIndex, minorIndex) {
     var sector = this;
+
     sector.tilesByIndex[majorIndex][minorIndex] = tile;
+
     window.hg.Tile.initializeTileExpandedState(tile, sector, majorIndex, minorIndex);
+
+    tile.sectorAnchorOffset.x = tile.originalAnchor.x - sector.originalAnchor.x;
+    tile.sectorAnchorOffset.y = tile.originalAnchor.y - sector.originalAnchor.y;
   }
 
   /**
@@ -317,23 +333,19 @@
    * Initializes the new tile's expandedState configuration.
    *
    * @this Sector
-   * @param {number} majorIndex
-   * @param {number} minorIndex
-   * @param {number} anchorX
-   * @param {number} anchorY
+   * @param {Number} majorIndex
+   * @param {Number} minorIndex
+   * @param {Number} anchorX
+   * @param {Number} anchorY
    */
   function createNewTileInSector(majorIndex, minorIndex, anchorX, anchorY) {
     var sector = this;
-    // TODO: some of the later parameters will need to be set in order for some animations to work
-    //   - (BUT, the better solution is probably to just disable those animations for the expanded grid)
+
     var tile = new window.hg.Tile(sector.grid.svg, sector.grid, anchorX, anchorY,
         window.hg.Grid.config.tileOuterRadius, sector.grid.isVertical, window.hg.Grid.config.tileHue,
         window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness, null, Number.NaN, Number.NaN,
         Number.NaN, true, false, false, false, window.hg.Grid.config.tileMass);
-//      new window.hg.Tile(grid.svg, grid, anchorX, anchorY, config.tileOuterRadius,
-//          grid.isVertical, config.tileHue, config.tileSaturation, config.tileLightness, null,
-//          tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile, isCornerTile,
-//          isLargerRow, config.tileMass);
+
     addOldTileToSector.call(sector, tile, majorIndex, minorIndex);
     sector.newTiles[sector.newTiles.length] = tile;
 
@@ -344,8 +356,8 @@
    * Calculates and stores the internal neighbor states for the expanded grid configuration for
    * each tile in this Sector.
    *
-   * NOTE: this does not address external neighbor relations for tiles that lie on the outside
-   * edge of this sector.
+   * POST-CONDITION: this does not address external neighbor relations for tiles that lie on the
+   * outside edge of this sector.
    *
    * @this Sector
    */
@@ -448,71 +460,84 @@
    */
   function initializeExpandedStateExternalTileNeighbors(sectors) {
 
-    var sector, edgeTiles, minorIndex, count, lowerNeighborIndex, upperNeighborIndex,
-        neighborSector, neighborMajorIndex;
+    var sector, innerEdgeTiles, neighborTileArrays, i, count, lowerNeighborIndex,
+        upperNeighborIndex, innerEdgeNeighborSector, outerEdgeNeighborSector, neighborMajorIndex;
 
     sector = this;
-
-    edgeTiles = sector.tilesByIndex[0];
 
     lowerNeighborIndex = (sector.index + 2) % 6;
     upperNeighborIndex = (sector.index + 3) % 6;
 
-    neighborSector = sectors[(sector.index + 1) % 6];
+    innerEdgeNeighborSector = sectors[(sector.index + 1) % 6];
+    outerEdgeNeighborSector = sectors[(sector.index + 5) % 6];
 
-    minorIndex = sector.expandedDisplacementTileCount;
+    innerEdgeTiles = sector.tilesByIndex[0];
+    neighborTileArrays = outerEdgeNeighborSector.tilesByIndex;
+
+    i = sector.expandedDisplacementTileCount;
     neighborMajorIndex = 0;
 
     // --- Handle the first edge tile --- //
 
-    if (edgeTiles[minorIndex]) {
+    if (innerEdgeTiles[i]) {
       // The first edge tile with an external neighbor will only have the lower neighbor
-      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
-          neighborSector.tilesByIndex[neighborMajorIndex][0]);
-      edgeTiles[minorIndex].expandedState.isBorderTile = true;
+      window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], lowerNeighborIndex,
+          innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
+      innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Handle the middle edge tiles --- //
 
-    for (minorIndex += 1, count = edgeTiles.length - 1; minorIndex < count; minorIndex += 1) {
+    for (i += 1, count = innerEdgeTiles.length - 1; i < count; i += 1) {
 
       // The upper neighbor for the last tile
-      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
-          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+      window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], upperNeighborIndex,
+          innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
 
       neighborMajorIndex += 1;
 
       // The lower neighbor for the last tile
-      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
-          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+      window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], lowerNeighborIndex,
+          innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
     }
 
     // --- Handle the last edge tile --- //
 
-    if (edgeTiles[minorIndex]) {
+    if (innerEdgeTiles[i]) {
       // The upper neighbor for the last tile
-      window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], upperNeighborIndex,
-          neighborSector.tilesByIndex[neighborMajorIndex][0]);
+      window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], upperNeighborIndex,
+          innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
 
       neighborMajorIndex += 1;
 
       // The last edge tile with an external neighbor might not have the lower neighbor
-      if (neighborSector.tilesByIndex[neighborMajorIndex] &&
-          neighborSector.tilesByIndex[neighborMajorIndex][0]) {
-        window.hg.Tile.setTileNeighborState(edgeTiles[minorIndex], lowerNeighborIndex,
-            neighborSector.tilesByIndex[neighborMajorIndex][0]);
+      if (innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex] &&
+          innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]) {
+        window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], lowerNeighborIndex,
+            innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
       }
-      edgeTiles[minorIndex].expandedState.isBorderTile = true;
+      innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Mark the inner edge tiles as border tiles --- //
 
-    for (minorIndex = 0; minorIndex < sector.expandedDisplacementTileCount; minorIndex += 1) {
-
-      edgeTiles[minorIndex].expandedState.isBorderTile = true;
+    for (i = 0, count = sector.expandedDisplacementTileCount;
+         i < count; i += 1) {
+      innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
-    // TODO: Mark the outer edge tiles as border tiles?
+    // --- Mark the outer edge tiles as border tiles --- //
+
+    for (i = innerEdgeTiles[0].length - 1 - sector.expandedDisplacementTileCount,
+             count = neighborTileArrays.length; i < count; i += 1) {
+      neighborTileArrays[i][0].expandedState.isBorderTile = true;
+    }
+
+    // --- Mark the outermost sector tiles as border tiles --- //
+
+    for (i = 0, count = sector.tilesByIndex.length; i < count; i += 1) {
+      sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
+    }
   }
 
   /**
@@ -531,6 +556,27 @@
     }
   }
 
+  /**
+   * Updates the position of this Sector and the positions of all of its Tiles.
+   *
+   * @this Sector
+   * @param {Number} x
+   * @param {Number} y
+   */
+  function setSectorPosition(x, y) {
+    var sector, i, count;
+
+    sector = this;
+
+    sector.currentAnchor.x = x;
+    sector.currentAnchor.y = y;
+
+    for (i = 0, count = sector.tiles.length; i < count; i += 1) {
+      sector.tiles[i].originalAnchor.x = x + sector.tiles[i].sectorAnchorOffset.x;
+      sector.tiles[i].originalAnchor.y = y + sector.tiles[i].sectorAnchorOffset.y;
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -539,11 +585,11 @@
    * @constructor
    * @param {Grid} grid
    * @param {Tile} baseTile
-   * @param {number} sectorIndex
-   * @param {number} expandedDisplacementTileCount
+   * @param {Number} sectorIndex
+   * @param {Number} expandedDisplacementTileCount
    *
-   * PRE-CONDITION: the given baseTile is not a border tile (i.e., it has six neighbors)
-   * PRE-CONDITION: the grid is in a closed state
+   * PRE-CONDITION: The given baseTile is not a border tile (i.e., it has six neighbors).
+   * PRE-CONDITION: The grid is in a closed state.
    *
    * POST-CONDITION: This sector is NOT guaranteed to collect all of the pre-existing tiles in the
    * sector nor to create all of the needed new tiles in the sector (but it probably will).
@@ -555,12 +601,11 @@
     sector.baseTile = baseTile;
     sector.index = sectorIndex;
     sector.expandedDisplacementTileCount = expandedDisplacementTileCount;
-    sector.majorNeighborDeltaX = Number.NaN;
-    sector.majorNeighborDeltaY = Number.NaN;
-    sector.minorNeighborDeltaX = Number.NaN;
-    sector.minorNeighborDeltaY = Number.NaN;
-    sector.expandedDisplacementX = Number.NaN;
-    sector.expandedDisplacementY = Number.NaN;
+    sector.originalAnchor = {x: Number.NaN, y: Number.NaN};
+    sector.currentAnchor = {x: Number.NaN, y: Number.NaN};
+    sector.majorNeighborDelta = {x: Number.NaN, y: Number.NaN};
+    sector.minorNeighborDelta = {x: Number.NaN, y: Number.NaN};
+    sector.expandedDisplacement = {x: Number.NaN, y: Number.NaN};
     sector.tiles = null;
     sector.tilesByIndex = null;
     sector.newTiles = null;
@@ -568,6 +613,7 @@
     sector.initializeExpandedStateExternalTileNeighbors =
         initializeExpandedStateExternalTileNeighbors;
     sector.destroy = destroy;
+    sector.setSectorPosition = setSectorPosition;
 
     setUpExpandedDisplacementValues.call(sector);
     setUpTiles.call(sector);

@@ -52,7 +52,7 @@
 
     tile = this;
 
-    id = !isNaN(tile.index) ? tile.index : parseInt(Math.random() * 1000000 + 1000);
+    id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
     tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.vertices = [];
@@ -73,7 +73,7 @@
    * Creates the particle properties for this tile.
    *
    * @this Tile
-   * @param {number} mass
+   * @param {Number} mass
    */
   function createParticle(mass) {
     var tile;
@@ -96,8 +96,8 @@
    * Computes and stores the locations of the vertices of the hexagon for this tile.
    *
    * @this Tile
-   * @param {number} anchorX
-   * @param {number} anchorY
+   * @param {Number} anchorX
+   * @param {Number} anchorY
    */
   function updateVertices(anchorX, anchorY) {
     var tile, trigIndex, coordIndex;
@@ -169,9 +169,9 @@
   /**
    * Computes the offsets of the vertices from the center of the hexagon.
    *
-   * @param {number} radius
-   * @param {boolean} isVertical
-   * @returns {Array.<number>}
+   * @param {Number} radius
+   * @param {Boolean} isVertical
+   * @returns {Array.<Number>}
    */
   function computeVertexDeltas(radius, isVertical) {
     var trigIndex, coordIndex, sines, cosines, vertexDeltas;
@@ -244,9 +244,9 @@
    * Sets this tile's color values.
    *
    * @this Tile
-   * @param {number} hue
-   * @param {number} saturation
-   * @param {number} lightness
+   * @param {Number} hue
+   * @param {Number} saturation
+   * @param {Number} lightness
    */
   function setColor(hue, saturation, lightness) {
     var tile = this;
@@ -257,20 +257,20 @@
       lightness = lightness + window.hg.HighlightHoverJob.config.deltaLightness;
     }
 
-    tile.originalHue = hue;
-    tile.originalSaturation = saturation;
-    tile.originalLightness = lightness;
+    tile.originalColor.h = hue;
+    tile.originalColor.s = saturation;
+    tile.originalColor.l = lightness;
     
-    tile.currentHue = hue;
-    tile.currentSaturation = saturation;
-    tile.currentLightness = lightness;
+    tile.currentColor.h = hue;
+    tile.currentColor.s = saturation;
+    tile.currentColor.l = lightness;
   }
 
   /**
    * Sets whether this tile is highlighted.
    *
    * @this Tile
-   * @param {boolean} isHighlighted
+   * @param {Boolean} isHighlighted
    */
   function setIsHighlighted(isHighlighted) {
     var tile, hue, saturation, lightness;
@@ -280,36 +280,36 @@
     if (isHighlighted) {
       if (tile.isHighlighted) {
         // Nothing is changing
-        hue = tile.originalHue;
-        saturation = tile.originalSaturation;
-        lightness = tile.originalLightness;
+        hue = tile.originalColor.h;
+        saturation = tile.originalColor.s;
+        lightness = tile.originalColor.l;
       } else {
         // Add the highlight
-        hue = tile.originalHue + window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
-        saturation = tile.originalSaturation + window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
-        lightness = tile.originalLightness + window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
+        hue = tile.originalColor.h + window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalColor.s + window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalColor.l + window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
       }
     } else {
       if (tile.isHighlighted) {
         // Remove the highlight
-        hue = tile.originalHue - window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
-        saturation = tile.originalSaturation - window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
-        lightness = tile.originalLightness - window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
+        hue = tile.originalColor.h - window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalColor.s - window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalColor.l - window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
       } else {
         // Nothing is changing
-        hue = tile.originalHue;
-        saturation = tile.originalSaturation;
-        lightness = tile.originalLightness;
+        hue = tile.originalColor.h;
+        saturation = tile.originalColor.s;
+        lightness = tile.originalColor.l;
       }
     }
 
-    tile.originalHue = hue;
-    tile.originalSaturation = saturation;
-    tile.originalLightness = lightness;
+    tile.originalColor.h = hue;
+    tile.originalColor.s = saturation;
+    tile.originalColor.l = lightness;
 
-    tile.currentHue = hue;
-    tile.currentSaturation = saturation;
-    tile.currentLightness = lightness;
+    tile.currentColor.h = hue;
+    tile.currentColor.s = saturation;
+    tile.currentColor.l = lightness;
 
     tile.isHighlighted = isHighlighted;
   }
@@ -318,8 +318,8 @@
    * Update the state of this tile particle for the current time step.
    *
    * @this Tile
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var tile, i, count, neighborStates, isBorderTile, neighborState, lx, ly, lDotX, lDotY,
@@ -425,7 +425,7 @@
           afy = ap.fy,
           afAccx = ap.forceAccumulatorX,
           afAccy = ap.forceAccumulatorY;
-      if (tile.index === 0) {
+      if (tile.originalIndex === 0) {
         //console.log('tile 0!');
       }
       if (isNaN(tile.particle.px)) {
@@ -496,9 +496,9 @@
 
     // --- Set the color --- //
 
-    colorString = 'hsl(' + tile.currentHue + ',' +
-        tile.currentSaturation + '%,' +
-        tile.currentLightness + '%)';
+    colorString = 'hsl(' + tile.currentColor.h + ',' +
+        tile.currentColor.s + '%,' +
+        tile.currentColor.l + '%)';
     tile.element.setAttribute('fill', colorString);
   }
 
@@ -506,8 +506,8 @@
    * Adds the given force, which will take effect during the next call to update.
    *
    * @this Tile
-   * @param {number} fx
-   * @param {number} fy
+   * @param {Number} fx
+   * @param {Number} fy
    */
   function applyExternalForce(fx, fy) {
     var tile;
@@ -522,8 +522,8 @@
    * Fixes the position of this tile to the given coordinates.
    *
    * @this Tile
-   * @param {number} px
-   * @param {number} py
+   * @param {Number} px
+   * @param {Number} py
    */
   function fixPosition(px, py) {
     var tile;
@@ -544,7 +544,7 @@
   }
 
   /**
-   * @returns {boolean}
+   * @returns {Boolean}
    */
   function getIsBorderTile() {
     var tile = this;
@@ -552,7 +552,7 @@
   }
 
   /**
-   * @param {boolean} isBorderTile
+   * @param {Boolean} isBorderTile
    */
   function setIsBorderTile(isBorderTile) {
     var tile = this;
@@ -572,7 +572,7 @@
    * sets the reciprocal state for the neighbor tile.
    *
    * @param {Tile} tile
-   * @param {number} neighborRelationIndex
+   * @param {Number} neighborRelationIndex
    * @param {?Tile} neighborTile
    */
   function setTileNeighborState(tile, neighborRelationIndex, neighborTile) {
@@ -627,8 +627,8 @@
   /**
    * @param {Tile} tile
    * @param {Sector} sector
-   * @param {number} majorIndex
-   * @param {number} minorIndex
+   * @param {Number} majorIndex
+   * @param {Number} minorIndex
    */
   function initializeTileExpandedState(tile, sector, majorIndex, minorIndex) {
     tile.expandedState = {
@@ -648,22 +648,22 @@
    * @global
    * @param {HTMLElement} svg
    * @param {Grid} grid
-   * @param {number} anchorX
-   * @param {number} anchorY
-   * @param {number} outerRadius
-   * @param {boolean} isVertical
-   * @param {number} hue
-   * @param {number} saturation
-   * @param {number} lightness
+   * @param {Number} anchorX
+   * @param {Number} anchorY
+   * @param {Number} outerRadius
+   * @param {Boolean} isVertical
+   * @param {Number} hue
+   * @param {Number} saturation
+   * @param {Number} lightness
    * @param {?Object} postData
-   * @param {number} tileIndex
-   * @param {number} rowIndex
-   * @param {number} columnIndex
-   * @param {boolean} isMarginTile
-   * @param {boolean} isBorderTile
-   * @param {boolean} isCornerTile
-   * @param {boolean} isInLargerRow
-   * @param {number} mass
+   * @param {Number} tileIndex
+   * @param {Number} rowIndex
+   * @param {Number} columnIndex
+   * @param {Boolean} isMarginTile
+   * @param {Boolean} isBorderTile
+   * @param {Boolean} isCornerTile
+   * @param {Boolean} isInLargerRow
+   * @param {Number} mass
    */
   function Tile(svg, grid, anchorX, anchorY, outerRadius, isVertical, hue, saturation, lightness,
                    postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
@@ -675,20 +675,17 @@
     tile.element = null;
     tile.currentAnchor = {x: anchorX, y: anchorY};
     tile.originalAnchor = {x: anchorX, y: anchorY};
+    tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
     tile.outerRadius = outerRadius;
     tile.isVertical = isVertical;
 
-    tile.originalHue = hue;
-    tile.originalSaturation = saturation;
-    tile.originalLightness = lightness;
-    tile.currentHue = hue;
-    tile.currentSaturation = saturation;
-    tile.currentLightness = lightness;
+    tile.originalColor = {h: hue, s: saturation, l: lightness};
+    tile.currentColor = {h: hue, s: saturation, l: lightness};
 
     tile.postData = postData;
     tile.holdsContent = !!postData;
     tile.tilePost = null;
-    tile.index = tileIndex;
+    tile.originalIndex = tileIndex;
     tile.rowIndex = rowIndex;
     tile.columnIndex = columnIndex;
     tile.isMarginTile = isMarginTile;

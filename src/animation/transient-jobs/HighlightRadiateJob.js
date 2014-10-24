@@ -73,19 +73,19 @@
    * Updates the color of the given tile according to the given waveWidthRatio and durationRatio.
    *
    * @param {Tile} tile
-   * @param {number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
    * shimmer distances.
-   * @param {number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
    * duration.
    */
   function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
     var opacity = config.opacity * oneMinusDurationRatio;
 
-    tile.currentHue = tile.currentHue + config.deltaHue * waveWidthRatio * opacity;
-    tile.currentSaturation =
-        tile.currentSaturation + config.deltaSaturation * waveWidthRatio * opacity;
-    tile.currentLightness =
-        tile.currentLightness + config.deltaLightness * waveWidthRatio * opacity;
+    tile.currentColor.h = tile.currentColor.h + config.deltaHue * waveWidthRatio * opacity;
+    tile.currentColor.s =
+        tile.currentColor.s + config.deltaSaturation * waveWidthRatio * opacity;
+    tile.currentColor.l =
+        tile.currentColor.l + config.deltaLightness * waveWidthRatio * opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -109,8 +109,8 @@
    * This should be called from the overall animation loop.
    *
    * @this HighlightRadiateJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,

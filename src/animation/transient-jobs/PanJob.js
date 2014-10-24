@@ -51,8 +51,6 @@
       job.grid.allTiles[i].originalAnchor.y += job.displacement.y;
     }
 
-    console.log('pan-job.grid.allTiles.length',job.grid.allTiles.length);
-
     // Update the grid
     job.grid.panCenter.x += job.displacement.x;
     job.grid.panCenter.y += job.displacement.y;
@@ -87,8 +85,8 @@
    * This should be called from the overall animation loop.
    *
    * @this PanJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, progress, i, count, displacementX, displacementY;
@@ -150,7 +148,7 @@
    * @param {Grid} grid
    * @param {?Tile} tile
    * @param {Function} onComplete
-   * @param {{x:number,y:number}} [destinationPoint]
+   * @param {{x:Number,y:Number}} [destinationPoint]
    */
   function PanJob(grid, tile, onComplete, destinationPoint) {
     var job = this;

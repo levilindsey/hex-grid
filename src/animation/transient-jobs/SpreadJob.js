@@ -86,8 +86,8 @@
    * This should be called from the overall animation loop.
    *
    * @this SpreadJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, progress, i, count;

@@ -8,7 +8,7 @@
  */
 (function () {
   /**
-   * @typedef {{start: Function, update: Function(number, number), draw: Function, cancel: Function, isComplete: boolean}} AnimationJob
+   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, isComplete: Boolean}} AnimationJob
    */
 
   // ------------------------------------------------------------------------------------------- //
@@ -48,8 +48,8 @@
   /**
    * Updates all of the active AnimationJobs.
    *
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function updateJobs(currentTime, deltaTime) {
     var i, count;
@@ -70,7 +70,7 @@
    * Removes the given job from the collection of active, animating jobs.
    *
    * @param {AnimationJob} job
-   * @param {number} [index]
+   * @param {Number} [index]
    */
   function removeJob(job, index) {
     var count;

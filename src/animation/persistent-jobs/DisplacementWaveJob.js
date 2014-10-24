@@ -71,9 +71,9 @@
   /**
    * Updates the animation progress of the given tile.
    *
-   * @param {number} progress
+   * @param {Number} progress
    * @param {Tile} tile
-   * @param {number} waveProgressOffset
+   * @param {Number} waveProgressOffset
    */
   function updateTile(progress, tile, waveProgressOffset) {
     var tileProgress =
@@ -104,8 +104,8 @@
    * This should be called from the overall animation loop.
    *
    * @this DisplacementWaveJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, progress, i, count;

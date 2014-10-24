@@ -42,8 +42,8 @@
    * This should be called from the overall animation loop.
    *
    * @this DisplacementResetJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     var job, i, count;

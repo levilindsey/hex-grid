@@ -111,8 +111,8 @@
    * This should be called from the overall animation loop.
    *
    * @this DisplacementRadiateJob
-   * @param {number} currentTime
-   * @param {number} deltaTime
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
     // TODO:
