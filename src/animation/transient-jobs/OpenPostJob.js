@@ -108,6 +108,22 @@
     }
   }
 
+  /**
+   * @this PanJob
+   */
+  function setFinalPositions() {
+    var job, i, x, y;
+
+    job = this;
+
+    // Displace the sectors
+    for (i = 0; i < 6; i += 1) {
+      x = job.grid.sectors[i].originalAnchor.x + job.grid.sectors[i].expandedDisplacement.x;
+      y = job.grid.sectors[i].originalAnchor.y + job.grid.sectors[i].expandedDisplacement.y;
+      job.grid.sectors[i].setSectorOriginalPosition(x, y);
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -133,6 +149,9 @@
     job.grid.parent.style.overflow = 'hidden';
 
     createSectors.call(job);
+
+    // Set the final positions at the start, and animate everything in "reverse"
+    setFinalPositions.call(job);
 
     window.hg.controller.resetPersistentJobs(job.grid);
 
@@ -163,22 +182,25 @@
     job = this;
 
     // Calculate progress with an easing function
+    // Because the final positions were set at the start, the progress needs to update in "reverse"
     progress = (currentTime - job.startTime) / config.duration;
-    progress = window.hg.util.easingFunctions.easeOutQuint(progress);
-    progress = progress > 1 ? 1 : progress;
+    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress < 0 ? 0 : progress;
 
     // Update the offsets for each of the six sectors
     for (i = 0; i < 6; i += 1) {
-      x = job.grid.sectors[i].originalAnchor.x + job.grid.sectors[i].expandedDisplacement.x * progress;
-      y = job.grid.sectors[i].originalAnchor.y + job.grid.sectors[i].expandedDisplacement.y * progress;
-      job.grid.sectors[i].setSectorPosition(x, y);
+      x = job.grid.sectors[i].originalAnchor.x -
+          job.grid.sectors[i].expandedDisplacement.x * progress;
+      y = job.grid.sectors[i].originalAnchor.y -
+          job.grid.sectors[i].expandedDisplacement.y * progress;
+      job.grid.sectors[i].setSectorCurrentPosition(x, y);
     }
 
     // Update the opacity of the center tile
-    job.baseTile.element.style.opacity = 1 - progress;
+    job.baseTile.element.style.opacity = progress;
 
     // Is the job done?
-    if (progress === 1) {
+    if (progress === 0) {
       handleComplete.call(job, false);
     }
   }

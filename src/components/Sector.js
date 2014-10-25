@@ -554,13 +554,34 @@
   }
 
   /**
-   * Updates the position of this Sector and the positions of all of its Tiles.
+   * Updates the base position of this Sector and the positions of all of its Tiles.
    *
    * @this Sector
    * @param {Number} x
    * @param {Number} y
    */
-  function setSectorPosition(x, y) {
+  function setSectorOriginalPosition(x, y) {
+    var sector, i, count;
+
+    sector = this;
+
+    sector.originalAnchor.x = x;
+    sector.originalAnchor.y = y;
+
+    for (i = 0, count = sector.tiles.length; i < count; i += 1) {
+      sector.tiles[i].originalAnchor.x = x + sector.tiles[i].sectorAnchorOffset.x;
+      sector.tiles[i].originalAnchor.y = y + sector.tiles[i].sectorAnchorOffset.y;
+    }
+  }
+
+  /**
+   * Updates the current position of this Sector and the positions of all of its Tiles.
+   *
+   * @this Sector
+   * @param {Number} x
+   * @param {Number} y
+   */
+  function setSectorCurrentPosition(x, y) {
     var sector, i, count;
 
     sector = this;
@@ -569,8 +590,8 @@
     sector.currentAnchor.y = y;
 
     for (i = 0, count = sector.tiles.length; i < count; i += 1) {
-      sector.tiles[i].originalAnchor.x = x + sector.tiles[i].sectorAnchorOffset.x;
-      sector.tiles[i].originalAnchor.y = y + sector.tiles[i].sectorAnchorOffset.y;
+      sector.tiles[i].currentAnchor.x = x + sector.tiles[i].sectorAnchorOffset.x;
+      sector.tiles[i].currentAnchor.y = y + sector.tiles[i].sectorAnchorOffset.y;
     }
   }
 
@@ -610,7 +631,8 @@
     sector.initializeExpandedStateExternalTileNeighbors =
         initializeExpandedStateExternalTileNeighbors;
     sector.destroy = destroy;
-    sector.setSectorPosition = setSectorPosition;
+    sector.setSectorOriginalPosition = setSectorOriginalPosition;
+    sector.setSectorCurrentPosition = setSectorCurrentPosition;
 
     setUpExpandedDisplacementValues.call(sector);
     setUpTiles.call(sector);

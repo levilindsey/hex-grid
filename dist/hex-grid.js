@@ -2480,27 +2480,28 @@
    * @this Annotations
    */
   function updateSectorAnchorCenters() {
-    var annotations, i;
+    var annotations, i, dx, dy, expandedAnchorX, expandedAnchorY, collapsedAnchorX, collapsedAnchorY;
 
     annotations = this;
 
-    for (i = 0; i < annotations.sectorAnchorLines.length; i += 1) {
-      annotations.sectorAnchorLines[i].setAttribute('x1',
-          annotations.grid.sectors[i].originalAnchor.x);
-      annotations.sectorAnchorLines[i].setAttribute('y1',
-          annotations.grid.sectors[i].originalAnchor.y);
-      annotations.sectorAnchorLines[i].setAttribute('x2',
-          annotations.grid.sectors[i].currentAnchor.x);
-      annotations.sectorAnchorLines[i].setAttribute('y2',
-          annotations.grid.sectors[i].currentAnchor.y);
-      annotations.sectorAnchorCenters[i].setAttribute('cx',
-          annotations.grid.sectors[i].currentAnchor.x);
-      annotations.sectorAnchorCenters[i].setAttribute('cy',
-          annotations.grid.sectors[i].currentAnchor.y);
-    }
+    dx = annotations.grid.currentCenter.x - annotations.grid.originalCenter.x;
+    dy = annotations.grid.currentCenter.y - annotations.grid.originalCenter.y;
 
-    annotations.sectorAnchorLines = [];
-    annotations.sectorAnchorCenters = [];
+    for (i = 0; i < annotations.sectorAnchorLines.length; i += 1) {
+      expandedAnchorX = annotations.grid.sectors[i].currentAnchor.x + dx;
+      expandedAnchorY = annotations.grid.sectors[i].currentAnchor.y + dy;
+      collapsedAnchorX = annotations.grid.sectors[i].originalAnchor.x -
+          annotations.grid.sectors[i].expandedDisplacement.x + dx;
+      collapsedAnchorY = annotations.grid.sectors[i].originalAnchor.y -
+          annotations.grid.sectors[i].expandedDisplacement.y + dy;
+
+      annotations.sectorAnchorLines[i].setAttribute('x1', expandedAnchorX);
+      annotations.sectorAnchorLines[i].setAttribute('y1', expandedAnchorY);
+      annotations.sectorAnchorLines[i].setAttribute('x2', collapsedAnchorX);
+      annotations.sectorAnchorLines[i].setAttribute('y2', collapsedAnchorY);
+      annotations.sectorAnchorCenters[i].setAttribute('cx', collapsedAnchorX);
+      annotations.sectorAnchorCenters[i].setAttribute('cy', collapsedAnchorY);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -4174,13 +4175,34 @@
   }
 
   /**
-   * Updates the position of this Sector and the positions of all of its Tiles.
+   * Updates the base position of this Sector and the positions of all of its Tiles.
    *
    * @this Sector
    * @param {Number} x
    * @param {Number} y
    */
-  function setSectorPosition(x, y) {
+  function setSectorOriginalPosition(x, y) {
+    var sector, i, count;
+
+    sector = this;
+
+    sector.originalAnchor.x = x;
+    sector.originalAnchor.y = y;
+
+    for (i = 0, count = sector.tiles.length; i < count; i += 1) {
+      sector.tiles[i].originalAnchor.x = x + sector.tiles[i].sectorAnchorOffset.x;
+      sector.tiles[i].originalAnchor.y = y + sector.tiles[i].sectorAnchorOffset.y;
+    }
+  }
+
+  /**
+   * Updates the current position of this Sector and the positions of all of its Tiles.
+   *
+   * @this Sector
+   * @param {Number} x
+   * @param {Number} y
+   */
+  function setSectorCurrentPosition(x, y) {
     var sector, i, count;
 
     sector = this;
@@ -4189,8 +4211,8 @@
     sector.currentAnchor.y = y;
 
     for (i = 0, count = sector.tiles.length; i < count; i += 1) {
-      sector.tiles[i].originalAnchor.x = x + sector.tiles[i].sectorAnchorOffset.x;
-      sector.tiles[i].originalAnchor.y = y + sector.tiles[i].sectorAnchorOffset.y;
+      sector.tiles[i].currentAnchor.x = x + sector.tiles[i].sectorAnchorOffset.x;
+      sector.tiles[i].currentAnchor.y = y + sector.tiles[i].sectorAnchorOffset.y;
     }
   }
 
@@ -4230,7 +4252,8 @@
     sector.initializeExpandedStateExternalTileNeighbors =
         initializeExpandedStateExternalTileNeighbors;
     sector.destroy = destroy;
-    sector.setSectorPosition = setSectorPosition;
+    sector.setSectorOriginalPosition = setSectorOriginalPosition;
+    sector.setSectorCurrentPosition = setSectorCurrentPosition;
 
     setUpExpandedDisplacementValues.call(sector);
     setUpTiles.call(sector);
@@ -8134,6 +8157,22 @@
     }
   }
 
+  /**
+   * @this PanJob
+   */
+  function setFinalPositions() {
+    var job, i, x, y;
+
+    job = this;
+
+    // Displace the sectors
+    for (i = 0; i < 6; i += 1) {
+      x = job.grid.sectors[i].originalAnchor.x + job.grid.sectors[i].expandedDisplacement.x;
+      y = job.grid.sectors[i].originalAnchor.y + job.grid.sectors[i].expandedDisplacement.y;
+      job.grid.sectors[i].setSectorOriginalPosition(x, y);
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -8159,6 +8198,9 @@
     job.grid.parent.style.overflow = 'hidden';
 
     createSectors.call(job);
+
+    // Set the final positions at the start, and animate everything in "reverse"
+    setFinalPositions.call(job);
 
     window.hg.controller.resetPersistentJobs(job.grid);
 
@@ -8189,22 +8231,25 @@
     job = this;
 
     // Calculate progress with an easing function
+    // Because the final positions were set at the start, the progress needs to update in "reverse"
     progress = (currentTime - job.startTime) / config.duration;
-    progress = window.hg.util.easingFunctions.easeOutQuint(progress);
-    progress = progress > 1 ? 1 : progress;
+    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress < 0 ? 0 : progress;
 
     // Update the offsets for each of the six sectors
     for (i = 0; i < 6; i += 1) {
-      x = job.grid.sectors[i].originalAnchor.x + job.grid.sectors[i].expandedDisplacement.x * progress;
-      y = job.grid.sectors[i].originalAnchor.y + job.grid.sectors[i].expandedDisplacement.y * progress;
-      job.grid.sectors[i].setSectorPosition(x, y);
+      x = job.grid.sectors[i].originalAnchor.x -
+          job.grid.sectors[i].expandedDisplacement.x * progress;
+      y = job.grid.sectors[i].originalAnchor.y -
+          job.grid.sectors[i].expandedDisplacement.y * progress;
+      job.grid.sectors[i].setSectorCurrentPosition(x, y);
     }
 
     // Update the opacity of the center tile
-    job.baseTile.element.style.opacity = 1 - progress;
+    job.baseTile.element.style.opacity = progress;
 
     // Is the job done?
-    if (progress === 1) {
+    if (progress === 0) {
       handleComplete.call(job, false);
     }
   }
@@ -8346,6 +8391,7 @@
     job.startTime = Date.now();
     job.isComplete = false;
 
+    // Set the final positions at the start, and animate everything in "reverse"
     setFinalPositions.call(job);
   }
 
@@ -8364,6 +8410,7 @@
     job = this;
 
     // Calculate progress with an easing function
+    // Because the final positions were set at the start, the progress needs to update in "reverse"
     progress = (currentTime - job.startTime) / config.duration;
     progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
     progress = progress < 0 ? 0 : progress;

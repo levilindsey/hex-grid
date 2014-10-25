@@ -76,6 +76,7 @@
     job.startTime = Date.now();
     job.isComplete = false;
 
+    // Set the final positions at the start, and animate everything in "reverse"
     setFinalPositions.call(job);
   }
 
@@ -94,6 +95,7 @@
     job = this;
 
     // Calculate progress with an easing function
+    // Because the final positions were set at the start, the progress needs to update in "reverse"
     progress = (currentTime - job.startTime) / config.duration;
     progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
     progress = progress < 0 ? 0 : progress;

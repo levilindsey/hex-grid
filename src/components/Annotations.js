@@ -1189,27 +1189,28 @@
    * @this Annotations
    */
   function updateSectorAnchorCenters() {
-    var annotations, i;
+    var annotations, i, dx, dy, expandedAnchorX, expandedAnchorY, collapsedAnchorX, collapsedAnchorY;
 
     annotations = this;
 
-    for (i = 0; i < annotations.sectorAnchorLines.length; i += 1) {
-      annotations.sectorAnchorLines[i].setAttribute('x1',
-          annotations.grid.sectors[i].originalAnchor.x);
-      annotations.sectorAnchorLines[i].setAttribute('y1',
-          annotations.grid.sectors[i].originalAnchor.y);
-      annotations.sectorAnchorLines[i].setAttribute('x2',
-          annotations.grid.sectors[i].currentAnchor.x);
-      annotations.sectorAnchorLines[i].setAttribute('y2',
-          annotations.grid.sectors[i].currentAnchor.y);
-      annotations.sectorAnchorCenters[i].setAttribute('cx',
-          annotations.grid.sectors[i].currentAnchor.x);
-      annotations.sectorAnchorCenters[i].setAttribute('cy',
-          annotations.grid.sectors[i].currentAnchor.y);
-    }
+    dx = annotations.grid.currentCenter.x - annotations.grid.originalCenter.x;
+    dy = annotations.grid.currentCenter.y - annotations.grid.originalCenter.y;
 
-    annotations.sectorAnchorLines = [];
-    annotations.sectorAnchorCenters = [];
+    for (i = 0; i < annotations.sectorAnchorLines.length; i += 1) {
+      expandedAnchorX = annotations.grid.sectors[i].currentAnchor.x + dx;
+      expandedAnchorY = annotations.grid.sectors[i].currentAnchor.y + dy;
+      collapsedAnchorX = annotations.grid.sectors[i].originalAnchor.x -
+          annotations.grid.sectors[i].expandedDisplacement.x + dx;
+      collapsedAnchorY = annotations.grid.sectors[i].originalAnchor.y -
+          annotations.grid.sectors[i].expandedDisplacement.y + dy;
+
+      annotations.sectorAnchorLines[i].setAttribute('x1', expandedAnchorX);
+      annotations.sectorAnchorLines[i].setAttribute('y1', expandedAnchorY);
+      annotations.sectorAnchorLines[i].setAttribute('x2', collapsedAnchorX);
+      annotations.sectorAnchorLines[i].setAttribute('y2', collapsedAnchorY);
+      annotations.sectorAnchorCenters[i].setAttribute('cx', collapsedAnchorX);
+      annotations.sectorAnchorCenters[i].setAttribute('cy', collapsedAnchorY);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
