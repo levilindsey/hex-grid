@@ -75,6 +75,8 @@
     sector.expandedDisplacement.y =
         sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaY;
 
+    // Set up the base position values for this overall grid
+
     sector.originalAnchor.x = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
     sector.originalAnchor.y = sector.baseTile.originalAnchor.y + sector.majorNeighborDelta.y;
     sector.currentAnchor.x = sector.originalAnchor.x;

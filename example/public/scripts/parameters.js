@@ -40,7 +40,7 @@
     // --- Miscellaneous grid properties --- //
 
     miscellaneousFolder = gui.addFolder('Misc');
-    miscellaneousFolder.open();// TODO: remove me
+    //miscellaneousFolder.open();// TODO: remove me
 
     initAnnotationsFolder(miscellaneousFolder);
     initGridFolder(miscellaneousFolder);
@@ -190,7 +190,7 @@
     var inputFolder;
 
     inputFolder = parentFolder.addFolder('Input');
-    inputFolder.open();// TODO: remove me
+    //inputFolder.open();// TODO: remove me
 
     inputFolder.add(window.hg.Input.config, 'contentTileClickAnimation',
         Object.keys(window.hg.Input.config.possibleClickAnimations));

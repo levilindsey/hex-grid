@@ -1331,14 +1331,14 @@
       priority: 0
     },
     'contentTiles': {
-      enabled: true,
+      enabled: false,
       create: fillContentTiles,
       destroy: function () {},
       update: fillContentTiles,
       priority: 100
     },
     'borderTiles': {
-      enabled: true,
+      enabled: false,
       create: fillBorderTiles,
       destroy: function () {},
       update: fillBorderTiles,
@@ -3408,26 +3408,26 @@
 
     grid.annotations = new window.hg.Annotations(grid);
 
-    grid.actualContentAreaWidth = null;
-    grid.rowDeltaY = null;
-    grid.tileDeltaX = null;
-    grid.oddRowTileCount = null;
-    grid.evenRowTileCount = null;
-    grid.oddRowXOffset = null;
-    grid.rowCount = null;
-    grid.evenRowXOffset = null;
-    grid.contentAreaLeft = null;
-    grid.contentAreaRight = null;
-    grid.oddRowContentStartIndex = null;
-    grid.evenRowContentStartIndex = null;
-    grid.oddRowContentTileCount = null;
-    grid.evenRowContentTileCount = null;
-    grid.oddRowContentEndIndex = null;
-    grid.evenRowContentEndIndex = null;
-    grid.actualContentInnerIndices = null;
-    grid.innerIndexOfLastContentTile = null;
-    grid.rowCount = null;
-    grid.height = null;
+    grid.actualContentAreaWidth = Number.NaN;
+    grid.rowDeltaY = Number.NaN;
+    grid.tileDeltaX = Number.NaN;
+    grid.oddRowTileCount = Number.NaN;
+    grid.evenRowTileCount = Number.NaN;
+    grid.oddRowXOffset = Number.NaN;
+    grid.rowCount = Number.NaN;
+    grid.evenRowXOffset = Number.NaN;
+    grid.contentAreaLeft = Number.NaN;
+    grid.contentAreaRight = Number.NaN;
+    grid.oddRowContentStartIndex = Number.NaN;
+    grid.evenRowContentStartIndex = Number.NaN;
+    grid.oddRowContentTileCount = Number.NaN;
+    grid.evenRowContentTileCount = Number.NaN;
+    grid.oddRowContentEndIndex = Number.NaN;
+    grid.evenRowContentEndIndex = Number.NaN;
+    grid.actualContentInnerIndices = Number.NaN;
+    grid.innerIndexOfLastContentTile = Number.NaN;
+    grid.rowCount = Number.NaN;
+    grid.height = Number.NaN;
 
     grid.resize = resize;
     grid.start = start;
@@ -3695,6 +3695,8 @@
         sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaX;
     sector.expandedDisplacement.y =
         sector.expandedDisplacementTileCount * expansionDirectionNeighborDeltaY;
+
+    // Set up the base position values for this overall grid
 
     sector.originalAnchor.x = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
     sector.originalAnchor.y = sector.baseTile.originalAnchor.y + sector.majorNeighborDelta.y;
@@ -4600,13 +4602,8 @@
     if (!tile.particle.isFixed) {
 
       // Some different properties should be used when the grid is expanded
-      if (tile.grid.isPostOpen) {
-        neighborStates = tile.expandedState.neighborStates;
-        isBorderTile = tile.expandedState.isBorderTile;
-      } else {
-        neighborStates = tile.neighborStates;
-        isBorderTile = tile.isBorderTile;
-      }
+      neighborStates = tile.getNeighborStates();
+      isBorderTile = tile.getIsBorderTile();
 
       // --- Accumulate forces --- //
 
@@ -4846,20 +4843,14 @@
    * @param {?Tile} neighborTile
    */
   function setTileNeighborState(tile, neighborRelationIndex, neighborTile) {
-    var deltaX, deltaY, distance, neighborStates, neighborNeighborStates,
+    var neighborStates, neighborNeighborStates,
         neighborNeighborRelationIndex;
 
     neighborStates = tile.getNeighborStates();
 
     if (neighborTile) {
-      // Determine the distance between these tiles
-      deltaX = tile.currentAnchor.x - neighborTile.currentAnchor.x;
-      deltaY = tile.currentAnchor.y - neighborTile.currentAnchor.y;
-      distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
       // Initialize the neighbor relation data from this tile to its neighbor
-      initializeTileNeighborRelationData(neighborStates, neighborRelationIndex, neighborTile,
-          distance);
+      initializeTileNeighborRelationData(neighborStates, neighborRelationIndex, neighborTile);
 
       // -- Give the neighbor tile a reference to this tile --- //
 
@@ -4869,7 +4860,7 @@
 
       // Initialize the neighbor relation data from the neighbor to this tile
       initializeTileNeighborRelationData(neighborNeighborStates, neighborNeighborRelationIndex,
-          tile, distance);
+          tile);
 
       // Share references to each other's neighbor relation objects
       neighborStates[neighborRelationIndex].neighborsRelationshipObj =
@@ -4882,11 +4873,11 @@
 
     // ---  --- //
 
-    function initializeTileNeighborRelationData(neighborStates, neighborRelationIndex, neighborTile,
-                                                distance) {
+    function initializeTileNeighborRelationData(neighborStates, neighborRelationIndex,
+                                                neighborTile) {
       neighborStates[neighborRelationIndex] = neighborStates[neighborRelationIndex] || {
         tile: neighborTile,
-        restLength: distance,
+        restLength: window.hg.Grid.config.tileShortLengthWithGap,
         neighborsRelationshipObj: null,
         springForceX: 0,
         springForceY: 0

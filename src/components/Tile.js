@@ -330,13 +330,8 @@
     if (!tile.particle.isFixed) {
 
       // Some different properties should be used when the grid is expanded
-      if (tile.grid.isPostOpen) {
-        neighborStates = tile.expandedState.neighborStates;
-        isBorderTile = tile.expandedState.isBorderTile;
-      } else {
-        neighborStates = tile.neighborStates;
-        isBorderTile = tile.isBorderTile;
-      }
+      neighborStates = tile.getNeighborStates();
+      isBorderTile = tile.getIsBorderTile();
 
       // --- Accumulate forces --- //
 
@@ -576,20 +571,14 @@
    * @param {?Tile} neighborTile
    */
   function setTileNeighborState(tile, neighborRelationIndex, neighborTile) {
-    var deltaX, deltaY, distance, neighborStates, neighborNeighborStates,
+    var neighborStates, neighborNeighborStates,
         neighborNeighborRelationIndex;
 
     neighborStates = tile.getNeighborStates();
 
     if (neighborTile) {
-      // Determine the distance between these tiles
-      deltaX = tile.currentAnchor.x - neighborTile.currentAnchor.x;
-      deltaY = tile.currentAnchor.y - neighborTile.currentAnchor.y;
-      distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
       // Initialize the neighbor relation data from this tile to its neighbor
-      initializeTileNeighborRelationData(neighborStates, neighborRelationIndex, neighborTile,
-          distance);
+      initializeTileNeighborRelationData(neighborStates, neighborRelationIndex, neighborTile);
 
       // -- Give the neighbor tile a reference to this tile --- //
 
@@ -599,7 +588,7 @@
 
       // Initialize the neighbor relation data from the neighbor to this tile
       initializeTileNeighborRelationData(neighborNeighborStates, neighborNeighborRelationIndex,
-          tile, distance);
+          tile);
 
       // Share references to each other's neighbor relation objects
       neighborStates[neighborRelationIndex].neighborsRelationshipObj =
@@ -612,11 +601,11 @@
 
     // ---  --- //
 
-    function initializeTileNeighborRelationData(neighborStates, neighborRelationIndex, neighborTile,
-                                                distance) {
+    function initializeTileNeighborRelationData(neighborStates, neighborRelationIndex,
+                                                neighborTile) {
       neighborStates[neighborRelationIndex] = neighborStates[neighborRelationIndex] || {
         tile: neighborTile,
-        restLength: distance,
+        restLength: window.hg.Grid.config.tileShortLengthWithGap,
         neighborsRelationshipObj: null,
         springForceX: 0,
         springForceY: 0

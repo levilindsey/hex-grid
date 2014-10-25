@@ -40,14 +40,14 @@
       priority: 0
     },
     'contentTiles': {
-      enabled: true,
+      enabled: false,
       create: fillContentTiles,
       destroy: function () {},
       update: fillContentTiles,
       priority: 100
     },
     'borderTiles': {
-      enabled: true,
+      enabled: false,
       create: fillBorderTiles,
       destroy: function () {},
       update: fillBorderTiles,

@@ -716,26 +716,26 @@
 
     grid.annotations = new window.hg.Annotations(grid);
 
-    grid.actualContentAreaWidth = null;
-    grid.rowDeltaY = null;
-    grid.tileDeltaX = null;
-    grid.oddRowTileCount = null;
-    grid.evenRowTileCount = null;
-    grid.oddRowXOffset = null;
-    grid.rowCount = null;
-    grid.evenRowXOffset = null;
-    grid.contentAreaLeft = null;
-    grid.contentAreaRight = null;
-    grid.oddRowContentStartIndex = null;
-    grid.evenRowContentStartIndex = null;
-    grid.oddRowContentTileCount = null;
-    grid.evenRowContentTileCount = null;
-    grid.oddRowContentEndIndex = null;
-    grid.evenRowContentEndIndex = null;
-    grid.actualContentInnerIndices = null;
-    grid.innerIndexOfLastContentTile = null;
-    grid.rowCount = null;
-    grid.height = null;
+    grid.actualContentAreaWidth = Number.NaN;
+    grid.rowDeltaY = Number.NaN;
+    grid.tileDeltaX = Number.NaN;
+    grid.oddRowTileCount = Number.NaN;
+    grid.evenRowTileCount = Number.NaN;
+    grid.oddRowXOffset = Number.NaN;
+    grid.rowCount = Number.NaN;
+    grid.evenRowXOffset = Number.NaN;
+    grid.contentAreaLeft = Number.NaN;
+    grid.contentAreaRight = Number.NaN;
+    grid.oddRowContentStartIndex = Number.NaN;
+    grid.evenRowContentStartIndex = Number.NaN;
+    grid.oddRowContentTileCount = Number.NaN;
+    grid.evenRowContentTileCount = Number.NaN;
+    grid.oddRowContentEndIndex = Number.NaN;
+    grid.evenRowContentEndIndex = Number.NaN;
+    grid.actualContentInnerIndices = Number.NaN;
+    grid.innerIndexOfLastContentTile = Number.NaN;
+    grid.rowCount = Number.NaN;
+    grid.height = Number.NaN;
 
     grid.resize = resize;
     grid.start = start;
