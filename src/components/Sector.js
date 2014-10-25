@@ -420,8 +420,6 @@
 
           window.hg.Tile.setTileNeighborState(tile, neighborRelationIndex,
               sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]);
-        } else {
-          tile.expandedState.isBorderTile = true;
         }
       }
     }
@@ -461,7 +459,7 @@
   function initializeExpandedStateExternalTileNeighbors(sectors) {
 
     var sector, innerEdgeTiles, neighborTileArrays, i, count, lowerNeighborIndex,
-        upperNeighborIndex, innerEdgeNeighborSector, outerEdgeNeighborSector, neighborMajorIndex;
+        upperNeighborIndex, innerEdgeNeighborSector, neighborMajorIndex;
 
     sector = this;
 
@@ -469,10 +467,9 @@
     upperNeighborIndex = (sector.index + 3) % 6;
 
     innerEdgeNeighborSector = sectors[(sector.index + 1) % 6];
-    outerEdgeNeighborSector = sectors[(sector.index + 5) % 6];
 
     innerEdgeTiles = sector.tilesByIndex[0];
-    neighborTileArrays = outerEdgeNeighborSector.tilesByIndex;
+    neighborTileArrays = innerEdgeNeighborSector.tilesByIndex;
 
     i = sector.expandedDisplacementTileCount;
     neighborMajorIndex = 0;
@@ -483,7 +480,6 @@
       // The first edge tile with an external neighbor will only have the lower neighbor
       window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], lowerNeighborIndex,
           innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
-      innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Handle the middle edge tiles --- //
@@ -516,21 +512,22 @@
         window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], lowerNeighborIndex,
             innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
       }
-      innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Mark the inner edge tiles as border tiles --- //
 
-    for (i = 0, count = sector.expandedDisplacementTileCount;
+    for (i = 0, count = sector.expandedDisplacementTileCount + 1;
          i < count; i += 1) {
       innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Mark the outer edge tiles as border tiles --- //
 
-    for (i = innerEdgeTiles[0].length - 1 - sector.expandedDisplacementTileCount,
+    for (i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount,
              count = neighborTileArrays.length; i < count; i += 1) {
-      neighborTileArrays[i][0].expandedState.isBorderTile = true;
+      if (neighborTileArrays[i][0]) {
+        neighborTileArrays[i][0].expandedState.isBorderTile = true;
+      }
     }
 
     // --- Mark the outermost sector tiles as border tiles --- //

@@ -8,7 +8,7 @@
  */
 (function () {
   /**
-   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, isComplete: Boolean}} AnimationJob
+   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, init: Function, isComplete: Boolean}} AnimationJob
    */
 
   // ------------------------------------------------------------------------------------------- //

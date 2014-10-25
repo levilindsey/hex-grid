@@ -148,6 +148,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
+    job.init = function () {};
 
     console.log('IntraTileRadiateJob created');
   }

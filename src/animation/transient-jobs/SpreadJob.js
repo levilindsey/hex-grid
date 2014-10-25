@@ -157,6 +157,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
+    job.init = function () {};
 
     initializeDisplacements.call(job);
 

@@ -219,7 +219,7 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
-      if (annotations.grid.allTiles[i].isBorderTile) {
+      if (annotations.grid.allTiles[i].getIsBorderTile()) {
         annotations.grid.allTiles[i].currentColor.h = config.borderTileHue;
         annotations.grid.allTiles[i].currentColor.s = config.borderTileSaturation;
         annotations.grid.allTiles[i].currentColor.l = config.borderTileLightness;
@@ -1386,6 +1386,7 @@
     annotations.update = update;
     annotations.draw = draw;
     annotations.cancel = cancel;
+    annotations.init = function () {};
   }
 
   Annotations.config = config;

@@ -742,6 +742,8 @@
     grid.update = update;
     grid.draw = draw;
     grid.cancel = cancel;
+    grid.init = function () {};
+
     grid.updateBackgroundColor = updateBackgroundColor;
     grid.updateTileColor = updateTileColor;
     grid.updateTileMass = updateTileMass;

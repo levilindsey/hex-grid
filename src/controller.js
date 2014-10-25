@@ -281,17 +281,18 @@
     } else {
       controller.persistentJobs[jobId].jobs[grid.index].forEach(restartPersistentJobHelper);
     }
+  }
 
-    // ---  --- //
-
-    function restartPersistentJobHelper(job) {
-      if (!job.isComplete) {
-        window.hg.animator.cancelJob(job);
-      }
-
-      job.init();
-      window.hg.animator.startJob(job);
+  /**
+   * @param {AnimationJob} job
+   */
+  function restartPersistentJobHelper(job) {
+    if (!job.isComplete) {
+      window.hg.animator.cancelJob(job);
     }
+
+    job.init();
+    window.hg.animator.startJob(job);
   }
 
   /**
@@ -404,7 +405,12 @@
 
     grid = new window.hg.Grid(index, parent, tileData, isVertical);
     internal.grids.push(grid);
-    window.hg.animator.startJob(grid);
+
+    annotations = grid.annotations;
+    internal.annotations.push(annotations);
+
+    input = new window.hg.Input(grid);
+    internal.inputs.push(input);
 
     controller.persistentJobs.colorReset.create(grid);
     controller.persistentJobs.displacementReset.create(grid);
@@ -413,12 +419,8 @@
     controller.persistentJobs.colorWave.create(grid);
     controller.persistentJobs.displacementWave.create(grid);
 
-    annotations = grid.annotations;
+    window.hg.animator.startJob(grid);
     window.hg.animator.startJob(annotations);
-    internal.annotations.push(annotations);
-
-    input = new window.hg.Input(grid);
-    internal.inputs.push(input);
 
     startRecurringAnimations(grid);
 
@@ -463,6 +465,9 @@
     controller.persistentJobs.colorShift.restart(grid);
     controller.persistentJobs.colorWave.restart(grid);
     controller.persistentJobs.displacementWave.restart(grid);
+
+    restartPersistentJobHelper(internal.grids[grid.index]);
+    restartPersistentJobHelper(internal.annotations[grid.index]);
   }
 
   // ------------------------------------------------------------------------------------------- //

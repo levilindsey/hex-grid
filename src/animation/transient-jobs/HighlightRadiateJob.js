@@ -193,6 +193,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.init = function () {};
 
     calculateTileDistances.call(job);
 

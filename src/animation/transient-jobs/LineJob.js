@@ -723,6 +723,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.init = function () {};
 
     if (!config.haveDefinedLineBlur) {
       defineLineBlur.call(job);

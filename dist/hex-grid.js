@@ -281,17 +281,18 @@
     } else {
       controller.persistentJobs[jobId].jobs[grid.index].forEach(restartPersistentJobHelper);
     }
+  }
 
-    // ---  --- //
-
-    function restartPersistentJobHelper(job) {
-      if (!job.isComplete) {
-        window.hg.animator.cancelJob(job);
-      }
-
-      job.init();
-      window.hg.animator.startJob(job);
+  /**
+   * @param {AnimationJob} job
+   */
+  function restartPersistentJobHelper(job) {
+    if (!job.isComplete) {
+      window.hg.animator.cancelJob(job);
     }
+
+    job.init();
+    window.hg.animator.startJob(job);
   }
 
   /**
@@ -404,7 +405,12 @@
 
     grid = new window.hg.Grid(index, parent, tileData, isVertical);
     internal.grids.push(grid);
-    window.hg.animator.startJob(grid);
+
+    annotations = grid.annotations;
+    internal.annotations.push(annotations);
+
+    input = new window.hg.Input(grid);
+    internal.inputs.push(input);
 
     controller.persistentJobs.colorReset.create(grid);
     controller.persistentJobs.displacementReset.create(grid);
@@ -413,12 +419,8 @@
     controller.persistentJobs.colorWave.create(grid);
     controller.persistentJobs.displacementWave.create(grid);
 
-    annotations = grid.annotations;
+    window.hg.animator.startJob(grid);
     window.hg.animator.startJob(annotations);
-    internal.annotations.push(annotations);
-
-    input = new window.hg.Input(grid);
-    internal.inputs.push(input);
 
     startRecurringAnimations(grid);
 
@@ -463,6 +465,9 @@
     controller.persistentJobs.colorShift.restart(grid);
     controller.persistentJobs.colorWave.restart(grid);
     controller.persistentJobs.displacementWave.restart(grid);
+
+    restartPersistentJobHelper(internal.grids[grid.index]);
+    restartPersistentJobHelper(internal.annotations[grid.index]);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -1120,7 +1125,7 @@
  */
 (function () {
   /**
-   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, isComplete: Boolean}} AnimationJob
+   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, init: Function, isComplete: Boolean}} AnimationJob
    */
 
   // ------------------------------------------------------------------------------------------- //
@@ -1505,7 +1510,7 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
-      if (annotations.grid.allTiles[i].isBorderTile) {
+      if (annotations.grid.allTiles[i].getIsBorderTile()) {
         annotations.grid.allTiles[i].currentColor.h = config.borderTileHue;
         annotations.grid.allTiles[i].currentColor.s = config.borderTileSaturation;
         annotations.grid.allTiles[i].currentColor.l = config.borderTileLightness;
@@ -2672,6 +2677,7 @@
     annotations.update = update;
     annotations.draw = draw;
     annotations.cancel = cancel;
+    annotations.init = function () {};
   }
 
   Annotations.config = config;
@@ -3427,6 +3433,8 @@
     grid.update = update;
     grid.draw = draw;
     grid.cancel = cancel;
+    grid.init = function () {};
+
     grid.updateBackgroundColor = updateBackgroundColor;
     grid.updateTileColor = updateTileColor;
     grid.updateTileMass = updateTileMass;
@@ -4032,8 +4040,6 @@
 
           window.hg.Tile.setTileNeighborState(tile, neighborRelationIndex,
               sector.tilesByIndex[neighborMajorIndex][neighborMinorIndex]);
-        } else {
-          tile.expandedState.isBorderTile = true;
         }
       }
     }
@@ -4073,7 +4079,7 @@
   function initializeExpandedStateExternalTileNeighbors(sectors) {
 
     var sector, innerEdgeTiles, neighborTileArrays, i, count, lowerNeighborIndex,
-        upperNeighborIndex, innerEdgeNeighborSector, outerEdgeNeighborSector, neighborMajorIndex;
+        upperNeighborIndex, innerEdgeNeighborSector, neighborMajorIndex;
 
     sector = this;
 
@@ -4081,10 +4087,9 @@
     upperNeighborIndex = (sector.index + 3) % 6;
 
     innerEdgeNeighborSector = sectors[(sector.index + 1) % 6];
-    outerEdgeNeighborSector = sectors[(sector.index + 5) % 6];
 
     innerEdgeTiles = sector.tilesByIndex[0];
-    neighborTileArrays = outerEdgeNeighborSector.tilesByIndex;
+    neighborTileArrays = innerEdgeNeighborSector.tilesByIndex;
 
     i = sector.expandedDisplacementTileCount;
     neighborMajorIndex = 0;
@@ -4095,7 +4100,6 @@
       // The first edge tile with an external neighbor will only have the lower neighbor
       window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], lowerNeighborIndex,
           innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
-      innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Handle the middle edge tiles --- //
@@ -4128,21 +4132,22 @@
         window.hg.Tile.setTileNeighborState(innerEdgeTiles[i], lowerNeighborIndex,
             innerEdgeNeighborSector.tilesByIndex[neighborMajorIndex][0]);
       }
-      innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Mark the inner edge tiles as border tiles --- //
 
-    for (i = 0, count = sector.expandedDisplacementTileCount;
+    for (i = 0, count = sector.expandedDisplacementTileCount + 1;
          i < count; i += 1) {
       innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Mark the outer edge tiles as border tiles --- //
 
-    for (i = innerEdgeTiles[0].length - 1 - sector.expandedDisplacementTileCount,
+    for (i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount,
              count = neighborTileArrays.length; i < count; i += 1) {
-      neighborTileArrays[i][0].expandedState.isBorderTile = true;
+      if (neighborTileArrays[i][0]) {
+        neighborTileArrays[i][0].expandedState.isBorderTile = true;
+      }
     }
 
     // --- Mark the outermost sector tiles as border tiles --- //
@@ -5837,6 +5842,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
+    job.init = function () {};
 
     console.log('ClosePostJob created');
   }
@@ -6035,6 +6041,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
+    job.init = function () {};
 
     initializeDisplacements.call(job);
 
@@ -6194,6 +6201,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
+    job.init = function () {};
 
 //    console.log('HighlightHoverJob created');
   }
@@ -6402,6 +6410,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.init = function () {};
 
     calculateTileDistances.call(job);
 
@@ -6567,6 +6576,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
+    job.init = function () {};
 
     console.log('IntraTileRadiateJob created');
   }
@@ -7305,6 +7315,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.init = function () {};
 
     if (!config.haveDefinedLineBlur) {
       defineLineBlur.call(job);
@@ -7993,6 +8004,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.init = function () {};
 
     if (!config.haveDefinedLineBlur) {
       defineLineBlur.call(job);
@@ -8242,6 +8254,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
+    job.init = function () {};
 
     console.log('OpenPostJob created');
   }
@@ -8428,6 +8441,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
+    job.init = function () {};
 
     console.log('PanJob created');
   }
@@ -8600,6 +8614,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
+    job.init = function () {};
 
     initializeDisplacements.call(job);
 
@@ -8765,6 +8780,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
+    job.init = function () {};
 
     console.log('TileBorderJob created');
   }
