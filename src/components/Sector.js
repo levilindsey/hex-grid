@@ -209,13 +209,25 @@
    * @this Sector
    */
   function collectNewTilesInSector() {
-    var sector, boundingBoxHalfX, boundingBoxHalfY, minX, maxX, minY, maxY;
+    var sector, isMovingAwayX, isMovingAwayY, expansionOffsetX, expansionOffsetY, boundingBoxHalfX, boundingBoxHalfY, minX, maxX, minY, maxY;
 
     sector = this;
 
-    // Determine the bounding box of the re-positioned viewport
-    boundingBoxHalfX = window.innerWidth / 2 - Math.abs(sector.expandedDisplacement.x) + window.hg.Grid.config.tileShortLengthWithGap;
-    boundingBoxHalfY = window.innerHeight / 2 - Math.abs(sector.expandedDisplacement.y) + window.hg.Grid.config.tileShortLengthWithGap;
+    // If the sector is moving "across" the base tile, then an increased region of the sector will
+    // be visible in the expanded grid; if instead the sector is moving "away" from the base tile,
+    // then a decreased region of the sector will be visible in the expanded grid.
+    isMovingAwayX = sector.expandedDisplacement.x > 0 === sector.majorNeighborDelta.x > 0 && sector.majorNeighborDelta.x !== 0;
+    isMovingAwayY = sector.expandedDisplacement.y > 0 === sector.majorNeighborDelta.y > 0 && sector.majorNeighborDelta.y !== 0;
+    expansionOffsetX = isMovingAwayX ?
+        -Math.abs(sector.expandedDisplacement.x) : Math.abs(sector.expandedDisplacement.x);
+    expansionOffsetY = isMovingAwayY ?
+        -Math.abs(sector.expandedDisplacement.y) : Math.abs(sector.expandedDisplacement.y);
+
+    // Calculate the dimensional extremes for this sector
+    boundingBoxHalfX = window.innerWidth / 2 + expansionOffsetX +
+        window.hg.Grid.config.tileShortLengthWithGap;
+    boundingBoxHalfY = window.innerHeight / 2 + expansionOffsetY +
+        window.hg.Grid.config.tileShortLengthWithGap;
     minX = sector.baseTile.originalAnchor.x - boundingBoxHalfX;
     maxX = sector.baseTile.originalAnchor.x + boundingBoxHalfX;
     minY = sector.baseTile.originalAnchor.y - boundingBoxHalfY;
@@ -263,6 +275,20 @@
         minorIndex = 0;
         anchorX = startX + majorIndex * sector.majorNeighborDelta.x;
         anchorY = startY + majorIndex * sector.majorNeighborDelta.y;
+
+        if (sector.index === 2 && false) {
+          console.log('minX=' + minX);
+          console.log('maxX=' + maxX);
+          console.log('minY=' + minY);
+          console.log('maxY=' + maxY);
+
+          console.log('minorIndex=' + minorIndex);
+          console.log('majorIndex=' + majorIndex);
+
+          console.log('anchorX=' + anchorX);
+          console.log('anchorY=' + anchorY);
+          debugger;
+        }
 
       } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
     }

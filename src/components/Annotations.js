@@ -40,7 +40,7 @@
       priority: 0
     },
     'contentTiles': {
-      enabled: false,
+      enabled: true,
       create: fillContentTiles,
       destroy: function () {},
       update: fillContentTiles,
@@ -68,7 +68,7 @@
       priority: 400
     },
     'tileAnchorCenters': {
-      enabled: true,
+      enabled: false,
       create: createTileAnchorCenters,
       destroy: destroyTileAnchorCenters,
       update: updateTileAnchorCenters,
@@ -110,21 +110,21 @@
       priority: 1000
     },
     'tileForces': {
-      enabled: true,
+      enabled: false,
       create: createTileForces,
       destroy: destroyTileForces,
       update: updateTileForces,
       priority: 1100
     },
     'tileVelocities': {
-      enabled: true,
+      enabled: false,
       create: createTileVelocities,
       destroy: destroyTileVelocities,
       update: updateTileVelocities,
       priority: 1200
     },
     'tileNeighborConnections': {
-      enabled: true,
+      enabled: false,
       create: createTileNeighborConnections,
       destroy: destroyTileNeighborConnections,
       update: updateTileNeighborConnections,
@@ -152,7 +152,7 @@
       priority: 1600
     },
     'panCenterPoints': {
-      enabled: true,
+      enabled: false,
       create: createPanCenterPoints,
       destroy: destroyPanCenterPoints,
       update: updatePanCenterPoints,

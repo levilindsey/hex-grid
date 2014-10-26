@@ -450,9 +450,6 @@
     window.hg.animator.cancelAll();
 
     resetPersistentJobs(grid);
-
-    window.hg.animator.startJob(grid);
-    window.hg.animator.startJob(internal.annotations[grid.index]);
   }
 
   /**
@@ -466,7 +463,7 @@
     controller.persistentJobs.colorWave.restart(grid);
     controller.persistentJobs.displacementWave.restart(grid);
 
-    restartPersistentJobHelper(internal.grids[grid.index]);
+    restartPersistentJobHelper(grid);
     restartPersistentJobHelper(internal.annotations[grid.index]);
   }
 
