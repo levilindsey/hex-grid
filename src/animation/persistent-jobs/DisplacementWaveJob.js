@@ -141,6 +141,16 @@
     job.isComplete = true;
   }
 
+  /**
+   * @this DisplacementWaveJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    initTileProgressOffsets.call(job);
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -155,16 +165,13 @@
     job.grid = grid;
     job.waveProgressOffsets = null;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-      initTileProgressOffsets.call(job);
-    };
+    job.init = init;
 
     job.init();
 

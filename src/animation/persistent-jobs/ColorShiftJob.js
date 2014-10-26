@@ -85,6 +85,16 @@
     job.isComplete = true;
   }
 
+  /**
+   * @this ColorShiftJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    // TODO:
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -98,15 +108,13 @@
 
     job.grid = grid;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-    };
+    job.init = init;
 
     job.init();
 

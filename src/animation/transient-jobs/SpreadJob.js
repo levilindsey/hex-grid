@@ -21,6 +21,13 @@
   config.avgDelay = 4000;
   config.delayDeviationRange = 3800;
 
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -40,13 +47,11 @@
       job.displacements[i] = {
         tile: job.grid.allTiles[i],
         dx: config.displacementRatio *
-            (job.grid.allTiles[i].originalAnchor.x - job.tile.originalAnchor.x),
+            (job.grid.allTiles[i].originalAnchor.x - job.baseTile.originalAnchor.x),
         dy: config.displacementRatio *
-            (job.grid.allTiles[i].originalAnchor.y - job.tile.originalAnchor.y)
+            (job.grid.allTiles[i].originalAnchor.y - job.baseTile.originalAnchor.y)
       };
     }
-
-    console.log('spread-job.grid.allTiles.length',job.grid.allTiles.length);
   }
 
   /**
@@ -132,6 +137,12 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this SpreadJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -146,9 +157,9 @@
     var job = this;
 
     job.grid = grid;
-    job.tile = tile;
+    job.baseTile = tile;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.displacements = null;
 
@@ -157,7 +168,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
     initializeDisplacements.call(job);
 

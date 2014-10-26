@@ -649,6 +649,15 @@
     handleCompletion.call(job);
   }
 
+  /**
+   * @this LineJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -688,7 +697,7 @@
     job.hasReachedEdge = false;
     job.startTime = 0;
     job.ellapsedTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.startHue = Number.NaN;
     job.endHue = Number.NaN;
@@ -723,7 +732,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {};
+    job.init = init;
 
     if (!config.haveDefinedLineBlur) {
       defineLineBlur.call(job);

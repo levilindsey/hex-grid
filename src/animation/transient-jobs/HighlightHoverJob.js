@@ -25,6 +25,13 @@
   config.avgDelay = 30;
   config.delayDeviationRange = 20;
 
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -119,6 +126,12 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this HighlightHoverJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -135,14 +148,14 @@
     job.grid = grid;
     job.tile = tile;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
 //    console.log('HighlightHoverJob created');
   }

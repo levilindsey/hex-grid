@@ -21,6 +21,13 @@
   config.avgDelay = 300;
   config.delayDeviationRange = 0;
 
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -141,6 +148,12 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this PanJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -160,7 +173,7 @@
     job.reverseDisplacement = null;
     job.displacement = null;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     // The current viewport coordinates of the point that we would like to move to the center of the viewport
     job.endPoint = destinationPoint || {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
@@ -173,7 +186,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
     console.log('PanJob created');
   }

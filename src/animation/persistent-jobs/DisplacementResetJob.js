@@ -15,6 +15,13 @@
 
   var config = {};
 
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -79,6 +86,12 @@
     job.isComplete = true;
   }
 
+  /**
+   * @this DisplacementResetJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -92,13 +105,13 @@
 
     job.grid = grid;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {};
+    job.init = init;
 
     job.init();
 

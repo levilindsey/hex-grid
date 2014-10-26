@@ -21,19 +21,19 @@
       constructorName: 'ColorShiftJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'colorShift'),
-      restart: restartPersistentJob.bind(controller, 'colorShift')
+      start: restartPersistentJob.bind(controller, 'colorShift')
     },
     colorWave: {
       constructorName: 'ColorWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'colorWave'),
-      restart: restartPersistentJob.bind(controller, 'colorWave')
+      start: restartPersistentJob.bind(controller, 'colorWave')
     },
     displacementWave: {
       constructorName: 'DisplacementWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'displacementWave'),
-      restart: restartPersistentJob.bind(controller, 'displacementWave')
+      start: restartPersistentJob.bind(controller, 'displacementWave')
     },
 
     // --- For internal use --- //
@@ -42,13 +42,13 @@
       constructorName: 'ColorResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'colorReset'),
-      restart: restartPersistentJob.bind(controller, 'colorReset')
+      start: restartPersistentJob.bind(controller, 'colorReset')
     },
     displacementReset: {
       constructorName: 'DisplacementResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'displacementReset'),
-      restart: restartPersistentJob.bind(controller, 'displacementReset')
+      start: restartPersistentJob.bind(controller, 'displacementReset')
     }
   };
 
@@ -266,7 +266,7 @@
 
     job = new window.hg[jobDefinition.constructorName](grid);
     jobDefinition.jobs[grid.index].push(job);
-    jobDefinition.restart(grid, jobDefinition.jobs[grid.index].length - 1);
+    jobDefinition.start(grid, jobDefinition.jobs[grid.index].length - 1);
   }
 
   /**
@@ -277,22 +277,10 @@
    */
   function restartPersistentJob(jobId, grid, jobIndex) {
     if (typeof jobIndex !== 'undefined') {
-      restartPersistentJobHelper(controller.persistentJobs[jobId].jobs[grid.index][jobIndex]);
+      window.hg.animator.startJob(controller.persistentJobs[jobId].jobs[grid.index][jobIndex]);
     } else {
-      controller.persistentJobs[jobId].jobs[grid.index].forEach(restartPersistentJobHelper);
+      controller.persistentJobs[jobId].jobs[grid.index].forEach(window.hg.animator.startJob);
     }
-  }
-
-  /**
-   * @param {AnimationJob} job
-   */
-  function restartPersistentJobHelper(job) {
-    if (!job.isComplete) {
-      window.hg.animator.cancelJob(job);
-    }
-
-    job.init();
-    window.hg.animator.startJob(job);
   }
 
   /**
@@ -412,15 +400,16 @@
     input = new window.hg.Input(grid);
     internal.inputs.push(input);
 
+    window.hg.animator.startJob(grid);
+
     controller.persistentJobs.colorReset.create(grid);
     controller.persistentJobs.displacementReset.create(grid);
+
+    window.hg.animator.startJob(annotations);
 
     controller.persistentJobs.colorShift.create(grid);
     controller.persistentJobs.colorWave.create(grid);
     controller.persistentJobs.displacementWave.create(grid);
-
-    window.hg.animator.startJob(grid);
-    window.hg.animator.startJob(annotations);
 
     startRecurringAnimations(grid);
 
@@ -456,15 +445,16 @@
    * @param {Grid} grid
    */
   function resetPersistentJobs(grid) {
-    controller.persistentJobs.colorReset.restart(grid);
-    controller.persistentJobs.displacementReset.restart(grid);
+    window.hg.animator.startJob(grid);
 
-    controller.persistentJobs.colorShift.restart(grid);
-    controller.persistentJobs.colorWave.restart(grid);
-    controller.persistentJobs.displacementWave.restart(grid);
+    controller.persistentJobs.colorReset.start(grid);
+    controller.persistentJobs.displacementReset.start(grid);
 
-    restartPersistentJobHelper(grid);
-    restartPersistentJobHelper(internal.annotations[grid.index]);
+    window.hg.animator.startJob(internal.annotations[grid.index]);
+
+    controller.persistentJobs.colorShift.start(grid);
+    controller.persistentJobs.colorWave.start(grid);
+    controller.persistentJobs.displacementWave.start(grid);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -1237,10 +1227,20 @@
    * @param {AnimationJob} job
    */
   function startJob(job) {
-//    console.log('Job starting: ' + job.constructor.name);
+    // Is this a restart?
+    if (!job.isComplete) {
+      console.log('Job restarting: ' + job.constructor.name);
+      job.cancel();
 
-    job.start();
-    animator.jobs.push(job);
+      job.init();// TODO: get rid of this init function
+      job.start();
+    } else {
+      console.log('Job starting: ' + job.constructor.name);
+
+      job.init();// TODO: get rid of this init function
+      job.start();
+      animator.jobs.push(job);
+    }
 
     startAnimationLoop();
   }
@@ -1321,14 +1321,14 @@
 
   config.annotations = {
     'sectorColors': {
-      enabled: true,
+      enabled: false,
       create: fillSectorColors,
       destroy: function () {},
       update: fillSectorColors,
       priority: 0
     },
     'contentTiles': {
-      enabled: true,
+      enabled: false,
       create: fillContentTiles,
       destroy: function () {},
       update: fillContentTiles,
@@ -1447,7 +1447,7 @@
       priority: 1700
     },
     'sectorAnchorCenters': {
-      enabled: true,
+      enabled: false,
       create: createSectorAnchorCenters,
       destroy: destroySectorAnchorCenters,
       update: updateSectorAnchorCenters,
@@ -2626,6 +2626,15 @@
     grid.isComplete = true;
   }
 
+  /**
+   * @this Annotations
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -2641,7 +2650,7 @@
 
     annotations.grid = grid;
     annotations.startTime = 0;
-    annotations.isComplete = false;
+    annotations.isComplete = true;
     annotations.annotations = window.hg.util.shallowCopy(config.annotations);
 
     annotations.contentAreaGuideLines = [];
@@ -2675,7 +2684,7 @@
     annotations.update = update;
     annotations.draw = draw;
     annotations.cancel = cancel;
-    annotations.init = function () {};
+    annotations.init = init;
   }
 
   Annotations.config = config;
@@ -3364,6 +3373,15 @@
     setTileIndexAttributes.call(grid);
   }
 
+  /**
+   * @this Grid
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -3385,7 +3403,7 @@
 
     grid.actualContentAreaWidth = config.targetContentAreaWidth;
 
-    grid.isComplete = false;
+    grid.isComplete = true;
 
     grid.svg = null;
     grid.svgDefs = null;
@@ -3408,6 +3426,7 @@
     grid.actualContentAreaWidth = Number.NaN;
     grid.rowDeltaY = Number.NaN;
     grid.tileDeltaX = Number.NaN;
+    grid.tileNeighborDistance = Number.NaN;
     grid.oddRowTileCount = Number.NaN;
     grid.evenRowTileCount = Number.NaN;
     grid.oddRowXOffset = Number.NaN;
@@ -3431,7 +3450,7 @@
     grid.update = update;
     grid.draw = draw;
     grid.cancel = cancel;
-    grid.init = function () {};
+    grid.init = init;
 
     grid.updateBackgroundColor = updateBackgroundColor;
     grid.updateTileColor = updateTileColor;
@@ -5041,6 +5060,13 @@
 
   var config = {};
 
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -5105,6 +5131,12 @@
     job.isComplete = true;
   }
 
+  /**
+   * @this ColorResetJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -5118,13 +5150,13 @@
 
     job.grid = grid;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {};
+    job.init = init;
 
     job.init();
 
@@ -5227,6 +5259,16 @@
     job.isComplete = true;
   }
 
+  /**
+   * @this ColorShiftJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    // TODO:
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -5240,15 +5282,13 @@
 
     job.grid = grid;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-    };
+    job.init = init;
 
     job.init();
 
@@ -5408,6 +5448,16 @@
     job.isComplete = true;
   }
 
+  /**
+   * @this ColorWaveJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    initTileProgressOffsets.call(job);
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -5422,16 +5472,13 @@
     job.grid = grid;
     job.waveProgressOffsets = null;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-      initTileProgressOffsets.call(job);
-    };
+    job.init = init;
 
     job.init();
 
@@ -5463,6 +5510,13 @@
   // Private static variables
 
   var config = {};
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -5528,6 +5582,12 @@
     job.isComplete = true;
   }
 
+  /**
+   * @this DisplacementResetJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -5541,13 +5601,13 @@
 
     job.grid = grid;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {};
+    job.init = init;
 
     job.init();
 
@@ -5706,6 +5766,16 @@
     job.isComplete = true;
   }
 
+  /**
+   * @this DisplacementWaveJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    initTileProgressOffsets.call(job);
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -5720,16 +5790,13 @@
     job.grid = grid;
     job.waveProgressOffsets = null;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {
-      config.computeDependentValues();
-      initTileProgressOffsets.call(job);
-    };
+    job.init = init;
 
     job.init();
 
@@ -5763,6 +5830,14 @@
   config.duration = 500;
 
   // TODO:
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -5856,6 +5931,16 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this ClosePostJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    // TODO:
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -5872,14 +5957,14 @@
     job.grid = grid;
     job.tile = tile;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
     console.log('ClosePostJob created');
   }
@@ -5917,6 +6002,14 @@
   config.isRecurring = false;
   config.avgDelay = 4000;
   config.delayDeviationRange = 3800;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -6053,6 +6146,16 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this DisplacementRadiateJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    // TODO:
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -6069,7 +6172,7 @@
     job.grid = grid;
     job.tile = tile;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.displacements = null;
 
@@ -6078,7 +6181,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
     initializeDisplacements.call(job);
 
@@ -6120,6 +6223,13 @@
   config.isRecurring = false;
   config.avgDelay = 30;
   config.delayDeviationRange = 20;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -6215,6 +6325,12 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this HighlightHoverJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -6231,14 +6347,14 @@
     job.grid = grid;
     job.tile = tile;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
 //    console.log('HighlightHoverJob created');
   }
@@ -6280,6 +6396,13 @@
   config.isRecurring = false;
   config.avgDelay = 4000;
   config.delayDeviationRange = 3800;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -6422,6 +6545,12 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this HighlightRadiateJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -6439,7 +6568,7 @@
     job.startPoint = {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
     job.tileDistances = [];
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.onComplete = onComplete || function () {};
 
@@ -6447,7 +6576,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {};
+    job.init = init;
 
     calculateTileDistances.call(job);
 
@@ -6485,6 +6614,14 @@
   config.isRecurring = false;
   config.avgDelay = 4000;
   config.delayDeviationRange = 3800;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -6590,6 +6727,16 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this IntraTileRadiateJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    // TODO:
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -6606,14 +6753,14 @@
     job.grid = grid;
     job.tile = tile;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
     console.log('IntraTileRadiateJob created');
   }
@@ -7278,6 +7425,15 @@
     handleCompletion.call(job);
   }
 
+  /**
+   * @this LineJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -7317,7 +7473,7 @@
     job.hasReachedEdge = false;
     job.startTime = 0;
     job.ellapsedTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.startHue = Number.NaN;
     job.endHue = Number.NaN;
@@ -7352,7 +7508,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {};
+    job.init = init;
 
     if (!config.haveDefinedLineBlur) {
       defineLineBlur.call(job);
@@ -7813,6 +7969,13 @@
   config.haveDefinedLineBlur = false;
   config.filterId = 'random-line-filter';
 
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -8015,6 +8178,12 @@
     job.isComplete = true;
   }
 
+  /**
+   * @this LinesRadiateJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -8032,7 +8201,7 @@
     job.tile = tile;
     job.extraStartPoint = { x: tile.particle.px, y: tile.particle.py };
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
     job.lineJobs = null;
 
     job.onComplete = onComplete || function () {};
@@ -8041,7 +8210,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {};
+    job.init = init;
 
     if (!config.haveDefinedLineBlur) {
       defineLineBlur.call(job);
@@ -8079,6 +8248,14 @@
   config.duration = 500;
 
   config.expandedDisplacementTileCount = 3;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -8181,8 +8358,14 @@
 
     // Displace the sectors
     for (i = 0; i < 6; i += 1) {
+      // Update the Sector's base position to account for the panning
+      job.grid.sectors[i].originalAnchor.x += job.grid.panCenter.x - job.grid.originalCenter.x;
+      job.grid.sectors[i].originalAnchor.y += job.grid.panCenter.y - job.grid.originalCenter.y;
+
+      // Calculate the Sector's end position after the animation has completed
       x = job.grid.sectors[i].originalAnchor.x + job.grid.sectors[i].expandedDisplacement.x;
       y = job.grid.sectors[i].originalAnchor.y + job.grid.sectors[i].expandedDisplacement.y;
+
       job.grid.sectors[i].setSectorOriginalPosition(x, y);
     }
   }
@@ -8213,17 +8396,17 @@
 
     createSectors.call(job);
 
-    // Set the final positions at the start, and animate everything in "reverse"
-    setFinalPositions.call(job);
-
-    window.hg.controller.resetPersistentJobs(job.grid);
-
     // TODO: this should instead fade out the old persistent animations and fade in the new ones
     job.grid.annotations.setExpandedAnnotations(true);
 
     // Start the sub-jobs
     window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
     window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile);
+
+    // Set the final positions at the start, and animate everything in "reverse"
+    setFinalPositions.call(job);
+
+    window.hg.controller.resetPersistentJobs(job.grid);
 
     // TODO:
     // - make sure that we are handling three different logical states for all appropriate logic in the app: closed, transitioning, open
@@ -8290,6 +8473,16 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this OpenPostJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    // TODO:
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -8306,14 +8499,14 @@
     job.grid = grid;
     job.baseTile = tile;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
     console.log('OpenPostJob created');
   }
@@ -8349,6 +8542,13 @@
   config.isRecurring = false;
   config.avgDelay = 300;
   config.delayDeviationRange = 0;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -8470,6 +8670,12 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this PanJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -8489,7 +8695,7 @@
     job.reverseDisplacement = null;
     job.displacement = null;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     // The current viewport coordinates of the point that we would like to move to the center of the viewport
     job.endPoint = destinationPoint || {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
@@ -8502,7 +8708,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
     console.log('PanJob created');
   }
@@ -8539,6 +8745,13 @@
   config.avgDelay = 4000;
   config.delayDeviationRange = 3800;
 
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -8558,13 +8771,11 @@
       job.displacements[i] = {
         tile: job.grid.allTiles[i],
         dx: config.displacementRatio *
-            (job.grid.allTiles[i].originalAnchor.x - job.tile.originalAnchor.x),
+            (job.grid.allTiles[i].originalAnchor.x - job.baseTile.originalAnchor.x),
         dy: config.displacementRatio *
-            (job.grid.allTiles[i].originalAnchor.y - job.tile.originalAnchor.y)
+            (job.grid.allTiles[i].originalAnchor.y - job.baseTile.originalAnchor.y)
       };
     }
-
-    console.log('spread-job.grid.allTiles.length',job.grid.allTiles.length);
   }
 
   /**
@@ -8650,6 +8861,12 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this SpreadJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -8664,9 +8881,9 @@
     var job = this;
 
     job.grid = grid;
-    job.tile = tile;
+    job.baseTile = tile;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.displacements = null;
 
@@ -8675,7 +8892,7 @@
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
     initializeDisplacements.call(job);
 
@@ -8713,6 +8930,14 @@
   config.isRecurring = false;
   config.avgDelay = 4000;
   config.delayDeviationRange = 3800;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -8818,6 +9043,16 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this TileBorderJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    // TODO:
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -8834,14 +9069,14 @@
     job.grid = grid;
     job.tile = tile;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
     console.log('TileBorderJob created');
   }

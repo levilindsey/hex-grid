@@ -675,6 +675,15 @@
     setTileIndexAttributes.call(grid);
   }
 
+  /**
+   * @this Grid
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -696,7 +705,7 @@
 
     grid.actualContentAreaWidth = config.targetContentAreaWidth;
 
-    grid.isComplete = false;
+    grid.isComplete = true;
 
     grid.svg = null;
     grid.svgDefs = null;
@@ -719,6 +728,7 @@
     grid.actualContentAreaWidth = Number.NaN;
     grid.rowDeltaY = Number.NaN;
     grid.tileDeltaX = Number.NaN;
+    grid.tileNeighborDistance = Number.NaN;
     grid.oddRowTileCount = Number.NaN;
     grid.evenRowTileCount = Number.NaN;
     grid.oddRowXOffset = Number.NaN;
@@ -742,7 +752,7 @@
     grid.update = update;
     grid.draw = draw;
     grid.cancel = cancel;
-    grid.init = function () {};
+    grid.init = init;
 
     grid.updateBackgroundColor = updateBackgroundColor;
     grid.updateTileColor = updateTileColor;

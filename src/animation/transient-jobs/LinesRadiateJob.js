@@ -40,6 +40,13 @@
   config.haveDefinedLineBlur = false;
   config.filterId = 'random-line-filter';
 
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -242,6 +249,12 @@
     job.isComplete = true;
   }
 
+  /**
+   * @this LinesRadiateJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -259,7 +272,7 @@
     job.tile = tile;
     job.extraStartPoint = { x: tile.particle.px, y: tile.particle.py };
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
     job.lineJobs = null;
 
     job.onComplete = onComplete || function () {};
@@ -268,7 +281,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {};
+    job.init = init;
 
     if (!config.haveDefinedLineBlur) {
       defineLineBlur.call(job);

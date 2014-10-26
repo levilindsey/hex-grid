@@ -21,19 +21,19 @@
       constructorName: 'ColorShiftJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'colorShift'),
-      restart: restartPersistentJob.bind(controller, 'colorShift')
+      start: restartPersistentJob.bind(controller, 'colorShift')
     },
     colorWave: {
       constructorName: 'ColorWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'colorWave'),
-      restart: restartPersistentJob.bind(controller, 'colorWave')
+      start: restartPersistentJob.bind(controller, 'colorWave')
     },
     displacementWave: {
       constructorName: 'DisplacementWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'displacementWave'),
-      restart: restartPersistentJob.bind(controller, 'displacementWave')
+      start: restartPersistentJob.bind(controller, 'displacementWave')
     },
 
     // --- For internal use --- //
@@ -42,13 +42,13 @@
       constructorName: 'ColorResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'colorReset'),
-      restart: restartPersistentJob.bind(controller, 'colorReset')
+      start: restartPersistentJob.bind(controller, 'colorReset')
     },
     displacementReset: {
       constructorName: 'DisplacementResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'displacementReset'),
-      restart: restartPersistentJob.bind(controller, 'displacementReset')
+      start: restartPersistentJob.bind(controller, 'displacementReset')
     }
   };
 
@@ -266,7 +266,7 @@
 
     job = new window.hg[jobDefinition.constructorName](grid);
     jobDefinition.jobs[grid.index].push(job);
-    jobDefinition.restart(grid, jobDefinition.jobs[grid.index].length - 1);
+    jobDefinition.start(grid, jobDefinition.jobs[grid.index].length - 1);
   }
 
   /**
@@ -277,22 +277,10 @@
    */
   function restartPersistentJob(jobId, grid, jobIndex) {
     if (typeof jobIndex !== 'undefined') {
-      restartPersistentJobHelper(controller.persistentJobs[jobId].jobs[grid.index][jobIndex]);
+      window.hg.animator.startJob(controller.persistentJobs[jobId].jobs[grid.index][jobIndex]);
     } else {
-      controller.persistentJobs[jobId].jobs[grid.index].forEach(restartPersistentJobHelper);
+      controller.persistentJobs[jobId].jobs[grid.index].forEach(window.hg.animator.startJob);
     }
-  }
-
-  /**
-   * @param {AnimationJob} job
-   */
-  function restartPersistentJobHelper(job) {
-    if (!job.isComplete) {
-      window.hg.animator.cancelJob(job);
-    }
-
-    job.init();
-    window.hg.animator.startJob(job);
   }
 
   /**
@@ -412,15 +400,16 @@
     input = new window.hg.Input(grid);
     internal.inputs.push(input);
 
+    window.hg.animator.startJob(grid);
+
     controller.persistentJobs.colorReset.create(grid);
     controller.persistentJobs.displacementReset.create(grid);
+
+    window.hg.animator.startJob(annotations);
 
     controller.persistentJobs.colorShift.create(grid);
     controller.persistentJobs.colorWave.create(grid);
     controller.persistentJobs.displacementWave.create(grid);
-
-    window.hg.animator.startJob(grid);
-    window.hg.animator.startJob(annotations);
 
     startRecurringAnimations(grid);
 
@@ -456,15 +445,16 @@
    * @param {Grid} grid
    */
   function resetPersistentJobs(grid) {
-    controller.persistentJobs.colorReset.restart(grid);
-    controller.persistentJobs.displacementReset.restart(grid);
+    window.hg.animator.startJob(grid);
 
-    controller.persistentJobs.colorShift.restart(grid);
-    controller.persistentJobs.colorWave.restart(grid);
-    controller.persistentJobs.displacementWave.restart(grid);
+    controller.persistentJobs.colorReset.start(grid);
+    controller.persistentJobs.displacementReset.start(grid);
 
-    restartPersistentJobHelper(grid);
-    restartPersistentJobHelper(internal.annotations[grid.index]);
+    window.hg.animator.startJob(internal.annotations[grid.index]);
+
+    controller.persistentJobs.colorShift.start(grid);
+    controller.persistentJobs.colorWave.start(grid);
+    controller.persistentJobs.displacementWave.start(grid);
   }
 
   // ------------------------------------------------------------------------------------------- //

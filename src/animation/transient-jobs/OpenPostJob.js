@@ -17,6 +17,14 @@
 
   config.expandedDisplacementTileCount = 3;
 
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -118,8 +126,14 @@
 
     // Displace the sectors
     for (i = 0; i < 6; i += 1) {
+      // Update the Sector's base position to account for the panning
+      job.grid.sectors[i].originalAnchor.x += job.grid.panCenter.x - job.grid.originalCenter.x;
+      job.grid.sectors[i].originalAnchor.y += job.grid.panCenter.y - job.grid.originalCenter.y;
+
+      // Calculate the Sector's end position after the animation has completed
       x = job.grid.sectors[i].originalAnchor.x + job.grid.sectors[i].expandedDisplacement.x;
       y = job.grid.sectors[i].originalAnchor.y + job.grid.sectors[i].expandedDisplacement.y;
+
       job.grid.sectors[i].setSectorOriginalPosition(x, y);
     }
   }
@@ -150,17 +164,17 @@
 
     createSectors.call(job);
 
-    // Set the final positions at the start, and animate everything in "reverse"
-    setFinalPositions.call(job);
-
-    window.hg.controller.resetPersistentJobs(job.grid);
-
     // TODO: this should instead fade out the old persistent animations and fade in the new ones
     job.grid.annotations.setExpandedAnnotations(true);
 
     // Start the sub-jobs
     window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
     window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile);
+
+    // Set the final positions at the start, and animate everything in "reverse"
+    setFinalPositions.call(job);
+
+    window.hg.controller.resetPersistentJobs(job.grid);
 
     // TODO:
     // - make sure that we are handling three different logical states for all appropriate logic in the app: closed, transitioning, open
@@ -227,6 +241,16 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this OpenPostJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    // TODO:
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -243,14 +267,14 @@
     job.grid = grid;
     job.baseTile = tile;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
     console.log('OpenPostJob created');
   }

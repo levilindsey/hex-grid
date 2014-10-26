@@ -21,6 +21,14 @@
   config.avgDelay = 4000;
   config.delayDeviationRange = 3800;
 
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -125,6 +133,16 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this TileBorderJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    // TODO:
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -141,14 +159,14 @@
     job.grid = grid;
     job.tile = tile;
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
     job.onComplete = onComplete;
-    job.init = function () {};
+    job.init = init;
 
     console.log('TileBorderJob created');
   }

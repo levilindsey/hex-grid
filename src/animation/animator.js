@@ -123,10 +123,20 @@
    * @param {AnimationJob} job
    */
   function startJob(job) {
-//    console.log('Job starting: ' + job.constructor.name);
+    // Is this a restart?
+    if (!job.isComplete) {
+      console.log('Job restarting: ' + job.constructor.name);
+      job.cancel();
 
-    job.start();
-    animator.jobs.push(job);
+      job.init();// TODO: get rid of this init function
+      job.start();
+    } else {
+      console.log('Job starting: ' + job.constructor.name);
+
+      job.init();// TODO: get rid of this init function
+      job.start();
+      animator.jobs.push(job);
+    }
 
     startAnimationLoop();
   }

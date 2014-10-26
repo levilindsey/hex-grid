@@ -33,14 +33,14 @@
 
   config.annotations = {
     'sectorColors': {
-      enabled: true,
+      enabled: false,
       create: fillSectorColors,
       destroy: function () {},
       update: fillSectorColors,
       priority: 0
     },
     'contentTiles': {
-      enabled: true,
+      enabled: false,
       create: fillContentTiles,
       destroy: function () {},
       update: fillContentTiles,
@@ -159,7 +159,7 @@
       priority: 1700
     },
     'sectorAnchorCenters': {
-      enabled: true,
+      enabled: false,
       create: createSectorAnchorCenters,
       destroy: destroySectorAnchorCenters,
       update: updateSectorAnchorCenters,
@@ -1338,6 +1338,15 @@
     grid.isComplete = true;
   }
 
+  /**
+   * @this Annotations
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -1353,7 +1362,7 @@
 
     annotations.grid = grid;
     annotations.startTime = 0;
-    annotations.isComplete = false;
+    annotations.isComplete = true;
     annotations.annotations = window.hg.util.shallowCopy(config.annotations);
 
     annotations.contentAreaGuideLines = [];
@@ -1387,7 +1396,7 @@
     annotations.update = update;
     annotations.draw = draw;
     annotations.cancel = cancel;
-    annotations.init = function () {};
+    annotations.init = init;
   }
 
   Annotations.config = config;

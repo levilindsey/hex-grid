@@ -27,6 +27,13 @@
   config.avgDelay = 4000;
   config.delayDeviationRange = 3800;
 
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
@@ -168,6 +175,12 @@
     handleComplete.call(job, true);
   }
 
+  /**
+   * @this HighlightRadiateJob
+   */
+  function init() {
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -185,7 +198,7 @@
     job.startPoint = {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
     job.tileDistances = [];
     job.startTime = 0;
-    job.isComplete = false;
+    job.isComplete = true;
 
     job.onComplete = onComplete || function () {};
 
@@ -193,7 +206,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
-    job.init = function () {};
+    job.init = init;
 
     calculateTileDistances.call(job);
 
