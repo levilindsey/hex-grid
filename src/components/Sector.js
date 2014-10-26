@@ -585,20 +585,27 @@
    * Updates the base position of this Sector and the positions of all of its Tiles.
    *
    * @this Sector
-   * @param {Number} x
-   * @param {Number} y
+   * @param {Boolean} isExpanded
    */
-  function setSectorOriginalPosition(x, y) {
-    var sector, i, count;
+  function setSectorOriginalPositionForExpansion(isExpanded) {
+    var sector, i, count, dx, dy;
 
     sector = this;
 
-    sector.originalAnchor.x = x;
-    sector.originalAnchor.y = y;
+    if (isExpanded) {
+      dx = sector.expandedDisplacement.x;
+      dy = sector.expandedDisplacement.y;
+    } else {
+      dx = sector.expandedDisplacement.x;
+      dy = sector.expandedDisplacement.y;
+    }
+
+    sector.originalAnchor.x += dx;
+    sector.originalAnchor.y += dy;
 
     for (i = 0, count = sector.tiles.length; i < count; i += 1) {
-      sector.tiles[i].originalAnchor.x = x + sector.tiles[i].sectorAnchorOffset.x;
-      sector.tiles[i].originalAnchor.y = y + sector.tiles[i].sectorAnchorOffset.y;
+      sector.tiles[i].originalAnchor.x += dx;
+      sector.tiles[i].originalAnchor.y += dy;
     }
   }
 
@@ -606,20 +613,20 @@
    * Updates the current position of this Sector and the positions of all of its Tiles.
    *
    * @this Sector
-   * @param {Number} x
-   * @param {Number} y
+   * @param {Number} dx
+   * @param {Number} dy
    */
-  function setSectorCurrentPosition(x, y) {
+  function updateSectorCurrentPosition(dx, dy) {
     var sector, i, count;
 
     sector = this;
 
-    sector.currentAnchor.x = x;
-    sector.currentAnchor.y = y;
+    sector.currentAnchor.x = sector.originalAnchor + dx;
+    sector.currentAnchor.y = sector.originalAnchor + dy;
 
     for (i = 0, count = sector.tiles.length; i < count; i += 1) {
-      sector.tiles[i].currentAnchor.x = x + sector.tiles[i].sectorAnchorOffset.x;
-      sector.tiles[i].currentAnchor.y = y + sector.tiles[i].sectorAnchorOffset.y;
+      sector.tiles[i].currentAnchor.x += dx;
+      sector.tiles[i].currentAnchor.y += dy;
     }
   }
 
@@ -659,8 +666,8 @@
     sector.initializeExpandedStateExternalTileNeighbors =
         initializeExpandedStateExternalTileNeighbors;
     sector.destroy = destroy;
-    sector.setSectorOriginalPosition = setSectorOriginalPosition;
-    sector.setSectorCurrentPosition = setSectorCurrentPosition;
+    sector.setOriginalPositionForExpansion = setSectorOriginalPositionForExpansion;
+    sector.updateCurrentPosition = updateSectorCurrentPosition;
 
     setUpExpandedDisplacementValues.call(sector);
     setUpTiles.call(sector);

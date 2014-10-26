@@ -59,7 +59,8 @@
       timeouts: [],
       create: createTransientJob.bind(controller, null, 'openPost'),
       createRandom: openRandomPost,
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'openPost')
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'openPost'),
+      canRunWithOpenGrid: true
     },
     closePost: {
       constructorName: 'ClosePostJob',
@@ -67,7 +68,8 @@
       timeouts: [],
       create: createTransientJob.bind(controller, null, 'closePost'),
       createRandom: closePost,
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost')
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost'),
+      canRunWithOpenGrid: true
     },
     displacementRadiate: {
       constructorName: 'DisplacementRadiateJob',
@@ -75,7 +77,8 @@
       timeouts: [],
       create: createTransientJob.bind(controller, null, 'displacementRadiate'),
       createRandom: createTransientJobWithARandomTile.bind(controller, 'displacementRadiate'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'displacementRadiate')
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'displacementRadiate'),
+      canRunWithOpenGrid: true
     },
     highlightHover: {
       constructorName: 'HighlightHoverJob',
@@ -83,7 +86,8 @@
       timeouts: [],
       create: createTransientJob.bind(controller, null, 'highlightHover'),
       createRandom: createTransientJobWithARandomTile.bind(controller, 'highlightHover'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightHover')
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightHover'),
+      canRunWithOpenGrid: true
     },
     highlightRadiate: {
       constructorName: 'HighlightRadiateJob',
@@ -91,7 +95,8 @@
       timeouts: [],
       create: createTransientJob.bind(controller, null, 'highlightRadiate'),
       createRandom: createTransientJobWithARandomTile.bind(controller, 'highlightRadiate'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightRadiate')
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightRadiate'),
+      canRunWithOpenGrid: true
     },
     intraTileRadiate: {
       constructorName: 'IntraTileRadiateJob',
@@ -99,7 +104,8 @@
       timeouts: [],
       create: createTransientJob.bind(controller, null, 'intraTileRadiate'),
       createRandom: createTransientJobWithARandomTile.bind(controller, 'intraTileRadiate'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'intraTileRadiate')
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'intraTileRadiate'),
+      canRunWithOpenGrid: true
     },
     line: {
       constructorName: 'LineJob',
@@ -107,7 +113,8 @@
       timeouts: [],
       create: createTransientJob.bind(controller, randomLineCreator, 'line'),
       createRandom: createTransientJobWithARandomTile.bind(controller, 'line'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'line')
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'line'),
+      canRunWithOpenGrid: false
     },
     linesRadiate: {
       constructorName: 'LinesRadiateJob',
@@ -115,7 +122,8 @@
       timeouts: [],
       create: createTransientJob.bind(controller, linesRadiateCreator, 'linesRadiate'),
       createRandom: createTransientJobWithARandomTile.bind(controller, 'linesRadiate'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'linesRadiate')
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'linesRadiate'),
+      canRunWithOpenGrid: false
     },
     pan: {
       constructorName: 'PanJob',
@@ -123,7 +131,8 @@
       timeouts: [],
       create: createTransientJob.bind(controller, null, 'pan'),
       createRandom: createTransientJobWithARandomTile.bind(controller, 'pan'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'pan')
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'pan'),
+      canRunWithOpenGrid: true
     },
     spread: {
       constructorName: 'SpreadJob',
@@ -131,7 +140,8 @@
       timeouts: [],
       create: createTransientJob.bind(controller, null, 'spread'),
       createRandom: createTransientJobWithARandomTile.bind(controller, 'spread'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'spread')
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'spread'),
+      canRunWithOpenGrid: true
     },
     tileBorder: {
       constructorName: 'TileBorderJob',
@@ -139,7 +149,8 @@
       timeouts: [],
       create: createTransientJob.bind(controller, null, 'tileBorder'),
       createRandom: createTransientJobWithARandomTile.bind(controller, 'tileBorder'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'tileBorder')
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'tileBorder'),
+      canRunWithOpenGrid: true
     }
   };
 
@@ -186,14 +197,19 @@
   function createTransientJob(creator, jobId, grid, tile) {
     var job;
 
-    creator = creator || generalTransientJobCreator.bind(controller, jobId);
+    if (!grid.isPostOpen || controller.transientJobs[jobId].canRunWithOpenGrid) {
+      creator = creator || generalTransientJobCreator.bind(controller, jobId);
 
-    // Create the job with whatever custom logic is needed for this particular type of job
-    job = creator(grid, tile, onComplete);
+      // Create the job with whatever custom logic is needed for this particular type of job
+      job = creator(grid, tile, onComplete);
 
-    // Store a reference to this job within the controller
-    controller.transientJobs[jobId].jobs[grid.index].push(job);
-    window.hg.animator.startJob(job);
+      // Store a reference to this job within the controller
+      controller.transientJobs[jobId].jobs[grid.index].push(job);
+      window.hg.animator.startJob(job);
+    } else {
+      console.log('Cannot create a ' + controller.transientJobs[jobId].constructorName +
+          ' while the Grid is expanded');
+    }
 
     // ---  --- //
 

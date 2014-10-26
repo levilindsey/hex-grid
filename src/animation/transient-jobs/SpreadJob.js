@@ -13,9 +13,9 @@
 
   var config = {};
 
-  config.duration = 500;
+  config.duration = 300;
 
-  config.displacementRatio = 0.28;
+  config.displacementRatio = 0.25;
 
   config.isRecurring = false;
   config.avgDelay = 4000;

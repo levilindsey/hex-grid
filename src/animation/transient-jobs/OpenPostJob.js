@@ -20,7 +20,6 @@
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
-    // TODO:
   };
 
   config.computeDependentValues();
@@ -35,18 +34,6 @@
     var job = this;
 
     console.log('OpenPostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
-
-    // TODO:
-    // - reactivate neighbor forces; but make sure they are now using their temporary expanded neighborStates
-    // - keep the sectors to re-use for closing
-
-    // TODO: when closing the grid, make sure to:
-    // - job.grid.sectors[i].destroy();
-    // - job.grid.sectors = [];
-    // - job.grid.expandedTile = null;
-    // - job.grid.allTiles = job.grid.originalTiles;
-    // - job.grid.parent.style.overflow = 'auto';
-    // - window.hg.controller.resetPersistentJobs(job.grid);
 
     job.grid.isTransitioning = false;
 
@@ -120,7 +107,7 @@
    * @this PanJob
    */
   function setFinalPositions() {
-    var job, i, x, y;
+    var job, i;
 
     job = this;
 
@@ -130,11 +117,7 @@
       job.grid.sectors[i].originalAnchor.x += job.grid.panCenter.x - job.grid.originalCenter.x;
       job.grid.sectors[i].originalAnchor.y += job.grid.panCenter.y - job.grid.originalCenter.y;
 
-      // Calculate the Sector's end position after the animation has completed
-      x = job.grid.sectors[i].originalAnchor.x + job.grid.sectors[i].expandedDisplacement.x;
-      y = job.grid.sectors[i].originalAnchor.y + job.grid.sectors[i].expandedDisplacement.y;
-
-      job.grid.sectors[i].setSectorOriginalPosition(x, y);
+      job.grid.sectors[i].setOriginalPositionForExpansion(true);
     }
   }
 
@@ -176,9 +159,9 @@
 
     window.hg.controller.resetPersistentJobs(job.grid);
 
-    // TODO:
-    // - make sure that we are handling three different logical states for all appropriate logic in the app: closed, transitioning, open
-    // - turn off the recurring LineJobs/LinesRadiateJobs
+    // Turn off the recurring LineJobs
+    window.hg.controller.transientJobs.spread.toggleRecurrence(job.grid, false,
+        window.hg.SpreadJob.config.avgDelay, window.hg.SpreadJob.config.delayDeviationRange);
   }
 
   /**
@@ -191,7 +174,7 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, progress, i, x, y;
+    var job, progress, i, dx, dy;
 
     job = this;
 
@@ -203,11 +186,10 @@
 
     // Update the offsets for each of the six sectors
     for (i = 0; i < 6; i += 1) {
-      x = job.grid.sectors[i].originalAnchor.x -
-          job.grid.sectors[i].expandedDisplacement.x * progress;
-      y = job.grid.sectors[i].originalAnchor.y -
-          job.grid.sectors[i].expandedDisplacement.y * progress;
-      job.grid.sectors[i].setSectorCurrentPosition(x, y);
+      dx = job.grid.sectors[i].expandedDisplacement.x * progress;
+      dy = job.grid.sectors[i].expandedDisplacement.y * progress;
+
+      job.grid.sectors[i].updateCurrentPosition(dx, dy);
     }
 
     // Update the opacity of the center tile
@@ -248,7 +230,6 @@
     var job = this;
 
     config.computeDependentValues();
-    // TODO:
   }
 
   // ------------------------------------------------------------------------------------------- //

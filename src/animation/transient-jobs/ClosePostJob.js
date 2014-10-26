@@ -15,12 +15,9 @@
 
   config.duration = 500;
 
-  // TODO:
-
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
-    // TODO:
   };
 
   config.computeDependentValues();
@@ -29,27 +26,14 @@
   // Private dynamic functions
 
   /**
-   * Checks whether this job is complete. If so, a flag is set and a callback is called.
-   */
-  function checkForComplete() {
-    var job = this;
-
-    // TODO:
-//    if (???) {
-//      console.log('ClosePostJob completed');
-//
-//      job.isComplete = true;
-//      job.onComplete(true);
-//    }
-  }
-
-  /**
    * @this ClosePostJob
    */
   function handleComplete(wasCancelled) {
     var job = this;
 
     console.log('ClosePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    // TODO:
 
     job.isComplete = true;
 
@@ -74,6 +58,14 @@
     job.isComplete = false;
 
     // TODO:
+
+    // TODO: when closing the grid, make sure to:
+    // - job.grid.sectors[i].destroy();
+    // - job.grid.sectors = [];
+    // - job.grid.expandedTile = null;
+    // - job.grid.allTiles = job.grid.originalTiles;
+    // - job.grid.parent.style.overflow = 'auto';
+    // - window.hg.controller.resetPersistentJobs(job.grid);
   }
 
   /**
@@ -89,8 +81,6 @@
     var job = this;
 
     // TODO:
-
-    checkForComplete.call(job);
   }
 
   /**
@@ -101,9 +91,7 @@
    * @this ClosePostJob
    */
   function draw() {
-    var job = this;
-
-    // TODO:
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
@@ -124,7 +112,6 @@
     var job = this;
 
     config.computeDependentValues();
-    // TODO:
   }
 
   // ------------------------------------------------------------------------------------------- //
