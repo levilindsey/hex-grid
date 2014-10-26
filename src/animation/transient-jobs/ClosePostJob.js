@@ -33,11 +33,63 @@
 
     console.log('ClosePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
-    // TODO:
+    destroySectors.call(job);
+    job.grid.updateAllTilesCollection(job.grid.originalTiles);
+
+    // Turn scrolling back on
+    job.grid.parent.style.overflow = 'auto';
+
+    job.grid.isTransitioning = false;
+    job.grid.expandedTile = null;
+
+    // TODO: this should instead fade out the old persistent animations and fade in the new ones
+    // Restart the persistent jobs now the the overall collection of tiles has changed
+    window.hg.controller.resetPersistentJobs(job.grid);
 
     job.isComplete = true;
 
     job.onComplete();
+  }
+
+  /**
+   * Destroys the Sectors for expanding the grid.
+   *
+   * @this ClosePostJob
+   */
+  function destroySectors() {
+    var job, i;
+
+    job = this;
+
+    // Destroy the sectors
+    for (i = 0; i < 6; i += 1) {
+      job.grid.sectors[i].destroy();
+    }
+
+    job.grid.sectors = [];
+
+    // Destroy the expanded tile expanded state
+    job.baseTile.expandedState = null;
+  }
+
+  /**
+   * @this ClosePostJob
+   * @param {Number} panDisplacementX
+   * @param {Number} panDisplacementY
+   */
+  function setFinalPositions(panDisplacementX, panDisplacementY) {
+    var job, i;
+
+    job = this;
+
+    // Displace the sectors
+    for (i = 0; i < 6; i += 1) {
+      // Update the Sector's base position to account for the panning
+      job.grid.sectors[i].originalAnchor.x -= panDisplacementX;
+      job.grid.sectors[i].originalAnchor.y -= panDisplacementY;
+
+      job.grid.sectors[i].setOriginalPositionForExpansion(false);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -52,20 +104,29 @@
    * @this ClosePostJob
    */
   function start() {
+    var panDisplacementX, panDisplacementY;
     var job = this;
 
     job.startTime = Date.now();
     job.isComplete = false;
 
-    // TODO:
+    job.grid.isPostOpen = false;
+    job.grid.isTransitioning = true;
 
-    // TODO: when closing the grid, make sure to:
-    // - job.grid.sectors[i].destroy();
-    // - job.grid.sectors = [];
-    // - job.grid.expandedTile = null;
-    // - job.grid.allTiles = job.grid.originalTiles;
-    // - job.grid.parent.style.overflow = 'auto';
-    // - window.hg.controller.resetPersistentJobs(job.grid);
+    panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
+    panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
+
+    // Start the sub-jobs
+    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
+    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile, {
+      x: job.grid.panCenter.x,
+      y: job.grid.panCenter.y
+    });
+
+    // Set the final positions at the start, and animate everything in "reverse"
+    setFinalPositions.call(job, panDisplacementX, panDisplacementY);
+
+    job.grid.annotations.setExpandedAnnotations(false);
   }
 
   /**
@@ -78,9 +139,31 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job = this;
+    var job, progress, i, dx, dy;
 
-    // TODO:
+    job = this;
+
+    // Calculate progress with an easing function
+    // Because the final positions were set at the start, the progress needs to update in "reverse"
+    progress = (currentTime - job.startTime) / config.duration;
+    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress < 0 ? 0 : progress;
+
+    // Update the offsets for each of the six sectors
+    for (i = 0; i < 6; i += 1) {
+      dx = -job.grid.sectors[i].expandedDisplacement.x * progress;
+      dy = -job.grid.sectors[i].expandedDisplacement.y * progress;
+
+      job.grid.sectors[i].updateCurrentPosition(dx, dy);
+    }
+
+    // Update the opacity of the center tile
+    job.baseTile.element.style.opacity = 1 - progress;
+
+    // Is the job done?
+    if (progress === 0) {
+      handleComplete.call(job, false);
+    }
   }
 
   /**
@@ -128,7 +211,7 @@
     var job = this;
 
     job.grid = grid;
-    job.tile = tile;
+    job.baseTile = grid.expandedTile;
     job.startTime = 0;
     job.isComplete = true;
 

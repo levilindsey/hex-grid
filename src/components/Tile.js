@@ -629,6 +629,15 @@
     };
   }
 
+  /**
+   * @this Tile
+   */
+  function destroy() {
+    var tile = this;
+
+    tile.svg.removeChild(tile.element);
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -702,6 +711,7 @@
     tile.getNeighborStates = getNeighborStates;
     tile.getIsBorderTile = getIsBorderTile;
     tile.setIsBorderTile = setIsBorderTile;
+    tile.destroy = destroy;
 
     createElement.call(tile);
     createParticle.call(tile, mass);

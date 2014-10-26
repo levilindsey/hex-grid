@@ -124,7 +124,7 @@
       priority: 1200
     },
     'tileNeighborConnections': {
-      enabled: false,
+      enabled: true,
       create: createTileNeighborConnections,
       destroy: destroyTileNeighborConnections,
       update: updateTileNeighborConnections,
@@ -152,14 +152,14 @@
       priority: 1600
     },
     'panCenterPoints': {
-      enabled: false,
+      enabled: true,
       create: createPanCenterPoints,
       destroy: destroyPanCenterPoints,
       update: updatePanCenterPoints,
       priority: 1700
     },
     'sectorAnchorCenters': {
-      enabled: false,
+      enabled: true,
       create: createSectorAnchorCenters,
       destroy: destroySectorAnchorCenters,
       update: updateSectorAnchorCenters,
@@ -1189,20 +1189,17 @@
    * @this Annotations
    */
   function updateSectorAnchorCenters() {
-    var annotations, i, dx, dy, expandedAnchorX, expandedAnchorY, collapsedAnchorX, collapsedAnchorY;
+    var annotations, i, expandedAnchorX, expandedAnchorY, collapsedAnchorX, collapsedAnchorY;
 
     annotations = this;
 
-    dx = annotations.grid.currentCenter.x - annotations.grid.originalCenter.x;
-    dy = annotations.grid.currentCenter.y - annotations.grid.originalCenter.y;
-
     for (i = 0; i < annotations.sectorAnchorLines.length; i += 1) {
-      expandedAnchorX = annotations.grid.sectors[i].currentAnchor.x + dx;
-      expandedAnchorY = annotations.grid.sectors[i].currentAnchor.y + dy;
+      expandedAnchorX = annotations.grid.sectors[i].currentAnchor.x;
+      expandedAnchorY = annotations.grid.sectors[i].currentAnchor.y;
       collapsedAnchorX = annotations.grid.sectors[i].originalAnchor.x -
-          annotations.grid.sectors[i].expandedDisplacement.x + dx;
+          annotations.grid.sectors[i].expandedDisplacement.x;
       collapsedAnchorY = annotations.grid.sectors[i].originalAnchor.y -
-          annotations.grid.sectors[i].expandedDisplacement.y + dy;
+          annotations.grid.sectors[i].expandedDisplacement.y;
 
       annotations.sectorAnchorLines[i].setAttribute('x1', expandedAnchorX);
       annotations.sectorAnchorLines[i].setAttribute('y1', expandedAnchorY);

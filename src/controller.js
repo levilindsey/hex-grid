@@ -60,7 +60,7 @@
       create: createTransientJob.bind(controller, null, 'openPost'),
       createRandom: openRandomPost,
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'openPost'),
-      canRunWithOpenGrid: true
+      canRunWithOpenGrid: false
     },
     closePost: {
       constructorName: 'ClosePostJob',
@@ -182,10 +182,12 @@
    * @param {Grid} grid
    * @param {Tile} tile
    * @param {Function} onComplete
+   * @param {*} [extraArg]
    * @returns {AnimationJob}
    */
-  function generalTransientJobCreator(jobId, grid, tile, onComplete) {
-    return new window.hg[controller.transientJobs[jobId].constructorName](grid, tile, onComplete);
+  function generalTransientJobCreator(jobId, grid, tile, onComplete, extraArg) {
+    return new window.hg[controller.transientJobs[jobId].constructorName](grid, tile, onComplete,
+        extraArg);
   }
 
   /**
@@ -193,15 +195,16 @@
    * @param {Array.<AnimationJob>} jobId
    * @param {Grid} grid
    * @param {?Tile} tile
+   * @param {*} [extraArg]
    */
-  function createTransientJob(creator, jobId, grid, tile) {
+  function createTransientJob(creator, jobId, grid, tile, extraArg) {
     var job;
 
     if (!grid.isPostOpen || controller.transientJobs[jobId].canRunWithOpenGrid) {
       creator = creator || generalTransientJobCreator.bind(controller, jobId);
 
       // Create the job with whatever custom logic is needed for this particular type of job
-      job = creator(grid, tile, onComplete);
+      job = creator(grid, tile, onComplete, extraArg);
 
       // Store a reference to this job within the controller
       controller.transientJobs[jobId].jobs[grid.index].push(job);

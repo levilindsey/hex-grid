@@ -252,7 +252,7 @@
     var closePostJobFolder, data;
 
     closePostJobFolder = parentFolder.addFolder('Close Post');
-//    closePostJobFolder.open();// TODO: remove me
+    closePostJobFolder.open();// TODO: remove me
 
     data = {
       'triggerClosePost': window.hg.controller.transientJobs.closePost.createRandom.bind(

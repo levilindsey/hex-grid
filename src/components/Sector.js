@@ -575,9 +575,13 @@
 
     sector = this;
 
+    for (i = 0, count = sector.tiles.length; i < count; i += 1) {
+      sector.tiles[i].expandedState = null;
+    }
+
     for (i = 0, count = sector.newTiles.length; i < count; i += 1) {
-      sector.newTiles[i].expandedState = null;
       sector.newTiles[i].neighborStates = null;
+      sector.newTiles[i].destroy();
     }
   }
 
@@ -596,8 +600,8 @@
       dx = sector.expandedDisplacement.x;
       dy = sector.expandedDisplacement.y;
     } else {
-      dx = sector.expandedDisplacement.x;
-      dy = sector.expandedDisplacement.y;
+      dx = -sector.expandedDisplacement.x;
+      dy = -sector.expandedDisplacement.y;
     }
 
     sector.originalAnchor.x += dx;
@@ -621,8 +625,8 @@
 
     sector = this;
 
-    sector.currentAnchor.x = sector.originalAnchor + dx;
-    sector.currentAnchor.y = sector.originalAnchor + dy;
+    sector.currentAnchor.x = sector.originalAnchor.x + dx;
+    sector.currentAnchor.y = sector.originalAnchor.y + dy;
 
     for (i = 0, count = sector.tiles.length; i < count; i += 1) {
       sector.tiles[i].currentAnchor.x += dx;

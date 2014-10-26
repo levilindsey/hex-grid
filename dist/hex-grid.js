@@ -60,7 +60,7 @@
       create: createTransientJob.bind(controller, null, 'openPost'),
       createRandom: openRandomPost,
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'openPost'),
-      canRunWithOpenGrid: true
+      canRunWithOpenGrid: false
     },
     closePost: {
       constructorName: 'ClosePostJob',
@@ -182,10 +182,12 @@
    * @param {Grid} grid
    * @param {Tile} tile
    * @param {Function} onComplete
+   * @param {*} [extraArg]
    * @returns {AnimationJob}
    */
-  function generalTransientJobCreator(jobId, grid, tile, onComplete) {
-    return new window.hg[controller.transientJobs[jobId].constructorName](grid, tile, onComplete);
+  function generalTransientJobCreator(jobId, grid, tile, onComplete, extraArg) {
+    return new window.hg[controller.transientJobs[jobId].constructorName](grid, tile, onComplete,
+        extraArg);
   }
 
   /**
@@ -193,15 +195,16 @@
    * @param {Array.<AnimationJob>} jobId
    * @param {Grid} grid
    * @param {?Tile} tile
+   * @param {*} [extraArg]
    */
-  function createTransientJob(creator, jobId, grid, tile) {
+  function createTransientJob(creator, jobId, grid, tile, extraArg) {
     var job;
 
     if (!grid.isPostOpen || controller.transientJobs[jobId].canRunWithOpenGrid) {
       creator = creator || generalTransientJobCreator.bind(controller, jobId);
 
       // Create the job with whatever custom logic is needed for this particular type of job
-      job = creator(grid, tile, onComplete);
+      job = creator(grid, tile, onComplete, extraArg);
 
       // Store a reference to this job within the controller
       controller.transientJobs[jobId].jobs[grid.index].push(job);
@@ -1428,7 +1431,7 @@
       priority: 1200
     },
     'tileNeighborConnections': {
-      enabled: false,
+      enabled: true,
       create: createTileNeighborConnections,
       destroy: destroyTileNeighborConnections,
       update: updateTileNeighborConnections,
@@ -1456,14 +1459,14 @@
       priority: 1600
     },
     'panCenterPoints': {
-      enabled: false,
+      enabled: true,
       create: createPanCenterPoints,
       destroy: destroyPanCenterPoints,
       update: updatePanCenterPoints,
       priority: 1700
     },
     'sectorAnchorCenters': {
-      enabled: false,
+      enabled: true,
       create: createSectorAnchorCenters,
       destroy: destroySectorAnchorCenters,
       update: updateSectorAnchorCenters,
@@ -2493,20 +2496,17 @@
    * @this Annotations
    */
   function updateSectorAnchorCenters() {
-    var annotations, i, dx, dy, expandedAnchorX, expandedAnchorY, collapsedAnchorX, collapsedAnchorY;
+    var annotations, i, expandedAnchorX, expandedAnchorY, collapsedAnchorX, collapsedAnchorY;
 
     annotations = this;
 
-    dx = annotations.grid.currentCenter.x - annotations.grid.originalCenter.x;
-    dy = annotations.grid.currentCenter.y - annotations.grid.originalCenter.y;
-
     for (i = 0; i < annotations.sectorAnchorLines.length; i += 1) {
-      expandedAnchorX = annotations.grid.sectors[i].currentAnchor.x + dx;
-      expandedAnchorY = annotations.grid.sectors[i].currentAnchor.y + dy;
+      expandedAnchorX = annotations.grid.sectors[i].currentAnchor.x;
+      expandedAnchorY = annotations.grid.sectors[i].currentAnchor.y;
       collapsedAnchorX = annotations.grid.sectors[i].originalAnchor.x -
-          annotations.grid.sectors[i].expandedDisplacement.x + dx;
+          annotations.grid.sectors[i].expandedDisplacement.x;
       collapsedAnchorY = annotations.grid.sectors[i].originalAnchor.y -
-          annotations.grid.sectors[i].expandedDisplacement.y + dy;
+          annotations.grid.sectors[i].expandedDisplacement.y;
 
       annotations.sectorAnchorLines[i].setAttribute('x1', expandedAnchorX);
       annotations.sectorAnchorLines[i].setAttribute('y1', expandedAnchorY);
@@ -4228,9 +4228,13 @@
 
     sector = this;
 
+    for (i = 0, count = sector.tiles.length; i < count; i += 1) {
+      sector.tiles[i].expandedState = null;
+    }
+
     for (i = 0, count = sector.newTiles.length; i < count; i += 1) {
-      sector.newTiles[i].expandedState = null;
       sector.newTiles[i].neighborStates = null;
+      sector.newTiles[i].destroy();
     }
   }
 
@@ -4249,8 +4253,8 @@
       dx = sector.expandedDisplacement.x;
       dy = sector.expandedDisplacement.y;
     } else {
-      dx = sector.expandedDisplacement.x;
-      dy = sector.expandedDisplacement.y;
+      dx = -sector.expandedDisplacement.x;
+      dy = -sector.expandedDisplacement.y;
     }
 
     sector.originalAnchor.x += dx;
@@ -4274,8 +4278,8 @@
 
     sector = this;
 
-    sector.currentAnchor.x = sector.originalAnchor + dx;
-    sector.currentAnchor.y = sector.originalAnchor + dy;
+    sector.currentAnchor.x = sector.originalAnchor.x + dx;
+    sector.currentAnchor.y = sector.originalAnchor.y + dy;
 
     for (i = 0, count = sector.tiles.length; i < count; i += 1) {
       sector.tiles[i].currentAnchor.x += dx;
@@ -4966,6 +4970,15 @@
     };
   }
 
+  /**
+   * @this Tile
+   */
+  function destroy() {
+    var tile = this;
+
+    tile.svg.removeChild(tile.element);
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -5039,6 +5052,7 @@
     tile.getNeighborStates = getNeighborStates;
     tile.getIsBorderTile = getIsBorderTile;
     tile.setIsBorderTile = setIsBorderTile;
+    tile.destroy = destroy;
 
     createElement.call(tile);
     createParticle.call(tile, mass);
@@ -5870,9 +5884,63 @@
 
     console.log('ClosePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
+    destroySectors.call(job);
+    job.grid.updateAllTilesCollection(job.grid.originalTiles);
+
+    // Turn scrolling back on
+    job.grid.parent.style.overflow = 'auto';
+
+    job.grid.isTransitioning = false;
+    job.grid.expandedTile = null;
+
+    // TODO: this should instead fade out the old persistent animations and fade in the new ones
+    // Restart the persistent jobs now the the overall collection of tiles has changed
+    window.hg.controller.resetPersistentJobs(job.grid);
+
     job.isComplete = true;
 
     job.onComplete();
+  }
+
+  /**
+   * Destroys the Sectors for expanding the grid.
+   *
+   * @this ClosePostJob
+   */
+  function destroySectors() {
+    var job, i;
+
+    job = this;
+
+    // Destroy the sectors
+    for (i = 0; i < 6; i += 1) {
+      job.grid.sectors[i].destroy();
+    }
+
+    job.grid.sectors = [];
+
+    // Destroy the expanded tile expanded state
+    job.baseTile.expandedState = null;
+  }
+
+  /**
+   * @this ClosePostJob
+   * @param {Number} panDisplacementX
+   * @param {Number} panDisplacementY
+   */
+  function setFinalPositions(panDisplacementX, panDisplacementY) {
+    var job, i;
+
+    job = this;
+
+    // Displace the sectors
+    for (i = 0; i < 6; i += 1) {
+      // Update the Sector's base position to account for the panning
+      job.grid.sectors[i].originalAnchor.x -= panDisplacementX;
+      job.grid.sectors[i].originalAnchor.y -= panDisplacementY;
+
+      job.grid.sectors[i].setOriginalPositionForExpansion(false);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -5887,20 +5955,29 @@
    * @this ClosePostJob
    */
   function start() {
+    var panDisplacementX, panDisplacementY;
     var job = this;
 
     job.startTime = Date.now();
     job.isComplete = false;
 
-    // TODO:
+    job.grid.isPostOpen = false;
+    job.grid.isTransitioning = true;
 
-    // TODO: when closing the grid, make sure to:
-    // - job.grid.sectors[i].destroy();
-    // - job.grid.sectors = [];
-    // - job.grid.expandedTile = null;
-    // - job.grid.allTiles = job.grid.originalTiles;
-    // - job.grid.parent.style.overflow = 'auto';
-    // - window.hg.controller.resetPersistentJobs(job.grid);
+    panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
+    panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
+
+    // Start the sub-jobs
+    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
+    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile, {
+      x: job.grid.panCenter.x,
+      y: job.grid.panCenter.y
+    });
+
+    // Set the final positions at the start, and animate everything in "reverse"
+    setFinalPositions.call(job, panDisplacementX, panDisplacementY);
+
+    job.grid.annotations.setExpandedAnnotations(false);
   }
 
   /**
@@ -5913,9 +5990,31 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job = this;
+    var job, progress, i, dx, dy;
 
-    // TODO:
+    job = this;
+
+    // Calculate progress with an easing function
+    // Because the final positions were set at the start, the progress needs to update in "reverse"
+    progress = (currentTime - job.startTime) / config.duration;
+    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress < 0 ? 0 : progress;
+
+    // Update the offsets for each of the six sectors
+    for (i = 0; i < 6; i += 1) {
+      dx = -job.grid.sectors[i].expandedDisplacement.x * progress;
+      dy = -job.grid.sectors[i].expandedDisplacement.y * progress;
+
+      job.grid.sectors[i].updateCurrentPosition(dx, dy);
+    }
+
+    // Update the opacity of the center tile
+    job.baseTile.element.style.opacity = 1 - progress;
+
+    // Is the job done?
+    if (progress === 0) {
+      handleComplete.call(job, false);
+    }
   }
 
   /**
@@ -5963,7 +6062,7 @@
     var job = this;
 
     job.grid = grid;
-    job.tile = tile;
+    job.baseTile = grid.expandedTile;
     job.startTime = 0;
     job.isComplete = true;
 
@@ -8344,9 +8443,11 @@
   }
 
   /**
-   * @this PanJob
+   * @this OpenPostJob
+   * @param {Number} panDisplacementX
+   * @param {Number} panDisplacementY
    */
-  function setFinalPositions() {
+  function setFinalPositions(panDisplacementX, panDisplacementY) {
     var job, i;
 
     job = this;
@@ -8354,8 +8455,8 @@
     // Displace the sectors
     for (i = 0; i < 6; i += 1) {
       // Update the Sector's base position to account for the panning
-      job.grid.sectors[i].originalAnchor.x += job.grid.panCenter.x - job.grid.originalCenter.x;
-      job.grid.sectors[i].originalAnchor.y += job.grid.panCenter.y - job.grid.originalCenter.y;
+      job.grid.sectors[i].originalAnchor.x += panDisplacementX;
+      job.grid.sectors[i].originalAnchor.y += panDisplacementY;
 
       job.grid.sectors[i].setOriginalPositionForExpansion(true);
     }
@@ -8373,6 +8474,7 @@
    * @this OpenPostJob
    */
   function start() {
+    var panDisplacementX, panDisplacementY;
     var job = this;
 
     job.startTime = Date.now();
@@ -8387,7 +8489,6 @@
 
     createSectors.call(job);
 
-    // TODO: this should instead fade out the old persistent animations and fade in the new ones
     job.grid.annotations.setExpandedAnnotations(true);
 
     // Start the sub-jobs
@@ -8395,13 +8496,12 @@
     window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile);
 
     // Set the final positions at the start, and animate everything in "reverse"
-    setFinalPositions.call(job);
+    panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
+    panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
+    setFinalPositions.call(job, panDisplacementX, panDisplacementY);
 
+    // TODO: this should instead fade out the old persistent animations and fade in the new ones
     window.hg.controller.resetPersistentJobs(job.grid);
-
-    // Turn off the recurring LineJobs
-    window.hg.controller.transientJobs.spread.toggleRecurrence(job.grid, false,
-        window.hg.SpreadJob.config.avgDelay, window.hg.SpreadJob.config.delayDeviationRange);
   }
 
   /**

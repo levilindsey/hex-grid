@@ -104,9 +104,11 @@
   }
 
   /**
-   * @this PanJob
+   * @this OpenPostJob
+   * @param {Number} panDisplacementX
+   * @param {Number} panDisplacementY
    */
-  function setFinalPositions() {
+  function setFinalPositions(panDisplacementX, panDisplacementY) {
     var job, i;
 
     job = this;
@@ -114,8 +116,8 @@
     // Displace the sectors
     for (i = 0; i < 6; i += 1) {
       // Update the Sector's base position to account for the panning
-      job.grid.sectors[i].originalAnchor.x += job.grid.panCenter.x - job.grid.originalCenter.x;
-      job.grid.sectors[i].originalAnchor.y += job.grid.panCenter.y - job.grid.originalCenter.y;
+      job.grid.sectors[i].originalAnchor.x += panDisplacementX;
+      job.grid.sectors[i].originalAnchor.y += panDisplacementY;
 
       job.grid.sectors[i].setOriginalPositionForExpansion(true);
     }
@@ -133,6 +135,7 @@
    * @this OpenPostJob
    */
   function start() {
+    var panDisplacementX, panDisplacementY;
     var job = this;
 
     job.startTime = Date.now();
@@ -147,7 +150,6 @@
 
     createSectors.call(job);
 
-    // TODO: this should instead fade out the old persistent animations and fade in the new ones
     job.grid.annotations.setExpandedAnnotations(true);
 
     // Start the sub-jobs
@@ -155,13 +157,12 @@
     window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile);
 
     // Set the final positions at the start, and animate everything in "reverse"
-    setFinalPositions.call(job);
+    panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
+    panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
+    setFinalPositions.call(job, panDisplacementX, panDisplacementY);
 
+    // TODO: this should instead fade out the old persistent animations and fade in the new ones
     window.hg.controller.resetPersistentJobs(job.grid);
-
-    // Turn off the recurring LineJobs
-    window.hg.controller.transientJobs.spread.toggleRecurrence(job.grid, false,
-        window.hg.SpreadJob.config.avgDelay, window.hg.SpreadJob.config.delayDeviationRange);
   }
 
   /**
