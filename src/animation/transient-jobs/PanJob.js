@@ -188,7 +188,7 @@
     job.onComplete = onComplete;
     job.init = init;
 
-    console.log('PanJob created');
+    console.log('PanJob created: tileIndex=' + job.baseTile.originalIndex);
   }
 
   PanJob.config = config;

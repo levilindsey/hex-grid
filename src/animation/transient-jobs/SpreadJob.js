@@ -172,7 +172,7 @@
 
     initializeDisplacements.call(job);
 
-    console.log('SpreadJob created');
+    console.log('SpreadJob created: tileIndex=' + job.baseTile.originalIndex);
   }
 
   SpreadJob.config = config;

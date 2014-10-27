@@ -168,7 +168,7 @@
     job.onComplete = onComplete;
     job.init = init;
 
-    console.log('TileBorderJob created');
+    console.log('TileBorderJob created: tileIndex=' + job.baseTile.originalIndex);
   }
 
   TileBorderJob.config = config;

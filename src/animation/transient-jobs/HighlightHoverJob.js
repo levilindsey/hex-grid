@@ -157,7 +157,7 @@
     job.onComplete = onComplete;
     job.init = init;
 
-//    console.log('HighlightHoverJob created');
+//    console.log('HighlightHoverJob created: tileIndex=' + job.tile.originalIndex);
   }
 
   HighlightHoverJob.config = config;

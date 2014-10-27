@@ -569,14 +569,17 @@
    * Frees up memory used by this Sector.
    *
    * @this Sector
+   * @param {Boolean} alsoDestroyOriginalTileExpandedState
    */
-  function destroy() {
+  function destroy(alsoDestroyOriginalTileExpandedState) {
     var sector, i, count;
 
     sector = this;
 
-    for (i = 0, count = sector.tiles.length; i < count; i += 1) {
-      sector.tiles[i].expandedState = null;
+    if (alsoDestroyOriginalTileExpandedState) {
+      for (i = 0, count = sector.tiles.length; i < count; i += 1) {
+        sector.tiles[i].expandedState = null;
+      }
     }
 
     for (i = 0, count = sector.newTiles.length; i < count; i += 1) {

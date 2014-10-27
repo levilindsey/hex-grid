@@ -205,7 +205,7 @@
 
     initializeDisplacements.call(job);
 
-    console.log('DisplacementRadiateJob created');
+    console.log('DisplacementRadiateJob created: tileIndex=' + job.tile.originalIndex);
   }
 
   DisplacementRadiateJob.config = config;

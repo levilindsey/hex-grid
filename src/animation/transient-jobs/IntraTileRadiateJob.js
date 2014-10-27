@@ -168,7 +168,7 @@
     job.onComplete = onComplete;
     job.init = init;
 
-    console.log('IntraTileRadiateJob created');
+    console.log('IntraTileRadiateJob created: tileIndex=' + job.tile.originalIndex);
   }
 
   IntraTileRadiateJob.config = config;

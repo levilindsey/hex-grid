@@ -210,7 +210,7 @@
 
     calculateTileDistances.call(job);
 
-    console.log('HighlightRadiateJob created');
+    console.log('HighlightRadiateJob created: tileIndex=' + (tile && job.tile.originalIndex));
   }
 
   HighlightRadiateJob.config = config;

@@ -722,6 +722,7 @@
     grid.expandedTile = null;
     grid.sectors = [];
     grid.allTiles = null;
+    grid.lastExpansionJob = null;
 
     grid.annotations = new window.hg.Annotations(grid);
 

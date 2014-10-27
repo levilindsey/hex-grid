@@ -34,17 +34,26 @@
     console.log('ClosePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
     destroySectors.call(job);
-    job.grid.updateAllTilesCollection(job.grid.originalTiles);
 
-    // Turn scrolling back on
-    job.grid.parent.style.overflow = 'auto';
+    // Don't reset some state if another expansion job started after this one did
+    if (job.grid.lastExpansionJob === job) {console.log('ClosePostJob.handleComplete: inner');// TODO: /////
+      // Destroy the expanded tile expanded state
+      job.baseTile.expandedState = null;
 
-    job.grid.isTransitioning = false;
-    job.grid.expandedTile = null;
+      job.grid.sectors = [];
+      job.grid.lastExpansionJob = null;
+      job.grid.updateAllTilesCollection(job.grid.originalTiles);
 
-    // TODO: this should instead fade out the old persistent animations and fade in the new ones
-    // Restart the persistent jobs now the the overall collection of tiles has changed
-    window.hg.controller.resetPersistentJobs(job.grid);
+      // Turn scrolling back on
+      job.grid.parent.style.overflow = 'auto';
+
+      job.grid.isTransitioning = false;
+      job.grid.expandedTile = null;
+
+      // TODO: this should instead fade out the old persistent animations and fade in the new ones
+      // Restart the persistent jobs now the the overall collection of tiles has changed
+      window.hg.controller.resetPersistentJobs(job.grid);
+    }
 
     job.isComplete = true;
 
@@ -52,24 +61,21 @@
   }
 
   /**
-   * Destroys the Sectors for expanding the grid.
-   *
    * @this ClosePostJob
    */
   function destroySectors() {
-    var job, i;
+    var job, i, alsoDestroyOriginalTileExpandedState;
 
     job = this;
 
+    alsoDestroyOriginalTileExpandedState = job.grid.lastExpansionJob === job;
+
     // Destroy the sectors
     for (i = 0; i < 6; i += 1) {
-      job.grid.sectors[i].destroy();
+      job.sectors[i].destroy(alsoDestroyOriginalTileExpandedState);
     }
 
-    job.grid.sectors = [];
-
-    // Destroy the expanded tile expanded state
-    job.baseTile.expandedState = null;
+    job.sectors = [];
   }
 
   /**
@@ -85,10 +91,10 @@
     // Displace the sectors
     for (i = 0; i < 6; i += 1) {
       // Update the Sector's base position to account for the panning
-      job.grid.sectors[i].originalAnchor.x -= panDisplacementX;
-      job.grid.sectors[i].originalAnchor.y -= panDisplacementY;
+      job.sectors[i].originalAnchor.x -= panDisplacementX;
+      job.sectors[i].originalAnchor.y -= panDisplacementY;
 
-      job.grid.sectors[i].setOriginalPositionForExpansion(false);
+      job.sectors[i].setOriginalPositionForExpansion(false);
     }
   }
 
@@ -112,6 +118,7 @@
 
     job.grid.isPostOpen = false;
     job.grid.isTransitioning = true;
+    job.grid.lastExpansionJob = job;
 
     panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
     panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
@@ -151,10 +158,10 @@
 
     // Update the offsets for each of the six sectors
     for (i = 0; i < 6; i += 1) {
-      dx = -job.grid.sectors[i].expandedDisplacement.x * progress;
-      dy = -job.grid.sectors[i].expandedDisplacement.y * progress;
+      dx = -job.sectors[i].expandedDisplacement.x * progress;
+      dy = -job.sectors[i].expandedDisplacement.y * progress;
 
-      job.grid.sectors[i].updateCurrentPosition(dx, dy);
+      job.sectors[i].updateCurrentPosition(dx, dy);
     }
 
     // Update the opacity of the center tile
@@ -214,6 +221,7 @@
     job.baseTile = grid.expandedTile;
     job.startTime = 0;
     job.isComplete = true;
+    job.sectors = grid.sectors;
 
     job.start = start;
     job.update = update;
@@ -222,7 +230,7 @@
     job.onComplete = onComplete;
     job.init = init;
 
-    console.log('ClosePostJob created');
+    console.log('ClosePostJob created: tileIndex=' + job.baseTile.originalIndex);
   }
 
   ClosePostJob.config = config;

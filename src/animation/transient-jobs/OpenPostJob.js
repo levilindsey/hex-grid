@@ -37,6 +37,11 @@
 
     job.grid.isTransitioning = false;
 
+    // Don't reset some state if another expansion job started after this one did
+    if (job.grid.lastExpansionJob === job) {console.log('OpenPostJobJob.handleComplete: inner');// TODO: /////
+      job.grid.lastExpansionJob = null;
+    }
+
     job.isComplete = true;
 
     job.onComplete();
@@ -52,33 +57,33 @@
 
     job = this;
 
-    job.grid.sectors = [];
-
     // Create the sectors
     for (i = 0; i < 6; i += 1) {
-      job.grid.sectors[i] = new window.hg.Sector(job.grid, job.baseTile, i,
+      job.sectors[i] = new window.hg.Sector(job.grid, job.baseTile, i,
           config.expandedDisplacementTileCount);
     }
 
     // Connect the sectors' tiles' external neighbor states
     for (i = 0; i < 6; i += 1) {
-      job.grid.sectors[i].initializeExpandedStateExternalTileNeighbors(job.grid.sectors);
+      job.sectors[i].initializeExpandedStateExternalTileNeighbors(job.sectors);
     }
 
 //    dumpSectorInfo.call(job);
 
     // De-allocate the now-unnecessary two-dimensional sector tile collections
     for (i = 0; i < 6; i += 1) {
-      job.grid.sectors[i].tilesByIndex = null;
+      job.sectors[i].tilesByIndex = null;
     }
 
     // Set up the expanded state for the selected tile (which is a member of no sector)
     window.hg.Tile.initializeTileExpandedState(job.baseTile, null, Number.NaN, Number.NaN);
 
+    job.grid.sectors = job.sectors;
+
     // Give the grid a reference to the new complete collection of all tiles
     allExpandedTiles = [];
     for (k = 0, i = 0; i < 6; i += 1) {
-      sectorTiles = job.grid.sectors[i].tiles;
+      sectorTiles = job.sectors[i].tiles;
 
       for (j = 0, jCount = sectorTiles.length; j < jCount; j += 1, k += 1) {
         allExpandedTiles[k] = sectorTiles[j];
@@ -99,7 +104,7 @@
     job = this;
 
     for (i = 0; i < 6; i += 1) {
-      console.log(job.grid.sectors[i]);
+      console.log(job.sectors[i]);
     }
   }
 
@@ -116,10 +121,10 @@
     // Displace the sectors
     for (i = 0; i < 6; i += 1) {
       // Update the Sector's base position to account for the panning
-      job.grid.sectors[i].originalAnchor.x += panDisplacementX;
-      job.grid.sectors[i].originalAnchor.y += panDisplacementY;
+      job.sectors[i].originalAnchor.x += panDisplacementX;
+      job.sectors[i].originalAnchor.y += panDisplacementY;
 
-      job.grid.sectors[i].setOriginalPositionForExpansion(true);
+      job.sectors[i].setOriginalPositionForExpansion(true);
     }
   }
 
@@ -144,6 +149,7 @@
     job.grid.isPostOpen = true;
     job.grid.isTransitioning = true;
     job.grid.expandedTile = job.baseTile;
+    job.grid.lastExpansionJob = job;
 
     // Turn scrolling off while the grid is expanded
     job.grid.parent.style.overflow = 'hidden';
@@ -187,10 +193,10 @@
 
     // Update the offsets for each of the six sectors
     for (i = 0; i < 6; i += 1) {
-      dx = job.grid.sectors[i].expandedDisplacement.x * progress;
-      dy = job.grid.sectors[i].expandedDisplacement.y * progress;
+      dx = job.sectors[i].expandedDisplacement.x * progress;
+      dy = job.sectors[i].expandedDisplacement.y * progress;
 
-      job.grid.sectors[i].updateCurrentPosition(dx, dy);
+      job.sectors[i].updateCurrentPosition(dx, dy);
     }
 
     // Update the opacity of the center tile
@@ -250,6 +256,7 @@
     job.baseTile = tile;
     job.startTime = 0;
     job.isComplete = true;
+    job.sectors = [];
 
     job.start = start;
     job.update = update;
@@ -258,7 +265,7 @@
     job.onComplete = onComplete;
     job.init = init;
 
-    console.log('OpenPostJob created');
+    console.log('OpenPostJob created: tileIndex=' + job.baseTile.originalIndex);
   }
 
   OpenPostJob.config = config;
