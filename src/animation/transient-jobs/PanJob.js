@@ -13,7 +13,7 @@
 
   var config = {};
 
-  config.duration = 500;
+  config.duration = 400;
 
   config.displacementRatio = 0.28;
 

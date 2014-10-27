@@ -451,13 +451,31 @@
    * @param {Grid} grid
    */
   function resetGrid(grid) {
+    var expandedTile;
+    var expandedPostId = grid.isPostOpen ? grid.expandedTile.postData.id : null;
+
     window.hg.animator.cancelAll();
 
     grid.resize();
 
-    window.hg.animator.cancelAll();
-
     resetPersistentJobs(grid);
+
+    expandedTile = getTileFromPostId(grid, expandedPostId);
+    controller.transientJobs.openPost.create(grid, expandedTile);
+
+    // ---  --- //
+
+    function getTileFromPostId(grid, postId) {
+      var i, count;
+
+      for (i = 0, count = grid.originalTiles.length; i < count; i += 1) {
+        if (grid.originalTiles[i].holdsContent && grid.originalTiles[i].postData.id === postId) {
+          return grid.originalTiles[i];
+        }
+      }
+
+      return null;
+    }
   }
 
   /**

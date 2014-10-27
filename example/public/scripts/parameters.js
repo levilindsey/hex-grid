@@ -57,8 +57,7 @@
     transientFolder = animationsFolder.addFolder('One Time');
     transientFolder.open();// TODO: remove me
 
-    initOpenPostJobFolder(transientFolder);
-    initClosePostJobFolder(transientFolder);
+    initOpenClosePostJobFolder(transientFolder);
     initDisplacementRadiateJobFolder(transientFolder);
     initHighlightHoverJobFolder(transientFolder);
     initHighlightRadiateJobFolder(transientFolder);
@@ -225,24 +224,33 @@
   // One-time animations
 
   /**
-   * Sets up the folder for OpenPostJob parameters within the dat.GUI controller.
+   * Sets up the folder for OpenPostJob parameters and the ClosePostJob parameters within the
+   * dat.GUI controller.
    */
-  function initOpenPostJobFolder(parentFolder) {
-    var openPostJobFolder, data;
+  function initOpenClosePostJobFolder(parentFolder) {
+    var openClosePostJobFolder, data;
 
-    openPostJobFolder = parentFolder.addFolder('Open Post');
-    openPostJobFolder.open();// TODO: remove me
+    openClosePostJobFolder = parentFolder.addFolder('Open/Close Post');
+    openClosePostJobFolder.open();// TODO: remove me
 
     data = {
       'triggerOpenPost': window.hg.controller.transientJobs.openPost.createRandom.bind(
-              window.hg.controller, parameters.grid)
+          window.hg.controller, parameters.grid),
+      'triggerClosePost': window.hg.controller.transientJobs.closePost.createRandom.bind(
+              window.hg.controller, parameters.grid),
+      'triggerTogglePost': function () {
+        if (parameters.grid.isPostOpen) {
+          data.triggerClosePost();
+        } else {
+          data.triggerOpenPost();
+        }
+      }
     };
 
-    openPostJobFolder.add(data, 'triggerOpenPost');
+    openClosePostJobFolder.add(data, 'triggerTogglePost');
 
-    openPostJobFolder.add(window.hg.OpenPostJob.config, 'duration', 10, 10000);
-
-    // TODO:
+    openClosePostJobFolder.add(window.hg.OpenPostJob.config, 'duration', 10, 10000);
+    openClosePostJobFolder.add(window.hg.ClosePostJob.config, 'duration', 10, 10000);
   }
 
   /**

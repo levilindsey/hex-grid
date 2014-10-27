@@ -38,7 +38,7 @@
     job.grid.isTransitioning = false;
 
     // Don't reset some state if another expansion job started after this one did
-    if (job.grid.lastExpansionJob === job) {console.log('OpenPostJobJob.handleComplete: inner');// TODO: /////
+    if (job.grid.lastExpansionJob === job) {
       job.grid.lastExpansionJob = null;
     }
 

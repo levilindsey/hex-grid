@@ -15,7 +15,7 @@
 
   config.duration = 300;
 
-  config.displacementRatio = 0.25;
+  config.displacementRatio = 0.2;
 
   config.isRecurring = false;
   config.avgDelay = 4000;

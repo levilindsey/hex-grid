@@ -36,7 +36,7 @@
     destroySectors.call(job);
 
     // Don't reset some state if another expansion job started after this one did
-    if (job.grid.lastExpansionJob === job) {console.log('ClosePostJob.handleComplete: inner');// TODO: /////
+    if (job.grid.lastExpansionJob === job) {
       // Destroy the expanded tile expanded state
       job.baseTile.expandedState = null;
 

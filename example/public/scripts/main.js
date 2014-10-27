@@ -9,12 +9,11 @@
 
   var main = {};
 
+  main.appRootPath = '/example';
+  main.grid = null;
+
   window.app = window.app || {};
   app.main = main;
-
-  // ---  --- //
-
-  main.grid = null;
 
   window.addEventListener('load', initHexGrid, false);
 
@@ -34,7 +33,7 @@
     hexGridContainer = document.getElementById('hex-grid-area');
 
     setTimeout(function () {
-      tileData = [{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]; // TODO: fetch this from the server
+      tileData = window.app.testData.createTestData(); // TODO: fetch this from the server
 
       main.grid = window.hg.controller.createNewHexGrid(hexGridContainer, tileData, false);
 

@@ -528,6 +528,17 @@
 
     grid = this;
 
+    grid.originalCenter = {x: Number.NaN, y: Number.NaN};
+    grid.currentCenter = {x: Number.NaN, y: Number.NaN};
+    grid.panCenter = {x: Number.NaN, y: Number.NaN};
+    grid.isPostOpen = false;
+    grid.isTransitioning = false;
+    grid.expandedTile = null;
+    grid.sectors = [];
+    grid.allTiles = null;
+    grid.lastExpansionJob = null;
+    grid.parent.style.overflow = 'auto';
+
     clearSvg.call(grid);
     computeGridParameters.call(grid);
 
@@ -714,13 +725,13 @@
     grid.contentTiles = [];
     grid.originalContentInnerIndices = null;
     grid.innerIndexOfLastContentTile = null;
-    grid.originalCenter = {x: Number.NaN, y: Number.NaN};
-    grid.currentCenter = {x: Number.NaN, y: Number.NaN};
-    grid.panCenter = {x: Number.NaN, y: Number.NaN};
+    grid.originalCenter = null;
+    grid.currentCenter = null;
+    grid.panCenter = null;
     grid.isPostOpen = false;
     grid.isTransitioning = false;
     grid.expandedTile = null;
-    grid.sectors = [];
+    grid.sectors = null;
     grid.allTiles = null;
     grid.lastExpansionJob = null;
 

@@ -103,7 +103,7 @@
       priority: 900
     },
     'tileIndices': {
-      enabled: true,
+      enabled: false,
       create: createTileIndices,
       destroy: destroyTileIndices,
       update: updateTileIndices,
@@ -124,7 +124,7 @@
       priority: 1200
     },
     'tileNeighborConnections': {
-      enabled: true,
+      enabled: false,
       create: createTileNeighborConnections,
       destroy: destroyTileNeighborConnections,
       update: updateTileNeighborConnections,
@@ -152,14 +152,14 @@
       priority: 1600
     },
     'panCenterPoints': {
-      enabled: true,
+      enabled: false,
       create: createPanCenterPoints,
       destroy: destroyPanCenterPoints,
       update: updatePanCenterPoints,
       priority: 1700
     },
     'sectorAnchorCenters': {
-      enabled: true,
+      enabled: false,
       create: createSectorAnchorCenters,
       destroy: destroySectorAnchorCenters,
       update: updateSectorAnchorCenters,
