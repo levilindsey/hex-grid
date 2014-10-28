@@ -88,8 +88,8 @@
     feGaussianBlur.setAttribute('in', 'SourceGraphic');
     feGaussianBlur.setAttribute('result', 'blurOut');
 
-    job.filter = filter;
-    job.feGaussianBlur = feGaussianBlur;
+    config.filter = filter;
+    config.feGaussianBlur = feGaussianBlur;
   }
 
   /**
@@ -614,7 +614,7 @@
       updateColorValues.call(job);
       updateSegments.call(job);
 
-      job.feGaussianBlur.setAttribute('stdDeviation', job.blurStdDeviation);
+      config.feGaussianBlur.setAttribute('stdDeviation', job.blurStdDeviation);
 
       if (!job.isComplete) {
         computeCornerGapPoints.call(job);
@@ -735,6 +735,7 @@
     job.init = init;
 
     if (!config.haveDefinedLineBlur) {
+      config.haveDefinedLineBlur = true;
       defineLineBlur.call(job);
     }
 

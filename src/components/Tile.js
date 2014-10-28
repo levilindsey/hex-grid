@@ -7,6 +7,16 @@
  * @module Tile
  */
 (function () {
+  /**
+   * @typedef {Object} PostData
+   * @property {String} id
+   * @property {String} titleShort
+   * @property {String} titleLong
+   * @property {String} thumbnailSrc
+   * @property {Array.<String>} mainImages
+   * @property {String} content
+   */
+
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
@@ -62,7 +72,7 @@
     tile.svg.appendChild(tile.element);
 
     tile.element.id = 'hg-' + id;
-    tile.element.classList.add('hg-tile');
+    tile.element.setAttribute('data-hg-tile', 'data-hg-tile');
     tile.element.style.cursor = 'pointer';
 
     // Set the color and vertices
@@ -116,11 +126,9 @@
    * @this Tile
    */
   function createTilePost() {
-    var tile;
+    var tile = this;
 
-    tile = this;
-
-    // TODO: tile.tilePost = new window.hg.TilePost(tile, tile.postData);
+    tile.tilePost = new window.hg.TilePost(tile);
   }
 
   /**
@@ -129,12 +137,9 @@
    * @this Tile
    */
   function destroyTilePost() {
-    var tile;
+    var tile = this;
 
-    tile = this;
-
-    // TODO: tile.tilePost.remove();
-
+    tile.tilePost.destroy();
     tile.tilePost = null;
   }
 
@@ -477,24 +482,22 @@
 
     tile = this;
 
-    // --- Set the position of the TilePost --- //
-
-    // TODO: tile.tilePost.element.top; tile.tilePost.element.left
-
-    // --- Set the vertices --- //
-
+    // Set the vertices
     for (i = 0, pointsString = ''; i < 12;) {
       pointsString += tile.vertices[i++] + ',' + tile.vertices[i++] + ' ';
     }
-
     tile.element.setAttribute('points', pointsString);
 
-    // --- Set the color --- //
-
-    colorString = 'hsl(' + tile.currentColor.h + ',' +
-        tile.currentColor.s + '%,' +
-        tile.currentColor.l + '%)';
-    tile.element.setAttribute('fill', colorString);
+    if (!tile.holdsContent) {
+      // Set the color
+      colorString = 'hsl(' + tile.currentColor.h + ',' +
+      tile.currentColor.s + '%,' +
+      tile.currentColor.l + '%)';
+      tile.element.setAttribute('fill', colorString);
+    } else {
+      // Set the position of the TilePost
+      tile.tilePost.updatePosition(tile.particle.px, tile.particle.py);
+    }
   }
 
   /**
@@ -653,7 +656,7 @@
    * @param {Number} hue
    * @param {Number} saturation
    * @param {Number} lightness
-   * @param {?Object} postData
+   * @param {?PostData} postData
    * @param {Number} tileIndex
    * @param {Number} rowIndex
    * @param {Number} columnIndex

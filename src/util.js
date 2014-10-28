@@ -158,7 +158,7 @@
    * @param {String} className The class to add.
    */
   function addClass(element, className) {
-    element.className += ' ' + className;
+    element.setAttribute('class', element.className + ' ' + className);
   }
 
   /**
@@ -168,9 +168,9 @@
    * @param {String} className The class to remove.
    */
   function removeClass(element, className) {
-    element.className = element.className.split(' ').filter(function (value) {
+    element.setAttribute('class', element.className.split(' ').filter(function (value) {
       return value !== className;
-    }).join(' ');
+    }).join(' '));
   }
 
   /**
@@ -570,7 +570,7 @@
    */
   function findClassInSelfOrAncestors(element, className) {
     while (element) {
-      if (element.classList.contains(className)) {
+      if (window.hg.util.containsClass(element, className)) {
         return element;
       }
     }
@@ -615,7 +615,8 @@
     hsvToHsl: hsvToHsl,
     hslToHsv: hslToHsv,
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,
-    svgNamespace: 'http://www.w3.org/2000/svg'
+    svgNamespace: 'http://www.w3.org/2000/svg',
+    xlinkNamespace: 'http://www.w3.org/1999/xlink'
   };
 
   // Expose this module

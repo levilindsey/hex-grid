@@ -207,7 +207,7 @@
     grid.svg.style.position = 'relative';
     grid.svg.style.width = '100%';
     grid.svg.style.zIndex = '2147483647';
-    grid.svg.classList.add('hg-svg');
+    grid.svg.setAttribute('data-hg-svg', 'data-hg-svg');
 
     updateBackgroundColor.call(grid);
 
@@ -481,7 +481,7 @@
   }
 
   /**
-   * Sets an 'hg-index' attribute on each tile element to match that tile's current index in this
+   * Sets an 'data-hg-index' attribute on each tile element to match that tile's current index in this
    * grid's allTiles array.
    *
    * @this Grid
@@ -492,7 +492,7 @@
     grid = this;
 
     for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
-      grid.allTiles[i].element.setAttribute('hg-index', i);
+      grid.allTiles[i].element.setAttribute('data-hg-index', i);
     }
   }
 

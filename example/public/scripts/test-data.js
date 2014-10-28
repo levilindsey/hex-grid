@@ -23,23 +23,26 @@
 
   // ---  --- //
 
+  /**
+   * @returns {Array.<PostData>}
+   */
   function createTestData() {
-    var i, post, imageDirectory, bannerSrc, thumbnailSrc;
+    var i, post, imageDirectory, mainImageSrc, thumbnailSrc;
     var posts = [];
 
     imageDirectory = window.app.main.appRootPath + '/images';
     thumbnailSrc = imageDirectory + '/test-thumbnail.png';
-    bannerSrc = imageDirectory + '/test-banner.png';
+    mainImageSrc = imageDirectory + '/test-banner.png';
 
     for (i = 0; i < config.postCount; i += 1) {
       post = {};
       posts[i] = post;
 
       post.id = 'test-post-' + i;
-      post.titleShort = 'Cats';
+      post.titleShort = 'Cats\nare\nCool';
       post.titleLong = 'H.P. Lovecraft on Cats';
       post.thumbnailSrc = thumbnailSrc;
-      post.bannerSrc = bannerSrc;
+      post.mainImages = [mainImageSrc];
       post.content = config.testContent;
     }
 
