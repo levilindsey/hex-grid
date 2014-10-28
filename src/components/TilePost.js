@@ -19,7 +19,9 @@
   config = {};
 
   config.activeScreenOpacity = '0.0';
-  config.inactiveScreenOpacity = '0.9';
+  config.inactiveScreenOpacity = '0.8';
+
+  config.fontSize = 18;
 
   //  --- Dependent parameters --- //
 
@@ -39,17 +41,21 @@
     var screenColorString = 'hsl(' + window.hg.Grid.config.backgroundHue + ',' +
         window.hg.Grid.config.backgroundSaturation + '%,' + window.hg.Grid.config.backgroundLightness + '%)';
 
+    var outerSideLength = window.hg.Grid.config.tileOuterRadius * 2;
+
+    var textTop = -config.fontSize * (1.5 + 0.65 * (tilePost.tile.postData.titleShort.split('\n').length - 1));
+
     // --- Create the elements, add them to the DOM, save them in this TilePost --- //
 
     var backgroundPattern = document.createElementNS(window.hg.util.svgNamespace, 'pattern');
     var backgroundImage = document.createElementNS(window.hg.util.svgNamespace, 'image');
     var backgroundImageScreen = document.createElementNS(window.hg.util.svgNamespace, 'rect');
-    var title = stringToTSpans(tilePost.tile.postData.titleShort);
+    var title = document.createElement('h2');
 
     tilePost.tile.grid.svgDefs.appendChild(backgroundPattern);
     backgroundPattern.appendChild(backgroundImage);
     backgroundPattern.appendChild(backgroundImageScreen);
-    tilePost.tile.grid.svg.appendChild(title);
+    tilePost.tile.grid.parent.appendChild(title);
 
     tilePost.elements = [];
     tilePost.elements.backgroundPattern = backgroundPattern;
@@ -75,56 +81,25 @@
 
     tilePost.tile.element.setAttribute('fill', 'url(#' + patternId + ')');
 
-    title.setAttribute('font-family', 'Georgia, sans-serif');
-    title.setAttribute('font-size', '18px');
-    title.setAttribute('fill', '#F4F4F4');
-    title.setAttribute('x', '0');
-    title.setAttribute('width', '' + window.hg.Grid.config.tileInnerRadius * 2);
-    title.setAttribute('height', '' + window.hg.Grid.config.tileInnerRadius * 2);
+    title.innerHTML = tilePost.tile.postData.titleShort;
     title.setAttribute('hg-tile-title', 'hg-tile-title');
-    title.style.cursor = 'pointer';
+    title.style.position = 'absolute';
+    title.style.left = -outerSideLength / 2 + 'px';
+    title.style.top = textTop + 'px';
+    title.style.width = outerSideLength + 'px';
+    title.style.height = outerSideLength + 'px';
+    title.style.fontSize = config.fontSize + 'px';
+    title.style.fontFamily = 'Georgia, sans-serif';
+    title.style.textAlign = 'center';
+    title.style.whiteSpace = 'pre-wrap';
+    title.style.color = '#F4F4F4';
+    title.style.pointerEvents = 'none';
+    title.style.zIndex = '2000';
 
     updatePosition.call(tilePost, tilePost.tile.particle.px, tilePost.tile.particle.py);
     updateScreenOpacity.call(tilePost, config.inactiveScreenOpacity);
 
     // TODO: for the canvas version: http://stackoverflow.com/a/4961439/489568
-
-    // ---  --- //
-
-    /**
-     * Tokenizes the given string using the newline character as the delimiter, and creates a tspan
-     * element for each token. Returns a text element with the new tspan elements as children.
-     *
-     * @param {String} str
-     * @returns {HTMLElement}
-     */
-    function stringToTSpans(str) {
-      var i, count, tspan;
-
-      var text = document.createElementNS(window.hg.util.svgNamespace, 'text');
-      var tokens = str.split('\n');
-      var initialDy = -0.25 - (tokens.length - 2) * 0.6;
-
-      tspan = document.createElementNS(window.hg.util.svgNamespace, 'tspan');
-      text.appendChild(tspan);
-
-      tspan.textContent = tokens[0];
-      tspan.setAttribute('x', '0');
-      tspan.setAttribute('dy', initialDy + 'em');
-      tspan.setAttribute('text-anchor', 'middle');
-
-      for (i = 1, count = tokens.length; i < count; i += 1) {
-        tspan = document.createElementNS(window.hg.util.svgNamespace, 'tspan');
-        text.appendChild(tspan);
-
-        tspan.textContent = tokens[i];
-        tspan.setAttribute('x', '0');
-        tspan.setAttribute('dy', '1.2em');
-        tspan.setAttribute('text-anchor', 'middle');
-      }
-
-      return text;
-    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -143,7 +118,7 @@
    */
   function updatePosition(x, y) {
     var tilePost = this;
-    tilePost.elements.title.setAttribute('transform', 'translate(' + x + ' ' + y + ')');
+    window.hg.util.applyTransform(tilePost.elements.title, 'translate(' + x + 'px,' + y + 'px)');
   }
 
   /**

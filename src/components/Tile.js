@@ -278,7 +278,7 @@
    * @param {Boolean} isHighlighted
    */
   function setIsHighlighted(isHighlighted) {
-    var tile, hue, saturation, lightness;
+    var tile, hue, saturation, lightness, backgroundImageScreenOpacity;
 
     tile = this;
 
@@ -294,6 +294,7 @@
         saturation = tile.originalColor.s + window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
         lightness = tile.originalColor.l + window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
       }
+      backgroundImageScreenOpacity = window.hg.TilePost.config.activeScreenOpacity;
     } else {
       if (tile.isHighlighted) {
         // Remove the highlight
@@ -306,6 +307,7 @@
         saturation = tile.originalColor.s;
         lightness = tile.originalColor.l;
       }
+      backgroundImageScreenOpacity = window.hg.TilePost.config.inactiveScreenOpacity;
     }
 
     tile.originalColor.h = hue;
@@ -317,6 +319,10 @@
     tile.currentColor.l = lightness;
 
     tile.isHighlighted = isHighlighted;
+
+    if (tile.holdsContent) {
+      tile.tilePost.updateScreenOpacity(backgroundImageScreenOpacity);
+    }
   }
 
   /**
