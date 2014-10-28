@@ -206,7 +206,7 @@
     grid.svg.style.display = 'block';
     grid.svg.style.position = 'relative';
     grid.svg.style.width = '100%';
-    grid.svg.style.zIndex = '2147483647';
+    grid.svg.style.zIndex = '1000';
     grid.svg.setAttribute('data-hg-svg', 'data-hg-svg');
 
     updateBackgroundColor.call(grid);
