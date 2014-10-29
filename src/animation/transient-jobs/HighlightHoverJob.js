@@ -64,7 +64,7 @@
         (durationRatio * (window.hg.TilePost.config.inactiveScreenOpacity -
         window.hg.TilePost.config.activeScreenOpacity));
 
-    tile.tilePost.updateScreenOpacity(opacity);
+    tile.imageScreenOpacity = opacity;
   }
 
   /**

@@ -537,6 +537,7 @@
     grid.expandedTile = null;
     grid.sectors = [];
     grid.allTiles = null;
+    grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
     grid.parent.style.overflow = 'auto';
 
@@ -574,8 +575,9 @@
 
     grid = this;
 
-    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
-      grid.allTiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+    for (i = 0, count = grid.allNonContentTiles.length; i < count; i += 1) {
+      grid.allNonContentTiles[i].setColor(config.tileHue, config.tileSaturation,
+          config.tileLightness);
     }
   }
 
@@ -687,8 +689,17 @@
    */
   function updateAllTilesCollection(newTiles) {
     var grid = this;
+    var i, count, j;
 
     grid.allTiles = newTiles;
+    grid.allNonContentTiles = [];
+
+    // Create a collection of all of the non-content tiles
+    for (j = 0, i = 0, count = newTiles.length; i < count; i += 1) {
+      if (!newTiles[i].holdsContent) {
+        grid.allNonContentTiles[j++] = newTiles[i];
+      }
+    }
 
     // Reset the annotations for the new tile collection
     grid.annotations.destroyAnnotations();
@@ -744,6 +755,7 @@
     grid.expandedTile = null;
     grid.sectors = null;
     grid.allTiles = null;
+    grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
 
     grid.annotations = new window.hg.Annotations(grid);

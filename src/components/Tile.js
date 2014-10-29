@@ -325,7 +325,7 @@
     tile.isHighlighted = isHighlighted;
 
     if (tile.holdsContent) {
-      tile.tilePost.updateScreenOpacity(backgroundImageScreenOpacity);
+      tile.imageScreenOpacity = backgroundImageScreenOpacity;
     }
   }
 
@@ -479,6 +479,11 @@
 
       // Compute new vertex locations
       updateVertices.call(tile, tile.particle.px, tile.particle.py);
+
+      // Keep hovered tiles highlighted
+      if (tile.isHighlighted) {
+        tile.imageScreenOpacity = window.hg.TilePost.config.activeScreenOpacity;
+      }
     }
   }
 
@@ -505,8 +510,8 @@
       tile.currentColor.l + '%)';
       tile.element.setAttribute('fill', colorString);
     } else {
-      // Set the position of the TilePost
-      tile.tilePost.updatePosition(tile.particle.px, tile.particle.py);
+      // Set the position and opacity of the TilePost
+      tile.tilePost.draw();
     }
   }
 
@@ -707,6 +712,8 @@
     tile.expandedState = null;
 
     tile.isHighlighted = false;
+
+    tile.imageScreenOpacity = Number.NaN;
 
     tile.neighborStates = [];
     tile.vertices = null;

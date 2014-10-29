@@ -3270,6 +3270,7 @@
     grid.expandedTile = null;
     grid.sectors = [];
     grid.allTiles = null;
+    grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
     grid.parent.style.overflow = 'auto';
 
@@ -3307,8 +3308,9 @@
 
     grid = this;
 
-    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
-      grid.allTiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+    for (i = 0, count = grid.allNonContentTiles.length; i < count; i += 1) {
+      grid.allNonContentTiles[i].setColor(config.tileHue, config.tileSaturation,
+          config.tileLightness);
     }
   }
 
@@ -3420,8 +3422,17 @@
    */
   function updateAllTilesCollection(newTiles) {
     var grid = this;
+    var i, count, j;
 
     grid.allTiles = newTiles;
+    grid.allNonContentTiles = [];
+
+    // Create a collection of all of the non-content tiles
+    for (j = 0, i = 0, count = newTiles.length; i < count; i += 1) {
+      if (!newTiles[i].holdsContent) {
+        grid.allNonContentTiles[j++] = newTiles[i];
+      }
+    }
 
     // Reset the annotations for the new tile collection
     grid.annotations.destroyAnnotations();
@@ -3477,6 +3488,7 @@
     grid.expandedTile = null;
     grid.sectors = null;
     grid.allTiles = null;
+    grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
 
     grid.annotations = new window.hg.Annotations(grid);
@@ -3838,7 +3850,7 @@
     createElements.call(pagePost);
 
     console.log('PagePost created: postId=' + tile.postData.id +
-    ', tileIndex=' + tile.originalIndex);
+        ', tileIndex=' + tile.originalIndex);
   }
 
   PagePost.config = config;
@@ -4868,7 +4880,7 @@
     tile.isHighlighted = isHighlighted;
 
     if (tile.holdsContent) {
-      tile.tilePost.updateScreenOpacity(backgroundImageScreenOpacity);
+      tile.imageScreenOpacity = backgroundImageScreenOpacity;
     }
   }
 
@@ -5022,6 +5034,11 @@
 
       // Compute new vertex locations
       updateVertices.call(tile, tile.particle.px, tile.particle.py);
+
+      // Keep hovered tiles highlighted
+      if (tile.isHighlighted) {
+        tile.imageScreenOpacity = window.hg.TilePost.config.activeScreenOpacity;
+      }
     }
   }
 
@@ -5048,8 +5065,8 @@
       tile.currentColor.l + '%)';
       tile.element.setAttribute('fill', colorString);
     } else {
-      // Set the position of the TilePost
-      tile.tilePost.updatePosition(tile.particle.px, tile.particle.py);
+      // Set the position and opacity of the TilePost
+      tile.tilePost.draw();
     }
   }
 
@@ -5251,6 +5268,8 @@
 
     tile.isHighlighted = false;
 
+    tile.imageScreenOpacity = Number.NaN;
+
     tile.neighborStates = [];
     tile.vertices = null;
     tile.vertexDeltas = null;
@@ -5383,8 +5402,8 @@
     title.style.pointerEvents = 'none';
     title.style.zIndex = '2000';
 
-    updatePosition.call(tilePost, tilePost.tile.particle.px, tilePost.tile.particle.py);
-    updateScreenOpacity.call(tilePost, config.inactiveScreenOpacity);
+    tilePost.tile.imageScreenOpacity = config.inactiveScreenOpacity;
+    draw.call(tilePost);
 
     // TODO: for the canvas version: http://stackoverflow.com/a/4961439/489568
   }
@@ -5400,21 +5419,14 @@
 
   /**
    * @this TilePost
-   * @param {Number} x
-   * @param {Number} y
    */
-  function updatePosition(x, y) {
+  function draw() {
     var tilePost = this;
-    window.hg.util.applyTransform(tilePost.elements.title, 'translate(' + x + 'px,' + y + 'px)');
-  }
 
-  /**
-   * @this TilePost
-   * @param {String} opacity
-   */
-  function updateScreenOpacity(opacity) {
-    var tilePost = this;
-    tilePost.elements.backgroundImageScreen.setAttribute('opacity', opacity);
+    window.hg.util.applyTransform(tilePost.elements.title,
+        'translate(' + tilePost.tile.particle.px + 'px,' + tilePost.tile.particle.py + 'px)');
+    tilePost.elements.backgroundImageScreen.setAttribute('opacity',
+        tilePost.tile.imageScreenOpacity);
   }
 
   /**
@@ -5441,8 +5453,7 @@
     tilePost.tile = tile;
     tilePost.elements = null;
 
-    tilePost.updatePosition = updatePosition;
-    tilePost.updateScreenOpacity = updateScreenOpacity;
+    tilePost.draw = draw;
     tilePost.destroy = destroy;
 
     createElements.call(tilePost);
@@ -5520,6 +5531,7 @@
       job.grid.allTiles[i].currentColor.h = job.grid.allTiles[i].originalColor.h;
       job.grid.allTiles[i].currentColor.s = job.grid.allTiles[i].originalColor.s;
       job.grid.allTiles[i].currentColor.l = job.grid.allTiles[i].originalColor.l;
+      job.grid.allTiles[i].imageScreenOpacity = window.hg.TilePost.config.inactiveScreenOpacity;
     }
   }
 
@@ -5745,6 +5757,8 @@
   config.deltaSaturation = 0;
   config.deltaLightness = 5;
 
+  config.deltaOpacityImageBackgroundScreen = 0.18;
+
   config.opacity = 0.5;
 
   //  --- Dependent parameters --- //
@@ -5769,17 +5783,31 @@
     job = this;
 
     halfWaveProgressWavelength = config.wavelength / 2;
-    job.waveProgressOffsets = [];
+    job.waveProgressOffsetsNonContentTiles = [];
+    job.waveProgressOffsetsContentTiles = [];
 
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      tile = job.grid.allTiles[i];
+    // Calculate offsets for the non-content tiles
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      tile = job.grid.allNonContentTiles[i];
 
       deltaX = tile.originalAnchor.x - config.originX;
       deltaY = tile.originalAnchor.y - config.originY;
       length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
-      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
-          / halfWaveProgressWavelength;
+      job.waveProgressOffsetsNonContentTiles[i] =
+          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
+    }
+
+    // Calculate offsets for the content tiles
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      tile = job.grid.contentTiles[i];
+
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsetsContentTiles[i] =
+          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
     }
   }
 
@@ -5787,21 +5815,34 @@
   // Private static functions
 
   /**
-   * Updates the animation progress of the given tile.
+   * Updates the animation progress of the given non-content tile.
    *
-   * @param {Number} progress
+   * @param {Number} progress From -1 to 1
    * @param {Tile} tile
-   * @param {Number} waveProgressOffset
+   * @param {Number} waveProgressOffset From -1 to 1
    */
-  function updateTile(progress, tile, waveProgressOffset) {
+  function updateNonContentTile(progress, tile, waveProgressOffset) {
     var tileProgress =
         Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.currentColor.h = tile.currentColor.h + config.deltaHue * tileProgress * config.opacity;
-    tile.currentColor.s =
-        tile.currentColor.s + config.deltaSaturation * tileProgress * config.opacity;
-    tile.currentColor.l =
-        tile.currentColor.l + config.deltaLightness * tileProgress * config.opacity;
+    tile.currentColor.h += config.deltaHue * tileProgress * config.opacity;
+    tile.currentColor.s += config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentColor.l += config.deltaLightness * tileProgress * config.opacity;
+  }
+
+  /**
+   * Updates the animation progress of the given content tile.
+   *
+   * @param {Number} progress From -1 to 1
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset From -1 to 1
+   */
+  function updateContentTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI) * 0.5 + 0.5;
+
+    tile.imageScreenOpacity += -tileProgress * config.opacity *
+        config.deltaOpacityImageBackgroundScreen;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -5835,8 +5876,14 @@
 
     progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
 
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.allTiles[i], job.waveProgressOffsets[i]);
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      updateNonContentTile(progress, job.grid.allNonContentTiles[i],
+          job.waveProgressOffsetsNonContentTiles[i]);
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      updateContentTile(progress, job.grid.contentTiles[i],
+          job.waveProgressOffsetsContentTiles[i]);
     }
   }
 
@@ -5884,7 +5931,8 @@
     var job = this;
 
     job.grid = grid;
-    job.waveProgressOffsets = null;
+    job.waveProgressOffsetsNonContentTiles = null;
+    job.waveProgressOffsetsContentTiles = null;
     job.startTime = 0;
     job.isComplete = true;
 
@@ -6755,7 +6803,7 @@
         (durationRatio * (window.hg.TilePost.config.inactiveScreenOpacity -
         window.hg.TilePost.config.activeScreenOpacity));
 
-    tile.tilePost.updateScreenOpacity(opacity);
+    tile.imageScreenOpacity = opacity;
   }
 
   /**
@@ -6941,10 +6989,17 @@
 
     distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
 
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      deltaX = job.grid.allTiles[i].originalAnchor.x - job.startPoint.x;
-      deltaY = job.grid.allTiles[i].originalAnchor.y - job.startPoint.y;
-      job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      deltaX = job.grid.allNonContentTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.allNonContentTiles[i].originalAnchor.y - job.startPoint.y;
+      job.distancesNonContentTiles[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) +
+          distanceOffset;
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      deltaX = job.grid.contentTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.contentTiles[i].originalAnchor.y - job.startPoint.y;
+      job.distancesContentTiles[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
     }
   }
 
@@ -6956,56 +7011,46 @@
 
     console.log('HighlightRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
-    resetAllContentTiles.call(job);
-
     job.isComplete = true;
 
     job.onComplete();
-  }
-
-  /**
-   * @this HighlightRadiateJob
-   */
-  function resetAllContentTiles() {
-    var job, i, count;
-
-    job = this;
-
-    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
-      job.grid.contentTiles[i].tilePost.updateScreenOpacity(
-          window.hg.TilePost.config.inactiveScreenOpacity);
-    }
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
   /**
-   * Updates the color of the given tile according to the given waveWidthRatio and durationRatio.
+   * Updates the color of the given non-content tile according to the given waveWidthRatio and
+   * durationRatio.
    *
    * @param {Tile} tile
    * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
    * shimmer distances.
-   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
    * duration.
    */
-  function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
-    var opacity;
+  function updateNonContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    var opacity = waveWidthRatio * config.opacity * oneMinusDurationRatio;
 
-    if (tile.holdsContent) {
-      opacity = window.hg.TilePost.config.inactiveScreenOpacity -
-          waveWidthRatio * config.opacity * oneMinusDurationRatio *
-          (window.hg.TilePost.config.inactiveScreenOpacity -
-          window.hg.TilePost.config.activeScreenOpacity);
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
+  }
 
-      tile.tilePost.updateScreenOpacity(opacity);
-    } else {
-      opacity = waveWidthRatio * config.opacity * oneMinusDurationRatio;
-
-      tile.currentColor.h += config.deltaHue * opacity;
-      tile.currentColor.s += config.deltaSaturation * opacity;
-      tile.currentColor.l += config.deltaLightness * opacity;
-    }
+  /**
+   * Updates the color of the given content tile according to the given waveWidthRatio and
+   * durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * shimmer distances.
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    tile.imageScreenOpacity += -waveWidthRatio * config.opacity * oneMinusDurationRatio *
+        (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -7048,13 +7093,26 @@
 
       animatedSomeTile = false;
 
-      for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-        distance = job.tileDistances[i];
+      for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+        distance = job.distancesNonContentTiles[i];
 
         if (distance > currentMinDistance && distance < currentMaxDistance) {
           waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
 
-          updateTile(job.grid.allTiles[i], waveWidthRatio, oneMinusDurationRatio);
+          updateNonContentTile(job.grid.allNonContentTiles[i], waveWidthRatio,
+              oneMinusDurationRatio);
+
+          animatedSomeTile = true;
+        }
+      }
+
+      for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+        distance = job.distancesContentTiles[i];
+
+        if (distance > currentMinDistance && distance < currentMaxDistance) {
+          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+
+          updateContentTile(job.grid.contentTiles[i], waveWidthRatio, oneMinusDurationRatio);
 
           animatedSomeTile = true;
         }
@@ -7109,7 +7167,8 @@
 
     job.grid = grid;
     job.startPoint = {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
-    job.tileDistances = [];
+    job.distancesNonContentTiles = [];
+    job.distancesContentTiles = [];
     job.startTime = 0;
     job.isComplete = true;
 

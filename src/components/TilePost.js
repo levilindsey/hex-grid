@@ -91,8 +91,8 @@
     title.style.pointerEvents = 'none';
     title.style.zIndex = '2000';
 
-    updatePosition.call(tilePost, tilePost.tile.particle.px, tilePost.tile.particle.py);
-    updateScreenOpacity.call(tilePost, config.inactiveScreenOpacity);
+    tilePost.tile.imageScreenOpacity = config.inactiveScreenOpacity;
+    draw.call(tilePost);
 
     // TODO: for the canvas version: http://stackoverflow.com/a/4961439/489568
   }
@@ -108,21 +108,14 @@
 
   /**
    * @this TilePost
-   * @param {Number} x
-   * @param {Number} y
    */
-  function updatePosition(x, y) {
+  function draw() {
     var tilePost = this;
-    window.hg.util.applyTransform(tilePost.elements.title, 'translate(' + x + 'px,' + y + 'px)');
-  }
 
-  /**
-   * @this TilePost
-   * @param {String} opacity
-   */
-  function updateScreenOpacity(opacity) {
-    var tilePost = this;
-    tilePost.elements.backgroundImageScreen.setAttribute('opacity', opacity);
+    window.hg.util.applyTransform(tilePost.elements.title,
+        'translate(' + tilePost.tile.particle.px + 'px,' + tilePost.tile.particle.py + 'px)');
+    tilePost.elements.backgroundImageScreen.setAttribute('opacity',
+        tilePost.tile.imageScreenOpacity);
   }
 
   /**
@@ -149,8 +142,7 @@
     tilePost.tile = tile;
     tilePost.elements = null;
 
-    tilePost.updatePosition = updatePosition;
-    tilePost.updateScreenOpacity = updateScreenOpacity;
+    tilePost.draw = draw;
     tilePost.destroy = destroy;
 
     createElements.call(tilePost);
