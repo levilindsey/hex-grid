@@ -15,6 +15,9 @@
 
   config = {};
 
+  config.fontSize = 16;
+  config.titleFontSize = 22;
+
   // TODO:
 
   //  --- Dependent parameters --- //
@@ -31,14 +34,57 @@
    * @this PagePost
    */
   function createElements() {
-    var tilePost = this;
+    var pagePost = this;
+
+    var horizontalSideLength = window.hg.Grid.config.tileShortLengthWithGap *
+        (window.hg.OpenPostJob.config.expandedDisplacementTileCount + 2);
+    var verticalSideLength = window.hg.Grid.config.longGap *
+        ((window.hg.OpenPostJob.config.expandedDisplacementTileCount - 1) * 2 + 1) +
+        window.hg.Grid.config.tileOuterRadius *
+        (3 * window.hg.OpenPostJob.config.expandedDisplacementTileCount - 1);
+
+    var width, height;
+
+    if (pagePost.tile.grid.isVertical) {
+      width = horizontalSideLength;
+      height = verticalSideLength;
+    } else {
+      width = verticalSideLength;
+      height = horizontalSideLength;
+    }
+
+    var top = pagePost.tile.grid.originalCenter.y - height / 2;
+    var left = pagePost.tile.grid.originalCenter.x - width / 2;
+
+    // ---  --- //
 
     var container = document.createElement('div');
     var title = document.createElement('h1');
 
-    tilePost.elements = [];
-    tilePost.elements.container = container;
-    tilePost.elements.title = title;
+    pagePost.tile.grid.parent.appendChild(container);
+    container.appendChild(title);
+
+    pagePost.elements = [];
+    pagePost.elements.container = container;
+    pagePost.elements.title = title;
+
+    title.setAttribute('data-hg-post-container', 'data-hg-post-container');
+    title.style.position = 'absolute';
+    title.style.left = -left / 2 + 'px';
+    title.style.top = top + 'px';
+    title.style.width = width + 'px';
+    title.style.height = height + 'px';
+    title.style.margin = '0px';
+    title.style.padding = 20 + 'px';
+    title.style.fontSize = config.fontSize + 'px';
+    title.style.fontFamily = 'Georgia, sans-serif';
+    title.style.color = '#F4F4F4';
+    container.style.zIndex = '500';
+
+    title.innerHTML = pagePost.tile.postData.titleLong;
+    title.style.fontSize = config.fontSize + 'px';
+    title.style.fontFamily = 'Georgia, sans-serif';
+    title.style.textAlign = 'center';
 
     //**;
     // TODO:
@@ -96,6 +142,9 @@
     pagePost.destroy = destroy;
 
     createElements.call(pagePost);
+
+    console.log('PagePost created: postId=' + tile.postData.id +
+        ', tileIndex=' + tile.originalIndex);
   }
 
   PagePost.config = config;

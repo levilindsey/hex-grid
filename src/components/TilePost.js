@@ -9,11 +9,6 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
-// TODO:
-
-// TODO: tilePost.element.setAttribute('hg-post-tilePost', 'hg-post-tilePost'); to any tilePost that contains a TilePost (and remove it when destroying the post)
-// TODO: post.element.style.pointerEvents = 'none';
-
   var config;
 
   config = {};
@@ -82,7 +77,7 @@
     tilePost.tile.element.setAttribute('fill', 'url(#' + patternId + ')');
 
     title.innerHTML = tilePost.tile.postData.titleShort;
-    title.setAttribute('hg-tile-title', 'hg-tile-title');
+    title.setAttribute('data-hg-tile-title', 'data-hg-tile-title');
     title.style.position = 'absolute';
     title.style.left = -outerSideLength / 2 + 'px';
     title.style.top = textTop + 'px';

@@ -42,9 +42,10 @@
 
     config.tileInnerRadius = config.tileOuterRadius * config.sqrtThreeOverTwo;
 
+    config.longGap = config.tileGap * config.twoOverSqrtThree;
+
     config.tileShortLengthWithGap = config.tileInnerRadius * 2 + config.tileGap;
-    config.tileLongLengthWithGap =
-        config.tileOuterRadius * 2 + config.tileGap * config.twoOverSqrtThree;
+    config.tileLongLengthWithGap = config.tileOuterRadius * 2 + config.longGap;
   };
 
   config.computeDependentValues();
@@ -669,6 +670,16 @@
   }
 
   /**
+   * @this Grid
+   * @param {Tile} tile
+   */
+  function createPagePost(tile) {
+    var grid = this;
+
+    grid.pagePost = new window.hg.PagePost(tile);
+  }
+
+  /**
    * Sets the allTiles property to be the given array.
    *
    * @this Grid
@@ -771,6 +782,7 @@
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
+    grid.createPagePost = createPagePost;
     grid.updateAllTilesCollection = updateAllTilesCollection;
 
     createSvg.call(grid);

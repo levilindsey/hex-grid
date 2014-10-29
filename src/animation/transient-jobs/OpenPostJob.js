@@ -167,6 +167,8 @@
     panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
     setFinalPositions.call(job, panDisplacementX, panDisplacementY);
 
+    job.grid.createPagePost(job.baseTile);
+
     // TODO: this should instead fade out the old persistent animations and fade in the new ones
     window.hg.controller.resetPersistentJobs(job.grid);
   }

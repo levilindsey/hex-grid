@@ -2775,9 +2775,10 @@
 
     config.tileInnerRadius = config.tileOuterRadius * config.sqrtThreeOverTwo;
 
+    config.longGap = config.tileGap * config.twoOverSqrtThree;
+
     config.tileShortLengthWithGap = config.tileInnerRadius * 2 + config.tileGap;
-    config.tileLongLengthWithGap =
-        config.tileOuterRadius * 2 + config.tileGap * config.twoOverSqrtThree;
+    config.tileLongLengthWithGap = config.tileOuterRadius * 2 + config.longGap;
   };
 
   config.computeDependentValues();
@@ -3402,6 +3403,16 @@
   }
 
   /**
+   * @this Grid
+   * @param {Tile} tile
+   */
+  function createPagePost(tile) {
+    var grid = this;
+
+    grid.pagePost = new window.hg.PagePost(tile);
+  }
+
+  /**
    * Sets the allTiles property to be the given array.
    *
    * @this Grid
@@ -3504,6 +3515,7 @@
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
+    grid.createPagePost = createPagePost;
     grid.updateAllTilesCollection = updateAllTilesCollection;
 
     createSvg.call(grid);
@@ -3697,6 +3709,9 @@
 
   config = {};
 
+  config.fontSize = 16;
+  config.titleFontSize = 22;
+
   // TODO:
 
   //  --- Dependent parameters --- //
@@ -3713,14 +3728,57 @@
    * @this PagePost
    */
   function createElements() {
-    var tilePost = this;
+    var pagePost = this;
+
+    var horizontalSideLength = window.hg.Grid.config.tileShortLengthWithGap *
+        (window.hg.OpenPostJob.config.expandedDisplacementTileCount + 2);
+    var verticalSideLength = window.hg.Grid.config.longGap *
+        ((window.hg.OpenPostJob.config.expandedDisplacementTileCount - 1) * 2 + 1) +
+        window.hg.Grid.config.tileOuterRadius *
+        (3 * window.hg.OpenPostJob.config.expandedDisplacementTileCount - 1);
+
+    var width, height;
+
+    if (pagePost.tile.grid.isVertical) {
+      width = horizontalSideLength;
+      height = verticalSideLength;
+    } else {
+      width = verticalSideLength;
+      height = horizontalSideLength;
+    }
+
+    var top = pagePost.tile.grid.originalCenter.y - height / 2;
+    var left = pagePost.tile.grid.originalCenter.x - width / 2;
+
+    // ---  --- //
 
     var container = document.createElement('div');
     var title = document.createElement('h1');
 
-    tilePost.elements = [];
-    tilePost.elements.container = container;
-    tilePost.elements.title = title;
+    pagePost.tile.grid.parent.appendChild(container);
+    container.appendChild(title);
+
+    pagePost.elements = [];
+    pagePost.elements.container = container;
+    pagePost.elements.title = title;
+
+    title.setAttribute('data-hg-post-container', 'data-hg-post-container');
+    title.style.position = 'absolute';
+    title.style.left = -left / 2 + 'px';
+    title.style.top = top + 'px';
+    title.style.width = width + 'px';
+    title.style.height = height + 'px';
+    title.style.margin = '0px';
+    title.style.padding = 20 + 'px';
+    title.style.fontSize = config.fontSize + 'px';
+    title.style.fontFamily = 'Georgia, sans-serif';
+    title.style.color = '#F4F4F4';
+    container.style.zIndex = '500';
+
+    title.innerHTML = pagePost.tile.postData.titleLong;
+    title.style.fontSize = config.fontSize + 'px';
+    title.style.fontFamily = 'Georgia, sans-serif';
+    title.style.textAlign = 'center';
 
     //**;
     // TODO:
@@ -3778,6 +3836,9 @@
     pagePost.destroy = destroy;
 
     createElements.call(pagePost);
+
+    console.log('PagePost created: postId=' + tile.postData.id +
+    ', tileIndex=' + tile.originalIndex);
   }
 
   PagePost.config = config;
@@ -4610,6 +4671,8 @@
   function createTilePost() {
     var tile = this;
 
+    tile.element.setAttribute('data-hg-post-tilePost', 'data-hg-post-tilePost');
+
     tile.tilePost = new window.hg.TilePost(tile);
   }
 
@@ -4620,6 +4683,8 @@
    */
   function destroyTilePost() {
     var tile = this;
+
+    tile.element.removeAttribute('data-hg-post-tilePost');
 
     tile.tilePost.destroy();
     tile.tilePost = null;
@@ -5236,11 +5301,6 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
-// TODO:
-
-// TODO: tilePost.element.setAttribute('hg-post-tilePost', 'hg-post-tilePost'); to any tilePost that contains a TilePost (and remove it when destroying the post)
-// TODO: post.element.style.pointerEvents = 'none';
-
   var config;
 
   config = {};
@@ -5309,7 +5369,7 @@
     tilePost.tile.element.setAttribute('fill', 'url(#' + patternId + ')');
 
     title.innerHTML = tilePost.tile.postData.titleShort;
-    title.setAttribute('hg-tile-title', 'hg-tile-title');
+    title.setAttribute('data-hg-tile-title', 'data-hg-tile-title');
     title.style.position = 'absolute';
     title.style.left = -outerSideLength / 2 + 'px';
     title.style.top = textTop + 'px';
@@ -6933,9 +6993,6 @@
     var opacity;
 
     if (tile.holdsContent) {
-      //opacity = window.hg.TilePost.config.activeScreenOpacity + (1 - waveWidthRatio) *
-      //    durationRatio * (window.hg.TilePost.config.inactiveScreenOpacity -
-      //    window.hg.TilePost.config.activeScreenOpacity);//config.opacity *
       opacity = window.hg.TilePost.config.inactiveScreenOpacity -
           waveWidthRatio * config.opacity * oneMinusDurationRatio *
           (window.hg.TilePost.config.inactiveScreenOpacity -
@@ -8885,6 +8942,8 @@
     panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
     panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
     setFinalPositions.call(job, panDisplacementX, panDisplacementY);
+
+    job.grid.createPagePost(job.baseTile);
 
     // TODO: this should instead fade out the old persistent animations and fade in the new ones
     window.hg.controller.resetPersistentJobs(job.grid);

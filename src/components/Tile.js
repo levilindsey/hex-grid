@@ -128,6 +128,8 @@
   function createTilePost() {
     var tile = this;
 
+    tile.element.setAttribute('data-hg-post-tilePost', 'data-hg-post-tilePost');
+
     tile.tilePost = new window.hg.TilePost(tile);
   }
 
@@ -138,6 +140,8 @@
    */
   function destroyTilePost() {
     var tile = this;
+
+    tile.element.removeAttribute('data-hg-post-tilePost');
 
     tile.tilePost.destroy();
     tile.tilePost = null;
