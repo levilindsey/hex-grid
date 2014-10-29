@@ -5245,8 +5245,8 @@
 
   config = {};
 
-  config.activeScreenOpacity = '0.0';
-  config.inactiveScreenOpacity = '0.8';
+  config.activeScreenOpacity = 0.0;
+  config.inactiveScreenOpacity = 0.8;
 
   config.fontSize = 18;
 
@@ -6683,18 +6683,34 @@
   // Private static functions
 
   /**
-   * Updates the color of the given tile according to the given durationRatio.
+   * Updates the background image screen opacity of the given content tile according to the given
+   * durationRatio.
    *
    * @param {Tile} tile
-   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
    * duration.
    */
-  function updateTile(tile, oneMinusDurationRatio) {
-    var opacity = config.opacity * oneMinusDurationRatio;
+  function updateContentTile(tile, durationRatio) {
+    var opacity = window.hg.TilePost.config.activeScreenOpacity +
+        (durationRatio * (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity));
 
-    tile.currentColor.h = tile.currentColor.h + config.deltaHue * opacity;
-    tile.currentColor.s = tile.currentColor.s + config.deltaSaturation * opacity;
-    tile.currentColor.l = tile.currentColor.l + config.deltaLightness * opacity;
+    tile.tilePost.updateScreenOpacity(opacity);
+  }
+
+  /**
+   * Updates the color of the given non-content tile according to the given durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateNonContentTile(tile, durationRatio) {
+    var opacity = config.opacity * (1 - durationRatio);
+
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -6722,16 +6738,24 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, oneMinusDurationRatio;
+    var job, durationRatio;
 
     job = this;
 
+    // When the tile is re-highlighted after this job has started, then this job should be
+    // cancelled
+    if (job.tile.isHighlighted) {
+      job.cancel();
+      return;
+    }
+
     if (currentTime > job.startTime + config.duration) {
+      job.updateTile(job.tile, 1);
       handleComplete.call(job, false);
     } else {
-      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+      durationRatio = (currentTime - job.startTime) / config.duration;
 
-      updateTile(job.tile, oneMinusDurationRatio);
+      job.updateTile(job.tile, durationRatio);
     }
   }
 
@@ -6780,6 +6804,8 @@
     job.tile = tile;
     job.startTime = 0;
     job.isComplete = true;
+
+    job.updateTile = tile.holdsContent ? updateContentTile : updateNonContentTile;
 
     job.start = start;
     job.update = update;
@@ -6870,9 +6896,25 @@
 
     console.log('HighlightRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
+    resetAllContentTiles.call(job);
+
     job.isComplete = true;
 
     job.onComplete();
+  }
+
+  /**
+   * @this HighlightRadiateJob
+   */
+  function resetAllContentTiles() {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      job.grid.contentTiles[i].tilePost.updateScreenOpacity(
+          window.hg.TilePost.config.inactiveScreenOpacity);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -6884,17 +6926,29 @@
    * @param {Tile} tile
    * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
    * shimmer distances.
-   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
    * duration.
    */
   function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
-    var opacity = config.opacity * oneMinusDurationRatio;
+    var opacity;
 
-    tile.currentColor.h = tile.currentColor.h + config.deltaHue * waveWidthRatio * opacity;
-    tile.currentColor.s =
-        tile.currentColor.s + config.deltaSaturation * waveWidthRatio * opacity;
-    tile.currentColor.l =
-        tile.currentColor.l + config.deltaLightness * waveWidthRatio * opacity;
+    if (tile.holdsContent) {
+      //opacity = window.hg.TilePost.config.activeScreenOpacity + (1 - waveWidthRatio) *
+      //    durationRatio * (window.hg.TilePost.config.inactiveScreenOpacity -
+      //    window.hg.TilePost.config.activeScreenOpacity);//config.opacity *
+      opacity = window.hg.TilePost.config.inactiveScreenOpacity -
+          waveWidthRatio * config.opacity * oneMinusDurationRatio *
+          (window.hg.TilePost.config.inactiveScreenOpacity -
+          window.hg.TilePost.config.activeScreenOpacity);
+
+      tile.tilePost.updateScreenOpacity(opacity);
+    } else {
+      opacity = waveWidthRatio * config.opacity * oneMinusDurationRatio;
+
+      tile.currentColor.h += config.deltaHue * opacity;
+      tile.currentColor.s += config.deltaSaturation * opacity;
+      tile.currentColor.l += config.deltaLightness * opacity;
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //

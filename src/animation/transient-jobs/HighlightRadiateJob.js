@@ -68,9 +68,25 @@
 
     console.log('HighlightRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
+    resetAllContentTiles.call(job);
+
     job.isComplete = true;
 
     job.onComplete();
+  }
+
+  /**
+   * @this HighlightRadiateJob
+   */
+  function resetAllContentTiles() {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      job.grid.contentTiles[i].tilePost.updateScreenOpacity(
+          window.hg.TilePost.config.inactiveScreenOpacity);
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -82,17 +98,26 @@
    * @param {Tile} tile
    * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
    * shimmer distances.
-   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
    * duration.
    */
   function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
-    var opacity = config.opacity * oneMinusDurationRatio;
+    var opacity;
 
-    tile.currentColor.h = tile.currentColor.h + config.deltaHue * waveWidthRatio * opacity;
-    tile.currentColor.s =
-        tile.currentColor.s + config.deltaSaturation * waveWidthRatio * opacity;
-    tile.currentColor.l =
-        tile.currentColor.l + config.deltaLightness * waveWidthRatio * opacity;
+    if (tile.holdsContent) {
+      opacity = window.hg.TilePost.config.inactiveScreenOpacity -
+          waveWidthRatio * config.opacity * oneMinusDurationRatio *
+          (window.hg.TilePost.config.inactiveScreenOpacity -
+          window.hg.TilePost.config.activeScreenOpacity);
+
+      tile.tilePost.updateScreenOpacity(opacity);
+    } else {
+      opacity = waveWidthRatio * config.opacity * oneMinusDurationRatio;
+
+      tile.currentColor.h += config.deltaHue * opacity;
+      tile.currentColor.s += config.deltaSaturation * opacity;
+      tile.currentColor.l += config.deltaLightness * opacity;
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //

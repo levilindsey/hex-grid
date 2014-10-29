@@ -18,8 +18,8 @@
 
   config = {};
 
-  config.activeScreenOpacity = '0.0';
-  config.inactiveScreenOpacity = '0.8';
+  config.activeScreenOpacity = 0.0;
+  config.inactiveScreenOpacity = 0.8;
 
   config.fontSize = 18;
 
