@@ -110,12 +110,16 @@
    * @this TilePost
    */
   function draw() {
+    var backgroundImageScreenOpacity;
     var tilePost = this;
+
+    // Keep hovered tiles highlighted
+    backgroundImageScreenOpacity = tilePost.tile.isHighlighted ?
+        window.hg.TilePost.config.activeScreenOpacity : tilePost.tile.imageScreenOpacity;
 
     window.hg.util.applyTransform(tilePost.elements.title,
         'translate(' + tilePost.tile.particle.px + 'px,' + tilePost.tile.particle.py + 'px)');
-    tilePost.elements.backgroundImageScreen.setAttribute('opacity',
-        tilePost.tile.imageScreenOpacity);
+    tilePost.elements.backgroundImageScreen.setAttribute('opacity', backgroundImageScreenOpacity);
   }
 
   /**
