@@ -1,11 +1,11 @@
 /**
- * @typedef {AnimationJob} PanJob
+ * @typedef {AnimationJob} DilateSectorsJob
  */
 
 /**
- * This module defines a constructor for PanJob objects.
+ * This module defines a constructor for DilateSectorsJob objects.
  *
- * @module PanJob
+ * @module DilateSectorsJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -13,13 +13,7 @@
 
   var config = {};
 
-  config.duration = 400;
-
-  config.displacementRatio = 0.28;
-
-  config.isRecurring = false;
-  config.avgDelay = 300;
-  config.delayDeviationRange = 0;
+  config.duration = 500;
 
   //  --- Dependent parameters --- //
 
@@ -32,35 +26,33 @@
   // Private dynamic functions
 
   /**
-   * @this PanJob
+   * @this DilateSectorsJob
    */
   function handleComplete(wasCancelled) {
     var job = this;
 
-    console.log('PanJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+    console.log('DilateSectorsJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
     job.isComplete = true;
-
     job.onComplete();
   }
 
   /**
-   * @this PanJob
+   * @this OpenPostJob
    */
   function setFinalPositions() {
-    var job, i, count;
+    var i;
 
-    job = this;
+    var job = this;
 
-    // Displace the tiles
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].originalAnchor.x += job.displacement.x;
-      job.grid.allTiles[i].originalAnchor.y += job.displacement.y;
+    // Displace the sectors
+    for (i = 0; i < 6; i += 1) {
+      // Update the Sector's base position to account for the panning
+      job.sectors[i].originalAnchor.x += job.panDisplacement.x;
+      job.sectors[i].originalAnchor.y += job.panDisplacement.y;
+
+      job.sectors[i].setOriginalPositionForExpansion(job.isExpanding);
     }
-
-    // Update the grid
-    job.grid.panCenter.x += job.displacement.x;
-    job.grid.panCenter.y += job.displacement.y;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -70,15 +62,12 @@
   // Public dynamic functions
 
   /**
-   * Sets this PanJob as started.
+   * Sets this DilateSectorsJob as started.
    *
-   * @this PanJob
+   * @this DilateSectorsJob
    */
   function start() {
     var job = this;
-
-    job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
-    job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
 
     job.startTime = Date.now();
     job.isComplete = false;
@@ -88,16 +77,16 @@
   }
 
   /**
-   * Updates the animation progress of this PanJob to match the given time.
+   * Updates the animation progress of this DilateSectorsJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this PanJob
+   * @this DilateSectorsJob
    * @param {Number} currentTime
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, progress, i, count, displacementX, displacementY;
+    var job, progress, i, dx, dy;
 
     job = this;
 
@@ -105,20 +94,15 @@
     // Because the final positions were set at the start, the progress needs to update in "reverse"
     progress = (currentTime - job.startTime) / job.duration;
     progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
-    progress = progress < 0 ? 0 : progress;
+    progress = progress < 0 ? 0 : (job.isExpanding ? progress : -progress);
 
-    displacementX = job.reverseDisplacement.x * progress;
-    displacementY = job.reverseDisplacement.y * progress;
+    // Update the offsets for each of the six sectors
+    for (i = 0; i < 6; i += 1) {
+      dx = job.sectors[i].expandedDisplacement.x * progress;
+      dy = job.sectors[i].expandedDisplacement.y * progress;
 
-    // Displace the tiles
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].currentAnchor.x += displacementX;
-      job.grid.allTiles[i].currentAnchor.y += displacementY;
+      job.sectors[i].updateCurrentPosition(dx, dy);
     }
-
-    // Update the grid
-    job.grid.currentCenter.x = job.grid.panCenter.x + displacementX;
-    job.grid.currentCenter.y = job.grid.panCenter.y + displacementY;
 
     // Is the job done?
     if (progress === 0) {
@@ -127,20 +111,20 @@
   }
 
   /**
-   * Draws the current state of this PanJob.
+   * Draws the current state of this DilateSectorsJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this PanJob
+   * @this DilateSectorsJob
    */
   function draw() {
     // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
-   * Stops this PanJob, and returns the element its original form.
+   * Stops this DilateSectorsJob, and returns the element its original form.
    *
-   * @this PanJob
+   * @this DilateSectorsJob
    */
   function cancel() {
     var job = this;
@@ -149,9 +133,12 @@
   }
 
   /**
-   * @this PanJob
+   * @this DilateSectorsJob
    */
   function init() {
+    var job = this;
+
+    config.computeDependentValues();
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -161,25 +148,21 @@
    * @constructor
    * @global
    * @param {Grid} grid
-   * @param {?Tile} tile
+   * @param {Tile} tile
    * @param {Function} onComplete
-   * @param {{x:Number,y:Number}} [destinationPoint]
+   * @param {{x:Number,y:Number}} panDisplacement
    */
-  function PanJob(grid, tile, onComplete, destinationPoint) {
+  function DilateSectorsJob(grid, tile, onComplete, panDisplacement) {
     var job = this;
 
     job.grid = grid;
-    job.baseTile = tile;
-    job.reverseDisplacement = null;
-    job.displacement = null;
+    job.baseTile = grid.expandedTile;
     job.startTime = 0;
     job.isComplete = true;
-
-    // The current viewport coordinates of the point that we would like to move to the center of the viewport
-    job.endPoint = destinationPoint || {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
-
-    // The center of the viewport
-    job.startPoint = {x: grid.originalCenter.x, y: grid.originalCenter.y};
+    job.panDisplacement = panDisplacement;
+    job.sectors = grid.sectors;
+    job.parentExpansionJob = job.grid.lastExpansionJob;
+    job.isExpanding = grid.isPostOpen;
 
     job.duration = config.duration;
 
@@ -190,14 +173,14 @@
     job.onComplete = onComplete;
     job.init = init;
 
-    console.log('PanJob created: tileIndex=' + job.baseTile.originalIndex);
+    console.log('DilateSectorsJob created: tileIndex=' + job.baseTile.originalIndex);
   }
 
-  PanJob.config = config;
+  DilateSectorsJob.config = config;
 
   // Expose this module
   window.hg = window.hg || {};
-  window.hg.PanJob = PanJob;
+  window.hg.DilateSectorsJob = DilateSectorsJob;
 
-  console.log('PanJob module loaded');
+  console.log('DilateSectorsJob module loaded');
 })();

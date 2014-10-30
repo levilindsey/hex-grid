@@ -9,16 +9,12 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
-// TODO:
-
   var config;
 
   config = {};
 
-  config.fontSize = 16;
-  config.titleFontSize = 22;
-
-  // TODO:
+  config.fontSize = 18;
+  config.titleFontSize = 24;
 
   //  --- Dependent parameters --- //
 
@@ -37,73 +33,76 @@
     var pagePost = this;
 
     var horizontalSideLength = window.hg.Grid.config.tileShortLengthWithGap *
-        (window.hg.OpenPostJob.config.expandedDisplacementTileCount + 2);
+        (window.hg.OpenPostJob.config.expandedDisplacementTileCount + 4.25);
     var verticalSideLength = window.hg.Grid.config.longGap *
-        ((window.hg.OpenPostJob.config.expandedDisplacementTileCount - 1) * 2 + 1) +
+        (window.hg.OpenPostJob.config.expandedDisplacementTileCount * 2) +
         window.hg.Grid.config.tileOuterRadius *
-        (3 * window.hg.OpenPostJob.config.expandedDisplacementTileCount - 1);
+        (3 * window.hg.OpenPostJob.config.expandedDisplacementTileCount + 2);
 
-    var width, height;
+    var horizontalPadding = 1.15 * window.hg.Grid.config.tileShortLengthWithGap;
+    var verticalPadding = 2.25 * window.hg.Grid.config.tileOuterRadius;
+
+    var width, height, paddingX, paddingY;
 
     if (pagePost.tile.grid.isVertical) {
       width = horizontalSideLength;
       height = verticalSideLength;
+      paddingX = horizontalPadding;
+      paddingY = verticalPadding;
     } else {
       width = verticalSideLength;
       height = horizontalSideLength;
+      paddingX = verticalPadding;
+      paddingY = horizontalPadding;
     }
 
-    var top = pagePost.tile.grid.originalCenter.y - height / 2;
-    var left = pagePost.tile.grid.originalCenter.x - width / 2;
+    width -= paddingX * 2;
+    height -= paddingY * 2;
+
+    pagePost.paddingX = paddingX;
+    pagePost.paddingY = paddingY;
+    pagePost.halfWidth = width / 2;
+    pagePost.halfHeight = height / 2;
+    pagePost.top = pagePost.tile.grid.originalCenter.y - pagePost.halfHeight - pagePost.paddingY;
+    pagePost.left = pagePost.tile.grid.originalCenter.x - pagePost.halfWidth - pagePost.paddingX;
 
     // ---  --- //
 
     var container = document.createElement('div');
     var title = document.createElement('h1');
+    var content = document.createElement('div');
 
     pagePost.tile.grid.parent.appendChild(container);
     container.appendChild(title);
+    container.appendChild(content);
 
     pagePost.elements = [];
     pagePost.elements.container = container;
     pagePost.elements.title = title;
+    pagePost.elements.content = content;
 
-    title.setAttribute('data-hg-post-container', 'data-hg-post-container');
-    title.style.position = 'absolute';
-    title.style.left = -left / 2 + 'px';
-    title.style.top = top + 'px';
-    title.style.width = width + 'px';
-    title.style.height = height + 'px';
-    title.style.margin = '0px';
-    title.style.padding = 20 + 'px';
-    title.style.fontSize = config.fontSize + 'px';
-    title.style.fontFamily = 'Georgia, sans-serif';
-    title.style.color = '#F4F4F4';
+    container.setAttribute('data-hg-post-container', 'data-hg-post-container');
+    container.style.position = 'absolute';
+    container.style.left = pagePost.left + 'px';
+    container.style.top = pagePost.top + 'px';
+    container.style.width = width + 'px';
+    container.style.height = height + 'px';
+    container.style.margin = '0px';
+    container.style.padding = pagePost.paddingY + 'px ' + pagePost.paddingX + 'px';
+    container.style.overflow = 'auto';
+    container.style.fontSize = config.fontSize + 'px';
+    container.style.fontFamily = '"Open Sans", sans-serif';
+    container.style.color = '#F4F4F4';
+    container.style.opacity = pagePost.opacity;
     container.style.zIndex = '500';
 
     title.innerHTML = pagePost.tile.postData.titleLong;
-    title.style.fontSize = config.fontSize + 'px';
-    title.style.fontFamily = 'Georgia, sans-serif';
+    title.style.fontSize = config.titleFontSize + 'px';
+    title.style.fontFamily = '"Open Sans", sans-serif';
     title.style.textAlign = 'center';
 
-    //**;
-    // TODO:
-    // - the contents of this PagePost should be within normal (non-SVG) DOM elements
-    // - these elements should be positioned behind the SVG element
-    // - this should fade in (as controlled by the OpenPostJob)
-
-    //id = !isNaN(pagePost.originalIndex) ? pagePost.originalIndex : parseInt(Math.random() * 1000000 + 1000);
-    //
-    //pagePost.vertexDeltas = computeVertexDeltas(pagePost.outerRadius, pagePost.isVertical);
-    //pagePost.vertices = [];
-    //updateVertices.call(pagePost, pagePost.currentAnchor.x, pagePost.currentAnchor.y);
-    //
-    //pagePost.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
-    //pagePost.svg.appendChild(pagePost.element);
-    //
-    //pagePost.element.id = 'hg-' + id;
-    //pagePost.element.classList.add('hg-pagePost');
-    //pagePost.element.style.cursor = 'pointer';
+    content.innerHTML = pagePost.tile.postData.content;
+    content.style.whiteSpace = 'pre-wrap';
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -118,11 +117,26 @@
   /**
    * @this PagePost
    */
+  function draw() {
+    var pagePost = this;
+
+    pagePost.top = pagePost.tile.grid.originalCenter.y - pagePost.halfHeight - pagePost.paddingY;
+    pagePost.left = pagePost.tile.grid.originalCenter.x - pagePost.halfWidth - pagePost.paddingX;
+
+    pagePost.elements.container.style.top = pagePost.top;
+    pagePost.elements.container.style.left = pagePost.left;
+
+    pagePost.elements.container.style.opacity = pagePost.opacity;
+  }
+
+  /**
+   * @this PagePost
+   */
   function destroy() {
     var pagePost = this;
 
-    // TODO:
-    //pagePost.svg.removeChild(pagePost.element);
+    pagePost.tile.grid.parent.removeChild(pagePost.elements.container);
+    pagePost.elements = null;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -138,7 +152,15 @@
 
     pagePost.tile = tile;
     pagePost.elements = null;
+    pagePost.opacity = 0;
+    pagePost.paddingX = Number.NaN;
+    pagePost.paddingY = Number.NaN;
+    pagePost.halfWidth = Number.NaN;
+    pagePost.halfHeight = Number.NaN;
+    pagePost.top = Number.NaN;
+    pagePost.left = Number.NaN;
 
+    pagePost.draw = draw;
     pagePost.destroy = destroy;
 
     createElements.call(pagePost);

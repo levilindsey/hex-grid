@@ -21,33 +21,22 @@
     "email": "levisl176@gmail.com",
     "url": "http://jackieandlevi.com/levi"
   },
-  "main": "example/server/main",
   "scripts": {
-    "start": "node example/server/main.js",
+    "start": "gulp",
     "postinstall": "bower install"
   },
   "dependencies": {
-    "express": "~4.0.0",
-    "morgan": "~1.0.0",
-    "serve-favicon": "~2.0.0",
-    "serve-static": "~1.0.0",
-    "q": "~1.0.1",
-    "ejs": "*"
   },
   "devDependencies": {
+    "bower": "^1.3.9",
     "gulp": "~3.8.8",
-    "gulp-rename": "~1.2.0",
-    "gulp-uglify": "~0.3.1",
     "gulp-concat": "~2.3.3",
     "gulp-clean": "~0.3.1",
-    "gulp-notify": "~1.4.0",
-    "gulp-filesize": "0.0.6",
-    "gulp-nodemon": "^1.0.4",
     "gulp-load-plugins": "~0.5.3",
-    "gulp-livereload": "~2.1.0",
     "gulp-plumber": "~0.6.4",
-    "tiny-lr": "0.0.9",
-    "connect-livereload": "~0.4.0",
-    "bower": "^1.3.9"
+    "gulp-rename": "~1.2.0",
+    "gulp-size": "~1.1.0",
+    "gulp-uglify": "~0.3.1",
+    "gulp-webserver": "~0.8.4"
   }
 }

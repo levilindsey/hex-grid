@@ -71,6 +71,24 @@
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost'),
       canRunWithOpenGrid: true
     },
+    dilateSectors: {
+      constructorName: 'DilateSectorsJob',
+      jobs: [],
+      timeouts: [],
+      create: createTransientJob.bind(controller, null, 'dilateSectors'),
+      createRandom: null,
+      toggleRecurrence: null,
+      canRunWithOpenGrid: true
+    },
+    fadePagePost: {
+      constructorName: 'FadePagePostJob',
+      jobs: [],
+      timeouts: [],
+      create: createTransientJob.bind(controller, null, 'fadePagePost'),
+      createRandom: null,
+      toggleRecurrence: null,
+      canRunWithOpenGrid: true
+    },
     displacementRadiate: {
       constructorName: 'DisplacementRadiateJob',
       jobs: [],
@@ -196,6 +214,7 @@
    * @param {Grid} grid
    * @param {?Tile} tile
    * @param {*} [extraArg]
+   * @returns {?AnimationJob}
    */
   function createTransientJob(creator, jobId, grid, tile, extraArg) {
     var job;
@@ -209,9 +228,13 @@
       // Store a reference to this job within the controller
       controller.transientJobs[jobId].jobs[grid.index].push(job);
       window.hg.animator.startJob(job);
+
+      return job;
     } else {
       console.log('Cannot create a ' + controller.transientJobs[jobId].constructorName +
           ' while the Grid is expanded');
+
+      return null;
     }
 
     // ---  --- //
@@ -226,9 +249,10 @@
   /**
    * @param {String} jobId
    * @param {Grid} grid
+   * @returns {?AnimationJob}
    */
   function createTransientJobWithARandomTile(jobId, grid) {
-    controller.transientJobs[jobId].create(grid, getRandomOriginalTile(grid));
+    return controller.transientJobs[jobId].create(grid, getRandomOriginalTile(grid));
   }
 
   /**
@@ -372,23 +396,27 @@
 
   /**
    * @param {Grid} grid
-   * @returns {Window.hg.LinesRadiateJob}
+   * @returns {?Window.hg.OpenPostJob}
    */
   function openRandomPost(grid) {
     // If no post is open, pick a random content tile, and open the post; otherwise, do nothing
     if (!grid.isPostOpen) {
-      controller.transientJobs.openPost.create(grid, getRandomContentTile(grid));
+      return controller.transientJobs.openPost.create(grid, getRandomContentTile(grid));
+    } else {
+      return null;
     }
   }
 
   /**
    * @param {Grid} grid
-   * @returns {Window.hg.LinesRadiateJob}
+   * @returns {?Window.hg.ClosePostJob}
    */
   function closePost(grid) {
     // If a post is open, close it; otherwise, do nothing
     if (grid.isPostOpen) {
-      controller.transientJobs.closePost.create(grid, grid.expandedTile);
+      return controller.transientJobs.closePost.create(grid, grid.expandedTile);
+    } else {
+      return null;
     }
   }
 
@@ -2939,11 +2967,11 @@
 
     grid.svg.style.display = 'block';
     grid.svg.style.position = 'relative';
-    grid.svg.style.width = '100%';
+    grid.svg.style.width = '1px';
+    grid.svg.style.height = '1px';
     grid.svg.style.zIndex = '1000';
+    grid.svg.style.overflow = 'visible';
     grid.svg.setAttribute('data-hg-svg', 'data-hg-svg');
-
-    updateBackgroundColor.call(grid);
 
     grid.svgDefs = document.createElementNS(window.hg.util.svgNamespace, 'defs');
     grid.svg.appendChild(grid.svgDefs);
@@ -3277,8 +3305,6 @@
     clearSvg.call(grid);
     computeGridParameters.call(grid);
 
-    grid.svg.style.height = grid.height + 'px';
-
     createTiles.call(grid);
 
     logGridInfo.call(grid);
@@ -3289,12 +3315,10 @@
    *
    * @this Grid
    */
-  function updateBackgroundColor() {
-    var grid;
+  function setBackgroundColor() {
+    var grid = this;
 
-    grid = this;
-
-    grid.svg.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
+    grid.parent.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
         config.backgroundSaturation + '%,' + config.backgroundLightness + '%)';
   }
 
@@ -3407,11 +3431,24 @@
   /**
    * @this Grid
    * @param {Tile} tile
+   * @returns {PagePost}
    */
   function createPagePost(tile) {
     var grid = this;
 
     grid.pagePost = new window.hg.PagePost(tile);
+
+    return grid.pagePost;
+  }
+
+  /**
+   * @this Grid
+   */
+  function destroyPagePost() {
+    var grid = this;
+
+    grid.pagePost.destroy();
+    grid.pagePost = null;
   }
 
   /**
@@ -3484,6 +3521,7 @@
     grid.currentCenter = null;
     grid.panCenter = null;
     grid.isPostOpen = false;
+    grid.pagePost = null;
     grid.isTransitioning = false;
     grid.expandedTile = null;
     grid.sectors = null;
@@ -3522,15 +3560,17 @@
     grid.cancel = cancel;
     grid.init = init;
 
-    grid.updateBackgroundColor = updateBackgroundColor;
+    grid.setBackgroundColor = setBackgroundColor;
     grid.updateTileColor = updateTileColor;
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
     grid.createPagePost = createPagePost;
+    grid.destroyPagePost = destroyPagePost;
     grid.updateAllTilesCollection = updateAllTilesCollection;
 
     createSvg.call(grid);
+    setBackgroundColor.call(grid);
     computeContentIndices.call(grid);
     resize.call(grid);
   }
@@ -3715,16 +3755,12 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
-// TODO:
-
   var config;
 
   config = {};
 
-  config.fontSize = 16;
-  config.titleFontSize = 22;
-
-  // TODO:
+  config.fontSize = 18;
+  config.titleFontSize = 24;
 
   //  --- Dependent parameters --- //
 
@@ -3743,73 +3779,76 @@
     var pagePost = this;
 
     var horizontalSideLength = window.hg.Grid.config.tileShortLengthWithGap *
-        (window.hg.OpenPostJob.config.expandedDisplacementTileCount + 2);
+        (window.hg.OpenPostJob.config.expandedDisplacementTileCount + 4.25);
     var verticalSideLength = window.hg.Grid.config.longGap *
-        ((window.hg.OpenPostJob.config.expandedDisplacementTileCount - 1) * 2 + 1) +
+        (window.hg.OpenPostJob.config.expandedDisplacementTileCount * 2) +
         window.hg.Grid.config.tileOuterRadius *
-        (3 * window.hg.OpenPostJob.config.expandedDisplacementTileCount - 1);
+        (3 * window.hg.OpenPostJob.config.expandedDisplacementTileCount + 2);
 
-    var width, height;
+    var horizontalPadding = 1.15 * window.hg.Grid.config.tileShortLengthWithGap;
+    var verticalPadding = 2.25 * window.hg.Grid.config.tileOuterRadius;
+
+    var width, height, paddingX, paddingY;
 
     if (pagePost.tile.grid.isVertical) {
       width = horizontalSideLength;
       height = verticalSideLength;
+      paddingX = horizontalPadding;
+      paddingY = verticalPadding;
     } else {
       width = verticalSideLength;
       height = horizontalSideLength;
+      paddingX = verticalPadding;
+      paddingY = horizontalPadding;
     }
 
-    var top = pagePost.tile.grid.originalCenter.y - height / 2;
-    var left = pagePost.tile.grid.originalCenter.x - width / 2;
+    width -= paddingX * 2;
+    height -= paddingY * 2;
+
+    pagePost.paddingX = paddingX;
+    pagePost.paddingY = paddingY;
+    pagePost.halfWidth = width / 2;
+    pagePost.halfHeight = height / 2;
+    pagePost.top = pagePost.tile.grid.originalCenter.y - pagePost.halfHeight - pagePost.paddingY;
+    pagePost.left = pagePost.tile.grid.originalCenter.x - pagePost.halfWidth - pagePost.paddingX;
 
     // ---  --- //
 
     var container = document.createElement('div');
     var title = document.createElement('h1');
+    var content = document.createElement('div');
 
     pagePost.tile.grid.parent.appendChild(container);
     container.appendChild(title);
+    container.appendChild(content);
 
     pagePost.elements = [];
     pagePost.elements.container = container;
     pagePost.elements.title = title;
+    pagePost.elements.content = content;
 
-    title.setAttribute('data-hg-post-container', 'data-hg-post-container');
-    title.style.position = 'absolute';
-    title.style.left = -left / 2 + 'px';
-    title.style.top = top + 'px';
-    title.style.width = width + 'px';
-    title.style.height = height + 'px';
-    title.style.margin = '0px';
-    title.style.padding = 20 + 'px';
-    title.style.fontSize = config.fontSize + 'px';
-    title.style.fontFamily = 'Georgia, sans-serif';
-    title.style.color = '#F4F4F4';
+    container.setAttribute('data-hg-post-container', 'data-hg-post-container');
+    container.style.position = 'absolute';
+    container.style.left = pagePost.left + 'px';
+    container.style.top = pagePost.top + 'px';
+    container.style.width = width + 'px';
+    container.style.height = height + 'px';
+    container.style.margin = '0px';
+    container.style.padding = pagePost.paddingY + 'px ' + pagePost.paddingX + 'px';
+    container.style.overflow = 'auto';
+    container.style.fontSize = config.fontSize + 'px';
+    container.style.fontFamily = '"Open Sans", sans-serif';
+    container.style.color = '#F4F4F4';
+    container.style.opacity = pagePost.opacity;
     container.style.zIndex = '500';
 
     title.innerHTML = pagePost.tile.postData.titleLong;
-    title.style.fontSize = config.fontSize + 'px';
-    title.style.fontFamily = 'Georgia, sans-serif';
+    title.style.fontSize = config.titleFontSize + 'px';
+    title.style.fontFamily = '"Open Sans", sans-serif';
     title.style.textAlign = 'center';
 
-    //**;
-    // TODO:
-    // - the contents of this PagePost should be within normal (non-SVG) DOM elements
-    // - these elements should be positioned behind the SVG element
-    // - this should fade in (as controlled by the OpenPostJob)
-
-    //id = !isNaN(pagePost.originalIndex) ? pagePost.originalIndex : parseInt(Math.random() * 1000000 + 1000);
-    //
-    //pagePost.vertexDeltas = computeVertexDeltas(pagePost.outerRadius, pagePost.isVertical);
-    //pagePost.vertices = [];
-    //updateVertices.call(pagePost, pagePost.currentAnchor.x, pagePost.currentAnchor.y);
-    //
-    //pagePost.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
-    //pagePost.svg.appendChild(pagePost.element);
-    //
-    //pagePost.element.id = 'hg-' + id;
-    //pagePost.element.classList.add('hg-pagePost');
-    //pagePost.element.style.cursor = 'pointer';
+    content.innerHTML = pagePost.tile.postData.content;
+    content.style.whiteSpace = 'pre-wrap';
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3824,11 +3863,26 @@
   /**
    * @this PagePost
    */
+  function draw() {
+    var pagePost = this;
+
+    pagePost.top = pagePost.tile.grid.originalCenter.y - pagePost.halfHeight - pagePost.paddingY;
+    pagePost.left = pagePost.tile.grid.originalCenter.x - pagePost.halfWidth - pagePost.paddingX;
+
+    pagePost.elements.container.style.top = pagePost.top;
+    pagePost.elements.container.style.left = pagePost.left;
+
+    pagePost.elements.container.style.opacity = pagePost.opacity;
+  }
+
+  /**
+   * @this PagePost
+   */
   function destroy() {
     var pagePost = this;
 
-    // TODO:
-    //pagePost.svg.removeChild(pagePost.element);
+    pagePost.tile.grid.parent.removeChild(pagePost.elements.container);
+    pagePost.elements = null;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3844,7 +3898,15 @@
 
     pagePost.tile = tile;
     pagePost.elements = null;
+    pagePost.opacity = 0;
+    pagePost.paddingX = Number.NaN;
+    pagePost.paddingY = Number.NaN;
+    pagePost.halfWidth = Number.NaN;
+    pagePost.halfHeight = Number.NaN;
+    pagePost.top = Number.NaN;
+    pagePost.left = Number.NaN;
 
+    pagePost.draw = draw;
     pagePost.destroy = destroy;
 
     createElements.call(pagePost);
@@ -5395,7 +5457,7 @@
     title.style.width = outerSideLength + 'px';
     title.style.height = outerSideLength + 'px';
     title.style.fontSize = config.fontSize + 'px';
-    title.style.fontFamily = 'Georgia, sans-serif';
+    title.style.fontFamily = '"Open Sans", sans-serif';
     title.style.textAlign = 'center';
     title.style.whiteSpace = 'pre-wrap';
     title.style.color = '#F4F4F4';
@@ -6111,6 +6173,8 @@
   // Amplitude (will range from negative to positive)
   config.tileDeltaX = -15;
   config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
+  config.tileDeltaX = 0;
+  config.tileDeltaY = 0;
 
   //  --- Dependent parameters --- //
 
@@ -6332,7 +6396,6 @@
     }
 
     job.isComplete = true;
-
     job.onComplete();
   }
 
@@ -6354,26 +6417,6 @@
     job.sectors = [];
   }
 
-  /**
-   * @this ClosePostJob
-   * @param {Number} panDisplacementX
-   * @param {Number} panDisplacementY
-   */
-  function setFinalPositions(panDisplacementX, panDisplacementY) {
-    var job, i;
-
-    job = this;
-
-    // Displace the sectors
-    for (i = 0; i < 6; i += 1) {
-      // Update the Sector's base position to account for the panning
-      job.sectors[i].originalAnchor.x -= panDisplacementX;
-      job.sectors[i].originalAnchor.y -= panDisplacementY;
-
-      job.sectors[i].setOriginalPositionForExpansion(false);
-    }
-  }
-
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -6386,7 +6429,7 @@
    * @this ClosePostJob
    */
   function start() {
-    var panDisplacementX, panDisplacementY;
+    var panDisplacement;
     var job = this;
 
     job.startTime = Date.now();
@@ -6396,18 +6439,24 @@
     job.grid.isTransitioning = true;
     job.grid.lastExpansionJob = job;
 
-    panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
-    panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
+    panDisplacement = {
+      x: job.grid.originalCenter.x - job.grid.panCenter.x,
+      y: job.grid.originalCenter.y - job.grid.panCenter.y
+    };
 
     // Start the sub-jobs
-    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
+    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.spreadDurationOffset;
     window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile, {
       x: job.grid.panCenter.x,
       y: job.grid.panCenter.y
-    });
-
-    // Set the final positions at the start, and animate everything in "reverse"
-    setFinalPositions.call(job, panDisplacementX, panDisplacementY);
+    })
+        .duration = config.duration + window.hg.OpenPostJob.config.panDurationOffset;
+    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile,
+        panDisplacement)
+        .duration = config.duration + window.hg.OpenPostJob.config.dilateSectorsDurationOffset;
+    window.hg.controller.transientJobs.fadePagePost.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.fadePagePostDurationOffset;
 
     job.grid.annotations.setExpandedAnnotations(false);
   }
@@ -6422,29 +6471,10 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, progress, i, dx, dy;
-
-    job = this;
-
-    // Calculate progress with an easing function
-    // Because the final positions were set at the start, the progress needs to update in "reverse"
-    progress = (currentTime - job.startTime) / config.duration;
-    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
-    progress = progress < 0 ? 0 : progress;
-
-    // Update the offsets for each of the six sectors
-    for (i = 0; i < 6; i += 1) {
-      dx = -job.sectors[i].expandedDisplacement.x * progress;
-      dy = -job.sectors[i].expandedDisplacement.y * progress;
-
-      job.sectors[i].updateCurrentPosition(dx, dy);
-    }
-
-    // Update the opacity of the center tile
-    job.baseTile.element.style.opacity = 1 - progress;
+    var job = this;
 
     // Is the job done?
-    if (progress === 0) {
+    if (currentTime - job.startTime >= config.duration) {
       handleComplete.call(job, false);
     }
   }
@@ -6516,6 +6546,193 @@
   window.hg.ClosePostJob = ClosePostJob;
 
   console.log('ClosePostJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DilateSectorsJob
+ */
+
+/**
+ * This module defines a constructor for DilateSectorsJob objects.
+ *
+ * @module DilateSectorsJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 500;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * @this DilateSectorsJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('DilateSectorsJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+    job.onComplete();
+  }
+
+  /**
+   * @this OpenPostJob
+   */
+  function setFinalPositions() {
+    var i;
+
+    var job = this;
+
+    // Displace the sectors
+    for (i = 0; i < 6; i += 1) {
+      // Update the Sector's base position to account for the panning
+      job.sectors[i].originalAnchor.x += job.panDisplacement.x;
+      job.sectors[i].originalAnchor.y += job.panDisplacement.y;
+
+      job.sectors[i].setOriginalPositionForExpansion(job.isExpanding);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this DilateSectorsJob as started.
+   *
+   * @this DilateSectorsJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    // Set the final positions at the start, and animate everything in "reverse"
+    setFinalPositions.call(job);
+  }
+
+  /**
+   * Updates the animation progress of this DilateSectorsJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DilateSectorsJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, progress, i, dx, dy;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    // Because the final positions were set at the start, the progress needs to update in "reverse"
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress < 0 ? 0 : (job.isExpanding ? progress : -progress);
+
+    // Update the offsets for each of the six sectors
+    for (i = 0; i < 6; i += 1) {
+      dx = job.sectors[i].expandedDisplacement.x * progress;
+      dy = job.sectors[i].expandedDisplacement.y * progress;
+
+      job.sectors[i].updateCurrentPosition(dx, dy);
+    }
+
+    // Is the job done?
+    if (progress === 0) {
+      handleComplete.call(job, false);
+    }
+  }
+
+  /**
+   * Draws the current state of this DilateSectorsJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DilateSectorsJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this DilateSectorsJob, and returns the element its original form.
+   *
+   * @this DilateSectorsJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this DilateSectorsJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   * @param {{x:Number,y:Number}} panDisplacement
+   */
+  function DilateSectorsJob(grid, tile, onComplete, panDisplacement) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = grid.expandedTile;
+    job.startTime = 0;
+    job.isComplete = true;
+    job.panDisplacement = panDisplacement;
+    job.sectors = grid.sectors;
+    job.parentExpansionJob = job.grid.lastExpansionJob;
+    job.isExpanding = grid.isPostOpen;
+
+    job.duration = config.duration;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+    console.log('DilateSectorsJob created: tileIndex=' + job.baseTile.originalIndex);
+  }
+
+  DilateSectorsJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DilateSectorsJob = DilateSectorsJob;
+
+  console.log('DilateSectorsJob module loaded');
 })();
 
 /**
@@ -6735,6 +6952,228 @@
   window.hg.DisplacementRadiateJob = DisplacementRadiateJob;
 
   console.log('DisplacementRadiateJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} FadePagePostJob
+ */
+
+/**
+ * This module defines a constructor for FadePagePostJob objects.
+ *
+ * @module FadePagePostJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 500;
+
+  config.quickFadeDurationRatio = 0.5;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * @this FadePagePostJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('FadePagePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.pagePost.draw();
+
+    job.isComplete = true;
+    job.onComplete();
+
+    if (!job.isFadingIn) {
+      // Don't reset some state if another expansion job started after this one did
+      if (job.parentExpansionJob === job.grid.lastExpansionJob) {
+        job.grid.destroyPagePost();
+      } else {
+        job.pagePost.destroy();
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this FadePagePostJob as started.
+   *
+   * @this FadePagePostJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    if (job.isFadingIn) {
+      job.pagePost = job.grid.createPagePost(job.baseTile);
+    }
+  }
+
+  /**
+   * Updates the animation progress of this FadePagePostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePagePostJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateFadeIn(currentTime, deltaTime) {
+    var job, progress, quickFadeProgress;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress > 1 ? 1 : progress;
+
+    // The TilePost fades out faster than the PagePost fades in
+    quickFadeProgress = progress / config.quickFadeDurationRatio;
+    quickFadeProgress = 1 - (quickFadeProgress > 1 ? 1 : quickFadeProgress);
+
+    // Update the opacity of the center Tile
+    job.baseTile.element.style.opacity = quickFadeProgress;
+    job.baseTile.tilePost.elements.title.style.opacity = quickFadeProgress;
+
+    // Update the opacity of the PagePost
+    job.pagePost.opacity = progress;
+
+    // Is the job done?
+    if (progress === 1) {
+      handleComplete.call(job, false);
+    }
+  }
+
+  /**
+   * Updates the animation progress of this FadePagePostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePagePostJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateFadeOut(currentTime, deltaTime) {
+    var job, progress, quickFadeProgress;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress > 1 ? 1 : progress;
+
+    // The PagePost fades out faster than the TilePost fades in
+    quickFadeProgress = progress / config.quickFadeDurationRatio;
+    quickFadeProgress = quickFadeProgress > 1 ? 1 : quickFadeProgress;
+
+    // Update the opacity of the center Tile
+    job.baseTile.element.style.opacity = progress;
+    job.baseTile.tilePost.elements.title.style.opacity = progress;
+
+    // Update the opacity of the PagePost
+    job.pagePost.opacity = 1 - quickFadeProgress;
+
+    // Is the job done?
+    if (progress === 1) {
+      handleComplete.call(job, false);
+    }
+  }
+
+  /**
+   * Draws the current state of this FadePagePostJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePagePostJob
+   */
+  function draw() {
+    var job = this;
+
+    job.pagePost.draw();
+  }
+
+  /**
+   * Stops this FadePagePostJob, and returns the element its original form.
+   *
+   * @this FadePagePostJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this FadePagePostJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function FadePagePostJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = grid.expandedTile;
+    job.startTime = 0;
+    job.isComplete = true;
+    job.pagePost = grid.pagePost
+    job.parentExpansionJob = job.grid.lastExpansionJob;
+    job.isFadingIn = grid.isPostOpen;
+
+    job.duration = config.duration;
+
+    job.start = start;
+    job.update = job.isFadingIn ? updateFadeIn : updateFadeOut;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+    console.log('FadePagePostJob created: tileIndex=' + job.baseTile.originalIndex +
+        ', isFadingIn=' + job.isFadingIn);
+  }
+
+  FadePagePostJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.FadePagePostJob = FadePagePostJob;
+
+  console.log('FadePagePostJob module loaded');
 })();
 
 /**
@@ -8852,6 +9291,11 @@
 
   config.expandedDisplacementTileCount = 3;
 
+  config.spreadDurationOffset = -200;
+  config.panDurationOffset = -100;
+  config.fadePagePostDurationOffset = 300;
+  config.dilateSectorsDurationOffset = 0;
+
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -8878,7 +9322,6 @@
     }
 
     job.isComplete = true;
-
     job.onComplete();
   }
 
@@ -8943,26 +9386,6 @@
     }
   }
 
-  /**
-   * @this OpenPostJob
-   * @param {Number} panDisplacementX
-   * @param {Number} panDisplacementY
-   */
-  function setFinalPositions(panDisplacementX, panDisplacementY) {
-    var job, i;
-
-    job = this;
-
-    // Displace the sectors
-    for (i = 0; i < 6; i += 1) {
-      // Update the Sector's base position to account for the panning
-      job.sectors[i].originalAnchor.x += panDisplacementX;
-      job.sectors[i].originalAnchor.y += panDisplacementY;
-
-      job.sectors[i].setOriginalPositionForExpansion(true);
-    }
-  }
-
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -8975,7 +9398,7 @@
    * @this OpenPostJob
    */
   function start() {
-    var panDisplacementX, panDisplacementY;
+    var panDisplacement;
     var job = this;
 
     job.startTime = Date.now();
@@ -8994,15 +9417,21 @@
     job.grid.annotations.setExpandedAnnotations(true);
 
     // Start the sub-jobs
-    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
-    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile);
+    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile)
+        .duration = config.duration + config.spreadDurationOffset;
+    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile)
+        .duration = config.duration + config.panDurationOffset;
 
-    // Set the final positions at the start, and animate everything in "reverse"
-    panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
-    panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
-    setFinalPositions.call(job, panDisplacementX, panDisplacementY);
+    panDisplacement = {
+      x: job.grid.panCenter.x - job.grid.originalCenter.x,
+      y: job.grid.panCenter.y - job.grid.originalCenter.y
+    };
 
-    job.grid.createPagePost(job.baseTile);
+    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile,
+        panDisplacement)
+        .duration = config.duration + config.dilateSectorsDurationOffset;
+    window.hg.controller.transientJobs.fadePagePost.create(job.grid, job.baseTile)
+        .duration = config.duration + config.fadePagePostDurationOffset;
 
     // TODO: this should instead fade out the old persistent animations and fade in the new ones
     window.hg.controller.resetPersistentJobs(job.grid);
@@ -9018,29 +9447,10 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, progress, i, dx, dy;
-
-    job = this;
-
-    // Calculate progress with an easing function
-    // Because the final positions were set at the start, the progress needs to update in "reverse"
-    progress = (currentTime - job.startTime) / config.duration;
-    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
-    progress = progress < 0 ? 0 : progress;
-
-    // Update the offsets for each of the six sectors
-    for (i = 0; i < 6; i += 1) {
-      dx = job.sectors[i].expandedDisplacement.x * progress;
-      dy = job.sectors[i].expandedDisplacement.y * progress;
-
-      job.sectors[i].updateCurrentPosition(dx, dy);
-    }
-
-    // Update the opacity of the center tile
-    job.baseTile.element.style.opacity = progress;
+    var job = this;
 
     // Is the job done?
-    if (progress === 0) {
+    if (currentTime - job.startTime >= config.duration) {
       handleComplete.call(job, false);
     }
   }
@@ -9219,7 +9629,7 @@
 
     // Calculate progress with an easing function
     // Because the final positions were set at the start, the progress needs to update in "reverse"
-    progress = (currentTime - job.startTime) / config.duration;
+    progress = (currentTime - job.startTime) / job.duration;
     progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
     progress = progress < 0 ? 0 : progress;
 
@@ -9296,6 +9706,8 @@
 
     // The center of the viewport
     job.startPoint = {x: grid.originalCenter.x, y: grid.originalCenter.y};
+
+    job.duration = config.duration;
 
     job.start = start;
     job.update = update;
@@ -9417,11 +9829,11 @@
 
     job = this;
 
-    if (currentTime > job.startTime + config.duration) {
+    if (currentTime > job.startTime + job.duration) {
       handleComplete.call(job, false);
     } else {
       // Ease-out halfway, then ease-in back
-      progress = (currentTime - job.startTime) / config.duration;
+      progress = (currentTime - job.startTime) / job.duration;
       progress = (progress > 0.5 ? 1 - progress : progress) * 2;
       progress = window.hg.util.easingFunctions.easeOutQuint(progress);
 
@@ -9480,6 +9892,8 @@
     job.isComplete = true;
 
     job.displacements = null;
+
+    job.duration = config.duration;
 
     job.start = start;
     job.update = update;

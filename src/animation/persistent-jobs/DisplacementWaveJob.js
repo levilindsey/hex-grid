@@ -24,6 +24,8 @@
   // Amplitude (will range from negative to positive)
   config.tileDeltaX = -15;
   config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
+  config.tileDeltaX = 0;
+  config.tileDeltaY = 0;
 
   //  --- Dependent parameters --- //
 

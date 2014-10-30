@@ -206,11 +206,11 @@
 
     grid.svg.style.display = 'block';
     grid.svg.style.position = 'relative';
-    grid.svg.style.width = '100%';
+    grid.svg.style.width = '1px';
+    grid.svg.style.height = '1px';
     grid.svg.style.zIndex = '1000';
+    grid.svg.style.overflow = 'visible';
     grid.svg.setAttribute('data-hg-svg', 'data-hg-svg');
-
-    updateBackgroundColor.call(grid);
 
     grid.svgDefs = document.createElementNS(window.hg.util.svgNamespace, 'defs');
     grid.svg.appendChild(grid.svgDefs);
@@ -544,8 +544,6 @@
     clearSvg.call(grid);
     computeGridParameters.call(grid);
 
-    grid.svg.style.height = grid.height + 'px';
-
     createTiles.call(grid);
 
     logGridInfo.call(grid);
@@ -556,12 +554,10 @@
    *
    * @this Grid
    */
-  function updateBackgroundColor() {
-    var grid;
+  function setBackgroundColor() {
+    var grid = this;
 
-    grid = this;
-
-    grid.svg.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
+    grid.parent.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
         config.backgroundSaturation + '%,' + config.backgroundLightness + '%)';
   }
 
@@ -674,11 +670,24 @@
   /**
    * @this Grid
    * @param {Tile} tile
+   * @returns {PagePost}
    */
   function createPagePost(tile) {
     var grid = this;
 
     grid.pagePost = new window.hg.PagePost(tile);
+
+    return grid.pagePost;
+  }
+
+  /**
+   * @this Grid
+   */
+  function destroyPagePost() {
+    var grid = this;
+
+    grid.pagePost.destroy();
+    grid.pagePost = null;
   }
 
   /**
@@ -751,6 +760,7 @@
     grid.currentCenter = null;
     grid.panCenter = null;
     grid.isPostOpen = false;
+    grid.pagePost = null;
     grid.isTransitioning = false;
     grid.expandedTile = null;
     grid.sectors = null;
@@ -789,15 +799,17 @@
     grid.cancel = cancel;
     grid.init = init;
 
-    grid.updateBackgroundColor = updateBackgroundColor;
+    grid.setBackgroundColor = setBackgroundColor;
     grid.updateTileColor = updateTileColor;
     grid.updateTileMass = updateTileMass;
     grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
     grid.createPagePost = createPagePost;
+    grid.destroyPagePost = destroyPagePost;
     grid.updateAllTilesCollection = updateAllTilesCollection;
 
     createSvg.call(grid);
+    setBackgroundColor.call(grid);
     computeContentIndices.call(grid);
     resize.call(grid);
   }

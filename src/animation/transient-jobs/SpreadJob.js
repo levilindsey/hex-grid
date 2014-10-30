@@ -99,11 +99,11 @@
 
     job = this;
 
-    if (currentTime > job.startTime + config.duration) {
+    if (currentTime > job.startTime + job.duration) {
       handleComplete.call(job, false);
     } else {
       // Ease-out halfway, then ease-in back
-      progress = (currentTime - job.startTime) / config.duration;
+      progress = (currentTime - job.startTime) / job.duration;
       progress = (progress > 0.5 ? 1 - progress : progress) * 2;
       progress = window.hg.util.easingFunctions.easeOutQuint(progress);
 
@@ -162,6 +162,8 @@
     job.isComplete = true;
 
     job.displacements = null;
+
+    job.duration = config.duration;
 
     job.start = start;
     job.update = update;

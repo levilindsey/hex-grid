@@ -1,44 +1,56 @@
+var config = {};
 
-var srcPath = 'src',
-    scriptsSrcPath = srcPath + '/**/*.js',
-    distPath = 'dist',
-    serverPath = 'example/server/main.js',
+config.srcPath = 'src';
+config.distPath = 'dist';
+config.examplePath = 'example';
+config.publicRoot = './';
 
-    gulp = require('gulp'),
-    plugins = require('gulp-load-plugins')();
+config.scriptsSrc = config.srcPath + '/**/*.js';
+
+config.scriptDistFileName = 'hex-grid.js';
+
+config.host = '0.0.0.0';
+config.port = '3000';
+
+config.buildTasks = ['scripts', 'watch'];
+
+var gulp = require('gulp');
+var plugins = require('gulp-load-plugins')();
+
+// ---  --- //
 
 gulp.task('scripts', function () {
-  return gulp.src(scriptsSrcPath)
+  return gulp.src(config.scriptsSrc)
       .pipe(plugins.plumber())
-      .pipe(plugins.concat('hex-grid.js'))
-      .pipe(gulp.dest(distPath))
-      .pipe(plugins.filesize())
-      .pipe(plugins.rename({ suffix: '.min' }))
+      .pipe(plugins.concat(config.scriptDistFileName))
+      .pipe(gulp.dest(config.distPath))
+      .pipe(plugins.size({title: 'Scripts before minifying'}))
+      .pipe(plugins.rename({suffix: '.min'}))
       .pipe(plugins.uglify())
-      .pipe(gulp.dest(distPath))
-      .pipe(plugins.filesize());
-//      .pipe(plugins.livereload());
+      .pipe(gulp.dest(config.distPath))
+      .pipe(plugins.size({title: 'Scripts after minifying'}));
+});
+
+gulp.task('server', config.buildTasks, function () {
+  return gulp.src(config.publicRoot)
+      .pipe(plugins.webserver({
+        host: config.host,
+        port: config.port,
+        fallback: config.examplePath + '/index.html',
+        livereload: true,
+        open: true
+      }));
+});
+
+gulp.task('watch', function () {
+  gulp.watch(config.scriptsSrc, ['scripts']);
 });
 
 gulp.task('clean', function () {
-  return gulp.src([distPath], {read: false})
+  return gulp.src([config.distPath], {read: false})
       .pipe(plugins.clean());
 });
 
 gulp.task('default', ['clean'], function () {
-  gulp.start('server', 'scripts', 'watch');
-});
-
-gulp.task('watch', function () {
-  gulp.watch(scriptsSrcPath, ['scripts']);
-
-  plugins.livereload.listen();
-  gulp.watch(scriptsSrcPath).on('change', plugins.livereload.changed);
-});
-
-gulp.task('server', function () {
-//  var tinyLRServer = require('tiny-lr')();
-//
-//  tinyLRServer.listen(35729);
-  plugins.nodemon({script: serverPath});
+  gulp.start('server');
 });

@@ -124,7 +124,7 @@
           window.hg.Grid.config.backgroundSaturation = color.s * 100;
           window.hg.Grid.config.backgroundLightness = color.l * 100;
 
-          parameters.grid.updateBackgroundColor();
+          parameters.grid.setBackgroundColor();
         });
     gridFolder.addColor(colors, 'tileColor')
         .onChange(function () {
@@ -694,15 +694,15 @@
         });
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.colorWave.restart(parameters.grid);
+          window.hg.controller.persistentJobs.colorWave.start(parameters.grid);
         });
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.colorWave.restart(parameters.grid);
+          window.hg.controller.persistentJobs.colorWave.start(parameters.grid);
         });
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.colorWave.restart(parameters.grid);
+          window.hg.controller.persistentJobs.colorWave.start(parameters.grid);
         });
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'deltaHue', 0, 360);
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'deltaSaturation', 0, 100);
@@ -724,15 +724,15 @@
         });
     displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid);
+          window.hg.controller.persistentJobs.displacementWave.start(parameters.grid);
         });
     displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid);
+          window.hg.controller.persistentJobs.displacementWave.start(parameters.grid);
         });
     displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.displacementWave.restart(parameters.grid);
+          window.hg.controller.persistentJobs.displacementWave.start(parameters.grid);
         });
     displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaX', -300, 300);
     displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaY', -300, 300);
