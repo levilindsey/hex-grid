@@ -19,7 +19,7 @@
 
   config.spreadDurationOffset = -200;
   config.panDurationOffset = -100;
-  config.fadePagePostDurationOffset = 300;
+  config.fadePostDurationOffset = 1100;
   config.dilateSectorsDurationOffset = 0;
 
   //  --- Dependent parameters --- //
@@ -156,8 +156,8 @@
     window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile,
         panDisplacement)
         .duration = config.duration + config.dilateSectorsDurationOffset;
-    window.hg.controller.transientJobs.fadePagePost.create(job.grid, job.baseTile)
-        .duration = config.duration + config.fadePagePostDurationOffset;
+    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+        .duration = config.duration + config.fadePostDurationOffset;
 
     // TODO: this should instead fade out the old persistent animations and fade in the new ones
     window.hg.controller.resetPersistentJobs(job.grid);

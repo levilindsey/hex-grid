@@ -64,7 +64,7 @@
 
     id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.currentVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.vertices = [];
     updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
 
@@ -115,8 +115,8 @@
     tile = this;
 
     for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
-      tile.vertices[coordIndex] = anchorX + tile.vertexDeltas[coordIndex++];
-      tile.vertices[coordIndex] = anchorY + tile.vertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorX + tile.currentVertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorY + tile.currentVertexDeltas[coordIndex++];
     }
   }
 
@@ -173,35 +173,6 @@
       config.verticalSines[i] = Math.sin(theta);
       config.verticalCosines[i] = Math.cos(theta);
     }
-  }
-
-  /**
-   * Computes the offsets of the vertices from the center of the hexagon.
-   *
-   * @param {Number} radius
-   * @param {Boolean} isVertical
-   * @returns {Array.<Number>}
-   */
-  function computeVertexDeltas(radius, isVertical) {
-    var trigIndex, coordIndex, sines, cosines, vertexDeltas;
-
-    // Grab the pre-computed sine and cosine values
-    if (isVertical) {
-      sines = config.verticalSines;
-      cosines = config.verticalCosines;
-    } else {
-      sines = config.horizontalSines;
-      cosines = config.horizontalCosines;
-    }
-
-    for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
-        trigIndex < 6;
-        trigIndex += 1) {
-      vertexDeltas[coordIndex++] = radius * cosines[trigIndex];
-      vertexDeltas[coordIndex++] = radius * sines[trigIndex];
-    }
-
-    return vertexDeltas;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -570,6 +541,35 @@
   // Public static functions
 
   /**
+   * Computes the offsets of the vertices from the center of the hexagon.
+   *
+   * @param {Number} radius
+   * @param {Boolean} isVertical
+   * @returns {Array.<Number>}
+   */
+  function computeVertexDeltas(radius, isVertical) {
+    var trigIndex, coordIndex, sines, cosines, currentVertexDeltas;
+
+    // Grab the pre-computed sine and cosine values
+    if (isVertical) {
+      sines = config.verticalSines;
+      cosines = config.verticalCosines;
+    } else {
+      sines = config.horizontalSines;
+      cosines = config.horizontalCosines;
+    }
+
+    for (trigIndex = 0, coordIndex = 0, currentVertexDeltas = [];
+         trigIndex < 6;
+         trigIndex += 1) {
+      currentVertexDeltas[coordIndex++] = radius * cosines[trigIndex];
+      currentVertexDeltas[coordIndex++] = radius * sines[trigIndex];
+    }
+
+    return currentVertexDeltas;
+  }
+
+  /**
    * Creates the neighbor-tile state for the given tile according to the given neighbor tile. Also
    * sets the reciprocal state for the neighbor tile.
    *
@@ -706,7 +706,9 @@
 
     tile.neighborStates = [];
     tile.vertices = null;
-    tile.vertexDeltas = null;
+    tile.currentVertexDeltas = null;
+    tile.originalVertexDeltas = null;
+    tile.expandedVertexDeltas = null;
     tile.particle = null;
 
     tile.setContent = setContent;
@@ -730,6 +732,7 @@
     }
   }
 
+  Tile.computeVertexDeltas = computeVertexDeltas;
   Tile.setTileNeighborState = setTileNeighborState;
   Tile.initializeTileExpandedState = initializeTileExpandedState;
   Tile.config = config;

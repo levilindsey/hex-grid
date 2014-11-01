@@ -63,8 +63,6 @@
     pagePost.paddingY = paddingY;
     pagePost.halfWidth = width / 2;
     pagePost.halfHeight = height / 2;
-    pagePost.top = pagePost.tile.grid.originalCenter.y - pagePost.halfHeight - pagePost.paddingY;
-    pagePost.left = pagePost.tile.grid.originalCenter.x - pagePost.halfWidth - pagePost.paddingX;
 
     // ---  --- //
 
@@ -83,8 +81,6 @@
 
     container.setAttribute('data-hg-post-container', 'data-hg-post-container');
     container.style.position = 'absolute';
-    container.style.left = pagePost.left + 'px';
-    container.style.top = pagePost.top + 'px';
     container.style.width = width + 'px';
     container.style.height = height + 'px';
     container.style.margin = '0px';
@@ -93,7 +89,6 @@
     container.style.fontSize = config.fontSize + 'px';
     container.style.fontFamily = '"Open Sans", sans-serif';
     container.style.color = '#F4F4F4';
-    container.style.opacity = pagePost.opacity;
     container.style.zIndex = '500';
 
     title.innerHTML = pagePost.tile.postData.titleLong;
@@ -103,6 +98,8 @@
 
     content.innerHTML = pagePost.tile.postData.content;
     content.style.whiteSpace = 'pre-wrap';
+
+    draw.call(pagePost);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -120,11 +117,10 @@
   function draw() {
     var pagePost = this;
 
-    pagePost.top = pagePost.tile.grid.originalCenter.y - pagePost.halfHeight - pagePost.paddingY;
-    pagePost.left = pagePost.tile.grid.originalCenter.x - pagePost.halfWidth - pagePost.paddingX;
-
-    pagePost.elements.container.style.top = pagePost.top;
-    pagePost.elements.container.style.left = pagePost.left;
+    pagePost.elements.container.style.left =
+        pagePost.center.x - pagePost.halfWidth - pagePost.paddingX + 'px';
+    pagePost.elements.container.style.top =
+        pagePost.center.y - pagePost.halfHeight - pagePost.paddingY + 'px';
 
     pagePost.elements.container.style.opacity = pagePost.opacity;
   }
@@ -146,8 +142,9 @@
    * @constructor
    * @global
    * @param {Tile} tile
+   * @param {{x:Number,y:Number}} startCenter
    */
-  function PagePost(tile) {
+  function PagePost(tile, startCenter) {
     var pagePost = this;
 
     pagePost.tile = tile;
@@ -157,8 +154,10 @@
     pagePost.paddingY = Number.NaN;
     pagePost.halfWidth = Number.NaN;
     pagePost.halfHeight = Number.NaN;
-    pagePost.top = Number.NaN;
-    pagePost.left = Number.NaN;
+    pagePost.center = {
+      x: startCenter.x,
+      y: startCenter.y
+    };
 
     pagePost.draw = draw;
     pagePost.destroy = destroy;

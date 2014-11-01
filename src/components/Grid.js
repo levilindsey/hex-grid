@@ -670,12 +670,13 @@
   /**
    * @this Grid
    * @param {Tile} tile
+   * @param {{x:Number,y:Number}} startPosition
    * @returns {PagePost}
    */
-  function createPagePost(tile) {
+  function createPagePost(tile, startPosition) {
     var grid = this;
 
-    grid.pagePost = new window.hg.PagePost(tile);
+    grid.pagePost = new window.hg.PagePost(tile, startPosition);
 
     return grid.pagePost;
   }

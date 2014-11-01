@@ -115,8 +115,8 @@
     window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile,
         panDisplacement)
         .duration = config.duration + window.hg.OpenPostJob.config.dilateSectorsDurationOffset;
-    window.hg.controller.transientJobs.fadePagePost.create(job.grid, job.baseTile)
-        .duration = config.duration + window.hg.OpenPostJob.config.fadePagePostDurationOffset;
+    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.fadePostDurationOffset;
 
     job.grid.annotations.setExpandedAnnotations(false);
   }

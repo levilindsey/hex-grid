@@ -80,11 +80,11 @@
       toggleRecurrence: null,
       canRunWithOpenGrid: true
     },
-    fadePagePost: {
-      constructorName: 'FadePagePostJob',
+    fadePost: {
+      constructorName: 'FadePostJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'fadePagePost'),
+      create: createTransientJob.bind(controller, null, 'fadePost'),
       createRandom: null,
       toggleRecurrence: null,
       canRunWithOpenGrid: true

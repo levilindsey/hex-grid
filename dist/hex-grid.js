@@ -80,11 +80,11 @@
       toggleRecurrence: null,
       canRunWithOpenGrid: true
     },
-    fadePagePost: {
-      constructorName: 'FadePagePostJob',
+    fadePost: {
+      constructorName: 'FadePostJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'fadePagePost'),
+      create: createTransientJob.bind(controller, null, 'fadePost'),
       createRandom: null,
       toggleRecurrence: null,
       canRunWithOpenGrid: true
@@ -1166,190 +1166,6 @@
   window.hg.util = util;
 
   console.log('util module loaded');
-})();
-
-/**
- * This module defines a singleton for animating things.
- *
- * The animator singleton handles the animation loop for the application and updates all
- * registered AnimationJobs during each animation frame.
- *
- * @module animator
- */
-(function () {
-  /**
-   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, init: Function, isComplete: Boolean}} AnimationJob
-   */
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var animator = {};
-  var config = {};
-
-  config.deltaTimeUpperThreshold = 200;
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * This is the animation loop that drives all of the animation.
-   */
-  function animationLoop() {
-    var currentTime, deltaTime;
-
-    currentTime = Date.now();
-    deltaTime = currentTime - animator.previousTime;
-    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
-        config.deltaTimeUpperThreshold : deltaTime;
-    animator.isLooping = true;
-
-    if (!animator.isPaused) {
-      updateJobs(currentTime, deltaTime);
-      drawJobs();
-      window.hg.util.requestAnimationFrame(animationLoop);
-    } else {
-      animator.isLooping = false;
-    }
-
-    animator.previousTime = currentTime;
-  }
-
-  /**
-   * Updates all of the active AnimationJobs.
-   *
-   * @param {Number} currentTime
-   * @param {Number} deltaTime
-   */
-  function updateJobs(currentTime, deltaTime) {
-    var i, count;
-
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].update(currentTime, deltaTime);
-
-      // Remove jobs from the list after they are complete
-      if (animator.jobs[i].isComplete) {
-        removeJob(animator.jobs[i], i);
-        i--;
-        count--;
-      }
-    }
-  }
-
-  /**
-   * Removes the given job from the collection of active, animating jobs.
-   *
-   * @param {AnimationJob} job
-   * @param {Number} [index]
-   */
-  function removeJob(job, index) {
-    var count;
-
-    if (typeof index === 'number') {
-      animator.jobs.splice(index, 1);
-    } else {
-      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
-        if (animator.jobs[index] === job) {
-          animator.jobs.splice(index, 1);
-          break;
-        }
-      }
-    }
-
-    // Stop the animation loop when there are no more jobs to animate
-    if (animator.jobs.length === 0) {
-      animator.isPaused = true;
-    }
-  }
-
-  /**
-   * Draws all of the active AnimationJobs.
-   */
-  function drawJobs() {
-    var i, count;
-
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].draw();
-    }
-  }
-
-  /**
-   * Starts the animation loop if it is not already running
-   */
-  function startAnimationLoop() {
-    animator.isPaused = false;
-    if (!animator.isLooping) {
-      animator.previousTime = Date.now();
-      animationLoop();
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public static functions
-
-  /**
-   * Starts the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function startJob(job) {
-    // Is this a restart?
-    if (!job.isComplete) {
-      console.log('Job restarting: ' + job.constructor.name);
-      job.cancel();
-
-      job.init();// TODO: get rid of this init function
-      job.start();
-    } else {
-      console.log('Job starting: ' + job.constructor.name);
-
-      job.init();// TODO: get rid of this init function
-      job.start();
-      animator.jobs.push(job);
-    }
-
-    startAnimationLoop();
-  }
-
-  /**
-   * Cancels the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function cancelJob(job) {
-    console.log('Job cancelling: ' + job.constructor.name);
-
-    job.cancel();
-    removeJob(job);
-  }
-
-  /**
-   * Cancels all running AnimationJobs.
-   */
-  function cancelAll() {
-    while (animator.jobs.length) {
-      cancelJob(animator.jobs[0]);
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this singleton
-
-  animator.jobs = [];
-  animator.previousTime = Date.now();
-  animator.isLooping = false;
-  animator.isPaused = true;
-  animator.startJob = startJob;
-  animator.cancelJob = cancelJob;
-  animator.cancelAll = cancelAll;
-
-  animator.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.animator = animator;
-
-  console.log('animator module loaded');
 })();
 
 /**
@@ -3431,12 +3247,13 @@
   /**
    * @this Grid
    * @param {Tile} tile
+   * @param {{x:Number,y:Number}} startPosition
    * @returns {PagePost}
    */
-  function createPagePost(tile) {
+  function createPagePost(tile, startPosition) {
     var grid = this;
 
-    grid.pagePost = new window.hg.PagePost(tile);
+    grid.pagePost = new window.hg.PagePost(tile, startPosition);
 
     return grid.pagePost;
   }
@@ -3595,7 +3412,7 @@
   var config = {};
 
   config.contentTileClickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
-  config.emptyTileClickAnimation = 'Radiate Lines'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
+  config.emptyTileClickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
 
   config.possibleClickAnimations = {
     'Radiate Highlight': window.hg.controller.transientJobs.highlightRadiate.create,
@@ -3809,8 +3626,6 @@
     pagePost.paddingY = paddingY;
     pagePost.halfWidth = width / 2;
     pagePost.halfHeight = height / 2;
-    pagePost.top = pagePost.tile.grid.originalCenter.y - pagePost.halfHeight - pagePost.paddingY;
-    pagePost.left = pagePost.tile.grid.originalCenter.x - pagePost.halfWidth - pagePost.paddingX;
 
     // ---  --- //
 
@@ -3829,8 +3644,6 @@
 
     container.setAttribute('data-hg-post-container', 'data-hg-post-container');
     container.style.position = 'absolute';
-    container.style.left = pagePost.left + 'px';
-    container.style.top = pagePost.top + 'px';
     container.style.width = width + 'px';
     container.style.height = height + 'px';
     container.style.margin = '0px';
@@ -3839,7 +3652,6 @@
     container.style.fontSize = config.fontSize + 'px';
     container.style.fontFamily = '"Open Sans", sans-serif';
     container.style.color = '#F4F4F4';
-    container.style.opacity = pagePost.opacity;
     container.style.zIndex = '500';
 
     title.innerHTML = pagePost.tile.postData.titleLong;
@@ -3849,6 +3661,8 @@
 
     content.innerHTML = pagePost.tile.postData.content;
     content.style.whiteSpace = 'pre-wrap';
+
+    draw.call(pagePost);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3866,11 +3680,10 @@
   function draw() {
     var pagePost = this;
 
-    pagePost.top = pagePost.tile.grid.originalCenter.y - pagePost.halfHeight - pagePost.paddingY;
-    pagePost.left = pagePost.tile.grid.originalCenter.x - pagePost.halfWidth - pagePost.paddingX;
-
-    pagePost.elements.container.style.top = pagePost.top;
-    pagePost.elements.container.style.left = pagePost.left;
+    pagePost.elements.container.style.left =
+        pagePost.center.x - pagePost.halfWidth - pagePost.paddingX + 'px';
+    pagePost.elements.container.style.top =
+        pagePost.center.y - pagePost.halfHeight - pagePost.paddingY + 'px';
 
     pagePost.elements.container.style.opacity = pagePost.opacity;
   }
@@ -3892,8 +3705,9 @@
    * @constructor
    * @global
    * @param {Tile} tile
+   * @param {{x:Number,y:Number}} startCenter
    */
-  function PagePost(tile) {
+  function PagePost(tile, startCenter) {
     var pagePost = this;
 
     pagePost.tile = tile;
@@ -3903,8 +3717,10 @@
     pagePost.paddingY = Number.NaN;
     pagePost.halfWidth = Number.NaN;
     pagePost.halfHeight = Number.NaN;
-    pagePost.top = Number.NaN;
-    pagePost.left = Number.NaN;
+    pagePost.center = {
+      x: startCenter.x,
+      y: startCenter.y
+    };
 
     pagePost.draw = draw;
     pagePost.destroy = destroy;
@@ -4681,7 +4497,7 @@
 
     id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.currentVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.vertices = [];
     updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
 
@@ -4732,8 +4548,8 @@
     tile = this;
 
     for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
-      tile.vertices[coordIndex] = anchorX + tile.vertexDeltas[coordIndex++];
-      tile.vertices[coordIndex] = anchorY + tile.vertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorX + tile.currentVertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorY + tile.currentVertexDeltas[coordIndex++];
     }
   }
 
@@ -4790,35 +4606,6 @@
       config.verticalSines[i] = Math.sin(theta);
       config.verticalCosines[i] = Math.cos(theta);
     }
-  }
-
-  /**
-   * Computes the offsets of the vertices from the center of the hexagon.
-   *
-   * @param {Number} radius
-   * @param {Boolean} isVertical
-   * @returns {Array.<Number>}
-   */
-  function computeVertexDeltas(radius, isVertical) {
-    var trigIndex, coordIndex, sines, cosines, vertexDeltas;
-
-    // Grab the pre-computed sine and cosine values
-    if (isVertical) {
-      sines = config.verticalSines;
-      cosines = config.verticalCosines;
-    } else {
-      sines = config.horizontalSines;
-      cosines = config.horizontalCosines;
-    }
-
-    for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
-        trigIndex < 6;
-        trigIndex += 1) {
-      vertexDeltas[coordIndex++] = radius * cosines[trigIndex];
-      vertexDeltas[coordIndex++] = radius * sines[trigIndex];
-    }
-
-    return vertexDeltas;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -5187,6 +4974,35 @@
   // Public static functions
 
   /**
+   * Computes the offsets of the vertices from the center of the hexagon.
+   *
+   * @param {Number} radius
+   * @param {Boolean} isVertical
+   * @returns {Array.<Number>}
+   */
+  function computeVertexDeltas(radius, isVertical) {
+    var trigIndex, coordIndex, sines, cosines, currentVertexDeltas;
+
+    // Grab the pre-computed sine and cosine values
+    if (isVertical) {
+      sines = config.verticalSines;
+      cosines = config.verticalCosines;
+    } else {
+      sines = config.horizontalSines;
+      cosines = config.horizontalCosines;
+    }
+
+    for (trigIndex = 0, coordIndex = 0, currentVertexDeltas = [];
+         trigIndex < 6;
+         trigIndex += 1) {
+      currentVertexDeltas[coordIndex++] = radius * cosines[trigIndex];
+      currentVertexDeltas[coordIndex++] = radius * sines[trigIndex];
+    }
+
+    return currentVertexDeltas;
+  }
+
+  /**
    * Creates the neighbor-tile state for the given tile according to the given neighbor tile. Also
    * sets the reciprocal state for the neighbor tile.
    *
@@ -5323,7 +5139,9 @@
 
     tile.neighborStates = [];
     tile.vertices = null;
-    tile.vertexDeltas = null;
+    tile.currentVertexDeltas = null;
+    tile.originalVertexDeltas = null;
+    tile.expandedVertexDeltas = null;
     tile.particle = null;
 
     tile.setContent = setContent;
@@ -5347,6 +5165,7 @@
     }
   }
 
+  Tile.computeVertexDeltas = computeVertexDeltas;
   Tile.setTileNeighborState = setTileNeighborState;
   Tile.initializeTileExpandedState = initializeTileExpandedState;
   Tile.config = config;
@@ -5521,6 +5340,190 @@
   window.hg.TilePost = TilePost;
 
   console.log('TilePost module loaded');
+})();
+
+/**
+ * This module defines a singleton for animating things.
+ *
+ * The animator singleton handles the animation loop for the application and updates all
+ * registered AnimationJobs during each animation frame.
+ *
+ * @module animator
+ */
+(function () {
+  /**
+   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, init: Function, isComplete: Boolean}} AnimationJob
+   */
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var animator = {};
+  var config = {};
+
+  config.deltaTimeUpperThreshold = 200;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * This is the animation loop that drives all of the animation.
+   */
+  function animationLoop() {
+    var currentTime, deltaTime;
+
+    currentTime = Date.now();
+    deltaTime = currentTime - animator.previousTime;
+    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
+        config.deltaTimeUpperThreshold : deltaTime;
+    animator.isLooping = true;
+
+    if (!animator.isPaused) {
+      updateJobs(currentTime, deltaTime);
+      drawJobs();
+      window.hg.util.requestAnimationFrame(animationLoop);
+    } else {
+      animator.isLooping = false;
+    }
+
+    animator.previousTime = currentTime;
+  }
+
+  /**
+   * Updates all of the active AnimationJobs.
+   *
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateJobs(currentTime, deltaTime) {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].update(currentTime, deltaTime);
+
+      // Remove jobs from the list after they are complete
+      if (animator.jobs[i].isComplete) {
+        removeJob(animator.jobs[i], i);
+        i--;
+        count--;
+      }
+    }
+  }
+
+  /**
+   * Removes the given job from the collection of active, animating jobs.
+   *
+   * @param {AnimationJob} job
+   * @param {Number} [index]
+   */
+  function removeJob(job, index) {
+    var count;
+
+    if (typeof index === 'number') {
+      animator.jobs.splice(index, 1);
+    } else {
+      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
+        if (animator.jobs[index] === job) {
+          animator.jobs.splice(index, 1);
+          break;
+        }
+      }
+    }
+
+    // Stop the animation loop when there are no more jobs to animate
+    if (animator.jobs.length === 0) {
+      animator.isPaused = true;
+    }
+  }
+
+  /**
+   * Draws all of the active AnimationJobs.
+   */
+  function drawJobs() {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].draw();
+    }
+  }
+
+  /**
+   * Starts the animation loop if it is not already running
+   */
+  function startAnimationLoop() {
+    animator.isPaused = false;
+    if (!animator.isLooping) {
+      animator.previousTime = Date.now();
+      animationLoop();
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Starts the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function startJob(job) {
+    // Is this a restart?
+    if (!job.isComplete) {
+      console.log('Job restarting: ' + job.constructor.name);
+      job.cancel();
+
+      job.init();// TODO: get rid of this init function
+      job.start();
+    } else {
+      console.log('Job starting: ' + job.constructor.name);
+
+      job.init();// TODO: get rid of this init function
+      job.start();
+      animator.jobs.push(job);
+    }
+
+    startAnimationLoop();
+  }
+
+  /**
+   * Cancels the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function cancelJob(job) {
+    console.log('Job cancelling: ' + job.constructor.name);
+
+    job.cancel();
+    removeJob(job);
+  }
+
+  /**
+   * Cancels all running AnimationJobs.
+   */
+  function cancelAll() {
+    while (animator.jobs.length) {
+      cancelJob(animator.jobs[0]);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  animator.jobs = [];
+  animator.previousTime = Date.now();
+  animator.isLooping = false;
+  animator.isPaused = true;
+  animator.startJob = startJob;
+  animator.cancelJob = cancelJob;
+  animator.cancelAll = cancelAll;
+
+  animator.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.animator = animator;
+
+  console.log('animator module loaded');
 })();
 
 /**
@@ -6166,8 +6169,6 @@
   // Amplitude (will range from negative to positive)
   config.tileDeltaX = -15;
   config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
-  config.tileDeltaX = 0;
-  config.tileDeltaY = 0;
 
   //  --- Dependent parameters --- //
 
@@ -6448,8 +6449,8 @@
     window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile,
         panDisplacement)
         .duration = config.duration + window.hg.OpenPostJob.config.dilateSectorsDurationOffset;
-    window.hg.controller.transientJobs.fadePagePost.create(job.grid, job.baseTile)
-        .duration = config.duration + window.hg.OpenPostJob.config.fadePagePostDurationOffset;
+    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.fadePostDurationOffset;
 
     job.grid.annotations.setExpandedAnnotations(false);
   }
@@ -6948,13 +6949,13 @@
 })();
 
 /**
- * @typedef {AnimationJob} FadePagePostJob
+ * @typedef {AnimationJob} FadePostJob
  */
 
 /**
- * This module defines a constructor for FadePagePostJob objects.
+ * This module defines a constructor for FadePostJob objects.
  *
- * @module FadePagePostJob
+ * @module FadePostJob
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -6964,7 +6965,8 @@
 
   config.duration = 500;
 
-  config.quickFadeDurationRatio = 0.5;
+  config.quick1FadeDurationRatio = 0.7;
+  config.quick2FadeDurationRatio = 0.3;
 
   //  --- Dependent parameters --- //
 
@@ -6977,12 +6979,12 @@
   // Private dynamic functions
 
   /**
-   * @this FadePagePostJob
+   * @this FadePostJob
    */
   function handleComplete(wasCancelled) {
     var job = this;
 
-    console.log('FadePagePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+    console.log('FadePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
     job.pagePost.draw();
 
@@ -6993,6 +6995,9 @@
       // Don't reset some state if another expansion job started after this one did
       if (job.parentExpansionJob === job.grid.lastExpansionJob) {
         job.grid.destroyPagePost();
+
+        job.baseTile.originalVertexDeltas = null;
+        job.baseTile.expandedVertexDeltas = null;
       } else {
         job.pagePost.destroy();
       }
@@ -7002,36 +7007,73 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
+  /**
+   * @param {Array.<>} currentVertexDeltas
+   * @param oldVertexDeltas
+   * @param newVertexDeltas
+   * @param progress
+   */
+  function interpolateVertexDeltas(currentVertexDeltas, oldVertexDeltas, newVertexDeltas,
+                                   progress) {
+    var i, count;
+
+    for (i = 0, count = currentVertexDeltas.length; i < count; i += 1) {
+      currentVertexDeltas[i] =
+          oldVertexDeltas[i] + (newVertexDeltas[i] - oldVertexDeltas[i]) * progress;
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
   /**
-   * Sets this FadePagePostJob as started.
+   * Sets this FadePostJob as started.
    *
-   * @this FadePagePostJob
+   * @this FadePostJob
    */
   function start() {
+    var expandedTileOuterRadius;
     var job = this;
 
     job.startTime = Date.now();
     job.isComplete = false;
 
+    job.pagePostStartPosition = {};
+    job.pagePostDisplacement = {};
+
     if (job.isFadingIn) {
-      job.pagePost = job.grid.createPagePost(job.baseTile);
+      job.pagePostStartPosition.x = job.baseTile.particle.px;
+      job.pagePostStartPosition.y = job.baseTile.particle.py;
+      job.pagePostDisplacement.x = job.grid.originalCenter.x - job.pagePostStartPosition.x;
+      job.pagePostDisplacement.y = job.grid.originalCenter.y - job.pagePostStartPosition.y;
+
+      job.pagePost = job.grid.createPagePost(job.baseTile, job.pagePostStartPosition);
+
+      expandedTileOuterRadius = window.hg.OpenPostJob.config.expandedDisplacementTileCount *
+          window.hg.Grid.config.tileShortLengthWithGap;
+
+      job.baseTile.originalVertexDeltas = job.baseTile.currentVertexDeltas.slice(0);
+      job.baseTile.expandedVertexDeltas =
+          window.hg.Tile.computeVertexDeltas(expandedTileOuterRadius, job.grid.isVertical);
+    } else {
+      job.pagePostStartPosition.x = job.grid.originalCenter.x;
+      job.pagePostStartPosition.y = job.grid.originalCenter.y;
+      job.pagePostDisplacement.x = job.pagePostStartPosition.x - job.grid.currentCenter.x;
+      job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y;
     }
   }
 
   /**
-   * Updates the animation progress of this FadePagePostJob to match the given time.
+   * Updates the animation progress of this FadePostJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this FadePagePostJob
+   * @this FadePostJob
    * @param {Number} currentTime
    * @param {Number} deltaTime
    */
   function updateFadeIn(currentTime, deltaTime) {
-    var job, progress, quickFadeProgress;
+    var job, progress, quick1FadeProgress, quick2FadeProgress;
 
     job = this;
 
@@ -7040,16 +7082,27 @@
     progress = window.hg.util.easingFunctions.easeOutQuint(progress);
     progress = progress > 1 ? 1 : progress;
 
-    // The TilePost fades out faster than the PagePost fades in
-    quickFadeProgress = progress / config.quickFadeDurationRatio;
-    quickFadeProgress = 1 - (quickFadeProgress > 1 ? 1 : quickFadeProgress);
+    // Some parts of the animation should happen at different speeds
+    quick1FadeProgress = progress / config.quick1FadeDurationRatio;
+    quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
+    quick2FadeProgress = progress / config.quick2FadeDurationRatio;
+    quick2FadeProgress = (quick2FadeProgress > 1 ? 1 : quick2FadeProgress);
 
     // Update the opacity of the center Tile
-    job.baseTile.element.style.opacity = quickFadeProgress;
-    job.baseTile.tilePost.elements.title.style.opacity = quickFadeProgress;
+    job.baseTile.element.style.opacity = 1 - quick1FadeProgress;
+    job.baseTile.tilePost.elements.title.style.opacity = 1 - quick2FadeProgress;
 
     // Update the opacity of the PagePost
     job.pagePost.opacity = progress;
+
+    // Update the position of the PagePost
+    job.pagePost.center.x = job.pagePostStartPosition.x +
+        job.pagePostDisplacement.x * progress;
+    job.pagePost.center.y = job.pagePostStartPosition.y +
+        job.pagePostDisplacement.y * progress;
+
+    interpolateVertexDeltas(job.baseTile.currentVertexDeltas, job.baseTile.originalVertexDeltas,
+        job.baseTile.expandedVertexDeltas, quick1FadeProgress);
 
     // Is the job done?
     if (progress === 1) {
@@ -7058,16 +7111,16 @@
   }
 
   /**
-   * Updates the animation progress of this FadePagePostJob to match the given time.
+   * Updates the animation progress of this FadePostJob to match the given time.
    *
    * This should be called from the overall animation loop.
    *
-   * @this FadePagePostJob
+   * @this FadePostJob
    * @param {Number} currentTime
    * @param {Number} deltaTime
    */
   function updateFadeOut(currentTime, deltaTime) {
-    var job, progress, quickFadeProgress;
+    var job, progress, quick1FadeProgress, quick2FadeProgress;
 
     job = this;
 
@@ -7076,16 +7129,27 @@
     progress = window.hg.util.easingFunctions.easeOutQuint(progress);
     progress = progress > 1 ? 1 : progress;
 
-    // The PagePost fades out faster than the TilePost fades in
-    quickFadeProgress = progress / config.quickFadeDurationRatio;
-    quickFadeProgress = quickFadeProgress > 1 ? 1 : quickFadeProgress;
+    // Some parts of the animation should happen at different speeds
+    quick1FadeProgress = progress / config.quick1FadeDurationRatio;
+    quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
+    quick2FadeProgress = progress / config.quick2FadeDurationRatio;
+    quick2FadeProgress = (quick2FadeProgress > 1 ? 1 : quick2FadeProgress);
 
     // Update the opacity of the center Tile
     job.baseTile.element.style.opacity = progress;
     job.baseTile.tilePost.elements.title.style.opacity = progress;
 
     // Update the opacity of the PagePost
-    job.pagePost.opacity = 1 - quickFadeProgress;
+    job.pagePost.opacity = 1 - quick2FadeProgress;
+
+    // Update the position of the PagePost
+    job.pagePost.center.x = job.pagePostStartPosition.x +
+        job.pagePostDisplacement.x * progress;
+    job.pagePost.center.y = job.pagePostStartPosition.y +
+        job.pagePostDisplacement.y * progress;
+
+    interpolateVertexDeltas(job.baseTile.currentVertexDeltas, job.baseTile.expandedVertexDeltas,
+        job.baseTile.originalVertexDeltas, quick1FadeProgress);
 
     // Is the job done?
     if (progress === 1) {
@@ -7094,11 +7158,11 @@
   }
 
   /**
-   * Draws the current state of this FadePagePostJob.
+   * Draws the current state of this FadePostJob.
    *
    * This should be called from the overall animation loop.
    *
-   * @this FadePagePostJob
+   * @this FadePostJob
    */
   function draw() {
     var job = this;
@@ -7107,9 +7171,9 @@
   }
 
   /**
-   * Stops this FadePagePostJob, and returns the element its original form.
+   * Stops this FadePostJob, and returns the element its original form.
    *
-   * @this FadePagePostJob
+   * @this FadePostJob
    */
   function cancel() {
     var job = this;
@@ -7118,7 +7182,7 @@
   }
 
   /**
-   * @this FadePagePostJob
+   * @this FadePostJob
    */
   function init() {
     var job = this;
@@ -7136,16 +7200,18 @@
    * @param {Tile} tile
    * @param {Function} onComplete
    */
-  function FadePagePostJob(grid, tile, onComplete) {
+  function FadePostJob(grid, tile, onComplete) {
     var job = this;
 
     job.grid = grid;
     job.baseTile = grid.expandedTile;
     job.startTime = 0;
     job.isComplete = true;
-    job.pagePost = grid.pagePost
+    job.pagePost = grid.pagePost;
     job.parentExpansionJob = job.grid.lastExpansionJob;
     job.isFadingIn = grid.isPostOpen;
+    job.pagePostStartPosition = null;
+    job.pagePostDisplacement = null;
 
     job.duration = config.duration;
 
@@ -7156,17 +7222,17 @@
     job.onComplete = onComplete;
     job.init = init;
 
-    console.log('FadePagePostJob created: tileIndex=' + job.baseTile.originalIndex +
+    console.log('FadePostJob created: tileIndex=' + job.baseTile.originalIndex +
         ', isFadingIn=' + job.isFadingIn);
   }
 
-  FadePagePostJob.config = config;
+  FadePostJob.config = config;
 
   // Expose this module
   window.hg = window.hg || {};
-  window.hg.FadePagePostJob = FadePagePostJob;
+  window.hg.FadePostJob = FadePostJob;
 
-  console.log('FadePagePostJob module loaded');
+  console.log('FadePostJob module loaded');
 })();
 
 /**
@@ -9286,7 +9352,7 @@
 
   config.spreadDurationOffset = -200;
   config.panDurationOffset = -100;
-  config.fadePagePostDurationOffset = 300;
+  config.fadePostDurationOffset = 1100;
   config.dilateSectorsDurationOffset = 0;
 
   //  --- Dependent parameters --- //
@@ -9423,8 +9489,8 @@
     window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile,
         panDisplacement)
         .duration = config.duration + config.dilateSectorsDurationOffset;
-    window.hg.controller.transientJobs.fadePagePost.create(job.grid, job.baseTile)
-        .duration = config.duration + config.fadePagePostDurationOffset;
+    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+        .duration = config.duration + config.fadePostDurationOffset;
 
     // TODO: this should instead fade out the old persistent animations and fade in the new ones
     window.hg.controller.resetPersistentJobs(job.grid);
