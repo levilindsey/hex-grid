@@ -249,29 +249,12 @@
 
     openClosePostJobFolder.add(data, 'triggerTogglePost');
 
-    openClosePostJobFolder.add(window.hg.OpenPostJob.config, 'duration', 10, 10000);
-    openClosePostJobFolder.add(window.hg.ClosePostJob.config, 'duration', 10, 10000);
-  }
-
-  /**
-   * Sets up the folder for ClosePostJob parameters within the dat.GUI controller.
-   */
-  function initClosePostJobFolder(parentFolder) {
-    var closePostJobFolder, data;
-
-    closePostJobFolder = parentFolder.addFolder('Close Post');
-    closePostJobFolder.open();// TODO: remove me
-
-    data = {
-      'triggerClosePost': window.hg.controller.transientJobs.closePost.createRandom.bind(
-              window.hg.controller, parameters.grid)
-    };
-
-    closePostJobFolder.add(data, 'triggerClosePost');
-
-    closePostJobFolder.add(window.hg.ClosePostJob.config, 'duration', 10, 10000);
-
-    // TODO:
+    openClosePostJobFolder.add(window.hg.OpenPostJob.config, 'duration', 10, 10000)
+        .name('Open Duration');
+    openClosePostJobFolder.add(window.hg.ClosePostJob.config, 'duration', 10, 10000)
+        .name('Close Duration');
+    openClosePostJobFolder.add(window.hg.OpenPostJob.config, 'expandedDisplacementTileCount', 0, 5)
+        .step(1);
   }
 
   /**
