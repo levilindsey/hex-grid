@@ -1,0 +1,11 @@
+{
+  "id": "generator-meanie",
+  "titleShort": "MEAN-stack",
+  "titleLong": "MEAN-stack Yeoman Generator with gulp",
+  "iconSrc": "example/images/test-thumbnail.png",
+  "thumbnailSrc": "example/images/test-thumbnail.png",
+  "mainImages": [
+    "example/images/test-banner.png"
+  ],
+  "content": "# Hello Markdown\n\nTest, _test_, **test**??\n\nTODO"
+}

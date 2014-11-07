@@ -3,9 +3,14 @@ var config = {};
 config.srcPath = 'src';
 config.distPath = 'dist';
 config.examplePath = 'example';
+config.nodeModulesPath = 'node_modules';
 config.publicRoot = './';
 
-config.scriptsSrc = config.srcPath + '/**/*.js';
+config.scriptsSrc = [
+  config.nodeModulesPath + '/showdown/compressed/showdown.js',
+  config.nodeModulesPath + '/showdown/compressed/extensions/github.js',
+  config.srcPath + '/**/*.js'
+];
 
 config.scriptDistFileName = 'hex-grid.js';
 
