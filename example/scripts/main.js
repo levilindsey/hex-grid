@@ -10,6 +10,9 @@
   var main = {};
 
   main.appRootPath = '/example';
+  main.metadataUrl = main.appRootPath + '/dist/data.min.json';
+  main.dataRequestState = 'request-not-sent';
+  main.postData = [];
   main.grid = null;
 
   window.app = window.app || {};
@@ -24,21 +27,63 @@
    * within the body element.
    */
   function initHexGrid() {
-    var hexGridContainer, tileData;
-
     console.log('onDocumentLoad');
 
     window.removeEventListener('load', initHexGrid);
 
-    hexGridContainer = document.getElementById('hex-grid-area');
+    fetchData(updataTileData);
+  }
 
-    setTimeout(function () {
-      tileData = window.app.testData.createTestData(); // TODO: fetch this from the server
+  function fetchData(callback) {
+    var xhr = new XMLHttpRequest();
 
-      main.grid = window.hg.controller.createNewHexGrid(hexGridContainer, tileData, false);
+    xhr.addEventListener('load', onLoad, false);
+    xhr.addEventListener('error', onError, false);
+    xhr.addEventListener('abort', onAbort, false);
 
-      app.parameters.initDatGui(main.grid);
-    }, 500);
+    console.log('Sending request to ' + main.metadataUrl);
+
+    xhr.open('GET', main.metadataUrl, true);
+    xhr.send();
+
+    main.dataRequestState = 'waiting-for-response';
+
+    // ---  --- //
+
+    function onLoad() {
+      console.log('Response status=' + xhr.status + ' (' + xhr.statusText + ')');
+      //console.log('Response body=' + xhr.response);
+
+      main.dataRequestState = 'received-response';
+
+      try {
+        main.postData = JSON.parse(xhr.response);
+        callback();
+      } catch (error) {
+        main.postData = [];
+        console.warn('Unable to parse response body as JSON: ' + xhr.response);
+      }
+    }
+
+    function onError() {
+      console.error('An error occurred while transferring the data');
+
+      main.dataRequestState = 'error-with-request';
+    }
+
+    function onAbort() {
+      console.error('The transfer has been cancelled by the user');
+
+      main.dataRequestState = 'error-with-request';
+    }
+  }
+
+  function updataTileData() {
+    var hexGridContainer = document.getElementById('hex-grid-area');
+
+    main.grid = window.hg.controller.createNewHexGrid(hexGridContainer, main.postData, false);
+
+    app.parameters.initDatGui(main.grid);
   }
 
   console.log('main module loaded');
