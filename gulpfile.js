@@ -6,11 +6,14 @@ config.examplePath = 'example';
 config.nodeModulesPath = 'node_modules';
 config.publicRoot = './';
 
-config.scriptsSrc = [
+config.hgScriptsSrc = [config.srcPath + '/**/*.js'];
+config.vendorScriptsSrc = [
   config.nodeModulesPath + '/showdown/compressed/showdown.js',
-  config.nodeModulesPath + '/showdown/compressed/extensions/github.js',
-  config.srcPath + '/**/*.js'
+  config.nodeModulesPath + '/showdown/compressed/extensions/twitter.js',
+  config.nodeModulesPath + '/showdown/compressed/extensions/google-prettify.js',
+  config.nodeModulesPath + '/showdown/compressed/extensions/github.js'
 ];
+config.allScriptsSrc = config.hgScriptsSrc.concat(config.vendorScriptsSrc);
 
 config.scriptDistFileName = 'hex-grid.js';
 
@@ -21,19 +24,45 @@ config.buildTasks = ['scripts', 'watch'];
 
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
+var merge = require('merge-stream');
 
 // ---  --- //
 
 gulp.task('scripts', function () {
-  return gulp.src(config.scriptsSrc)
+  // The goal of this function is to generate two versions of the concatenated scripts: one with the minified hex-grid
+  // source, and one with non-minified. However, both need to have the unadulterated version of the vendor code.
+
+  // TODO: do some more research about streams and whether there is a better way to do this
+
+  var hgStreamNonMin = gulp.src(config.hgScriptsSrc)
       .pipe(plugins.plumber())
       .pipe(plugins.concat(config.scriptDistFileName))
-      .pipe(gulp.dest(config.distPath))
-      .pipe(plugins.size({title: 'Scripts before minifying'}))
+      .pipe(plugins.size({title: 'hex-grid scripts before minifying'}));
+  var hgStreamMin = gulp.src(config.hgScriptsSrc)
+      .pipe(plugins.plumber())
+      .pipe(plugins.concat(config.scriptDistFileName))
       .pipe(plugins.rename({suffix: '.min'}))
       .pipe(plugins.uglify())
-      .pipe(gulp.dest(config.distPath))
-      .pipe(plugins.size({title: 'Scripts after minifying'}));
+      .pipe(plugins.size({title: 'hex-grid scripts after minifying'}));
+
+  var vendorStream1 = gulp.src(config.vendorScriptsSrc)
+      .pipe(plugins.plumber())
+      .pipe(plugins.concat(config.scriptDistFileName))
+      .pipe(plugins.size({title: 'Vendor scripts'}));
+  var vendorStream2 = gulp.src(config.vendorScriptsSrc)
+      .pipe(plugins.plumber())
+      .pipe(plugins.concat(config.scriptDistFileName));
+
+  var combinedStreamNonMin = merge(hgStreamNonMin, vendorStream1)
+      .pipe(plugins.concat(config.scriptDistFileName))
+      .pipe(plugins.size({title: 'Combined scripts without minification'}))
+      .pipe(gulp.dest(config.distPath));
+  var combinedStreamMin = merge(hgStreamMin, vendorStream2)
+      .pipe(plugins.concat(config.scriptDistFileName))
+      .pipe(plugins.size({title: 'Combined scripts with minification'}))
+      .pipe(gulp.dest(config.distPath));
+
+  return merge(combinedStreamNonMin, combinedStreamMin);
 });
 
 gulp.task('server', config.buildTasks, function () {
@@ -48,7 +77,7 @@ gulp.task('server', config.buildTasks, function () {
 });
 
 gulp.task('watch', function () {
-  gulp.watch(config.scriptsSrc, ['scripts']);
+  gulp.watch(config.allScriptsSrc, ['scripts']);
 });
 
 gulp.task('clean', function () {
