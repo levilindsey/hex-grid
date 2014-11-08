@@ -96,8 +96,10 @@
     title.style.fontFamily = '"Open Sans", sans-serif';
     title.style.textAlign = 'center';
 
-    content.innerHTML = pagePost.tile.postData.content;
-    content.style.whiteSpace = 'pre-wrap';
+    var converter = new Showdown.converter({extensions: 'github'});
+
+    content.innerHTML = converter.makeHtml(pagePost.tile.postData.content);
+    //content.style.whiteSpace = 'pre-wrap';
 
     draw.call(pagePost);
   }
