@@ -4,7 +4,7 @@ I should **really** probably actually add some real content here. This meaningle
 
 Test weird characters? ~!@#$%^&*\(\){}?+|S_WVZwvzs-/=\\\]\[0987654321`
 
-Will this image show up? [![/example/images/test-thumbnail.png]] yes?
+Will this image show up? ![Alt text](/example/images/test-thumbnail.png) yes?
 
 bullets:
 

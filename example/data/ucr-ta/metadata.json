@@ -1,12 +1,20 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "ucr-ta",
+  "titleShort": "Teaching Assistant",
+  "titleLong": "Teaching Assistant",
+  "url": "",
+  "jobTitle": "Teaching Assistant",
+  "date": "2012-2013",
+  "categories": [
+    "school",
+    "teaching",
+    "c",
+    "c++",
+    "ucr"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }

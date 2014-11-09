@@ -1,12 +1,23 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "fat-cat-chat",
+  "titleShort": "Web App: IRC-Like Chat",
+  "titleLong": "IRC-Like Chat Server and Client",
+  "url": "http://jackieandlevi.com/fat-cat-chat",
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "app",
+    "web-sockets",
+    "socket.io",
+    "node.js",
+    "back-end",
+    "front-end"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }

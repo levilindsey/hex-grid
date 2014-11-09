@@ -1,12 +1,21 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "dietary-data-recording-system",
+  "titleShort": "Android App: Recording System",
+  "titleLong": "Dietary Data Recording System",
+  "url": "http://ee.washington.edu/research/seal/",
+  "jobTitle": "Student Researcher (Software Engineer)",
+  "date": "2010-2011",
+  "categories": [
+    "work",
+    "school",
+    "research",
+    "android",
+    "app",
+    "uw"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }

@@ -1,19 +1,17 @@
 {
-  "id": "hex-grid",
-  "titleShort": "Hex Grid",
-  "titleLong": "Hex Grid",
-  "url": "http://jackieandlevi.com/hex-grid",
+  "id": "text-animation",
+  "titleShort": "Bower Package: Text Animation",
+  "titleLong": "Text Animation",
+  "url": "http://jackieandlevi.com/text-animation",
   "jobTitle": "",
   "date": "2014",
   "categories": [
     "side-project",
     "web",
     "front-end",
-    "svg",
-    "canvas",
     "animation",
     "library",
-    "app"
+    "bower"
   ],
   "iconSrc": "",
   "thumbnailSrc": "",

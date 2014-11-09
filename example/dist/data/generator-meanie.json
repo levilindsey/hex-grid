@@ -8,5 +8,5 @@
     "example/images/test-banner.png"
   ],
   "videos": [],
-  "content": "_Test description!!_\n\nI should **really** probably actually add some real content here. This meaningless non-sense simply won't do.\n\nTest weird characters? ~!@#$%^&*\\(\\){}?+|S_WVZwvzs-\/=\\\\\\]\\[0987654321`\n\nWill this image show up? [![\/example\/images\/test-thumbnail.png]] yes?\n\nbullets:\n\n- a\n- o\n- e\n- u\n\nnumbers:\n\n1 a\n2 o\n3 e\n4 u\n\n~strikethrough~\n\n# Title\n\nsingle lines\n\n--------------\n\ndouble lines\n\n==============\n\n[Test link](http:\/\/jackieandlevi.com\/maya)\n"
+  "content": "_Test description!!_\n\nI should **really** probably actually add some real content here. This meaningless non-sense simply won't do.\n\nTest weird characters? ~!@#$%^&*\\(\\){}?+|S_WVZwvzs-\/=\\\\\\]\\[0987654321`\n\nWill this image show up? ![Alt text](\/example\/images\/test-thumbnail.png) yes?\n\nbullets:\n\n- a\n- o\n- e\n- u\n\nnumbers:\n\n1. a\n2. o\n3. e\n4. u\n\n~strikethrough~\n\n# Title\n\nsingle lines\n\n--------------\n\ndouble lines\n\n==============\n\n[Test link](http:\/\/jackieandlevi.com\/maya)"
 }

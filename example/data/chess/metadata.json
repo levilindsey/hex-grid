@@ -1,8 +1,8 @@
 {
-  "id": "squared-away",
-  "titleShort": "Tile-Matching Puzzle Game",
-  "titleLong": "Squared Away",
-  "url": "http://jackieandlevi.com/squared-away",
+  "id": "chess",
+  "titleShort": "Web App: chess",
+  "titleLong": "Chess",
+  "url": "http://jackieandlevi.com/chess",
   "jobTitle": "",
   "date": "2013",
   "categories": [
@@ -10,8 +10,6 @@
     "web",
     "app",
     "front-end",
-    "canvas",
-    "animation",
     "game"
   ],
   "iconSrc": "",

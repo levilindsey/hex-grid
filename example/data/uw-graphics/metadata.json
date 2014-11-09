@@ -1,12 +1,20 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "uw-graphics",
+  "titleShort": "OpenGL Animations",
+  "titleLong": "OpenGL Models and Animations",
+  "url": "",
+  "jobTitle": "",
+  "date": "2011",
+  "categories": [
+    "school",
+    "uw",
+    "opengl",
+    "animation",
+    "c++"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }

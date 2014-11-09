@@ -1,12 +1,21 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "phone-wand",
+  "titleShort": "Blind-Accessible Navigation",
+  "titleLong": "Phone Wand",
+  "url": "https://code.google.com/p/mobileaccessibility/source/browse/#svn%2Ftrunk%2FPhoneWand",
+  "jobTitle": "",
+  "date": "2011",
+  "categories": [
+    "school",
+    "uw",
+    "android",
+    "accessibility",
+    "google-maps-api",
+    "app"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }

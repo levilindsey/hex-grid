@@ -1,12 +1,21 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "photo-viewer",
+  "titleShort": "Web App: Photo Viewer",
+  "titleLong": "Photo Viewer",
+  "url": "http://jackieandlevi.com/photo-viewer",
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "front-end",
+    "app",
+    "xhr2",
+    "animation"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }

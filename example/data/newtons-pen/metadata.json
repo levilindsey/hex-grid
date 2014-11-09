@@ -1,12 +1,26 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "newtons-pen",
+  "titleShort": "Intelligent Tutoring System: Pen",
+  "titleLong": "Newtons Pen",
+  "url": "http://escholarship.org/uc/item/40r3k5v2",
+  "jobTitle": "Graduate Student Researcher (Software Engineer)",
+  "date": {
+    "start": "2012",
+    "end": "2013"
+  },
+  "categories": [
+    "work",
+    "school",
+    "research",
+    "ucr",
+    "c-sharp",
+    "app",
+    "livescribe",
+    "pen"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }

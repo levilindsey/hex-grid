@@ -1,12 +1,20 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "idean",
+  "titleShort": "Idean",
+  "titleLong": "Idean",
+  "url": "http://idean.com",
+  "jobTitle": "UI Developer",
+  "date": "2014",
+  "categories": [
+    "work",
+    "web",
+    "front-end",
+    "back-end",
+    "user-experience"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }

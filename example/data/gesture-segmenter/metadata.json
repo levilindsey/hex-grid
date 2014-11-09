@@ -1,12 +1,20 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "gesture-segmenter",
+  "titleShort": "Gesture Recognition",
+  "titleLong": "Gesture Segmenter and Recognizer",
+  "url": "",
+  "jobTitle": "",
+  "date": "2013",
+  "categories": [
+    "school",
+    "research",
+    "c-sharp",
+    "app",
+    "pen"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }

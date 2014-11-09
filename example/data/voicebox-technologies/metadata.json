@@ -1,12 +1,19 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "voicebox-technologies",
+  "titleShort": "Audio Signal Processing",
+  "titleLong": "Audio Signal Processing",
+  "url": "http://voicebox.com/",
+  "jobTitle": "Summer Intern (Software Engineer)",
+  "date": "2011",
+  "categories": [
+    "work",
+    "intern",
+    "c",
+    "c++"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }

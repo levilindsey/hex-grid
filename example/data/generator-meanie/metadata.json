@@ -1,12 +1,28 @@
 {
   "id": "generator-meanie",
-  "titleShort": "MEAN-stack",
+  "titleShort": "MEAN-stack Generator",
   "titleLong": "MEAN-stack Yeoman Generator with gulp",
-  "iconSrc": "example/images/test-thumbnail.png",
-  "thumbnailSrc": "example/images/test-thumbnail.png",
-  "images": [
-    "example/images/test-banner.png"
+  "url": "https://npmjs.org/package/generator-meanie",
+  "jobTitle": "",
+  "date": "2014-2015",
+  "categories": [
+    "side-project",
+    "web",
+    "mean",
+    "front-end",
+    "back-end",
+    "mongodb",
+    "express",
+    "angularjs",
+    "node.js",
+    "gulp.js",
+    "yeoman",
+    "npm",
+    "library"
   ],
+  "iconSrc": "",
+  "thumbnailSrc": "",
+  "images": [],
   "videos": [],
   "content": ""
 }
