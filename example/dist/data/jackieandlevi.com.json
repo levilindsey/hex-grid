@@ -1,9 +1,10 @@
 
 {
   "id": "jackieandlevi.com",
-  "titleShort": "Portfolio Website: for Myself",
+  "titleShort": "Portfolio\nWebsite:\nfor Myself",
   "titleLong": "My Portfolio Website",
   "url": "http://jackieandlevi.com",
+  "repositoryUrl": "https://github.com/levisl176/jackieandlevi.com",
   "jobTitle": "",
   "date": {
     "start": "2013",
@@ -27,5 +28,5 @@
   "thumbnailSrc": "",
   "images": [],
   "videos": [],
-  "content": "TODO: add description"
+  "content": "#### The personal web site of Jackie and Levi Lindsey\n\n_See this site running at [www.jackieandlevi.com][main-url]!_\n\nThis site is where Levi tinkers with many different projects. It's basically his playground. And his portfolio.\n\n[main-url]: http:\/\/jackieandlevi.com"
 }

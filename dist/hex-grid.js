@@ -3785,10 +3785,19 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @param {Tile} tile
    */
   function createClickAnimation(grid, tile) {
+    // Close any open post
+    if (grid.isPostOpen) {
+      window.hg.controller.transientJobs.closePost.create(grid, grid.expandedTile);
+    }
+
     if (tile.holdsContent) {
+      // Trigger an animation for the click
       config.possibleClickAnimations[config.contentTileClickAnimation](grid, tile);
+
+      // Open the post for the given tile
       window.hg.controller.transientJobs.openPost.create(grid, tile);
     } else {
+      // Trigger an animation for the click
       config.possibleClickAnimations[config.emptyTileClickAnimation](grid, tile);
     }
   }

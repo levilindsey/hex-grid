@@ -1,8 +1,9 @@
 {
   "id": "benlindseydesign.com",
-  "titleShort": "Portfolio Website: Designer",
+  "titleShort": "Portfolio\nWebsite:\nDesigner",
   "titleLong": "Portfolio for an Industrial Designer",
   "url": "http://benlindseydesign.com",
+  "repositoryUrl": "https://github.com/levisl176/benlindseydesign.com",
   "jobTitle": "",
   "date": {
     "start": "2014",
@@ -18,5 +19,5 @@
   "thumbnailSrc": "",
   "images": [],
   "videos": [],
-  "content": "_**This project is a work in progress**_\n\n[This website][main-url] is a professional portfolio for Ben Lindsey.\n\n[main-url]: http:\/\/benlindseydesign.com"
+  "content": "_**This project is a work in progress**_\n\n_See this website running at [www.benlindseydesign.com][main-url]!_\n\nThis website is a professional portfolio for Ben Lindsey.\n\n[main-url]: http:\/\/benlindseydesign.com"
 }

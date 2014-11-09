@@ -1,8 +1,9 @@
 {
   "id": "progress-circle",
-  "titleShort": "Web Doodle: Progress Circle",
+  "titleShort": "Web Doodle:\nProgress\nCircle",
   "titleLong": "Progress Circle",
   "url": "http://jackieandlevi.com/progress-circle",
+  "repositoryUrl": "https://github.com/levisl176/progress-circle",
   "jobTitle": "",
   "date": "2014",
   "categories": [
@@ -18,5 +19,5 @@
   "thumbnailSrc": "",
   "images": [],
   "videos": [],
-  "content": "TODO: add description"
+  "content": "#### A progress circle built using SVG\n\n_See this progress circle running at [www.jackieandlevi.com\/progress-circle][main-url] or at\n[www.codepen.io\/levisl176\/pen\/ndklu][codepen-url]!_\n\nThe progress circle consists of a ring of color-shifting dots.\n\nThis project uses a separate custom animation package Levi developed.\n\n\n[main-url]: http:\/\/jackieandlevi.com\/progress-circle\n[codepen-url]: http:\/\/codepen.io\/levisl176\/pen\/ndklu"
 }

@@ -1,8 +1,9 @@
 {
   "id": "uw-graphics",
-  "titleShort": "OpenGL Animations",
+  "titleShort": "OpenGL\nAnimations",
   "titleLong": "OpenGL Models and Animations",
   "url": "",
+  "repositoryUrl": "",
   "jobTitle": "",
   "date": "2011",
   "categories": [
@@ -16,5 +17,5 @@
   "thumbnailSrc": "",
   "images": [],
   "videos": [],
-  "content": "TODO: add description"
+  "content": "As part of a grahics course at the University of Washington, Levi co-developed a model and animation of a frog playing\na ukulele.\n\n_OpenGL with C++_"
 }

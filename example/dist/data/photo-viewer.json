@@ -1,8 +1,9 @@
 {
   "id": "photo-viewer",
-  "titleShort": "Web App: Photo Viewer",
+  "titleShort": "Web App:\nPhoto Viewer",
   "titleLong": "Photo Viewer",
   "url": "http://jackieandlevi.com/photo-viewer",
+  "repositoryUrl": "https://github.com/levisl176/photo-viewer",
   "jobTitle": "",
   "date": "2014",
   "categories": [
@@ -17,5 +18,5 @@
   "thumbnailSrc": "",
   "images": [],
   "videos": [],
-  "content": "TODO: add description"
+  "content": "#### A general-purpose photo-viewer application\n\n_See this running at [www.jackieandlevi.com\/wedding\/photos][main-url]!_\n\nThis fancy web app is loaded with bells and whistles. A smattering of them includes:\n\n- Expandable, animated photo grids, which display large collections of photo thumbnails\n- A lightbox for conveniently viewing and navigating through medium-sized versions of the images\n- Full-screen mode for viewing and navigating through the original, full-sized versions of the images\n- A very flashy SVG-based progress circle\n- Use of the XHR2 progress event for displaying the download progress of larger images\n\nThis app was originally built to show off the photos from Levi and [Jackie's][jackie-url] wedding.\n\n\n[main-url]: http:\/\/jackieandlevi.com\/wedding\/photos\n[jackie-url]: http:\/\/jackieandlevi.com\/jackie"
 }

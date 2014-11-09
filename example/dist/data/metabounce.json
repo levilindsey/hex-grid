@@ -1,8 +1,9 @@
 {
   "id": "metabounce",
-  "titleShort": "Web Doodle: Metabounce",
+  "titleShort": "Web Doodle:\nMetabounce",
   "titleLong": "Metabounce",
   "url": "http://jackieandlevi.com/metabounce",
+  "repositoryUrl": "https://github.com/levisl176/metabounce",
   "jobTitle": "",
   "date": "2014",
   "categories": [
@@ -17,5 +18,5 @@
   "thumbnailSrc": "",
   "images": [],
   "videos": [],
-  "content": "TODO: add description"
+  "content": "#### Fun with SVG, balls, and bouncing!\n\n_See this running at [www.jackieandlevi.com\/metabounce][main-url] or at [www.codepen.io\/levisl176\/pen\/lqmAE][codepen-url]!_\n\nThis is a project in which Levi played around with balls and bouncing. This is just for fun, so enjoy!\n\n\n[main-url]: http:\/\/jackieandlevi.com\/metabounce\n[codepen-url]: http:\/\/codepen.io\/levisl176\/pen\/lqmAE"
 }

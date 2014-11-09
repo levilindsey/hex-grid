@@ -1,0 +1,24 @@
+
+{
+  "id": "jackieandlevi-profiles",
+  "titleShort": "Web App:\nMaterial\nDesign",
+  "titleLong": "Profile pages",
+  "url": "http://jackieandlevi.com/levi",
+  "repositoryUrl": "https://github.com/levisl176/jackieandlevi-profiles",
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "app",
+    "front-end",
+    "angularjs",
+    "material-design",
+    "animation"
+  ],
+  "iconSrc": "",
+  "thumbnailSrc": "",
+  "images": [],
+  "videos": [],
+  "content": "#### Profile pages using AngularJS and Material Design\n\n_**This project is a work in progress**_\n\n_See this app running at [www.jackieandlevi.com\/levi][main-url]!_\n\nLevi used [Google's Material Design language][md-url] to create clean styles and natural animations for this project.\n\n_AngularJS, angular-material, angular-ui-router_\n\n\n[main-url]: http:\/\/jackieandlevi.com\/levi\n[md-url]: http:\/\/www.google.com\/design\/spec\/material-design\/introduction.html"
+}

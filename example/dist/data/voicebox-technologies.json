@@ -1,8 +1,9 @@
 {
   "id": "voicebox-technologies",
-  "titleShort": "Audio Signal Processing",
+  "titleShort": "Audio\nSignal\nProcessing",
   "titleLong": "Audio Signal Processing",
   "url": "http://voicebox.com/",
+  "repositoryUrl": "",
   "jobTitle": "Summer Intern (Software Engineer)",
   "date": "2011",
   "categories": [
@@ -15,5 +16,5 @@
   "thumbnailSrc": "",
   "images": [],
   "videos": [],
-  "content": "TODO: add description"
+  "content": "_[VoiceBox Technologies][main-url] is a company focused on conversational speech recognition, search, and information\nmanagement._\n\nLevi integrated noise-suppression functionality from an ETSI standard into VBT’s pre-existing\n[Voice Activity Detection][vad-url] software and tuned it for optimal performance.\n\n_C with C++ wrappers_\n\n[main-url]: http:\/\/voicebox.com\/\n[vad-url]: http:\/\/en.wikipedia.org\/wiki\/Voice_activity_detection"
 }

@@ -1,8 +1,9 @@
 {
   "id": "wedding-invite",
-  "titleShort": "Web App: Wedding Site",
+  "titleShort": "Web App:\nWedding\nSite",
   "titleLong": "Wedding Invite and RSVP System",
   "url": "http://jackieandlevi.com/wedding/invite",
+  "repositoryUrl": "https://github.com/levisl176/wedding-invite",
   "jobTitle": "",
   "date": "2012",
   "categories": [
@@ -18,5 +19,5 @@
   "thumbnailSrc": "",
   "images": [],
   "videos": [],
-  "content": "TODO: add description"
+  "content": "#### A wedding invite and RSVP system\n\n_See this app running at [www.jackieandlevi.com\/wedding\/invite][main-url]_\n\nLevi developed this simple web app as the invite and RSVP system for his and [Jackie's][jackie-url] wedding.\n\n_PHP and jQuery_\n\n\n[main-url]: http:\/\/jackieandlevi.com\/wedding\/invite\n[jackie-url]: http:\/\/jackieandlevi.com\/jackie"
 }

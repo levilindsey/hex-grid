@@ -1,8 +1,9 @@
 {
   "id": "phone-wand",
-  "titleShort": "Blind-Accessible Navigation",
+  "titleShort": "Blind-Accessible\nNavigation",
   "titleLong": "Phone Wand",
   "url": "https://code.google.com/p/mobileaccessibility/source/browse/#svn%2Ftrunk%2FPhoneWand",
+  "repositoryUrl": "https://code.google.com/p/mobileaccessibility/source/browse/#svn%2Ftrunk%2FPhoneWand",
   "jobTitle": "",
   "date": "2011",
   "categories": [
@@ -17,5 +18,5 @@
   "thumbnailSrc": "",
   "images": [],
   "videos": [],
-  "content": "TODO: add description"
+  "content": "#### A blind-accessible route-navigation Android application\n\nIn a computer science capstone course on accessibility at the University of Washington, Levi co-developed a\nroute-orienting application that would guide a blind user via vibrational feedback.\n\nThis application would first geocode the user's current location and a user-entered destination and then query the\nGoogle Directions API for a route from the one to the other. This route was then displayed on a map with the user’s\ncurrent location. The user could then rotate the phone around, and the phone would vibrate when pointed in the\ndirection of the current step in the user's route.\n\nThis involved the creation of a completely novel blind-accessible soft keyboard in addition to the implementation of a\ndatabase for storing previously entered destinations.\n\nThe PhoneWand code is open source and online at\n[http:\/\/code.google.com\/p\/mobileaccessibility\/source\/browse\/#svn%2Ftrunk%2FPhoneWand][main-url].\n\n\n[main-url]: http:\/\/code.google.com\/p\/mobileaccessibility\/source\/browse\/#svn%2Ftrunk%2FPhoneWand"
 }

@@ -1,8 +1,9 @@
 {
   "id": "shouldihaveanother.beer",
-  "titleShort": "Web Doodle: Beer?",
+  "titleShort": "Web Doodle:\nBeer?",
   "titleLong": "shouldihaveanother.beer",
   "url": "http://shouldihaveanother.beer",
+  "repositoryUrl": "https://github.com/levisl176/shouldihaveanother.beer",
   "jobTitle": "",
   "date": "2014",
   "categories": [
@@ -18,5 +19,5 @@
   "thumbnailSrc": "",
   "images": [],
   "videos": [],
-  "content": "TODO: add description"
+  "content": "_See this running at [shouldihaveanother.beer][main-url]_\n\nLevi built and deployed this simple app in a few hours. It exhibits some fun canvas-based animation.\n\nHis main motivation was the availability of fun new top-level domains.\n\n\n[main-url]: http:\/\/shouldihaveanother.beer"
 }

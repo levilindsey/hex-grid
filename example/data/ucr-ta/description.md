@@ -1,5 +1,7 @@
 Levi was a teacher's assistant for Software Construction for two quarters and for Intro to Programming for two
-quarters. Both of these courses were taught using C++.
+quarters.
+
+Both of these courses were taught using C++.
 
 ## Un-edited end-of-quarter reviews
 
