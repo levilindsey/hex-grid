@@ -2,7 +2,8 @@
   "id": "anvato",
   "titleShort": "Anvato",
   "titleLong": "Anvato",
-  "url": "http://anvato.com/",
+  "url": "http://anvato.com",
+  "repositoryUrl": "",
   "jobTitle": "Software Engineer",
   "date": {
     "start": "2013",

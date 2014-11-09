@@ -1,12 +1,22 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "benlindseydesign.com",
+  "titleShort": "Portfolio Website: Designer",
+  "titleLong": "Portfolio for an Industrial Designer",
+  "url": "http://benlindseydesign.com",
+  "jobTitle": "",
+  "date": {
+    "start": "2014",
+    "end": "2015"
+  },
+  "categories": [
+    "side-project",
+    "web",
+    "web-site",
+    "front-end"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
-  "content": "TODO: add description\n"
+  "content": "_**This project is a work in progress**_\n\n[This website][main-url] is a professional portfolio for Ben Lindsey.\n\n[main-url]: http:\/\/benlindseydesign.com"
 }

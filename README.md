@@ -2,28 +2,49 @@
 
 [![Flattr this git repo][flattr-image]][flattr-url]
 
-## _**THIS PROJECT IS A WORK IN PROGRESS**_
-
-#### A dynamic, expandable, animated grid of hexagonal tiles
+#### A dynamic, expandable, animated grid of hexagonal tiles for displaying posts
 
 _See this running at [www.jackieandlevi.com/hex-grid][demo-url]!_
 
-TODO
+I was bored with the standard grid layout and wanted to play with particle systems and crazy animations. So I made
+hex-grid.
 
-### Acknowledgments
+## Features
+
+Some features of this package include:
+
+- A particle system complete with neighbor and anchor position spring dynamics
+- An assortment of **persistent** animations that make the grid _exciting to watch_
+- An assortment of **transient** animations that make the grid _exciting to interact with_
+- A control panel that enables you to adjust most of the many different parameters of this system
+- The ability to display custom collections of posts
+    - These posts will be displayed within individual tiles
+    - These tile posts can be drilled down into for more information
+    - The contents of these posts use standard [Markdown syntax][markdown-url], which is then parsed by the system for
+      displaying within the grid
+
+## Acknowledgements / Technology Stack
 
 The following packages/libraries/projects were used in the development of hex-grid:
 
-- [dat.gui](http://code.google.com/p/dat-gui)
-- [Node.js](http://nodejs.org/)
-- [Express](http://expressjs.com/)
-- [Gulp.js](http://gulpjs.com/)
-- [Bower](http://bower.io/)
+- [dat.gui][dat-gui-url]
+- [Gulp.js][gulp-url]
+- [Bower][bower-url]
+- Additional packages that are available via [NPM][npm-url] (these are listed within the `package.json` file)
 
+The included example uses some additional technologies:
 
+- [Showdown][showdown-url]
 
+## License
 
-[flattr-url]: https://flattr.com/submit/auto?user_id=levisl176&url=github.com/levisl176/hex-grid&title=hex-grid&language=javascript&tags=github&category=software
-[flattr-image]: http://api.flattr.com/button/flattr-badge-large.png
+MIT
+
 
 [demo-url]: http://www.jackieandlevi.com/hex-grid
+[markdown-url]: http://daringfireball.net/projects/markdown/
+[dat-gui-url]: http://code.google.com/p/dat-gui
+[gulp-url]: http://gulpjs.com
+[bower-url]: http://bower.io
+[npm-url]: https://npmjs.org
+[showdown-url]: https://github.com/showdownjs/showdown

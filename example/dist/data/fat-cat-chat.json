@@ -1,12 +1,23 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "fat-cat-chat",
+  "titleShort": "Web App: IRC-Like Chat",
+  "titleLong": "IRC-Like Chat Server and Client",
+  "url": "http://jackieandlevi.com/fat-cat-chat",
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "app",
+    "web-sockets",
+    "socket.io",
+    "node.js",
+    "back-end",
+    "front-end"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
-  "content": "TODO: add description"
+  "content": "Levi built [this IRC-like chat app][main-url] in order to hone his server-side skills and to learn about web sockets.\n\nSome features of this chat application include:\n\n- Private and room chat areas\n- Bots to chat with in case your feeling lonely\n- Syntax highlighting and link injection for user names, room names, and command names\n- The ability to include links in chat messages\n- Custom cat-themed emoticons\n- Numerous fun facts and GIFS about cats\n- Many commands including:\n    - `\/help`\n    - `\/rooms`\n    - `\/join`\n    - `\/msg`\n    - `\/nick`\n    - `\/ping`\n    - `\/ignore`\n    - `\/leave`\n    - `\/quit`\n    - `\/link`\n\nThe technology stack for this project includes:\n\n- Node.js\n- Socket.IO\n- HTML5\/CSS3\/JavaScript\n\n[main-url]: http:\/\/jackieandlevi.com\/fat-cat-chat"
 }

@@ -1,12 +1,22 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "progress-circle",
+  "titleShort": "Web Doodle: Progress Circle",
+  "titleLong": "Progress Circle",
+  "url": "http://jackieandlevi.com/progress-circle",
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "doodle",
+    "front-end",
+    "svg",
+    "tiny",
+    "animation"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": "TODO: add description"
 }

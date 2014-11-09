@@ -1,13 +1,31 @@
 
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "jackieandlevi.com",
+  "titleShort": "Portfolio Website: for Myself",
+  "titleLong": "My Portfolio Website",
+  "url": "http://jackieandlevi.com",
+  "jobTitle": "",
+  "date": {
+    "start": "2013",
+    "end": "2014"
+  },
+  "categories": [
+    "side-project",
+    "web",
+    "website",
+    "app",
+    "front-end",
+    "back-end",
+    "node.js",
+    "express",
+    "angularjs",
+    "mongodb",
+    "material-design",
+    "animation"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
-  "content": "TODO: add description\n"
+  "content": "TODO: add description"
 }

@@ -1,12 +1,23 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "hex-grid",
+  "titleShort": "Hex Grid",
+  "titleLong": "Hex Grid",
+  "url": "http://jackieandlevi.com/hex-grid",
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "front-end",
+    "svg",
+    "canvas",
+    "animation",
+    "library",
+    "app"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": "TODO: add description"
 }

@@ -1,12 +1,25 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "newtons-tablet",
+  "titleShort": "Intelligent Tutoring System: Tablet",
+  "titleLong": "Newtons Tablet",
+  "url": "http://escholarship.org/uc/item/40r3k5v2",
+  "jobTitle": "Graduate Student Researcher (Software Engineer)",
+  "date": {
+    "start": "2012",
+    "end": "2013"
+  },
+  "categories": [
+    "work",
+    "school",
+    "research",
+    "ucr",
+    "c-sharp",
+    "app",
+    "tablet"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": "TODO: add description"
 }

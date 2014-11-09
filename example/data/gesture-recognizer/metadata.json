@@ -1,8 +1,9 @@
 {
-  "id": "gesture-segmenter",
+  "id": "gesture-recognizer",
   "titleShort": "Gesture Recognition",
   "titleLong": "Gesture Segmenter and Recognizer",
   "url": "",
+  "repositoryUrl": "https://github.com/levisl176/stroke-recognition",
   "jobTitle": "",
   "date": "2013",
   "categories": [

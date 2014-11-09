@@ -1,1 +1,1 @@
-TODO: add description
+Fun with SVG animations and dancing sticks of light!

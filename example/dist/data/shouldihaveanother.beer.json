@@ -1,12 +1,22 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "shouldihaveanother.beer",
+  "titleShort": "Web Doodle: Beer?",
+  "titleLong": "shouldihaveanother.beer",
+  "url": "http://shouldihaveanother.beer",
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "website",
+    "doodle",
+    "front-end",
+    "canvas",
+    "animation"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": "TODO: add description"
 }

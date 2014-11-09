@@ -1,0 +1,20 @@
+{
+  "id": "chess",
+  "titleShort": "Web App: chess",
+  "titleLong": "Chess",
+  "url": "http://jackieandlevi.com/chess",
+  "jobTitle": "",
+  "date": "2013",
+  "categories": [
+    "side-project",
+    "web",
+    "app",
+    "front-end",
+    "game"
+  ],
+  "iconSrc": "",
+  "thumbnailSrc": "",
+  "images": [],
+  "videos": [],
+  "content": "This app implements a simple two-player game of chess. Levi developed this app in a day. It includes a button to\ngenerate a random valid play for the current player. It currently support game play across remote machines, but Levi\nplans on implementing this in the future. It currently does not support an AI player, but Levi also plans on\nimplementing a simple form of this in the future.\n\n[main-url]: http:\/\/jackieandlevi.com\/chess"
+}

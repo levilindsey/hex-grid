@@ -1,18 +1,17 @@
 {
-  "id": "squared-away",
-  "titleShort": "Tile-Matching Puzzle Game",
-  "titleLong": "Squared Away",
-  "url": "http://jackieandlevi.com/squared-away",
+  "id": "text-animation",
+  "titleShort": "Bower Package: Text Animation",
+  "titleLong": "Text Animation",
+  "url": "http://jackieandlevi.com/text-animation",
   "jobTitle": "",
-  "date": "2013",
+  "date": "2014",
   "categories": [
     "side-project",
     "web",
-    "app",
     "front-end",
-    "canvas",
     "animation",
-    "game"
+    "library",
+    "bower"
   ],
   "iconSrc": "",
   "thumbnailSrc": "",

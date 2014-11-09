@@ -1,12 +1,21 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "dietary-data-recording-system",
+  "titleShort": "Android App: Recording System",
+  "titleLong": "Dietary Data Recording System",
+  "url": "http://ee.washington.edu/research/seal/",
+  "jobTitle": "Student Researcher (Software Engineer)",
+  "date": "2010-2011",
+  "categories": [
+    "work",
+    "school",
+    "research",
+    "android",
+    "app",
+    "uw"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
-  "content": "TODO: add description"
+  "content": "During his undergraduate studies at the University of Washington, Levi spent more than a year working with\n[Professor Alexander Mamishev][mamishev-url] in the [Sensors Energy and Automation Laboratory][seal-url]. The lab had\nbeen hired by the [Fred Hutchinson Cancer Research Center][fred-hutch-url] to create a Dietary Data Recording device\nthat would better record the dietary intake of their study participants.\n\nThe lab's work revolved around the development of an application that ran on Android devices. Levi was the sole\ndeveloper for this, and some of the application's functionalities included:\n\n- recording accelerometer and magnetometer data and associating them with individual video frames in order to analyze\nthe volume of food;\n- firing a laser grid via an external, custom-made, Bluetooth-compatible device;\n- recording and playing audio and video;\n- scanning barcodes;\n- compressing, uploading, and downloading data from the databases on our server;\n- recording dietary info in an SQLite database;\n- parsing SQL data to and from an XML file.\n\nLevi co-authored a paper on this research entitled [A Pervasive Dietary Data Recording System][paper-url].\n\n[mamishev-url]: http:\/\/ee.washington.edu\/faculty\/mamishev\/\n[seal-url]: http:\/\/ee.washington.edu\/research\/seal\/\n[fred-hutch-url]: http:\/\/fredhutch.org\/en.html\n[paper-url]: http:\/\/ieeexplore.ieee.org\/xpl\/login.jsp?tp=&arnumber=5766890&isnumber=5766834&url=http%3A%2F%2Fieeexplore.ieee.org%2Fstamp%2Fstamp.jsp%3Ftp%3D%26arnumber%3D5766890%26isnumber%3D5766834"
 }

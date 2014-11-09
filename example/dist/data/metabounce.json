@@ -1,12 +1,21 @@
 {
-  "id": "",
-  "titleShort": "",
-  "titleLong": "",
+  "id": "metabounce",
+  "titleShort": "Web Doodle: Metabounce",
+  "titleLong": "Metabounce",
+  "url": "http://jackieandlevi.com/metabounce",
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "doodle",
+    "front-end",
+    "svg",
+    "animation"
+  ],
   "iconSrc": "",
   "thumbnailSrc": "",
-  "images": [
-
-  ],
+  "images": [],
   "videos": [],
   "content": "TODO: add description"
 }
