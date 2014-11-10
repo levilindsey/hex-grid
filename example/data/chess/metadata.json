@@ -13,9 +13,9 @@
     "front-end",
     "game"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    ""
+  ],
   "videos": [],
   "content": ""
 }

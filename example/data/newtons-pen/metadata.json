@@ -19,9 +19,9 @@
     "livescribe",
     "pen"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    ""
+  ],
   "videos": [],
   "content": ""
 }

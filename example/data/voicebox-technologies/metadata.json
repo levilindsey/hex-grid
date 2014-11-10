@@ -12,9 +12,9 @@
     "c",
     "c++"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    ""
+  ],
   "videos": [],
   "content": ""
 }

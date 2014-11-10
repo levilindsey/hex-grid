@@ -16,9 +16,9 @@
     "front-end",
     "jquery"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    ""
+  ],
   "videos": [],
   "content": ""
 }

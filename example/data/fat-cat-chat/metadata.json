@@ -16,9 +16,9 @@
     "back-end",
     "front-end"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    ""
+  ],
   "videos": [],
   "content": ""
 }
