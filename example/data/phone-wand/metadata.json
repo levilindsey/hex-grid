@@ -16,22 +16,34 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "fixedinputscreen2.png",
+      "description": "This screen presents the current destination. This is essentially a home screen. From here, the user can enter a new destination, find a list of old destinations, find a list of other possible matches for the destination that was typed in the keyboard, or start navigating toward the current destination."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "fixedkeyboard1.png",
+      "description": "This screen presents a custom, blind-accessible keyboard. The user can drag a finger over the the buttons to hear them quickly read aloud via TTS."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "fixedroute1.png",
+      "description": "While on this screen, the system provides vibrational feedback to guide the user through the route."
+    },
+    {
+      "fileName": "fixeddirections2.png",
+      "description": "This screen presents a list of the steps in the current route. The user can drag a finger over the items to hear them read aloud via TTS."
+    },
+    {
+      "fileName": "fixedroutearchive2.png",
+      "description": "This screen presents a list of previously entered destinations. The user can drag a finger over the items to hear them read aloud via TTS."
+    },
+    {
+      "fileName": "screen-transition-diagram-small.png",
+      "description": "This diagram illustrates all of the different screens of the system and how to navigate from one to another."
     }
   ],
   "videos": [
     {
       "url": "//www.youtube.com/watch?v=qooZe704Ppw",
-      "description": ""
+      "description": "A narrated demonstrational video explaining how to use the Phone Wand application."
     }
   ],
   "content": ""

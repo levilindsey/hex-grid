@@ -79,7 +79,7 @@ for the shape class template, and _w_ is a weight parameter.
 
 The term relating to the number of pixels containing ink is important, because this distance metric only considers
 pixels which are covered by the unknown shape instance. To understand why this is a problem, consider the example of
-the unknown shape instance being  the letter P, and there are templates both for the letter P and the letter R.
+the unknown shape instance being the letter P, and there are templates both for the letter P and the letter R.
 Because the distance only considers the pixels from the shape instance P, the P and R templates will be found to have
 roughly the same distance. This term for the number of pixels containing ink allows the distance metric to match the P
 shape instance more closely to the P template than the R template.
@@ -146,11 +146,11 @@ scheme would have a much higher time and space complexity.
 
 ![Directional bitmaps for the sigma-class template][directional-bitmaps-sigma-template-image]
 
-This shows the directional bitmaps for the sigma shape class template.  More intense coloration represents higher probabilities.
+This shows the directional bitmaps for the sigma shape class template. More intense coloration represents higher probabilities.
 
 ![The original ink on the canvas for an instance of the sigma shape][canvas-ink-sigma-instance-image]
 
-This shows the program with a sigma shape drawn by the user.  The system parameters can be seen on the right.  The recognizer in this case has been trained on the sample student data with a hold out of first and sixth instances of each shape from each user.  The system recognizes the current canvas ink as a sigma shape.
+This shows the program with a sigma shape drawn by the user. The system parameters can be seen on the right. The recognizer in this case has been trained on the sample student data with a hold out of first and sixth instances of each shape from each user. The system recognizes the current canvas ink as a sigma shape.
 
 ![Directional bitmaps showing an instance of the sigma shape][directional-bitmaps-sigma-instance-image]
 
@@ -165,10 +165,10 @@ This shows the directional pixel values for a holdout shape overlaid on top of t
 This shows the recognition details for the shape instance shown in the previous image.
 
 
-[shape-class-distance-equation-image]: /example/data/gesture-recognizer/images/shape-class-distance-equation.png
-[average-results-image]: /example/data/gesture-recognizer/images/average-results.png
-[directional-bitmaps-sigma-template-image]: /example/data/gesture-recognizer/images/directional-bitmaps-sigma-template.png
-[canvas-ink-sigma-instance-image]: /example/data/gesture-recognizer/images/canvas-ink-sigma-instance.png
-[directional-bitmaps-sigma-instance-image]: /example/data/gesture-recognizer/images/directional-bitmaps-sigma-instance.png
-[directional-bitmaps-1-2-instance-and-template-image]: /example/data/gesture-recognizer/images/directional-bitmaps-1-2-instance-and-template.png
-[recognition-stats-1-2-instance-image]: /example/data/gesture-recognizer/images/recognition-stats-1-2-instance.png
+[shape-class-distance-equation-image]: https://s3-us-west-2.amazonaws.com/levi-portfolio-media/gesture-recognizer/shape-class-distance-equation.png
+[average-results-image]: https://s3-us-west-2.amazonaws.com/levi-portfolio-media/gesture-recognizer/average-results.png
+[directional-bitmaps-sigma-template-image]: https://s3-us-west-2.amazonaws.com/levi-portfolio-media/gesture-recognizer/directional-bitmaps-sigma-template.png
+[canvas-ink-sigma-instance-image]: https://s3-us-west-2.amazonaws.com/levi-portfolio-media/gesture-recognizer/canvas-ink-sigma-instance.png
+[directional-bitmaps-sigma-instance-image]: https://s3-us-west-2.amazonaws.com/levi-portfolio-media/gesture-recognizer/directional-bitmaps-sigma-instance.png
+[directional-bitmaps-1-2-instance-and-template-image]: https://s3-us-west-2.amazonaws.com/levi-portfolio-media/gesture-recognizer/directional-bitmaps-1-2-instance-and-template.png
+[recognition-stats-1-2-instance-image]: https://s3-us-west-2.amazonaws.com/levi-portfolio-media/gesture-recognizer/recognition-stats-1-2-instance.png

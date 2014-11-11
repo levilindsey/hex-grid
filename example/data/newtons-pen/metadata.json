@@ -21,22 +21,26 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "pen-boundary-stage-work-1.png",
+      "description": "A free-body-diagram worksheet showing a student's completed work."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "pen-fbd-worksheet.png",
+      "description": "A free-body-diagram worksheet showing a student's completed work."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "pen-prob-desc-worksheet.png",
+      "description": "A problem-description worksheet showing problem-specific information in the top region and general buttons for using the system in the bottom region."
+    },
+    {
+      "fileName": "pen-and-paper.png",
+      "description": "A Livescribe smartpen with Anoto dot paper"
     }
   ],
   "videos": [
     {
       "url": "//www.youtube.com/watch?v=y8QYhgRrRZk",
-      "description": ""
+      "description": "A narrated demonstrational video explaining how to use the Newton's Pen application."
     }
   ],
   "content": ""

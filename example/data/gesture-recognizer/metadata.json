@@ -15,22 +15,34 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "canvas-ink-sigma-instance.png",
+      "description": "The program with a sigma shape drawn by the user. The system parameters can be seen on the right. The recognizer in this case has been trained on the sample student data with a hold out of first and sixth instances of each shape from each user. The system recognizes the current canvas ink as a sigma shape."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "directional-bitmaps-sigma-instance.png",
+      "description": "The directional pixel values for the ink shown in the previous image."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "directional-bitmaps-sigma-template.png",
+      "description": "The directional bitmaps for the sigma shape class template. More intense coloration represents higher probabilities."
+    },
+    {
+      "fileName": "directional-bitmaps-1-2-instance-and-template.png",
+      "description": "The directional pixel values for a holdout shape overlaid on top of the directional bitmaps for the shape class template to which it was matched."
+    },
+    {
+      "fileName": "recognition-stats-1-2-instance.png",
+      "description": "The recognition details for the shape instance shown in the previous image."
+    },
+    {
+      "fileName": "average-results.png",
+      "description": "A confusion matrix showing the average results from an 18-fold cross-validation with single-user holdouts."
     }
   ],
   "videos": [
     {
       "url": "//www.youtube.com/watch?v=xxBeSKijSSw",
-      "description": ""
+      "description": "A walkthrough of Levi's stroke segmentation program."
     }
   ],
   "content": ""
