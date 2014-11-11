@@ -15,16 +15,48 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "Gameplay screenshot: Directions for the game are shown below the board."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot2.png",
+      "description": "Gameplay screenshot: After clicking on a piece, you must move that piece. Hovering over valid tiles to move the piece to, will cause the tile to turn green. Invalid tiles will turn red. Tiles will turn yellow if the move would take an enemy piece. If there are no valid moves for a piece, it is not selectable in the first place."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot3.png",
+      "description": "Gameplay screenshot: After clicking on a piece, you must move that piece. Hovering over valid tiles to move the piece to, will cause the tile to turn green. Invalid tiles will turn red. Tiles will turn yellow if the move would take an enemy piece. If there are no valid moves for a piece, it is not selectable in the first place."
+    },
+    {
+      "fileName": "screenshot4.png",
+      "description": "Gameplay screenshot: After clicking on a piece, you must move that piece. Hovering over valid tiles to move the piece to, will cause the tile to turn green. Invalid tiles will turn red. Tiles will turn yellow if the move would take an enemy piece. If there are no valid moves for a piece, it is not selectable in the first place."
+    },
+    {
+      "fileName": "screenshot5.png",
+      "description": "Gameplay screenshot: The current gameplay status is shown above the board."
+    },
+    {
+      "fileName": "screenshot7.png",
+      "description": "Gameplay screenshot: The current gameplay status is shown above the board."
+    },
+    {
+      "fileName": "screenshot10.png",
+      "description": "Gameplay screenshot: Casteling is supported (before castling)."
+    },
+    {
+      "fileName": "screenshot11.png",
+      "description": "Gameplay screenshot: Casteling is supported (after castling)."
+    },
+    {
+      "fileName": "screenshot9.png",
+      "description": "Gameplay screenshot: Even the special rule for en passant captures is supported."
+    },
+    {
+      "fileName": "screenshot6.png",
+      "description": "Gameplay screenshot: Pawns can be promoted when reaching the far edge of the board."
+    },
+    {
+      "fileName": "screenshot8.png",
+      "description": "Gameplay screenshot: Check mate conditions are also calculated."
     }
   ],
   "videos": [],
