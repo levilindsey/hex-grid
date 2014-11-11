@@ -14,8 +14,24 @@
     "c++"
   ],
   "images": [
-    ""
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "url": "//www.youtube.com/watch?v=r8-zo-j-7PU",
+      "description": ""
+    }
+  ],
   "content": ""
 }

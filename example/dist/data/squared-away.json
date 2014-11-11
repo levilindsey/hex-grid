@@ -15,9 +15,20 @@
     "animation",
     "game"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    }
+  ],
   "videos": [],
   "content": "#### A tile-matching puzzle game\n\n_See this app running at [www.jackieandlevi.com\/squared-away][main-url]!_\n\nThis web app gave Levi the opportunity to hone his web development skills and to learn the latest features of\nHTML5 and CSS3.\n\nOn the front end, Levi used pure JavaScript without external libraries like jQuery&mdash;with the notable exception of\nSoundJS for cross-browser support for layering audio. On the server side, Levi used Node.js with ExpressJS.\n\n\n[main-url]: http:\/\/jackieandlevi.com\/squared-away"
 }

@@ -15,9 +15,20 @@
     "web-site",
     "front-end"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    }
+  ],
   "videos": [],
   "content": "_**This project is a work in progress**_\n\n_See this website running at [www.benlindseydesign.com][main-url]!_\n\nThis website is a professional portfolio for Ben Lindsey.\n\n[main-url]: http:\/\/benlindseydesign.com"
 }

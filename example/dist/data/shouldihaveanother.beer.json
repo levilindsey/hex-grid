@@ -15,9 +15,20 @@
     "canvas",
     "animation"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    }
+  ],
   "videos": [],
   "content": "_See this running at [shouldihaveanother.beer][main-url]_\n\nLevi built and deployed this simple app in a few hours. It exhibits some fun canvas-based animation.\n\nHis main motivation was the availability of fun new top-level domains.\n\n\n[main-url]: http:\/\/shouldihaveanother.beer"
 }

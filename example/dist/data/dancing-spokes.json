@@ -15,9 +15,20 @@
     "tiny",
     "animation"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    }
+  ],
   "videos": [],
   "content": "Fun with SVG animations and dancing sticks of light!"
 }

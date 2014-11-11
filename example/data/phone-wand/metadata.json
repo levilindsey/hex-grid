@@ -1,6 +1,6 @@
 {
   "id": "phone-wand",
-  "titleShort": "Blind-Accessible\nNavigation",
+  "titleShort": "Blind-\nAccessible\nNavigation",
   "titleLong": "Phone Wand",
   "url": "https://code.google.com/p/mobileaccessibility/source/browse/#svn%2Ftrunk%2FPhoneWand",
   "repositoryUrl": "https://code.google.com/p/mobileaccessibility/source/browse/#svn%2Ftrunk%2FPhoneWand",
@@ -15,8 +15,24 @@
     "app"
   ],
   "images": [
-    ""
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "url": "//www.youtube.com/watch?v=qooZe704Ppw",
+      "description": ""
+    }
+  ],
   "content": ""
 }

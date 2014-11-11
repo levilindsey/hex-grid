@@ -13,9 +13,20 @@
     "animation",
     "c++"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    }
+  ],
   "videos": [],
   "content": "As part of a grahics course at the University of Washington, Levi co-developed a model and animation of a frog playing\na ukulele.\n\n_OpenGL with C++_"
 }

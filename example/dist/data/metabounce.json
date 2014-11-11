@@ -14,9 +14,20 @@
     "svg",
     "animation"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    }
+  ],
   "videos": [],
   "content": "#### Fun with SVG, balls, and bouncing!\n\n_See this running at [www.jackieandlevi.com\/metabounce][main-url] or at [www.codepen.io\/levisl176\/pen\/lqmAE][codepen-url]!_\n\nThis is a project in which Levi played around with balls and bouncing. This is just for fun, so enjoy!\n\n\n[main-url]: http:\/\/jackieandlevi.com\/metabounce\n[codepen-url]: http:\/\/codepen.io\/levisl176\/pen\/lqmAE"
 }

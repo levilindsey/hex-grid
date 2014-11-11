@@ -12,6 +12,8 @@
   main.appRootPath = '/example';
   main.metadataUrl = main.appRootPath + '/dist/data.min.json';
   main.dataRequestState = 'request-not-sent';
+  main.combinedMetadata = {};
+  main.collectionMetadata = {};
   main.postData = [];
   main.grid = null;
 
@@ -57,7 +59,9 @@
       main.dataRequestState = 'received-response';
 
       try {
-        main.postData = JSON.parse(xhr.response);
+        main.combinedMetadata = JSON.parse(xhr.response);
+        main.collectionMetadata = main.combinedMetadata.collectionMetadata;
+        main.postData = main.combinedMetadata.posts;
         callback();
       } catch (error) {
         main.postData = [];

@@ -19,8 +19,24 @@
     "tablet"
   ],
   "images": [
-    ""
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "url": "//www.youtube.com/watch?v=LAlzil4WsGw",
+      "description": ""
+    }
+  ],
   "content": ""
 }

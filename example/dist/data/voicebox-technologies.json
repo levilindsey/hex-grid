@@ -12,9 +12,20 @@
     "c",
     "c++"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    }
+  ],
   "videos": [],
   "content": "_[VoiceBox Technologies][main-url] is a company focused on conversational speech recognition, search, and information\nmanagement._\n\nLevi integrated noise-suppression functionality from an ETSI standard into VBT’s pre-existing\n[Voice Activity Detection][vad-url] software and tuned it for optimal performance.\n\n_C with C++ wrappers_\n\n[main-url]: http:\/\/voicebox.com\/\n[vad-url]: http:\/\/en.wikipedia.org\/wiki\/Voice_activity_detection"
 }

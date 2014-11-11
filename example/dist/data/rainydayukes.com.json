@@ -16,9 +16,20 @@
     "front-end",
     "jquery"
   ],
-  "iconSrc": "",
-  "thumbnailSrc": "",
-  "images": [],
+  "images": [
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    },
+    {
+      "fileName": "",
+      "description": ""
+    }
+  ],
   "videos": [],
   "content": "_[Rainy Day Ukes][main-url] is a web-based handmade ukulele business._\n\nLevi built this website for his friend's business.\n\n_PHP and jQuery_\n\n[main-url]: http:\/\/rainydayukes.com"
 }
