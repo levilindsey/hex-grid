@@ -17,16 +17,32 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "The landing view."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot2.png",
+      "description": "As the user moves the mouse invard, or touches the envelope, different navigational cards slide outward from under the envelope."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot4.png",
+      "description": "The RSVP card."
+    },
+    {
+      "fileName": "screenshot5.png",
+      "description": "A card that tells the time of the wedding and shows a countdown."
+    },
+    {
+      "fileName": "screenshot6.png",
+      "description": "A card that names the two people getting married."
+    },
+    {
+      "fileName": "screenshot7.png",
+      "description": "A card that describes the location of the celebration."
+    },
+    {
+      "fileName": "screenshot8.png",
+      "description": "A card that describes the specifics of the celebration."
     }
   ],
   "videos": [],

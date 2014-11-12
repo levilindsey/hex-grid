@@ -18,16 +18,32 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "The products page."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot4.png",
+      "description": "The home page features a carousel of delightful images."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot5.png",
+      "description": "The home page features a carousel of delightful images."
+    },
+    {
+      "fileName": "screenshot6.png",
+      "description": "The home page features a carousel of delightful images."
+    },
+    {
+      "fileName": "screenshot7.png",
+      "description": "The home page features a carousel of delightful images."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "The listen page includes videos with songs recorded on Rainy Day Ukes ukuleles. These videos feature the supremely talented baritone Drew Dresdner."
+    },
+    {
+      "fileName": "screenshot3.png",
+      "description": "A handmade ukulele company isn't complete without its own signature cocktail!"
     }
   ],
   "videos": [],

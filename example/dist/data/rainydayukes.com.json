@@ -18,18 +18,34 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "The products page."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot4.png",
+      "description": "The home page features a carousel of delightful images."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot5.png",
+      "description": "The home page features a carousel of delightful images."
+    },
+    {
+      "fileName": "screenshot6.png",
+      "description": "The home page features a carousel of delightful images."
+    },
+    {
+      "fileName": "screenshot7.png",
+      "description": "The home page features a carousel of delightful images."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "The listen page includes videos with songs recorded on Rainy Day Ukes ukuleles. These videos feature the supremely talented baritone Drew Dresdner."
+    },
+    {
+      "fileName": "screenshot3.png",
+      "description": "A handmade ukulele company isn't complete without its own signature cocktail!"
     }
   ],
   "videos": [],
-  "content": "_[Rainy Day Ukes][main-url] is a web-based handmade ukulele business._\n\nLevi built this website for his friend's business.\n\n_PHP and jQuery_\n\n[main-url]: http:\/\/rainydayukes.com"
+  "content": "_[Rainy Day Ukes][main-url] is a web-based handmade ukulele business._\n\nLevi built this website for his friend's business.\n\nAll designs were done by the supremely talented graphic designer [Ryan Maher][ryan-maher].\n\n_PHP and jQuery_\n\n[main-url]: http:\/\/rainydayukes.com\n[ryan-url]: http:\/\/linkedin.com\/in\/ryanmichaelmaher"
 }

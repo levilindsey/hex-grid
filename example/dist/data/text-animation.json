@@ -16,16 +16,20 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "Text falling into place with a shadow effect."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot2.png",
+      "description": "Text sliding into place."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot3.png",
+      "description": "Text swirling into place."
+    },
+    {
+      "fileName": "screenshot4.png",
+      "description": "Text rolling into place."
     }
   ],
   "videos": [],

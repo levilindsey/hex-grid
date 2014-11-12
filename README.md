@@ -23,6 +23,14 @@ Some features of this package include:
     - The contents of these posts use standard [Markdown syntax][markdown-url], which is then parsed by the system for
       displaying within the grid
 
+## Included Example
+
+An example app is included in this project's repository. This currently uses data from Levi's portfolio, but there are
+plans to include a separate data collection.
+
+The media for Levi's portfolio is stored in an [AWS S3 bucket][aws-s3-url]. The textual content and metadata is stored
+in a MongoDB database hosted by [MongoLab][mongolab-url].
+
 ## Acknowledgements / Technology Stack
 
 The following packages/libraries/projects were used in the development of hex-grid:
@@ -41,8 +49,11 @@ The included example uses some additional technologies:
 MIT
 
 
+
 [demo-url]: http://www.jackieandlevi.com/hex-grid
 [markdown-url]: http://daringfireball.net/projects/markdown/
+[aws-s3-url]: http://aws.amazon.com/s3/
+[mongolab-url]: https://mongolab.com
 [dat-gui-url]: http://code.google.com/p/dat-gui
 [gulp-url]: http://gulpjs.com
 [bower-url]: http://bower.io

@@ -23,16 +23,20 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot4.png",
+      "description": "This Yeoman generator includes many prompts that help to customize the boilerplate of your application."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "The generated project includes gulp tasks to help tackle many common build problems. Each gulp task is separated into its own individual file and then included by the main gulpfile.js. This obeys the SRP and helps to keep things modular."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot3.png",
+      "description": "The generated project includes a front-end file structure that closely follows the Best Practice Recommendations for Angular App Structure, but with a few additional logical sub-divisions."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "The generated project includes a server file structure that has been separated into distinct functional blocks."
     }
   ],
   "videos": [],

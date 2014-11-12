@@ -16,16 +16,32 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "ddrs-app-screenshots.png",
+      "description": "A few of the many different screens of the DDRS app."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "meal-review.png",
+      "description": "This screen lets the user review all of the different data they recorded for a given meal."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "photo1.png",
+      "description": "This photo shows the complete device in the process of recording a video of a meal. It is important for the device to rotate around the meal, so that video captures multiple perspectives of the food."
+    },
+    {
+      "fileName": "photo2.png",
+      "description": "This photo shows the complete device in the process of recording a video of a meal. It is important for the device to rotate around the meal, so that video captures multiple perspectives of the food."
+    },
+    {
+      "fileName": "video-screen.png",
+      "description": "This is the screen that prompts the user to record a video of their food."
+    },
+    {
+      "fileName": "starting-screen.png",
+      "description": "This is the home screen of the DDRS app."
+    },
+    {
+      "fileName": "device2.png",
+      "description": "Levi also created a second app that was used for internal testing of the video-based volume-calculation algorithm."
     }
   ],
   "videos": [],

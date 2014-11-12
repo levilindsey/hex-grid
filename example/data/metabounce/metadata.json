@@ -16,16 +16,20 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "Both the inner and main balls grow and eventually pop with delightful animations. A popping ball will push&mdash;and possibly pop&mdash;neighboring balls."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot2.png",
+      "description": "The balls can be rendered with transparency and multiple gradients that make them resemble iridescent bubbles."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot3.png",
+      "description": "This app includes many parameters that adjust things like: bounce squish intensity, gravity, drag, pop force thresholds, ball growth rates, pop neighbor displacement power, nested balls, ball colors, ball count, ball size, etc."
+    },
+    {
+      "fileName": "screenshot4.png",
+      "description": "This app includes many parameters that adjust things like: bounce squish intensity, gravity, drag, pop force thresholds, ball growth rates, pop neighbor displacement power, nested balls, ball colors, ball count, ball size, etc."
     }
   ],
   "videos": [],

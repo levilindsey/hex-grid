@@ -17,16 +17,12 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "The progress circle with its larger radius. The dots revolve in a clockwise direction while the colors of the dots transition in such a way to make the colors appear to transition in a counter-clockwise direction."
     },
     {
-      "fileName": "",
-      "description": ""
-    },
-    {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot2.png",
+      "description": "The progress circle with its smaller radius. The lightness increases as the radius decreases."
     }
   ],
   "videos": [],

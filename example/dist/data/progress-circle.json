@@ -17,18 +17,14 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "The progress circle with its larger radius. The dots revolve in a clockwise direction while the colors of the dots transition in such a way to make the colors appear to transition in a counter-clockwise direction."
     },
     {
-      "fileName": "",
-      "description": ""
-    },
-    {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot2.png",
+      "description": "The progress circle with its smaller radius. The lightness increases as the radius decreases."
     }
   ],
   "videos": [],
-  "content": "#### A progress circle built using SVG\n\n_See this progress circle running at [www.jackieandlevi.com\/progress-circle][main-url] or at\n[www.codepen.io\/levisl176\/pen\/ndklu][codepen-url]!_\n\nThe progress circle consists of a ring of color-shifting dots.\n\nThis project uses a separate custom animation package Levi developed.\n\n\n[main-url]: http:\/\/jackieandlevi.com\/progress-circle\n[codepen-url]: http:\/\/codepen.io\/levisl176\/pen\/ndklu"
+  "content": "#### A progress circle built using SVG\n\n_See this progress circle running at [www.jackieandlevi.com\/progress-circle][main-url] or at\n[www.codepen.io\/levisl176\/pen\/ndklu][codepen-url]!_\n\nThe progress circle consists of a ring of color-shifting dots.\n\nSpecifically, the dots revolve in a clockwise direction while the colors of the dots transition in such a way to make\nthe colors appear to transition in a counter-clockwise direction.\n\nThis project uses a separate custom animation package Levi developed.\n\n\n[main-url]: http:\/\/jackieandlevi.com\/progress-circle\n[codepen-url]: http:\/\/codepen.io\/levisl176\/pen\/ndklu"
 }

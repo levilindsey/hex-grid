@@ -1,1 +1,10 @@
-Fun with SVG animations and dancing sticks of light!
+#### Fun with SVG animations and dancing sticks of light!
+
+_See this running at [www.jackieandlevi.com/dancing-spokes][main-url]!_
+
+The color of each spoke is always shifting to another random value. At any given point, the hue, saturation, and
+lightness components of the spoke colors are each constrained to a random global range. This creates an interesting
+effect with independently fluctuating colors that almost always seem cohesive.
+
+
+[main-url]: http://jackieandlevi.com/dancing-spokes

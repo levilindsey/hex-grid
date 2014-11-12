@@ -15,18 +15,23 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "A screenshot from the program showing a frog playing a ukulele. This view includes textures."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot2.png",
+      "description": "A screenshot from the program showing a frog playing a ukulele. This view includes shading."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot3.png",
+      "description": "A close-up screenshot from the program showing a frog playing a ukulele. This view includes textures."
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "url": "//www.youtube.com/watch?v=r8-zo-j-7PU",
+      "description": "A video showing an animated frog playing a ukulele."
+    }
+  ],
   "content": "As part of a grahics course at the University of Washington, Levi co-developed a model and animation of a frog playing\na ukulele.\n\n_OpenGL with C++_"
 }

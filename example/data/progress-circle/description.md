@@ -5,6 +5,9 @@ _See this progress circle running at [www.jackieandlevi.com/progress-circle][mai
 
 The progress circle consists of a ring of color-shifting dots.
 
+Specifically, the dots revolve in a clockwise direction while the colors of the dots transition in such a way to make
+the colors appear to transition in a counter-clockwise direction.
+
 This project uses a separate custom animation package Levi developed.
 
 

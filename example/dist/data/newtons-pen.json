@@ -21,18 +21,27 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "pen-boundary-stage-work-1.png",
+      "description": "A free-body-diagram worksheet showing a student's completed work."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "pen-fbd-worksheet.png",
+      "description": "A free-body-diagram worksheet showing a student's completed work."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "pen-prob-desc-worksheet.png",
+      "description": "A problem-description worksheet showing problem-specific information in the top region and general buttons for using the system in the bottom region."
+    },
+    {
+      "fileName": "pen-and-paper.png",
+      "description": "A Livescribe smartpen with Anoto dot paper"
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "url": "//www.youtube.com/watch?v=y8QYhgRrRZk",
+      "description": "A narrated demonstrational video explaining how to use the Newton's Pen application."
+    }
+  ],
   "content": "#### An Intelligent Tutoring System running on Window's tablets\n\nIn his graduate studies at the University of California, Riverside, Levi worked with Professor\n[Thomas Stahovich][stahovich-url] in the [Smart Tools lab][stl-url].\n\nLevi led the development of a statics tutorial system, which both helped novice students tackle difficult concepts and\nprovided the lab with key insights into the learning process and how students think.\n\nThis work resulted in the production of two completely different software programs: one which ran on tablet PC\ncomputers with a standard computer interface (_written in C# with WPF_), and one which ran on\n[Livescribe smartpens][livescribe-url] with specially designed paper worksheets (_written in Java_). Both programs\nwere designed with natural user interface as a paramount concern. These programs were deployed to 150 students in an\nintroductory statics course at the University of California, Riverside in the Winter of 2012.\n\nYou can read Levi's thesis at [escholarship.org\/uc\/item\/40r3k5v2][thesis-url].\n\n\n[stahovich-url]: http:\/\/engr.ucr.edu\/faculty\/me\/stahovich.html\n[stl-url]: http:\/\/smarttools.engr.ucr.edu\/\n[livescribe-url]: http:\/\/livescribe.com\/en-us\/\n[thesis-url]: http:\/\/escholarship.org\/uc\/item\/40r3k5v2"
 }

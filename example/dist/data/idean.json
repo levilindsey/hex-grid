@@ -14,18 +14,6 @@
     "user-experience"
   ],
   "images": [
-    {
-      "fileName": "",
-      "description": ""
-    },
-    {
-      "fileName": "",
-      "description": ""
-    },
-    {
-      "fileName": "",
-      "description": ""
-    }
   ],
   "videos": [],
   "content": "_[Idean][main-url] is a global design agency dedicated to delivering the best possible User Experience._\n\nLevi used JavaScript to create awesome user experiences across many different projects for many different clients.\n\n### Project A: Enterprise Security-Management Application\n\nLevi developed a high-fidelity prototype for the client’s enterprise security-management application. This included a\nrobust AngularJS framework with an intricate front-end routing mechanism.\n\n_Front and back end: Node.js, AngularJS, MongoDB, Gulp_\n\n### Project B: Enterprise Resource-Management Application\n\nLevi developed a first-iteration of the front-end for the client's enterprise resource-management application. This\nincluded a complex SVG-based workspace.\n\n### Project C: Analytics Dashboard\n\nLevi developed a web portal for analyzing data collected from mobile applications. This included highly configurable\ndata visualizations.\n\n_Front end: AngularJS, D3.js, Gulp_\n\n### Project D: Web Portal for SDK Specifications\n\nLevi developed a web portal for displaying the specifications of the client's RESTful API. This included the ability\nto test out and tweak each of the different API calls directly from the portal. Levi also created a simple test server\nfor handling the requests.\n\n_Front and back end: Node.js, AngularJS, MongoDB, Gulp_\n\n### Project E: Internal Content Management System\n\nLevi developed the infrastructure for an internal content management system.\n\n_Front and back end: Node.js, AngularJS, MongoDB, Grunt_\n\n### Project F: WordPress site\n\nLevi updated and maintained the client's pre-existing WordPress website.\n\n### Project G: Squarespace site\n\nLevi customized the client's pre-existing Squarespace website.\n\n[main-url]: http:\/\/idean.com"

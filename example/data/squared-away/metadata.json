@@ -17,16 +17,32 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "Squared Away features a collection of eight different levels&mdash;each with progressively more challenging parameters&mdash;that guide the player in their exploration of the different gameplay features."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot3.png",
+      "description": "Blocks fall from all four sides. Blocks stack and collapse according to rules that closely resemble the familiar game of Tetris. Upcoming blocks are shown for each side with a cool-down progress indicator."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot2.png",
+      "description": "Completed layers show a cool collapsing block sprite-based animation."
+    },
+    {
+      "fileName": "screenshot7.png",
+      "description": "The game features many configurable parameters."
+    },
+    {
+      "fileName": "screenshot6.png",
+      "description": "The main intended method of interaction is with a mouse or touch gestures. Falling blocks can be slid downward, slid from side to side, rotated, and moved to the next quadrant. As a falling block is being manipulated, phantom lines are shown, which help to indicate where a block can be moved in either the downward or lateral directions."
+    },
+    {
+      "fileName": "screenshot5.png",
+      "description": "The game can also be played with keyboard input."
+    },
+    {
+      "fileName": "screenshot8.png",
+      "description": "The game features background music from the talented Eric Skiff."
     }
   ],
   "videos": [],

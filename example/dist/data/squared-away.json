@@ -17,18 +17,34 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "Squared Away features a collection of eight different levels&mdash;each with progressively more challenging parameters&mdash;that guide the player in their exploration of the different gameplay features."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot3.png",
+      "description": "Blocks fall from all four sides. Blocks stack and collapse according to rules that closely resemble the familiar game of Tetris. Upcoming blocks are shown for each side with a cool-down progress indicator."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot2.png",
+      "description": "Completed layers show a cool collapsing block sprite-based animation."
+    },
+    {
+      "fileName": "screenshot7.png",
+      "description": "The game features many configurable parameters."
+    },
+    {
+      "fileName": "screenshot6.png",
+      "description": "The main intended method of interaction is with a mouse or touch gestures. Falling blocks can be slid downward, slid from side to side, rotated, and moved to the next quadrant. As a falling block is being manipulated, phantom lines are shown, which help to indicate where a block can be moved in either the downward or lateral directions."
+    },
+    {
+      "fileName": "screenshot5.png",
+      "description": "The game can also be played with keyboard input."
+    },
+    {
+      "fileName": "screenshot8.png",
+      "description": "The game features background music from the talented Eric Skiff."
     }
   ],
   "videos": [],
-  "content": "#### A tile-matching puzzle game\n\n_See this app running at [www.jackieandlevi.com\/squared-away][main-url]!_\n\nThis web app gave Levi the opportunity to hone his web development skills and to learn the latest features of\nHTML5 and CSS3.\n\nOn the front end, Levi used pure JavaScript without external libraries like jQuery&mdash;with the notable exception of\nSoundJS for cross-browser support for layering audio. On the server side, Levi used Node.js with ExpressJS.\n\n\n[main-url]: http:\/\/jackieandlevi.com\/squared-away"
+  "content": "#### A tile-matching puzzle game\n\n_See this app running at [www.jackieandlevi.com\/squared-away][main-url]!_\n\nThis web app gave Levi the opportunity to hone his web development skills and to learn the latest features of\nHTML5 and CSS3.\n\nOn the front end, Levi used pure JavaScript without external libraries like jQuery&mdash;with the notable exception of\nSoundJS for cross-browser support for layering audio. On the server side, Levi used Node.js with ExpressJS.\n\n## Gameplay\n\nCore gameplay features:\n\n- Blocks fall from all four sides\n- Blocks stack and collapse according to rules that closely resemble the familiar game of Tetris\n- Upcoming blocks are shown for each side with a cooldown progress indicator\n- Falling blocks can be manipulated with either the mouse or the keyboard if keyboard mode is enabled\n- Falling blocks can be slid downward, slid from side to side, rotated, and moved to the next quadrant\n- As a falling block is being manipulated, phantom lines are shown, which help to indicate where a block can be moved\n  in either the downward or lateral directions.\n- As more layers of blocks are collapsed, the player advances through levels and gameplay becomes more difficult\n  with faster falling blocks and shorter cooldown times.\n- Awesome sound effects and background music.\n\nAdditional optional gameplay features include:\n\n- A mode where only complete layers around the entire center square are collapsed.\n- A mode where blocks fall from the center outward.\n- A special block type that \"settles\" all of the blocks that have landed.\n- A special block type that destroys any nearby block that has landed.\n\n\n[main-url]: http:\/\/jackieandlevi.com\/squared-away"
 }

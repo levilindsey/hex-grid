@@ -14,16 +14,8 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
-    },
-    {
-      "fileName": "",
-      "description": ""
-    },
-    {
-      "fileName": "",
-      "description": ""
+      "fileName": "spectrogram.png",
+      "description": "A spectrogram with its corresponding waveform."
     }
   ],
   "videos": [],

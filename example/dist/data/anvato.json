@@ -21,16 +21,24 @@
   ],
   "images": [
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot1.png",
+      "description": "The Anvato web video player."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot4.png",
+      "description": "The Anvato web video player with the preview ribbon open while the user scrubs along the seek bar."
     },
     {
-      "fileName": "",
-      "description": ""
+      "fileName": "screenshot5.png",
+      "description": "The Anvato web video player with the preview popup open while the user hovers over the seek bar."
+    },
+    {
+      "fileName": "screenshot3.png",
+      "description": "The Anvato web video player with the volume control expanded."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "The splash screen for the Anvato web video player."
     }
   ],
   "videos": [],
