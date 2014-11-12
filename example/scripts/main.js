@@ -33,7 +33,7 @@
 
     window.removeEventListener('load', initHexGrid);
 
-    fetchData(updataTileData);
+    fetchData(updateTileData);
   }
 
   function fetchData(callback) {
@@ -62,6 +62,7 @@
         main.combinedMetadata = JSON.parse(xhr.response);
         main.collectionMetadata = main.combinedMetadata.collectionMetadata;
         main.postData = main.combinedMetadata.posts;
+        updatePostsSrcUrls();
         callback();
       } catch (error) {
         main.postData = [];
@@ -82,12 +83,33 @@
     }
   }
 
-  function updataTileData() {
+  function updateTileData() {
     var hexGridContainer = document.getElementById('hex-grid-area');
 
     main.grid = window.hg.controller.createNewHexGrid(hexGridContainer, main.postData, false);
 
     app.parameters.initDatGui(main.grid);
+  }
+
+  function updatePostsSrcUrls() {
+    main.postData.forEach(updatePostSrcUrls);
+
+    // ---  --- //
+
+    function updatePostSrcUrls(postDatum) {
+      var postBaseUrl = main.collectionMetadata.baseUrl + '/' + postDatum.id + '/';
+
+      postDatum.images.forEach(updateSrcImageMetadata);
+
+      postDatum.thumbnailSrc = postBaseUrl + main.collectionMetadata.thumbnailName;
+      postDatum.logoSrc = postBaseUrl + main.combinedMetadata.logoName;
+
+      // ---  --- //
+
+      function updateSrcImageMetadata(imageMetadatum) {
+        imageMetadatum.src = postBaseUrl + imageMetadatum.fileName;
+      }
+    }
   }
 
   console.log('main module loaded');

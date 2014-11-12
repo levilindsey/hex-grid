@@ -40,6 +40,18 @@
 
     var textTop = -config.fontSize * (1.5 + 0.65 * (tilePost.tile.postData.titleShort.split('\n').length - 1));
 
+    var longRadiusRatio = '1';
+    var shortRadiusRatio = '' + window.hg.Grid.config.tileOuterRadius / window.hg.Grid.config.tileInnerRadius;
+
+    var patternWidth, patternHeight;
+    if (tilePost.tile.grid.isVertical) {
+      patternWidth = shortRadiusRatio;
+      patternHeight = longRadiusRatio;
+    } else {
+      patternWidth = longRadiusRatio;
+      patternHeight = shortRadiusRatio;
+    }
+
     // --- Create the elements, add them to the DOM, save them in this TilePost --- //
 
     var backgroundPattern = document.createElementNS(window.hg.util.svgNamespace, 'pattern');
@@ -62,8 +74,8 @@
 
     backgroundPattern.setAttribute('id', patternId);
     backgroundPattern.setAttribute('patternContentUnits', 'objectBoundingBox');
-    backgroundPattern.setAttribute('width', '1');
-    backgroundPattern.setAttribute('height', '1');
+    backgroundPattern.setAttribute('width', patternWidth);
+    backgroundPattern.setAttribute('height', patternHeight);
 
     backgroundImage.setAttributeNS(window.hg.util.xlinkNamespace, 'xlink:href', tilePost.tile.postData.thumbnailSrc);
     backgroundImage.setAttribute('preserveAspectRatio', 'xMidYMid slice');
