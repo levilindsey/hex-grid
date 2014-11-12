@@ -40,16 +40,21 @@
 
     var textTop = -config.fontSize * (1.5 + 0.65 * (tilePost.tile.postData.titleShort.split('\n').length - 1));
 
-    var longRadiusRatio = '1';
-    var shortRadiusRatio = '' + window.hg.Grid.config.tileOuterRadius / window.hg.Grid.config.tileInnerRadius;
+    var longRadiusRatio = 1;
+    var shortRadiusRatio = window.hg.Grid.config.tileOuterRadius / window.hg.Grid.config.tileInnerRadius;
+    var offsetDistance = (1 - shortRadiusRatio) / 2;
 
-    var patternWidth, patternHeight;
+    var imageWidth, imageHeight, imageX, imageY;
     if (tilePost.tile.grid.isVertical) {
-      patternWidth = shortRadiusRatio;
-      patternHeight = longRadiusRatio;
+      imageWidth = shortRadiusRatio;
+      imageHeight = longRadiusRatio;
+      imageX = offsetDistance;
+      imageY = '0';
     } else {
-      patternWidth = longRadiusRatio;
-      patternHeight = shortRadiusRatio;
+      imageWidth = longRadiusRatio;
+      imageHeight = shortRadiusRatio;
+      imageX = '0';
+      imageY = offsetDistance;
     }
 
     // --- Create the elements, add them to the DOM, save them in this TilePost --- //
@@ -74,13 +79,19 @@
 
     backgroundPattern.setAttribute('id', patternId);
     backgroundPattern.setAttribute('patternContentUnits', 'objectBoundingBox');
-    backgroundPattern.setAttribute('width', patternWidth);
-    backgroundPattern.setAttribute('height', patternHeight);
+    backgroundPattern.setAttribute('width', '1');
+    backgroundPattern.setAttribute('height', '1');
 
     backgroundImage.setAttributeNS(window.hg.util.xlinkNamespace, 'xlink:href', tilePost.tile.postData.thumbnailSrc);
-    backgroundImage.setAttribute('preserveAspectRatio', 'xMidYMid slice');
-    backgroundImage.setAttribute('width', '1');
-    backgroundImage.setAttribute('height', '1');
+    backgroundImage.setAttribute('preserveAspectRatio', 'none');
+    backgroundImage.setAttribute('x', imageX);
+    backgroundImage.setAttribute('y', imageY);
+    backgroundImage.setAttribute('width', imageWidth);
+    backgroundImage.setAttribute('height', imageHeight);
+    // TODO: this should have worked, but the aspect ratio was NOT being maintained; it may have been a browser bug
+    //backgroundImage.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    //backgroundImage.setAttribute('width', '1');
+    //backgroundImage.setAttribute('height', '1');
 
     backgroundImageScreen.setAttribute('width', '1');
     backgroundImageScreen.setAttribute('height', '1');
@@ -122,16 +133,20 @@
    * @this TilePost
    */
   function draw() {
-    var backgroundImageScreenOpacity;
     var tilePost = this;
 
     // Keep hovered tiles highlighted
-    backgroundImageScreenOpacity = tilePost.tile.isHighlighted ?
+    var backgroundImageScreenOpacity = tilePost.tile.isHighlighted ?
         window.hg.TilePost.config.activeScreenOpacity : tilePost.tile.imageScreenOpacity;
+
+    // Have the title change across a wider opacity range than the background screen
+    var titleOpacity = 0.5 + (backgroundImageScreenOpacity - 0.5) * 2;
+    titleOpacity = titleOpacity > 1 ? 1 : (titleOpacity < 0 ? 0 : titleOpacity);
 
     window.hg.util.applyTransform(tilePost.elements.title,
         'translate(' + tilePost.tile.particle.px + 'px,' + tilePost.tile.particle.py + 'px)');
     tilePost.elements.backgroundImageScreen.setAttribute('opacity', backgroundImageScreenOpacity);
+    tilePost.elements.title.style.opacity = titleOpacity;
   }
 
   /**
