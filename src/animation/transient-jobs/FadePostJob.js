@@ -51,6 +51,10 @@
       } else {
         job.pagePost.destroy();
       }
+
+      job.baseTile.show();
+    } else {
+      job.baseTile.hide();
     }
   }
 
@@ -90,6 +94,8 @@
 
     job.pagePostStartPosition = {};
     job.pagePostDisplacement = {};
+
+    job.baseTile.show();
 
     if (job.isFadingIn) {
       job.pagePostStartPosition.x = job.baseTile.particle.px;

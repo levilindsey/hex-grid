@@ -645,6 +645,34 @@
     tile.svg.removeChild(tile.element);
   }
 
+  /**
+   * Sets this Tile and its TilePost to have a display of none.
+   *
+   * @this Tile
+   */
+  function hide() {
+    var tile = this;
+
+    tile.element.style.display = 'none';
+    if (tile.holdsContent) {
+      tile.tilePost.elements.title.style.display = 'none';
+    }
+  }
+
+  /**
+   * Sets this Tile and its TilePost to have a display of block.
+   *
+   * @this Tile
+   */
+  function show() {
+    var tile = this;
+
+    tile.element.style.display = 'block';
+    if (tile.holdsContent) {
+      tile.tilePost.elements.title.style.display = 'block';
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -723,6 +751,8 @@
     tile.getIsBorderTile = getIsBorderTile;
     tile.setIsBorderTile = setIsBorderTile;
     tile.destroy = destroy;
+    tile.hide = hide;
+    tile.show = show;
 
     createElement.call(tile);
     createParticle.call(tile, mass);

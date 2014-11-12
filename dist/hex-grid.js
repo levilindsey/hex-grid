@@ -5444,6 +5444,34 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     tile.svg.removeChild(tile.element);
   }
 
+  /**
+   * Sets this Tile and its TilePost to have a display of none.
+   *
+   * @this Tile
+   */
+  function hide() {
+    var tile = this;
+
+    tile.element.style.display = 'none';
+    if (tile.holdsContent) {
+      tile.tilePost.elements.title.style.display = 'none';
+    }
+  }
+
+  /**
+   * Sets this Tile and its TilePost to have a display of block.
+   *
+   * @this Tile
+   */
+  function show() {
+    var tile = this;
+
+    tile.element.style.display = 'block';
+    if (tile.holdsContent) {
+      tile.tilePost.elements.title.style.display = 'block';
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
@@ -5522,6 +5550,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     tile.getIsBorderTile = getIsBorderTile;
     tile.setIsBorderTile = setIsBorderTile;
     tile.destroy = destroy;
+    tile.hide = hide;
+    tile.show = show;
 
     createElement.call(tile);
     createParticle.call(tile, mass);
@@ -7210,6 +7240,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       } else {
         job.pagePost.destroy();
       }
+
+      job.baseTile.show();
+    } else {
+      job.baseTile.hide();
     }
   }
 
@@ -7249,6 +7283,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     job.pagePostStartPosition = {};
     job.pagePostDisplacement = {};
+
+    job.baseTile.show();
 
     if (job.isFadingIn) {
       job.pagePostStartPosition.x = job.baseTile.particle.px;
