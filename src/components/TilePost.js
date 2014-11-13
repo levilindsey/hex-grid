@@ -146,7 +146,11 @@
     window.hg.util.applyTransform(tilePost.elements.title,
         'translate(' + tilePost.tile.particle.px + 'px,' + tilePost.tile.particle.py + 'px)');
     tilePost.elements.backgroundImageScreen.setAttribute('opacity', backgroundImageScreenOpacity);
-    tilePost.elements.title.style.opacity = titleOpacity;
+
+    // Only set the title opacity for collapsed tiles
+    if (tilePost.tile.grid.expandedTile !== tilePost.tile) {
+      tilePost.elements.title.style.opacity = titleOpacity;
+    }
   }
 
   /**

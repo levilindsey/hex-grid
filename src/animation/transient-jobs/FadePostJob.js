@@ -56,16 +56,18 @@
     } else {
       job.baseTile.hide();
     }
+
+    job.baseTile.element.style.pointerEvents = 'auto';
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
   /**
-   * @param {Array.<>} currentVertexDeltas
-   * @param oldVertexDeltas
-   * @param newVertexDeltas
-   * @param progress
+   * @param {Array.<Number>} currentVertexDeltas
+   * @param {Array.<Number>} oldVertexDeltas
+   * @param {Array.<Number>} newVertexDeltas
+   * @param {Number} progress
    */
   function interpolateVertexDeltas(currentVertexDeltas, oldVertexDeltas, newVertexDeltas,
                                    progress) {
@@ -117,6 +119,8 @@
       job.pagePostDisplacement.x = job.pagePostStartPosition.x - job.grid.currentCenter.x;
       job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y;
     }
+
+    job.baseTile.element.style.pointerEvents = 'none';
   }
 
   /**

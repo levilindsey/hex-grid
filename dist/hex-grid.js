@@ -5723,7 +5723,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     window.hg.util.applyTransform(tilePost.elements.title,
         'translate(' + tilePost.tile.particle.px + 'px,' + tilePost.tile.particle.py + 'px)');
     tilePost.elements.backgroundImageScreen.setAttribute('opacity', backgroundImageScreenOpacity);
-    tilePost.elements.title.style.opacity = titleOpacity;
+
+    // Only set the title opacity for collapsed tiles
+    if (tilePost.tile.grid.expandedTile !== tilePost.tile) {
+      tilePost.elements.title.style.opacity = titleOpacity;
+    }
   }
 
   /**
@@ -7245,16 +7249,18 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     } else {
       job.baseTile.hide();
     }
+
+    job.baseTile.element.style.pointerEvents = 'auto';
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
   /**
-   * @param {Array.<>} currentVertexDeltas
-   * @param oldVertexDeltas
-   * @param newVertexDeltas
-   * @param progress
+   * @param {Array.<Number>} currentVertexDeltas
+   * @param {Array.<Number>} oldVertexDeltas
+   * @param {Array.<Number>} newVertexDeltas
+   * @param {Number} progress
    */
   function interpolateVertexDeltas(currentVertexDeltas, oldVertexDeltas, newVertexDeltas,
                                    progress) {
@@ -7306,6 +7312,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       job.pagePostDisplacement.x = job.pagePostStartPosition.x - job.grid.currentCenter.x;
       job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y;
     }
+
+    job.baseTile.element.style.pointerEvents = 'none';
   }
 
   /**
