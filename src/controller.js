@@ -71,6 +71,15 @@
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost'),
       canRunWithOpenGrid: true
     },
+    carouselImageSlide: {
+      constructorName: 'CarouselImageSlideJob',
+      jobs: [],
+      timeouts: [],
+      create: createTransientJob.bind(controller, null, 'carouselImageSlide'),
+      createRandom: null,
+      toggleRecurrence: null,
+      canRunWithOpenGrid: true
+    },
     dilateSectors: {
       constructorName: 'DilateSectorsJob',
       jobs: [],

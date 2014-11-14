@@ -7,6 +7,11 @@
  */
 (function () {
 
+  **;// TODO: split all of the data retrieval/parsing into a separate file
+  var config = {};
+  config.youtubeVideoBaseUrl = '//www.youtube.com/watch';
+  config.youtubeThumbnailBaseUrl = '//img.youtube.com/vi';
+
   var main = {};
 
   main.appRootPath = '/example';
@@ -100,6 +105,7 @@
       var postBaseUrl = main.collectionMetadata.baseUrl + '/' + postDatum.id + '/';
 
       postDatum.images.forEach(updateSrcImageMetadata);
+      postDatum.videos.forEach(updateSrcVideoMetadata);
 
       postDatum.thumbnailSrc = postBaseUrl + main.collectionMetadata.thumbnailName;
       postDatum.logoSrc = postBaseUrl + main.combinedMetadata.logoName;
@@ -108,6 +114,20 @@
 
       function updateSrcImageMetadata(imageMetadatum) {
         imageMetadatum.src = postBaseUrl + imageMetadatum.fileName;
+      }
+
+      function updateSrcVideoMetadata(videoMetadatum) {
+        switch (videoMetadatum.videoHost) {
+          case 'youtube':
+            videoMetadatum.videoSrc = config.youtubeVideoBaseUrl + '?v=' + videoMetadatum.id;
+            videoMetadatum.thumbnailSrc = config.youtubeThumbnailBaseUrl + '/' + videoMetadatum.id + '/default.jpg';
+            break;
+          case 'vimeo':
+            // TODO
+            break;
+          default:
+            throw new Error('Invalid video host: ' + videoMetadatum.videoHost)
+        }
       }
     }
   }

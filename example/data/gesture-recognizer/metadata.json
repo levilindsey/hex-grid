@@ -41,7 +41,8 @@
   ],
   "videos": [
     {
-      "url": "//www.youtube.com/watch?v=xxBeSKijSSw",
+      "videoHost": "youtube",**// TODO: add this new structure to all of the other video data items
+      "id": "xxBeSKijSSw",
       "description": "A walkthrough of Levi's stroke segmentation program."
     }
   ],
