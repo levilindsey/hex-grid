@@ -36,8 +36,6 @@
 
     console.log('FadePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
-    job.pagePost.draw();
-
     job.isComplete = true;
     job.onComplete();
 
@@ -225,9 +223,7 @@
    * @this FadePostJob
    */
   function draw() {
-    var job = this;
-
-    job.pagePost.draw();
+    // This animation job updates the state of the PagePost, so it has nothing of its own to draw
   }
 
   /**

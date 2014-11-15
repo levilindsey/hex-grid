@@ -29,7 +29,8 @@
   ],
   "videos": [
     {
-      "url": "//www.youtube.com/watch?v=r8-zo-j-7PU",
+      "videoHost": "youtube",
+      "id": "r8-zo-j-7PU",
       "description": "A video showing an animated frog playing a ukulele."
     }
   ],

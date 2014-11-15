@@ -634,6 +634,10 @@
     for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
       grid.allTiles[i].draw();
     }
+
+    if (grid.isPostOpen) {
+      grid.pagePost.draw();
+    }
   }
 
   /**

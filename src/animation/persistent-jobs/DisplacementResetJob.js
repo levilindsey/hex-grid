@@ -57,10 +57,16 @@
 
     job = this;
 
-    // Update the tiles
+    // Update the Tiles
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
       job.grid.allTiles[i].currentAnchor.x = job.grid.allTiles[i].originalAnchor.x;
       job.grid.allTiles[i].currentAnchor.y = job.grid.allTiles[i].originalAnchor.y;
+    }
+
+    if (job.grid.isPostOpen) {
+      // Update the Carousel
+      job.grid.pagePost.carousel.currentIndexPositionRatio =
+        job.grid.pagePost.carousel.currentIndex;
     }
   }
 

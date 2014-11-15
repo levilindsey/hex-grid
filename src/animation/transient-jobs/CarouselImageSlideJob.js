@@ -7,7 +7,7 @@
  *
  * @module CarouselImageSlideJob
  */
-(function () {**;// TODO: Implement this file
+(function () {
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
@@ -33,12 +33,8 @@
 
     console.log('CarouselImageSlideJob ' + (wasCancelled ? 'cancelled' : 'completed'));
 
-    job.pagePost.draw();
-
     job.isComplete = true;
     job.onComplete();
-
-    // TODO
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -58,7 +54,7 @@
     job.startTime = Date.now();
     job.isComplete = false;
 
-    // TODO
+    job.indexInitialDisplacement = job.carousel.previousIndex - job.carousel.currentIndex;
   }
 
   /**
@@ -77,13 +73,13 @@
 
     // Calculate progress with an easing function
     progress = (currentTime - job.startTime) / job.duration;
-    progress = window.hg.util.easingFunctions.easeOutQuint(progress);
-    progress = progress > 1 ? 1 : progress;
+    progress = 1 - window.hg.util.easingFunctions.easeInOutCubic(progress);
+    progress = progress < 0 ? 0 : progress;
 
-    // TODO
+    job.carousel.currentIndexPositionRatio += job.indexInitialDisplacement * progress;
 
     // Is the job done?
-    if (progress === 1) {
+    if (progress === 0) {
       handleComplete.call(job, false);
     }
   }
@@ -96,9 +92,7 @@
    * @this CarouselImageSlideJob
    */
   function draw() {
-    var job = this;
-
-    // TODO
+    // This animation job updates the state of the carousel and has nothing of its own to draw
   }
 
   /**
@@ -140,7 +134,8 @@
     job.startTime = 0;
     job.isComplete = true;
     job.carousel = carousel;
-    job.isASlideToNext = carousel.latestTransitionIsToNext;
+
+    job.indexInitialDisplacement = Number.NaN;
 
     job.duration = config.duration;
 
@@ -151,7 +146,8 @@
     job.onComplete = onComplete;
     job.init = init;
 
-    console.log('CarouselImageSlideJob created: isASlideToNext=' + job.isASlideToNext);
+    console.log('CarouselImageSlideJob created: currentIndex=' + job.carousel.currentIndex +
+      ', previousIndex=' + job.carousel.previousIndex);
   }
 
   CarouselImageSlideJob.config = config;

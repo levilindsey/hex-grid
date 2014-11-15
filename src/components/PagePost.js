@@ -102,6 +102,12 @@
     content.innerHTML = converter.makeHtml(pagePost.tile.postData.content);
     //content.style.whiteSpace = 'pre-wrap';
 
+    // Create the Carousel and insert it before the post's main contents
+    pagePost.carousel = new window.hg.Carousel(pagePost.tile.grid, container,
+      pagePost.tile.postData.images, pagePost.tile.postData.videos);
+    container.removeChild(pagePost.carousel.elements.container);
+    container.insertBefore(pagePost.carousel.elements.container, content);
+
     draw.call(pagePost);
   }
 
@@ -121,11 +127,13 @@
     var pagePost = this;
 
     pagePost.elements.container.style.left =
-        pagePost.center.x - pagePost.halfWidth - pagePost.paddingX + 'px';
+      pagePost.center.x - pagePost.halfWidth - pagePost.paddingX + 'px';
     pagePost.elements.container.style.top =
-        pagePost.center.y - pagePost.halfHeight - pagePost.paddingY + 'px';
+      pagePost.center.y - pagePost.halfHeight - pagePost.paddingY + 'px';
 
     pagePost.elements.container.style.opacity = pagePost.opacity;
+
+    pagePost.carousel.draw();
   }
 
   /**
@@ -133,6 +141,8 @@
    */
   function destroy() {
     var pagePost = this;
+
+    pagePost.carousel.destroy();
 
     pagePost.tile.grid.parent.removeChild(pagePost.elements.container);
     pagePost.elements = null;
@@ -152,6 +162,7 @@
 
     pagePost.tile = tile;
     pagePost.elements = null;
+    pagePost.carousel = null;
     pagePost.opacity = 0;
     pagePost.paddingX = Number.NaN;
     pagePost.paddingY = Number.NaN;

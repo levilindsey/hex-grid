@@ -39,7 +39,8 @@
   ],
   "videos": [
     {
-      "url": "//www.youtube.com/watch?v=y8QYhgRrRZk",
+      "videoHost": "youtube",
+      "id": "y8QYhgRrRZk",
       "description": "A narrated demonstrational video explaining how to use the Newton's Pen application."
     }
   ],

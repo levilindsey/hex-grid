@@ -42,7 +42,8 @@
   ],
   "videos": [
     {
-      "url": "//www.youtube.com/watch?v=LAlzil4WsGw",
+      "videoHost": "youtube",
+      "id": "LAlzil4WsGw",
       "description": "A narrated demonstrational video explaining how to use the Newton's Tablet program."
     }
   ],

@@ -41,7 +41,7 @@
   ],
   "videos": [
     {
-      "videoHost": "youtube",**// TODO: add this new structure to all of the other video data items
+      "videoHost": "youtube",
       "id": "xxBeSKijSSw",
       "description": "A walkthrough of Levi's stroke segmentation program."
     }

@@ -7,19 +7,8 @@
  */
 (function () {
 
-  **;// TODO: split all of the data retrieval/parsing into a separate file
-  var config = {};
-  config.youtubeVideoBaseUrl = '//www.youtube.com/watch';
-  config.youtubeThumbnailBaseUrl = '//img.youtube.com/vi';
-
   var main = {};
 
-  main.appRootPath = '/example';
-  main.metadataUrl = main.appRootPath + '/dist/data.min.json';
-  main.dataRequestState = 'request-not-sent';
-  main.combinedMetadata = {};
-  main.collectionMetadata = {};
-  main.postData = [];
   main.grid = null;
 
   window.app = window.app || {};
@@ -38,98 +27,15 @@
 
     window.removeEventListener('load', initHexGrid);
 
-    fetchData(updateTileData);
-  }
-
-  function fetchData(callback) {
-    var xhr = new XMLHttpRequest();
-
-    xhr.addEventListener('load', onLoad, false);
-    xhr.addEventListener('error', onError, false);
-    xhr.addEventListener('abort', onAbort, false);
-
-    console.log('Sending request to ' + main.metadataUrl);
-
-    xhr.open('GET', main.metadataUrl, true);
-    xhr.send();
-
-    main.dataRequestState = 'waiting-for-response';
-
-    // ---  --- //
-
-    function onLoad() {
-      console.log('Response status=' + xhr.status + ' (' + xhr.statusText + ')');
-      //console.log('Response body=' + xhr.response);
-
-      main.dataRequestState = 'received-response';
-
-      try {
-        main.combinedMetadata = JSON.parse(xhr.response);
-        main.collectionMetadata = main.combinedMetadata.collectionMetadata;
-        main.postData = main.combinedMetadata.posts;
-        updatePostsSrcUrls();
-        callback();
-      } catch (error) {
-        main.postData = [];
-        console.warn('Unable to parse response body as JSON: ' + xhr.response);
-      }
-    }
-
-    function onError() {
-      console.error('An error occurred while transferring the data');
-
-      main.dataRequestState = 'error-with-request';
-    }
-
-    function onAbort() {
-      console.error('The transfer has been cancelled by the user');
-
-      main.dataRequestState = 'error-with-request';
-    }
+    app.data.fetchData(updateTileData);
   }
 
   function updateTileData() {
     var hexGridContainer = document.getElementById('hex-grid-area');
 
-    main.grid = window.hg.controller.createNewHexGrid(hexGridContainer, main.postData, false);
+    main.grid = window.hg.controller.createNewHexGrid(hexGridContainer, app.data.postData, false);
 
     app.parameters.initDatGui(main.grid);
-  }
-
-  function updatePostsSrcUrls() {
-    main.postData.forEach(updatePostSrcUrls);
-
-    // ---  --- //
-
-    function updatePostSrcUrls(postDatum) {
-      var postBaseUrl = main.collectionMetadata.baseUrl + '/' + postDatum.id + '/';
-
-      postDatum.images.forEach(updateSrcImageMetadata);
-      postDatum.videos.forEach(updateSrcVideoMetadata);
-
-      postDatum.thumbnailSrc = postBaseUrl + main.collectionMetadata.thumbnailName;
-      postDatum.logoSrc = postBaseUrl + main.combinedMetadata.logoName;
-
-      // ---  --- //
-
-      function updateSrcImageMetadata(imageMetadatum) {
-        imageMetadatum.src = postBaseUrl + imageMetadatum.fileName;
-      }
-
-      function updateSrcVideoMetadata(videoMetadatum) {
-        switch (videoMetadatum.videoHost) {
-          case 'youtube':
-            videoMetadatum.videoSrc = config.youtubeVideoBaseUrl + '?v=' + videoMetadatum.id;
-            videoMetadatum.thumbnailSrc = config.youtubeThumbnailBaseUrl + '/' + videoMetadatum.id + '/default.jpg';
-            break;
-          case 'vimeo':
-            // TODO
-            break;
-          default:
-            throw new Error('Invalid video host: ' + videoMetadatum.videoHost)
-        }
-      }
-    }
   }
 
   console.log('main module loaded');
