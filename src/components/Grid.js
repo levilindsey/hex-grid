@@ -22,8 +22,8 @@
 
   config.targetContentAreaWidth = 800;
   config.backgroundHue = 230;
-  config.backgroundSaturation = 2;
-  config.backgroundLightness = 8;
+  config.backgroundSaturation = 1;
+  config.backgroundLightness = 4;
   config.tileHue = 230;//147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
@@ -812,6 +812,8 @@
     grid.createPagePost = createPagePost;
     grid.destroyPagePost = destroyPagePost;
     grid.updateAllTilesCollection = updateAllTilesCollection;
+
+    grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
 
     createSvg.call(grid);
     setBackgroundColor.call(grid);

@@ -45,6 +45,8 @@
     // Don't reset some state if another expansion job started after this one did
     if (job.grid.lastExpansionJob === job) {
       job.grid.lastExpansionJob = null;
+
+      job.grid.pagePost.loadCarouselMedia();
     }
 
     job.isComplete = true;

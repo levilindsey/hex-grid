@@ -15,9 +15,6 @@
 
   config = {};
 
-  config.fontSize = 18;
-  config.titleFontSize = 24;
-
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -44,9 +41,8 @@
     var horizontalPadding = 1.15 * window.hg.Grid.config.tileShortLengthWithGap;
     var verticalPadding = 2.25 * window.hg.Grid.config.tileOuterRadius;
 
-    var paddingRight = 26;
-
-    var width, height, paddingX, paddingY;
+    var width, height, paddingX, paddingY, gradientColor1String,
+      gradientColor2String, innerWrapperPadding;
 
     if (pagePost.tile.grid.isVertical) {
       width = horizontalSideLength;
@@ -68,15 +64,32 @@
     pagePost.halfWidth = width / 2;
     pagePost.halfHeight = height / 2;
 
+    gradientColor1String = 'hsl(' +
+      window.hg.Grid.config.backgroundHue + ',' +
+      window.hg.Grid.config.backgroundSaturation + '%,' +
+      window.hg.Grid.config.backgroundLightness + '%)';
+    gradientColor2String = 'hsla(' +
+      window.hg.Grid.config.backgroundHue + ',' +
+      window.hg.Grid.config.backgroundSaturation + '%,' +
+      window.hg.Grid.config.backgroundLightness + '%,0)';
+
     // ---  --- //
 
     var container = document.createElement('div');
+    var outerWrapper = document.createElement('div');
+    var innerWrapper = document.createElement('div');
     var title = document.createElement('h1');
     var content = document.createElement('div');
+    var topGradient = document.createElement('div');
+    var bottomGradient = document.createElement('div');
 
     pagePost.tile.grid.parent.appendChild(container);
-    container.appendChild(title);
-    container.appendChild(content);
+    container.appendChild(outerWrapper);
+    outerWrapper.appendChild(innerWrapper);
+    innerWrapper.appendChild(title);
+    innerWrapper.appendChild(content);
+    container.appendChild(topGradient);
+    container.appendChild(bottomGradient);
 
     pagePost.elements = [];
     pagePost.elements.container = container;
@@ -85,33 +98,60 @@
 
     container.setAttribute('data-hg-post-container', 'data-hg-post-container');
     container.style.position = 'absolute';
-    container.style.width = width + 'px';
-    container.style.height = height + 'px';
-    container.style.margin = '0px';
-    container.style.padding = pagePost.paddingY + 'px ' + paddingRight + 'px ' +
-      pagePost.paddingY + 'px ' + pagePost.paddingX + 'px';
-    container.style.overflow = 'auto';
-    container.style.fontSize = config.fontSize + 'px';
-    container.style.fontFamily = '"Open Sans", sans-serif';
-    container.style.color = '#EDEDED';
+    container.style.width = width + paddingX + 'px';
+    container.style.height = height + paddingY * 2 + 'px';
+    container.style.margin = '0';
+    container.style.padding = '0';
+    container.style.overflow = 'hidden';
     container.style.zIndex = '500';
 
+    outerWrapper.setAttribute('data-hg-post-outer-wrapper', 'data-hg-post-outer-wrapper');
+    outerWrapper.style.width = width + 'px';
+    outerWrapper.style.height = height + 'px';
+    outerWrapper.style.margin = '0';
+    outerWrapper.style.padding = paddingY + 'px 0 ' + paddingY + 'px ' + paddingX + 'px';
+    outerWrapper.style.overflow = 'auto';
+
+    innerWrapper.setAttribute('data-hg-post-inner-wrapper', 'data-hg-post-inner-wrapper');
+    innerWrapperPadding =
+      parseInt(window.getComputedStyle(innerWrapper, null).getPropertyValue('padding-top'));
+    innerWrapper.style.minHeight = height - innerWrapperPadding * 2 + 'px';
+    innerWrapper.style.overflowX = 'hidden';
+
+    title.setAttribute('data-hg-post-title', 'data-hg-post-title');
     title.innerHTML = pagePost.tile.postData.titleLong;
-    title.style.fontSize = config.titleFontSize + 'px';
-    title.style.fontFamily = '"Open Sans", sans-serif';
-    title.style.textAlign = 'center';
+
+    topGradient.style.position = 'absolute';
+    topGradient.style.top = '0';
+    topGradient.style.left = paddingX + 'px';
+    topGradient.style.height = paddingY + 'px';
+    topGradient.style.width = width + 'px';
+    topGradient.style.backgroundColor = '#000000';
+    topGradient.style.background =
+      'linear-gradient(0,' + gradientColor2String + ',' + gradientColor1String + ' 75%)';
+    topGradient.style.pointerEvents = 'none';
+
+    bottomGradient.style.position = 'absolute';
+    bottomGradient.style.bottom = '0';
+    bottomGradient.style.left = paddingX + 'px';
+    bottomGradient.style.height = paddingY + 'px';
+    bottomGradient.style.width = width + 'px';
+    bottomGradient.style.backgroundColor = '#000000';
+    bottomGradient.style.background =
+      'linear-gradient(0,' + gradientColor1String + ' 25%,' + gradientColor2String + ')';
+    bottomGradient.style.pointerEvents = 'none';
 
     var converter = new Showdown.converter({extensions: ['github']});
     //var converter = new Showdown.converter();
 
+    content.setAttribute('data-hg-post-content', 'data-hg-post-content');
     content.innerHTML = converter.makeHtml(pagePost.tile.postData.content);
-    //content.style.whiteSpace = 'pre-wrap';
 
     // Create the Carousel and insert it before the post's main contents
-    pagePost.carousel = new window.hg.Carousel(pagePost.tile.grid, container,
-      pagePost.tile.postData.images, pagePost.tile.postData.videos);
-    container.removeChild(pagePost.carousel.elements.container);
-    container.insertBefore(pagePost.carousel.elements.container, content);
+    pagePost.carousel = new window.hg.Carousel(pagePost.tile.grid, innerWrapper,
+      pagePost.tile.postData.images, pagePost.tile.postData.videos, true);
+    innerWrapper.removeChild(pagePost.carousel.elements.container);
+    innerWrapper.insertBefore(pagePost.carousel.elements.container, content);
 
     draw.call(pagePost);
   }
@@ -128,7 +168,7 @@
   /**
    * @this PagePost
    */
-  function loadCarouselMedia() {**;// TODO: make sure this is called and the late-loading media is set up correctly in general
+  function loadCarouselMedia() {
     var pagePost = this;
 
     pagePost.carousel.loadMedia();

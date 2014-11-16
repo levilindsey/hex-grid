@@ -107,10 +107,8 @@
     title.style.width = outerSideLength + 'px';
     title.style.height = outerSideLength + 'px';
     title.style.fontSize = config.fontSize + 'px';
-    title.style.fontFamily = '"Open Sans", sans-serif';
     title.style.textAlign = 'center';
     title.style.whiteSpace = 'pre-wrap';
-    title.style.color = '#F4F4F4';
     title.style.pointerEvents = 'none';
     title.style.zIndex = '2000';
 

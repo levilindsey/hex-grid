@@ -2892,7 +2892,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 */
 (function () {
 
-  // TODO: add left/right buttons; add click handlers for thumbnails
+  // TODO: add caption panel below thumbnails; fixed height?; different background...; slightly transparent?
 
   // TODO: thumbnail screens: animate fading the screens (use CSS transitions? then only remove screen opacity when the last slide job completes?)
 
@@ -2911,12 +2911,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   config = {};
 
-  config.fontSize = 18;
-  config.titleFontSize = 24;
   config.thumbnailHeight = 80;
   config.thumbnailRibbonPadding = 4;
   config.thumbnailScreenOpacity = 0.6;
-  config.backgroundColorString = '#222222';
   config.prevNextButtonPadding = 10;
 
   // ---  --- //
@@ -2972,12 +2969,14 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var container = document.createElement('div');
     var mainMediaRibbon = document.createElement('div');
     var thumbnailsRibbon = document.createElement('div');
+    var captionsPanel = document.createElement('div');
     var previousButtonPanel = document.createElement('div');
     var nextButtonPanel = document.createElement('div');
 
     carousel.parent.appendChild(container);
     container.appendChild(mainMediaRibbon);
     container.appendChild(thumbnailsRibbon);
+    container.appendChild(captionsPanel);
     container.appendChild(previousButtonPanel);
     container.appendChild(nextButtonPanel);
 
@@ -2991,11 +2990,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     carousel.elements.thumbnails = [];
     carousel.elements.thumbnailScreens = [];
 
+    container.setAttribute('data-hg-carousel-container', 'data-hg-carousel-container');
     container.style.position = 'relative';
     container.style.overflow = 'hidden';
     container.style.width = carousel.width + 'px';
     container.style.height = carousel.totalHeight + 'px';
-    container.style.backgroundColor = config.backgroundColorString;
     window.hg.util.setUserSelectNone(container);
 
     mainMediaRibbon.style.position = 'relative';
@@ -3008,7 +3007,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     thumbnailsRibbon.style.left = carousel.thumbnailRibbonStartPosition + 'px';
     thumbnailsRibbon.style.paddingTop = config.thumbnailRibbonPadding + 'px';
 
-    previousButtonPanel.setAttribute('data-carousel-button', 'data-carousel-button');
+    captionsPanel.setAttribute('data-hg-captions-panel', 'data-hg-captions-panel');
+
+    previousButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
     previousButtonPanel.style.position = 'absolute';
     previousButtonPanel.style.top = '0';
     previousButtonPanel.style.left = '0';
@@ -3023,7 +3024,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     previousButtonPanel.innerHTML = '&#10094;';
     previousButtonPanel.addEventListener('click', goToPrevious.bind(carousel), false);
 
-    nextButtonPanel.setAttribute('data-carousel-button', 'data-carousel-button');
+    nextButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
     nextButtonPanel.style.position = 'absolute';
     nextButtonPanel.style.top = '0';
     nextButtonPanel.style.right = '0';
@@ -3168,11 +3169,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
         thumbnailSrc = mediumMetadatum.src;
       }
 
+      mainMediaElement.setAttribute('data-hg-carousel-main-media',
+        'data-hg-carousel-main-media');
       mainMediaElement.style.width = carousel.width + 'px';
       mainMediaElement.style.height = carousel.mainMediaHeight + 'px';
       mainMediaElement.style.float = 'left';
 
       thumbnailElement = document.createElement('div');
+      thumbnailElement.setAttribute('data-hg-carousel-thumbnail',
+        'data-hg-carousel-thumbnail');
       thumbnailElement.style.backgroundImage = 'url(' + thumbnailSrc + ')';
       thumbnailElement.style.backgroundSize = 'contain';
       thumbnailElement.style.backgroundRepeat = 'no-repeat';
@@ -3182,7 +3187,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       thumbnailElement.style.float = 'left';
 
       thumbnailScreenElement = document.createElement('div');
-      thumbnailScreenElement.style.backgroundColor = '#222222';
+      thumbnailScreenElement.setAttribute('data-hg-carousel-thumbnail-screen',
+        'data-hg-carousel-thumbnail-screen');
       thumbnailScreenElement.style.opacity = config.thumbnailScreenOpacity;
       thumbnailScreenElement.style.width = '100%';
       thumbnailScreenElement.style.height = '100%';
@@ -3259,9 +3265,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     // Add CSS rules for hover and active states if they have not already been added
     if (!haveAddedStyles) {
       haveAddedStyles = true;
-      window.hg.util.addRuleToStyleSheet('[data-carousel-button] { color: #000000; }');
-      window.hg.util.addRuleToStyleSheet('[data-carousel-button]:hover { color: #999999; }');
-      window.hg.util.addRuleToStyleSheet('[data-carousel-button]:active { color: #ffffff; }');
+      window.hg.util.addRuleToStyleSheet('[data-hg-carousel-button] { color: #000000; }');
+      window.hg.util.addRuleToStyleSheet('[data-hg-carousel-button]:hover { color: #999999; }');
+      window.hg.util.addRuleToStyleSheet('[data-hg-carousel-button]:active { color: #ffffff; }');
     }
 
     console.log('Carousel created');
@@ -3300,8 +3306,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   config.targetContentAreaWidth = 800;
   config.backgroundHue = 230;
-  config.backgroundSaturation = 2;
-  config.backgroundLightness = 8;
+  config.backgroundSaturation = 1;
+  config.backgroundLightness = 4;
   config.tileHue = 230;//147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
@@ -4091,6 +4097,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid.destroyPagePost = destroyPagePost;
     grid.updateAllTilesCollection = updateAllTilesCollection;
 
+    grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
+
     createSvg.call(grid);
     setBackgroundColor.call(grid);
     computeContentIndices.call(grid);
@@ -4292,9 +4300,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   config = {};
 
-  config.fontSize = 18;
-  config.titleFontSize = 24;
-
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -4321,9 +4326,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var horizontalPadding = 1.15 * window.hg.Grid.config.tileShortLengthWithGap;
     var verticalPadding = 2.25 * window.hg.Grid.config.tileOuterRadius;
 
-    var paddingRight = 26;
-
-    var width, height, paddingX, paddingY;
+    var width, height, paddingX, paddingY, gradientColor1String,
+      gradientColor2String, innerWrapperPadding;
 
     if (pagePost.tile.grid.isVertical) {
       width = horizontalSideLength;
@@ -4345,15 +4349,32 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     pagePost.halfWidth = width / 2;
     pagePost.halfHeight = height / 2;
 
+    gradientColor1String = 'hsl(' +
+      window.hg.Grid.config.backgroundHue + ',' +
+      window.hg.Grid.config.backgroundSaturation + '%,' +
+      window.hg.Grid.config.backgroundLightness + '%)';
+    gradientColor2String = 'hsla(' +
+      window.hg.Grid.config.backgroundHue + ',' +
+      window.hg.Grid.config.backgroundSaturation + '%,' +
+      window.hg.Grid.config.backgroundLightness + '%,0)';
+
     // ---  --- //
 
     var container = document.createElement('div');
+    var outerWrapper = document.createElement('div');
+    var innerWrapper = document.createElement('div');
     var title = document.createElement('h1');
     var content = document.createElement('div');
+    var topGradient = document.createElement('div');
+    var bottomGradient = document.createElement('div');
 
     pagePost.tile.grid.parent.appendChild(container);
-    container.appendChild(title);
-    container.appendChild(content);
+    container.appendChild(outerWrapper);
+    outerWrapper.appendChild(innerWrapper);
+    innerWrapper.appendChild(title);
+    innerWrapper.appendChild(content);
+    container.appendChild(topGradient);
+    container.appendChild(bottomGradient);
 
     pagePost.elements = [];
     pagePost.elements.container = container;
@@ -4362,33 +4383,60 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     container.setAttribute('data-hg-post-container', 'data-hg-post-container');
     container.style.position = 'absolute';
-    container.style.width = width + 'px';
-    container.style.height = height + 'px';
-    container.style.margin = '0px';
-    container.style.padding = pagePost.paddingY + 'px ' + paddingRight + 'px ' +
-      pagePost.paddingY + 'px ' + pagePost.paddingX + 'px';
-    container.style.overflow = 'auto';
-    container.style.fontSize = config.fontSize + 'px';
-    container.style.fontFamily = '"Open Sans", sans-serif';
-    container.style.color = '#EDEDED';
+    container.style.width = width + paddingX + 'px';
+    container.style.height = height + paddingY * 2 + 'px';
+    container.style.margin = '0';
+    container.style.padding = '0';
+    container.style.overflow = 'hidden';
     container.style.zIndex = '500';
 
+    outerWrapper.setAttribute('data-hg-post-outer-wrapper', 'data-hg-post-outer-wrapper');
+    outerWrapper.style.width = width + 'px';
+    outerWrapper.style.height = height + 'px';
+    outerWrapper.style.margin = '0';
+    outerWrapper.style.padding = paddingY + 'px 0 ' + paddingY + 'px ' + paddingX + 'px';
+    outerWrapper.style.overflow = 'auto';
+
+    innerWrapper.setAttribute('data-hg-post-inner-wrapper', 'data-hg-post-inner-wrapper');
+    innerWrapperPadding =
+      parseInt(window.getComputedStyle(innerWrapper, null).getPropertyValue('padding-top'));
+    innerWrapper.style.minHeight = height - innerWrapperPadding * 2 + 'px';
+    innerWrapper.style.overflowX = 'hidden';
+
+    title.setAttribute('data-hg-post-title', 'data-hg-post-title');
     title.innerHTML = pagePost.tile.postData.titleLong;
-    title.style.fontSize = config.titleFontSize + 'px';
-    title.style.fontFamily = '"Open Sans", sans-serif';
-    title.style.textAlign = 'center';
+
+    topGradient.style.position = 'absolute';
+    topGradient.style.top = '0';
+    topGradient.style.left = paddingX + 'px';
+    topGradient.style.height = paddingY + 'px';
+    topGradient.style.width = width + 'px';
+    topGradient.style.backgroundColor = '#000000';
+    topGradient.style.background =
+      'linear-gradient(0,' + gradientColor2String + ',' + gradientColor1String + ' 75%)';
+    topGradient.style.pointerEvents = 'none';
+
+    bottomGradient.style.position = 'absolute';
+    bottomGradient.style.bottom = '0';
+    bottomGradient.style.left = paddingX + 'px';
+    bottomGradient.style.height = paddingY + 'px';
+    bottomGradient.style.width = width + 'px';
+    bottomGradient.style.backgroundColor = '#000000';
+    bottomGradient.style.background =
+      'linear-gradient(0,' + gradientColor1String + ' 25%,' + gradientColor2String + ')';
+    bottomGradient.style.pointerEvents = 'none';
 
     var converter = new Showdown.converter({extensions: ['github']});
     //var converter = new Showdown.converter();
 
+    content.setAttribute('data-hg-post-content', 'data-hg-post-content');
     content.innerHTML = converter.makeHtml(pagePost.tile.postData.content);
-    //content.style.whiteSpace = 'pre-wrap';
 
     // Create the Carousel and insert it before the post's main contents
-    pagePost.carousel = new window.hg.Carousel(pagePost.tile.grid, container,
-      pagePost.tile.postData.images, pagePost.tile.postData.videos);
-    container.removeChild(pagePost.carousel.elements.container);
-    container.insertBefore(pagePost.carousel.elements.container, content);
+    pagePost.carousel = new window.hg.Carousel(pagePost.tile.grid, innerWrapper,
+      pagePost.tile.postData.images, pagePost.tile.postData.videos, true);
+    innerWrapper.removeChild(pagePost.carousel.elements.container);
+    innerWrapper.insertBefore(pagePost.carousel.elements.container, content);
 
     draw.call(pagePost);
   }
@@ -4405,7 +4453,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this PagePost
    */
-  function loadCarouselMedia() {**;// TODO: make sure this is called and the late-loading media is set up correctly in general
+  function loadCarouselMedia() {
     var pagePost = this;
 
     pagePost.carousel.loadMedia();
@@ -6067,10 +6115,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     title.style.width = outerSideLength + 'px';
     title.style.height = outerSideLength + 'px';
     title.style.fontSize = config.fontSize + 'px';
-    title.style.fontFamily = '"Open Sans", sans-serif';
     title.style.textAlign = 'center';
     title.style.whiteSpace = 'pre-wrap';
-    title.style.color = '#F4F4F4';
     title.style.pointerEvents = 'none';
     title.style.zIndex = '2000';
 
@@ -10177,6 +10223,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     // Don't reset some state if another expansion job started after this one did
     if (job.grid.lastExpansionJob === job) {
       job.grid.lastExpansionJob = null;
+
+      job.grid.pagePost.loadCarouselMedia();
     }
 
     job.isComplete = true;

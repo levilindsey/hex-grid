@@ -7,7 +7,7 @@
 */
 (function () {
 
-  // TODO: add left/right buttons; add click handlers for thumbnails
+  // TODO: add caption panel below thumbnails; fixed height?; different background...; slightly transparent?
 
   // TODO: thumbnail screens: animate fading the screens (use CSS transitions? then only remove screen opacity when the last slide job completes?)
 
@@ -26,12 +26,9 @@
 
   config = {};
 
-  config.fontSize = 18;
-  config.titleFontSize = 24;
   config.thumbnailHeight = 80;
   config.thumbnailRibbonPadding = 4;
   config.thumbnailScreenOpacity = 0.6;
-  config.backgroundColorString = '#222222';
   config.prevNextButtonPadding = 10;
 
   // ---  --- //
@@ -87,12 +84,14 @@
     var container = document.createElement('div');
     var mainMediaRibbon = document.createElement('div');
     var thumbnailsRibbon = document.createElement('div');
+    var captionsPanel = document.createElement('div');
     var previousButtonPanel = document.createElement('div');
     var nextButtonPanel = document.createElement('div');
 
     carousel.parent.appendChild(container);
     container.appendChild(mainMediaRibbon);
     container.appendChild(thumbnailsRibbon);
+    container.appendChild(captionsPanel);
     container.appendChild(previousButtonPanel);
     container.appendChild(nextButtonPanel);
 
@@ -106,11 +105,11 @@
     carousel.elements.thumbnails = [];
     carousel.elements.thumbnailScreens = [];
 
+    container.setAttribute('data-hg-carousel-container', 'data-hg-carousel-container');
     container.style.position = 'relative';
     container.style.overflow = 'hidden';
     container.style.width = carousel.width + 'px';
     container.style.height = carousel.totalHeight + 'px';
-    container.style.backgroundColor = config.backgroundColorString;
     window.hg.util.setUserSelectNone(container);
 
     mainMediaRibbon.style.position = 'relative';
@@ -123,7 +122,9 @@
     thumbnailsRibbon.style.left = carousel.thumbnailRibbonStartPosition + 'px';
     thumbnailsRibbon.style.paddingTop = config.thumbnailRibbonPadding + 'px';
 
-    previousButtonPanel.setAttribute('data-carousel-button', 'data-carousel-button');
+    captionsPanel.setAttribute('data-hg-captions-panel', 'data-hg-captions-panel');
+
+    previousButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
     previousButtonPanel.style.position = 'absolute';
     previousButtonPanel.style.top = '0';
     previousButtonPanel.style.left = '0';
@@ -138,7 +139,7 @@
     previousButtonPanel.innerHTML = '&#10094;';
     previousButtonPanel.addEventListener('click', goToPrevious.bind(carousel), false);
 
-    nextButtonPanel.setAttribute('data-carousel-button', 'data-carousel-button');
+    nextButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
     nextButtonPanel.style.position = 'absolute';
     nextButtonPanel.style.top = '0';
     nextButtonPanel.style.right = '0';
@@ -283,11 +284,15 @@
         thumbnailSrc = mediumMetadatum.src;
       }
 
+      mainMediaElement.setAttribute('data-hg-carousel-main-media',
+        'data-hg-carousel-main-media');
       mainMediaElement.style.width = carousel.width + 'px';
       mainMediaElement.style.height = carousel.mainMediaHeight + 'px';
       mainMediaElement.style.float = 'left';
 
       thumbnailElement = document.createElement('div');
+      thumbnailElement.setAttribute('data-hg-carousel-thumbnail',
+        'data-hg-carousel-thumbnail');
       thumbnailElement.style.backgroundImage = 'url(' + thumbnailSrc + ')';
       thumbnailElement.style.backgroundSize = 'contain';
       thumbnailElement.style.backgroundRepeat = 'no-repeat';
@@ -297,7 +302,8 @@
       thumbnailElement.style.float = 'left';
 
       thumbnailScreenElement = document.createElement('div');
-      thumbnailScreenElement.style.backgroundColor = '#222222';
+      thumbnailScreenElement.setAttribute('data-hg-carousel-thumbnail-screen',
+        'data-hg-carousel-thumbnail-screen');
       thumbnailScreenElement.style.opacity = config.thumbnailScreenOpacity;
       thumbnailScreenElement.style.width = '100%';
       thumbnailScreenElement.style.height = '100%';
@@ -374,9 +380,9 @@
     // Add CSS rules for hover and active states if they have not already been added
     if (!haveAddedStyles) {
       haveAddedStyles = true;
-      window.hg.util.addRuleToStyleSheet('[data-carousel-button] { color: #000000; }');
-      window.hg.util.addRuleToStyleSheet('[data-carousel-button]:hover { color: #999999; }');
-      window.hg.util.addRuleToStyleSheet('[data-carousel-button]:active { color: #ffffff; }');
+      window.hg.util.addRuleToStyleSheet('[data-hg-carousel-button] { color: #000000; }');
+      window.hg.util.addRuleToStyleSheet('[data-hg-carousel-button]:hover { color: #999999; }');
+      window.hg.util.addRuleToStyleSheet('[data-hg-carousel-button]:active { color: #ffffff; }');
     }
 
     console.log('Carousel created');

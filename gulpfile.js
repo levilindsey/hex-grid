@@ -7,6 +7,7 @@ config.nodeModulesPath = 'node_modules';
 config.publicRoot = './';
 
 config.hgScriptsSrc = [config.srcPath + '/**/*.js'];
+config.hgStylesSrc = [config.srcPath + '/**/*.css'];
 config.vendorScriptsSrc = [
   config.nodeModulesPath + '/showdown/compressed/showdown.js',
   config.nodeModulesPath + '/showdown/compressed/extensions/twitter.js',
@@ -22,7 +23,7 @@ config.gulpDataTasksPath = './' + config.examplePath + '/gulp-data-tasks';
 config.host = '0.0.0.0';
 config.port = '3000';
 
-config.buildTasks = ['scripts', 'data', 'watch'];
+config.buildTasks = ['scripts', 'styles', 'data', 'watch'];
 
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
@@ -70,6 +71,17 @@ gulp.task('scripts', function () {
   return merge(combinedStreamNonMin, combinedStreamMin);
 });
 
+gulp.task('styles', function () {
+  return gulp.src(config.hgStylesSrc)
+    .pipe(plugins.plumber())
+    .pipe(plugins.autoprefixer('last 2 version'))
+    .pipe(plugins.rename({basename: 'hex-grid'}))
+    .pipe(gulp.dest(config.distPath))
+    .pipe(plugins.rename({suffix: '.min'}))
+    .pipe(plugins.minifyCss())
+    .pipe(gulp.dest(config.distPath));
+});
+
 gulp.task('server', config.buildTasks, function () {
   return gulp.src(config.publicRoot)
       .pipe(plugins.webserver({
@@ -83,6 +95,7 @@ gulp.task('server', config.buildTasks, function () {
 
 gulp.task('watch', function () {
   gulp.watch(config.allScriptsSrc, ['scripts']);
+  gulp.watch(config.hgStylesSrc, ['styles']);
 });
 
 gulp.task('clean', function () {

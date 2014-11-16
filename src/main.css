@@ -1,0 +1,105 @@
+
+/* TODO: somehow there is a 1px margin at the bottom of the SVG; it must die... */
+
+/* --- Overall area styles --- */
+
+body {
+  background-color: #000000;/* TODO: remove this after the bottom margin bug is fixed */
+}
+
+[data-hg-grid-parent] {
+  position: relative;
+  overflow: auto;
+  z-index: 0;
+}
+
+/* --- Tile styles --- */
+
+[data-hg-tile-title] {
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #F6F6F6;
+}
+
+/* --- Open post styles --- */
+
+[data-hg-post-container] {
+  font-size: 18px;
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, sans-serif;
+  color: #DDDDDB;
+}
+
+[data-hg-post-outer-wrapper] {
+}
+
+[data-hg-post-inner-wrapper] {
+  padding: 26px;
+  background-color: #282828;
+  /* A small repeating hex pattern */
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAMBAMAAABcu7ojAAAALVBMVEUmKCkmKConKCknKCooJygoKCcoKSYoKScoKiYoKicoKigpJigpJygqJigqJyiW/QuUAAAAOklEQVQIHWMS1L17gInhPUMBE8O/1ReYGPiArDMLGBiYGPhBYn86gWJ5QNZqA5CYIEiM5wxQ7DxDAgD5Cg+buFLSyQAAAABJRU5ErkJggg==);
+}
+
+[data-hg-post-title] {
+  font-size: 24px;
+  text-align: center;
+}
+
+[data-hg-post-container] a {
+  color: #1E90FF;
+  text-decoration: none;
+}
+
+[data-hg-post-container] a:visited {
+  color: #4B87BA;
+}
+
+[data-hg-post-container] a:hover {
+  color: #8fc7ff;
+  text-decoration: underline;
+}
+
+[data-hg-post-container] a:active {
+  color: #004a94;
+  text-decoration: none;
+}
+
+[data-hg-post-content] h1,
+[data-hg-post-content] h2,
+[data-hg-post-content] h3,
+[data-hg-post-content] h4,
+[data-hg-post-content] h5 {
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #B2B2B0;
+  color: #FFFFFF;
+}
+
+/* --- Carousel styles --- */
+
+[data-hg-carousel-container] {
+
+}
+
+[data-hg-carousel-main-media] {
+}
+
+[data-hg-carousel-main-thumbnail] {
+}
+
+[data-hg-carousel-main-thumbnail-screen] {
+}
+
+[data-hg-carousel-main-button] {
+}
+
+[data-hg-captions-panel] {
+  margin: 18px;
+  padding: 18px;
+  font-size: 14px;
+  background-color: #333333;
+}
+
+[data-hg-carousel-container],
+[data-hg-carousel-main-thumbnail-screen]{
+  background-color: #111111;
+}
