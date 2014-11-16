@@ -7,16 +7,20 @@
 */
 (function () {
 
-  // TODO: also update the tilepost drawing to utilize the reset job
-
-  // TODO: make sure the tilepost job is getting destroyed properly on resize (text is hanging around...)
-
   // TODO: add left/right buttons; add click handlers for thumbnails
 
   // TODO: thumbnail screens: animate fading the screens (use CSS transitions? then only remove screen opacity when the last slide job completes?)
 
+  // TODO: also update the tilepost drawing to utilize the reset job
+
+  // TODO: fade out the PagePost text
+
+  // TODO: make sure the tilepost job is getting destroyed properly on resize (text is hanging around...)
+
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
+
+  var haveAddedStyles = false;
 
   var config;
 
@@ -25,9 +29,10 @@
   config.fontSize = 18;
   config.titleFontSize = 24;
   config.thumbnailHeight = 80;
-
+  config.thumbnailRibbonPadding = 4;
   config.thumbnailScreenOpacity = 0.6;
   config.backgroundColorString = '#222222';
+  config.prevNextButtonPadding = 10;
 
   // ---  --- //
 
@@ -53,7 +58,7 @@
     carousel.width =
       parseInt(window.getComputedStyle(carousel.parent, null).getPropertyValue('width'));
     carousel.mainMediaHeight = carousel.width / config.aspectRatio;
-    carousel.totalHeight = carousel.mainMediaHeight + config.thumbnailHeight;
+    carousel.totalHeight = carousel.mainMediaHeight + config.thumbnailHeight + config.thumbnailRibbonPadding;
 
     carousel.thumbnailRibbonStartPosition = (carousel.width - config.thumbnailWidth) / 2;
   }
@@ -74,42 +79,83 @@
 
   /**
    * @this Carousel
+   * @param {Boolean} [waitToLoadMedia=false]
    */
-  function createElements() {
+  function createElements(waitToLoadMedia) {
     var carousel = this;
 
     var container = document.createElement('div');
     var mainMediaRibbon = document.createElement('div');
     var thumbnailsRibbon = document.createElement('div');
+    var previousButtonPanel = document.createElement('div');
+    var nextButtonPanel = document.createElement('div');
 
     carousel.parent.appendChild(container);
     container.appendChild(mainMediaRibbon);
     container.appendChild(thumbnailsRibbon);
+    container.appendChild(previousButtonPanel);
+    container.appendChild(nextButtonPanel);
 
     carousel.elements = {};
     carousel.elements.container = container;
     carousel.elements.mainMediaRibbon = mainMediaRibbon;
     carousel.elements.thumbnailsRibbon = thumbnailsRibbon;
+    carousel.elements.previousButtonPanel = previousButtonPanel;
+    carousel.elements.nextButtonPanel = nextButtonPanel;
     carousel.elements.mainMedia = [];
     carousel.elements.thumbnails = [];
     carousel.elements.thumbnailScreens = [];
 
+    container.style.position = 'relative';
     container.style.overflow = 'hidden';
     container.style.width = carousel.width + 'px';
     container.style.height = carousel.totalHeight + 'px';
+    container.style.backgroundColor = config.backgroundColorString;
+    window.hg.util.setUserSelectNone(container);
 
     mainMediaRibbon.style.position = 'relative';
     mainMediaRibbon.style.width = carousel.width * carousel.mediaMetadata.length + 'px';
     mainMediaRibbon.style.height = carousel.mainMediaHeight + 'px';
-    mainMediaRibbon.style.backgroundColor = config.backgroundColorString;
 
     thumbnailsRibbon.style.position = 'relative';
     thumbnailsRibbon.style.width = config.thumbnailWidth * carousel.mediaMetadata.length + 'px';
     thumbnailsRibbon.style.height = config.thumbnailHeight + 'px';
     thumbnailsRibbon.style.left = carousel.thumbnailRibbonStartPosition + 'px';
-    thumbnailsRibbon.style.backgroundColor = config.backgroundColorString;
+    thumbnailsRibbon.style.paddingTop = config.thumbnailRibbonPadding + 'px';
 
-    carousel.mediaMetadata.forEach(addMedium);
+    previousButtonPanel.setAttribute('data-carousel-button', 'data-carousel-button');
+    previousButtonPanel.style.position = 'absolute';
+    previousButtonPanel.style.top = '0';
+    previousButtonPanel.style.left = '0';
+    previousButtonPanel.style.width = carousel.width / 3 - config.prevNextButtonPadding + 'px';
+    previousButtonPanel.style.height = carousel.mainMediaHeight + 'px';
+    previousButtonPanel.style.lineHeight = carousel.mainMediaHeight + 'px';
+    previousButtonPanel.style.fontSize = '40px';
+    previousButtonPanel.style.verticalAlign = 'middle';
+    previousButtonPanel.style.textAlign = 'left';
+    previousButtonPanel.style.paddingLeft = config.prevNextButtonPadding + 'px';
+    previousButtonPanel.style.cursor = 'pointer';
+    previousButtonPanel.innerHTML = '&#10094;';
+    previousButtonPanel.addEventListener('click', goToPrevious.bind(carousel), false);
+
+    nextButtonPanel.setAttribute('data-carousel-button', 'data-carousel-button');
+    nextButtonPanel.style.position = 'absolute';
+    nextButtonPanel.style.top = '0';
+    nextButtonPanel.style.right = '0';
+    nextButtonPanel.style.width = carousel.width * 2 / 3 - config.prevNextButtonPadding + 'px';
+    nextButtonPanel.style.height = carousel.mainMediaHeight + 'px';
+    nextButtonPanel.style.lineHeight = carousel.mainMediaHeight + 'px';
+    nextButtonPanel.style.fontSize = '40px';
+    nextButtonPanel.style.verticalAlign = 'middle';
+    nextButtonPanel.style.textAlign = 'right';
+    nextButtonPanel.style.paddingRight = config.prevNextButtonPadding + 'px';
+    nextButtonPanel.style.cursor = 'pointer';
+    nextButtonPanel.innerHTML = '&#10095;';
+    nextButtonPanel.addEventListener('click', goToNext.bind(carousel), false);
+
+    if (!waitToLoadMedia) {
+      loadMedia.call(carousel);
+    }
 
     // The Carousel should display differently when it contains zero or one item
     if (carousel.mediaMetadata.length === 0) {
@@ -119,57 +165,29 @@
       // TODO: also hide the left and right buttons
     }
 
-    // ---  --- //
+    setPrevNextButtonVisibility.call(carousel);
+  }
 
-    function addMedium(mediumMetadatum, index) {
-      var mainMediaElement, thumbnailElement, thumbnailScreenElement, thumbnailSrc;
+  /**
+   * @this Carousel
+   */
+  function setPrevNextButtonVisibility() {
+    var prevVisibility, nextVisibility;
+    var carousel = this;
 
-      if (mediumMetadatum.isVideo) {
-        mainMediaElement = document.createElement('iframe');
-        mainMediaElement.setAttribute('src', mediumMetadatum.videoSrc);
-        mainMediaElement.setAttribute('allowfullscreen', 'allowfullscreen');
-        mainMediaElement.setAttribute('frameborder', '0');
-
-        thumbnailSrc = mediumMetadatum.thumbnailSrc;
-      } else {
-        mainMediaElement = document.createElement('div');
-        mainMediaElement.style.backgroundImage = 'url(' + mediumMetadatum.src + ')';
-        mainMediaElement.style.backgroundSize = 'contain';
-        mainMediaElement.style.backgroundRepeat = 'no-repeat';
-        mainMediaElement.style.backgroundPosition = '50% 50%';
-
-        thumbnailSrc = mediumMetadatum.src;
-      }
-
-      mainMediaElement.style.width = carousel.width + 'px';
-      mainMediaElement.style.height = carousel.mainMediaHeight + 'px';
-      mainMediaElement.style.float = 'left';
-
-      thumbnailElement = document.createElement('div');
-      thumbnailElement.style.backgroundImage = 'url(' + thumbnailSrc + ')';
-      thumbnailElement.style.backgroundSize = 'contain';
-      thumbnailElement.style.backgroundRepeat = 'no-repeat';
-      thumbnailElement.style.backgroundPosition = '50% 50%';
-      thumbnailElement.style.width = config.thumbnailWidth + 'px';
-      thumbnailElement.style.height = config.thumbnailHeight + 'px';
-      thumbnailElement.style.float = 'left';
-
-      thumbnailScreenElement = document.createElement('div');
-      thumbnailScreenElement.style.backgroundColor = '#222222';
-      thumbnailScreenElement.style.opacity = config.thumbnailScreenOpacity;
-      thumbnailScreenElement.style.width = '100%';
-      thumbnailScreenElement.style.height = '100%';
-      thumbnailScreenElement.style.cursor = 'pointer';
-      thumbnailScreenElement.addEventListener('click', goToIndex.bind(carousel, index), false);
-
-      carousel.elements.mainMedia.push(mainMediaElement);
-      carousel.elements.thumbnails.push(thumbnailElement);
-      carousel.elements.thumbnailScreens.push(thumbnailScreenElement);
-
-      mainMediaRibbon.appendChild(mainMediaElement);
-      thumbnailsRibbon.appendChild(thumbnailElement);
-      thumbnailElement.appendChild(thumbnailScreenElement);
+    // We don't want the prev/next buttons blocking any video controls
+    if (!carousel.mediaMetadata.length ||
+        carousel.mediaMetadata[carousel.currentIndex].isVideo) {
+      prevVisibility = 'hidden';
+      nextVisibility = 'hidden';
+    } else {
+      prevVisibility = carousel.currentIndex > 0 ? 'visible' : 'hidden';
+      nextVisibility = carousel.currentIndex < carousel.mediaMetadata.length - 1 ?
+        'visible' : 'hidden';
     }
+
+    carousel.elements.previousButtonPanel.style.visibility = prevVisibility;
+    carousel.elements.nextButtonPanel.style.visibility = nextVisibility;
   }
 
   /**
@@ -220,6 +238,8 @@
       carousel.elements.mainMedia[carousel.previousIndex].contentWindow
         .postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
     }
+
+    setPrevNextButtonVisibility.call(carousel);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -230,6 +250,69 @@
 
   // ------------------------------------------------------------------------------------------- //
   // Public static functions
+
+  /**
+   * @this Carousel
+   */
+  function loadMedia() {
+    var carousel = this;
+
+    if (carousel.elements.mainMedia.length === 0) {
+      carousel.mediaMetadata.forEach(addMedium);
+    }
+
+    // ---  --- //
+
+    function addMedium(mediumMetadatum, index) {
+      var mainMediaElement, thumbnailElement, thumbnailScreenElement, thumbnailSrc;
+
+      if (mediumMetadatum.isVideo) {
+        mainMediaElement = document.createElement('iframe');
+        mainMediaElement.setAttribute('src', mediumMetadatum.videoSrc);
+        mainMediaElement.setAttribute('allowfullscreen', 'allowfullscreen');
+        mainMediaElement.setAttribute('frameborder', '0');
+
+        thumbnailSrc = mediumMetadatum.thumbnailSrc;
+      } else {
+        mainMediaElement = document.createElement('div');
+        mainMediaElement.style.backgroundImage = 'url(' + mediumMetadatum.src + ')';
+        mainMediaElement.style.backgroundSize = 'contain';
+        mainMediaElement.style.backgroundRepeat = 'no-repeat';
+        mainMediaElement.style.backgroundPosition = '50% 50%';
+
+        thumbnailSrc = mediumMetadatum.src;
+      }
+
+      mainMediaElement.style.width = carousel.width + 'px';
+      mainMediaElement.style.height = carousel.mainMediaHeight + 'px';
+      mainMediaElement.style.float = 'left';
+
+      thumbnailElement = document.createElement('div');
+      thumbnailElement.style.backgroundImage = 'url(' + thumbnailSrc + ')';
+      thumbnailElement.style.backgroundSize = 'contain';
+      thumbnailElement.style.backgroundRepeat = 'no-repeat';
+      thumbnailElement.style.backgroundPosition = '50% 50%';
+      thumbnailElement.style.width = config.thumbnailWidth + 'px';
+      thumbnailElement.style.height = config.thumbnailHeight + 'px';
+      thumbnailElement.style.float = 'left';
+
+      thumbnailScreenElement = document.createElement('div');
+      thumbnailScreenElement.style.backgroundColor = '#222222';
+      thumbnailScreenElement.style.opacity = config.thumbnailScreenOpacity;
+      thumbnailScreenElement.style.width = '100%';
+      thumbnailScreenElement.style.height = '100%';
+      thumbnailScreenElement.style.cursor = 'pointer';
+      thumbnailScreenElement.addEventListener('click', goToIndex.bind(carousel, index), false);
+
+      carousel.elements.mainMedia.push(mainMediaElement);
+      carousel.elements.thumbnails.push(thumbnailElement);
+      carousel.elements.thumbnailScreens.push(thumbnailScreenElement);
+
+      carousel.elements.mainMediaRibbon.appendChild(mainMediaElement);
+      carousel.elements.thumbnailsRibbon.appendChild(thumbnailElement);
+      thumbnailElement.appendChild(thumbnailScreenElement);
+    }
+  }
 
   /**
    * @this Carousel
@@ -263,8 +346,9 @@
    * @param {HTMLElement} parent
    * @param {Array.<String>} images
    * @param {Array.<String>} videos
+   * @param {Boolean} [waitToLoadMedia=false]
    */
-  function Carousel(grid, parent, images, videos) {
+  function Carousel(grid, parent, images, videos, waitToLoadMedia) {
     var carousel = this;
 
     carousel.grid = grid;
@@ -279,12 +363,21 @@
     carousel.thumbnailRibbonStartPosition = Number.NaN;
     carousel.currentIndexPositionRatio = 0;
 
+    carousel.loadMedia = loadMedia;
     carousel.draw = draw;
     carousel.destroy = destroy;
 
     createMediaMetadataArray.call(carousel, images, videos);
     calculateDimensions.call(carousel);
-    createElements.call(carousel);
+    createElements.call(carousel, waitToLoadMedia);
+
+    // Add CSS rules for hover and active states if they have not already been added
+    if (!haveAddedStyles) {
+      haveAddedStyles = true;
+      window.hg.util.addRuleToStyleSheet('[data-carousel-button] { color: #000000; }');
+      window.hg.util.addRuleToStyleSheet('[data-carousel-button]:hover { color: #999999; }');
+      window.hg.util.addRuleToStyleSheet('[data-carousel-button]:active { color: #ffffff; }');
+    }
 
     console.log('Carousel created');
   }

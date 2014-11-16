@@ -9,6 +9,8 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
+  var haveAddedStyles = false;
+
   var config;
 
   config = {};
@@ -41,6 +43,8 @@
 
     var horizontalPadding = 1.15 * window.hg.Grid.config.tileShortLengthWithGap;
     var verticalPadding = 2.25 * window.hg.Grid.config.tileOuterRadius;
+
+    var paddingRight = 26;
 
     var width, height, paddingX, paddingY;
 
@@ -84,11 +88,12 @@
     container.style.width = width + 'px';
     container.style.height = height + 'px';
     container.style.margin = '0px';
-    container.style.padding = pagePost.paddingY + 'px ' + pagePost.paddingX + 'px';
+    container.style.padding = pagePost.paddingY + 'px ' + paddingRight + 'px ' +
+      pagePost.paddingY + 'px ' + pagePost.paddingX + 'px';
     container.style.overflow = 'auto';
     container.style.fontSize = config.fontSize + 'px';
     container.style.fontFamily = '"Open Sans", sans-serif';
-    container.style.color = '#F4F4F4';
+    container.style.color = '#EDEDED';
     container.style.zIndex = '500';
 
     title.innerHTML = pagePost.tile.postData.titleLong;
@@ -119,6 +124,15 @@
 
   // ------------------------------------------------------------------------------------------- //
   // Public static functions
+
+  /**
+   * @this PagePost
+   */
+  function loadCarouselMedia() {**;// TODO: make sure this is called and the late-loading media is set up correctly in general
+    var pagePost = this;
+
+    pagePost.carousel.loadMedia();
+  }
 
   /**
    * @this PagePost
@@ -173,10 +187,17 @@
       y: startCenter.y
     };
 
+    pagePost.loadCarouselMedia = loadCarouselMedia;
     pagePost.draw = draw;
     pagePost.destroy = destroy;
 
     createElements.call(pagePost);
+
+    // Add CSS rules for hover and active states if they have not already been added
+    if (!haveAddedStyles) {
+      haveAddedStyles = true;
+      window.hg.util.addRuleToStyleSheet('[data-hg-post-container] img { max-width: 100%; }');
+    }
 
     console.log('PagePost created: postId=' + tile.postData.id +
         ', tileIndex=' + tile.originalIndex);
