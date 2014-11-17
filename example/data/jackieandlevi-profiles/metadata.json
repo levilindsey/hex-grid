@@ -3,8 +3,10 @@
   "id": "jackieandlevi-profiles",
   "titleShort": "Web App:\nMaterial\nDesign",
   "titleLong": "Profile pages",
-  "url": "http://jackieandlevi.com/levi",
-  "repositoryUrl": "https://github.com/levisl176/jackieandlevi-profiles",
+  "urls": {
+    "demo": "http://jackieandlevi.com/levi",
+    "github": "https://github.com/levisl176/jackieandlevi-profiles"
+  },
   "jobTitle": "",
   "date": "2014",
   "categories": [

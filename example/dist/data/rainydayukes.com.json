@@ -2,8 +2,9 @@
   "id": "rainydayukes.com",
   "titleShort": "Business\nWebsite:\nUkuleles",
   "titleLong": "Business Website for a Hand-Made Ukulele Business",
-  "url": "http://rainydayukes.com",
-  "repositoryUrl": "",
+  "urls": {
+    "homepage": "http://rainydayukes.com"
+  },
   "jobTitle": "",
   "date": {
     "start": "2010",
@@ -47,5 +48,5 @@
     }
   ],
   "videos": [],
-  "content": "_[Rainy Day Ukes][main-url] is a web-based handmade ukulele business._\n\nLevi built this website for his friend's business.\n\nAll designs were done by the supremely talented graphic designer [Ryan Maher][ryan-maher].\n\n_PHP and jQuery_\n\n[main-url]: http:\/\/rainydayukes.com\n[ryan-url]: http:\/\/linkedin.com\/in\/ryanmichaelmaher"
+  "content": "_[Rainy Day Ukes][main-url] is a web-based handmade ukulele business._\n\nLevi built this website for his friend's business.\n\nAll designs were done by the supremely talented graphic designer [Ryan Maher][ryan-url].\n\n_PHP and jQuery_\n\n[main-url]: http:\/\/rainydayukes.com\n[ryan-url]: http:\/\/linkedin.com\/in\/ryanmichaelmaher"
 }

@@ -1,7 +1,5 @@
 #### A dynamic, expandable, animated grid of hexagonal tiles for displaying posts
 
-_See this running at [www.jackieandlevi.com/hex-grid][demo-url]!_
-
 I was bored with the standard grid layout and wanted to play with particle systems and crazy animations. So I made
 hex-grid.
 

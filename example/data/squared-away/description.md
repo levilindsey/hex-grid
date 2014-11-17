@@ -1,7 +1,5 @@
 #### A tile-matching puzzle game
 
-_See this app running at [www.jackieandlevi.com/squared-away][main-url]!_
-
 This web app gave Levi the opportunity to hone his web development skills and to learn the latest features of
 HTML5 and CSS3.
 

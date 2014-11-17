@@ -2892,18 +2892,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 */
 (function () {
 
-  // TODO: add logo
-
-  // TODO: add date
-
-  // TODO: add some sort of category indicator?
-
-  // TODO: also update the tilepost drawing to utilize the reset job
-
-  // TODO: fade out the PagePost text
-
-  // TODO: make sure the tilepost job is getting destroyed properly on resize (text is hanging around...)
-
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
@@ -2912,7 +2900,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config = {};
 
   config.thumbnailHeight = 80;
-  config.thumbnailRibbonPadding = 4;
+  config.thumbnailRibbonPadding = 3;
   config.prevNextButtonPadding = 10;
 
   // ---  --- //
@@ -3081,7 +3069,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
       if (carousel.mediaMetadata.length === 1) {
         thumbnailsRibbon.style.display = 'none';
-        // TODO: also hide the left and right buttons
       }
     }
 
@@ -3092,7 +3079,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @this Carousel
    */
   function setPrevNextButtonVisibility() {
-    var prevVisibility, nextVisibility;
+    var prevVisibility, nextVisibility, panelVisibility;
     var carousel = this;
 
     // We don't want the prev/next buttons blocking any video controls
@@ -3100,14 +3087,17 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
         carousel.mediaMetadata[carousel.currentIndex].isVideo) {
       prevVisibility = 'hidden';
       nextVisibility = 'hidden';
+      panelVisibility = 'hidden';
     } else {
       prevVisibility = carousel.currentIndex > 0 ? 'visible' : 'hidden';
       nextVisibility = carousel.currentIndex < carousel.mediaMetadata.length - 1 ?
         'visible' : 'hidden';
+      panelVisibility = 'visible';
     }
 
     carousel.elements.previousButtonPanel.style.visibility = prevVisibility;
     carousel.elements.nextButtonPanel.style.visibility = nextVisibility;
+    carousel.elements.buttonsContainer.style.visibility = panelVisibility;
   }
 
   /**
@@ -4350,6 +4340,21 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
  * @module PagePost
  */
 (function () {
+
+  // TODO: add logo
+
+  // TODO: add date
+
+  // TODO: add some sort of category indicator?
+
+  // TODO: also update the tilepost drawing to utilize the reset job
+
+  // TODO: fade out the PagePost text
+
+  // TODO: make sure the tilepost job is getting destroyed properly on resize (text is hanging around...)
+
+  // TODO: refactor PagePost, TilePost, and Carousel code
+
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
@@ -4374,6 +4379,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    */
   function createElements() {
     var pagePost = this;
+
+    var converter = new Showdown.converter({extensions: ['github']});
 
     var horizontalSideLength = window.hg.Grid.config.tileShortLengthWithGap *
         (window.hg.OpenPostJob.config.expandedDisplacementTileCount + 4.25);
@@ -4424,14 +4431,20 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var innerWrapper = document.createElement('div');
     var title = document.createElement('h1');
     var content = document.createElement('div');
+    var date = document.createElement('div');
+    var urls = document.createElement('div');
+    var categories = document.createElement('div');
     var topGradient = document.createElement('div');
     var bottomGradient = document.createElement('div');
 
     pagePost.tile.grid.parent.appendChild(container);
     container.appendChild(outerWrapper);
     outerWrapper.appendChild(innerWrapper);
+    innerWrapper.appendChild(date);
     innerWrapper.appendChild(title);
+    innerWrapper.appendChild(urls);
     innerWrapper.appendChild(content);
+    innerWrapper.appendChild(categories);
     container.appendChild(topGradient);
     container.appendChild(bottomGradient);
 
@@ -4439,6 +4452,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     pagePost.elements.container = container;
     pagePost.elements.title = title;
     pagePost.elements.content = content;
+    pagePost.elements.date = date;
+    pagePost.elements.urls = urls;
+    pagePost.elements.categories = categories;
 
     container.setAttribute('data-hg-post-container', 'data-hg-post-container');
     container.style.position = 'absolute';
@@ -4491,19 +4507,147 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       'linear-gradient(0,' + gradientColor1String + ' 25%,' + gradientColor2String + ')';
     bottomGradient.style.pointerEvents = 'none';
 
-    var converter = new Showdown.converter({extensions: ['github']});
-    //var converter = new Showdown.converter();
-
     content.setAttribute('data-hg-post-content', 'data-hg-post-content');
     content.innerHTML = converter.makeHtml(pagePost.tile.postData.content);
+
+    date.setAttribute('data-hg-post-date', 'data-hg-post-date');
+    addDate.call(pagePost);
+
+    urls.setAttribute('data-hg-post-urls', 'data-hg-post-urls');
+    addUrls.call(pagePost);
+
+    categories.setAttribute('data-hg-post-categories', 'data-hg-post-categories');
+    addCategories.call(pagePost);
 
     // Create the Carousel and insert it before the post's main contents
     pagePost.carousel = new window.hg.Carousel(pagePost.tile.grid, pagePost, innerWrapper,
       pagePost.tile.postData.images, pagePost.tile.postData.videos, true);
     innerWrapper.removeChild(pagePost.carousel.elements.container);
-    innerWrapper.insertBefore(pagePost.carousel.elements.container, content);
+    innerWrapper.insertBefore(pagePost.carousel.elements.container, urls);
 
     draw.call(pagePost);
+  }
+
+  /**
+   * @this PagePost
+   */
+  function addDate() {
+    var pagePost = this;
+    var dateElement = pagePost.elements.date;
+    var dateValue = pagePost.tile.postData.date;
+
+    // Date values can be given as a single string or as an object with a start and end property
+    if (typeof dateValue === 'object') {
+      dateElement.innerHTML = dateValue.start + ' &ndash; ' + dateValue.end;
+    } else {
+      dateElement.innerHTML = dateValue;
+    }
+
+    // Hide the date panel if no date was given
+    if (!pagePost.tile.postData.date) {
+      dateElement.style.display = 'none';
+    }
+  }
+
+  /**
+   * @this PagePost
+   */
+  function addUrls() {
+    var pagePost = this;
+    var urlsElement = pagePost.elements.urls;
+    var urlKeys = Object.keys(pagePost.tile.postData.urls);
+
+    urlKeys.forEach(function (key) {
+      addUrl(key, pagePost.tile.postData.urls[key]);
+    });
+
+    // Hide the URLs panel if no URLs were given
+    if (!urlKeys.length) {
+      urlsElement.style.display = 'none';
+    }
+
+    // ---  --- //
+
+    function addUrl(key, url) {
+      var label, cleanedUrl, paragraphElement, linkElement;
+
+      // Remove the protocol from the URL to make it more human-readable
+      cleanedUrl = url.replace(/^.*:\/\//, '');
+
+      // Determine what label to use
+      switch (key) {
+        case 'homepage':
+          label = 'Homepage';
+          break;
+        case 'published':
+          label = 'Published at';
+          break;
+        case 'demo':
+          label = 'Demo Site';
+          break;
+        case 'npm':
+          label = 'NPM Registry';
+          break;
+        case 'bower':
+          label = 'Bower Registry';
+          break;
+        case 'codepen':
+          label = 'CodePen';
+          break;
+        case 'github':
+          label = 'Repository';
+          break;
+        case 'googleCode':
+          label = 'Repository';
+          break;
+        default:
+          console.warn('Unknown URL type: ' + key);
+          label = key;
+          break;
+      }
+
+      // --- Create the elements --- //
+
+      paragraphElement = document.createElement('p');
+      linkElement = document.createElement('a');
+
+      paragraphElement.innerHTML = label + ': ';
+      paragraphElement.style.overflow = 'hidden';
+      paragraphElement.style.whiteSpace = 'nowrap';
+      paragraphElement.style.textOverflow = 'ellipsis';
+
+      linkElement.innerHTML = cleanedUrl;
+      linkElement.setAttribute('href', url);
+
+      paragraphElement.appendChild(linkElement);
+      urlsElement.appendChild(paragraphElement);
+    }
+  }
+
+  /**
+   * @this PagePost
+   */
+  function addCategories() {
+    var pagePost = this;
+    var categoriesElement = pagePost.elements.categories;
+
+    pagePost.tile.postData.categories.forEach(addCategoryCard);
+
+    // Hide the categories panel if no categories were given
+    if (!pagePost.tile.postData.categories.length) {
+      categoriesElement.style.display = 'none';
+    }
+
+    // ---  --- //
+
+    function addCategoryCard(category) {
+      var categoryCard = document.createElement('span');
+      categoriesElement.appendChild(categoryCard);
+
+      categoryCard.setAttribute('data-hg-post-category-card', 'data-hg-post-category-card');
+      categoryCard.style.display = 'inline-block';
+      categoryCard.innerHTML = category;
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //

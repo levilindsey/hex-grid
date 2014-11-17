@@ -2,10 +2,13 @@
   "id": "ucr-ta",
   "titleShort": "Teaching\nAssistant",
   "titleLong": "Teaching Assistant",
-  "url": "",
-  "repositoryUrl": "",
+  "urls": {
+  },
   "jobTitle": "Teaching Assistant",
-  "date": "2012-2013",
+  "date": {
+    "start": "2012",
+    "end": "2013"
+  },
   "categories": [
     "school",
     "teaching",

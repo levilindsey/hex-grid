@@ -2,10 +2,15 @@
   "id": "generator-meanie",
   "titleShort": "MEAN-stack\nGenerator",
   "titleLong": "MEAN-stack Yeoman Generator with gulp",
-  "url": "https://npmjs.org/package/generator-meanie",
-  "repositoryUrl": "https://github.com/levisl176/generator-meanie",
+  "urls": {
+    "npm": "https://npmjs.org/package/generator-meanie",
+    "github": "https://github.com/levisl176/generator-meanie"
+  },
   "jobTitle": "",
-  "date": "2014-2015",
+  "date": {
+    "start": "2014",
+    "end": "2015"
+  },
   "categories": [
     "side-project",
     "web",

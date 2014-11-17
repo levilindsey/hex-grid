@@ -1,8 +1,5 @@
 #### Character-by-character animation of text
 
-_See this running at [www.jackieandlevi.com/text-animation][main-url] or at
-[www.codepen.io/levisl176/full/HGJdF][codepen-url]!_
-
 This text-animation package makes it easy to animate the text of any collection of HTML elements. With this package,
 each character animates individually, and it is simple to customize this animation.
 

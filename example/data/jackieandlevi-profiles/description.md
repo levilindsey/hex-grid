@@ -2,8 +2,6 @@
 
 _**This project is a work in progress**_
 
-_See this app running at [www.jackieandlevi.com/levi][main-url]!_
-
 Levi used [Google's Material Design language][md-url] to create clean styles and natural animations for this project.
 
 _AngularJS, angular-material, angular-ui-router_

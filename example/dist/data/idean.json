@@ -2,8 +2,9 @@
   "id": "idean",
   "titleShort": "Idean",
   "titleLong": "Idean",
-  "url": "http://idean.com",
-  "repositoryUrl": "",
+  "urls": {
+    "homepage": "http://idean.com"
+  },
   "jobTitle": "UI Developer",
   "date": "2014",
   "categories": [

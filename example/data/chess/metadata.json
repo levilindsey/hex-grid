@@ -2,8 +2,10 @@
   "id": "chess",
   "titleShort": "Web App:\nChess",
   "titleLong": "Chess",
-  "url": "http://jackieandlevi.com/chess",
-  "repositoryUrl": "https://github.com/levisl176/chess",
+  "urls": {
+    "demo": "http://jackieandlevi.com/chess",
+    "github": "https://github.com/levisl176/chess"
+  },
   "jobTitle": "",
   "date": "2013",
   "categories": [

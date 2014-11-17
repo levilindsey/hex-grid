@@ -21,7 +21,7 @@ body {
   color: #FAFAFA;
 }
 
-/* --- Open post panel styles --- */
+/* --- PagePost panel styles --- */
 
 [data-hg-post-container] {
   font-size: 18px;
@@ -39,7 +39,41 @@ body {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAMBAMAAABcu7ojAAAALVBMVEUmKCkmKConKCknKCooJygoKCcoKSYoKScoKiYoKicoKigpJigpJygqJigqJyiW/QuUAAAAOklEQVQIHWMS1L17gInhPUMBE8O/1ReYGPiArDMLGBiYGPhBYn86gWJ5QNZqA5CYIEiM5wxQ7DxDAgD5Cg+buFLSyQAAAABJRU5ErkJggg==);
 }
 
-/* --- Open post link styles --- */
+/* --- PagePost sub-panels styles --- */
+
+[data-hg-post-date] {
+  color: #999998;
+  text-align: right;
+}
+
+[data-hg-post-urls] {
+  margin: 16px 0;
+  padding: 6px;
+  background-color: hsla(0, 0%, 23%, 1.0);
+  border-radius: 2px;
+}
+
+[data-hg-post-urls] > p {
+  margin: 4px;
+}
+
+[data-hg-post-categories] {
+  margin: 16px 0;
+  padding: 4px;
+  background-color: hsla(0, 0%, 23%, 1.0);
+  border-radius: 2px;
+}
+
+[data-hg-post-category-card] {
+  margin: 4px;
+  padding: 1px 6px;
+  font-size: 16px;
+  background-color: hsla(0, 0%, 90%, 0.9);
+  color: #222222;
+  border-radius: 2px;
+}
+
+/* --- PagePost link styles --- */
 
 [data-hg-post-container] a {
   color: #1E90FF;
@@ -61,7 +95,7 @@ body {
   text-decoration: none;
 }
 
-/* --- Open post header styles --- */
+/* --- PagePost header styles --- */
 
 [data-hg-post-title] {
   font-size: 24px;
@@ -79,7 +113,7 @@ body {
   color: #FFFFFF;
 }
 
-/* --- Open post code styles --- */
+/* --- PagePost code styles --- */
 
 [data-hg-post-container] code {
   color: #999998;
@@ -89,13 +123,14 @@ body {
   padding: 8px 8px 8px 16px;
   overflow: auto;
   background: hsla(0, 0%, 0%, 0.3);
+  border-radius: 2px;
 }
 
 [data-hg-post-container] pre code {
   color: #EEEEEE;
 }
 
-/* --- Open post block quote styles --- */
+/* --- PagePost block quote styles --- */
 
 [data-hg-post-container] blockquote {
   margin-left: 0;
@@ -103,6 +138,7 @@ body {
   padding: 1px 16px 1px 44px;
   font-style: italic;
   background-color: hsla(0, 0%, 90%, 0.08);
+  border-radius: 2px;
 }
 
 /* --- Carousel styles --- */
@@ -111,6 +147,7 @@ body {
 }
 
 [data-hg-carousel-sliders-container] {
+  border-radius: 2px;
 }
 
 [data-hg-carousel-main-media] {
@@ -142,11 +179,12 @@ body {
 }
 
 [data-hg-captions-panel] {
-  margin: 6px 18px 26px;
+  margin: 3px 18px 26px;
   padding: 18px;
   font-size: 14px;
   background-color: #333333;
-  background-color: hsla(0,0%,0%,0.3);
+  background-color: hsla(0,0%,5%,0.3);
+  border-radius: 2px;
 }
 
 [data-hg-captions-panel] > p {

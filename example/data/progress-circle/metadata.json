@@ -2,8 +2,10 @@
   "id": "progress-circle",
   "titleShort": "Web Doodle:\nProgress\nCircle",
   "titleLong": "Progress Circle",
-  "url": "http://jackieandlevi.com/progress-circle",
-  "repositoryUrl": "https://github.com/levisl176/progress-circle",
+  "urls": {
+    "demo": "http://jackieandlevi.com/progress-circle",
+    "github": "https://github.com/levisl176/progress-circle"
+  },
   "jobTitle": "",
   "date": "2014",
   "categories": [

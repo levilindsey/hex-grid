@@ -1,7 +1,5 @@
 #### An IRC-like chat server and web client application
 
-_See the app running at [www.jackieandlevi.com/fat-cat-chat][main-url]!_
-
 Levi built this app in order to hone his server-side skills and to learn about web sockets.
 
 ## Features

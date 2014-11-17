@@ -2,8 +2,10 @@
   "id": "chess",
   "titleShort": "Web App:\nChess",
   "titleLong": "Chess",
-  "url": "http://jackieandlevi.com/chess",
-  "repositoryUrl": "https://github.com/levisl176/chess",
+  "urls": {
+    "live": "http://jackieandlevi.com/chess",
+    "github": "https://github.com/levisl176/chess"
+  },
   "jobTitle": "",
   "date": "2013",
   "categories": [
@@ -60,5 +62,5 @@
     }
   ],
   "videos": [],
-  "content": "#### A simple, two-player game of chess\n\n_See this running at [www.jackieandlevi.com\/chess][main-url]!_\n\nLevi developed this app in a day. It includes a button to generate a random valid play for the current player.\n\nIt currently support game play across remote machines, but Levi plans on implementing this in the future. It currently\ndoes not support an AI player, but Levi also plans on implementing a simple form of this in the future.\n\n[main-url]: http:\/\/jackieandlevi.com\/chess"
+  "content": "#### A simple, two-player game of chess\n\nLevi developed this app in a day. It includes a button to generate a random valid play for the current player.\n\nIt currently support game play across remote machines, but Levi plans on implementing this in the future. It currently\ndoes not support an AI player, but Levi also plans on implementing a simple form of this in the future.\n\n[main-url]: http:\/\/jackieandlevi.com\/chess"
 }

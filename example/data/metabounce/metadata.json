@@ -2,8 +2,10 @@
   "id": "metabounce",
   "titleShort": "Web Doodle:\nMetabounce",
   "titleLong": "Metabounce",
-  "url": "http://jackieandlevi.com/metabounce",
-  "repositoryUrl": "https://github.com/levisl176/metabounce",
+  "urls": {
+    "demo": "http://jackieandlevi.com/metabounce",
+    "github": "https://github.com/levisl176/metabounce"
+  },
   "jobTitle": "",
   "date": "2014",
   "categories": [

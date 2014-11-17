@@ -1,7 +1,5 @@
 #### A general-purpose photo-viewer application
 
-_See this running at [www.jackieandlevi.com/wedding/photos][main-url]!_
-
 This fancy web app is loaded with bells and whistles. A smattering of them includes:
 
 - Expandable, animated photo grids, which display large collections of photo thumbnails

@@ -2,8 +2,10 @@
   "id": "photo-viewer",
   "titleShort": "Web App:\nPhoto Viewer",
   "titleLong": "Photo Viewer",
-  "url": "http://jackieandlevi.com/photo-viewer",
-  "repositoryUrl": "https://github.com/levisl176/photo-viewer",
+  "urls": {
+    "demo": "http://jackieandlevi.com/photo-viewer",
+    "github": "https://github.com/levisl176/photo-viewer"
+  },
   "jobTitle": "",
   "date": "2014",
   "categories": [

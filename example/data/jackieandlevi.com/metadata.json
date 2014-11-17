@@ -1,10 +1,12 @@
 
 {
   "id": "jackieandlevi.com",
-  "titleShort": "Portfolio\nWebsite:\nfor Myself",
+  "titleShort": "Levi's\nPortfolio\nWebsite",
   "titleLong": "My Portfolio Website",
-  "url": "http://jackieandlevi.com",
-  "repositoryUrl": "https://github.com/levisl176/jackieandlevi.com",
+  "urls": {
+    "homepage": "http://jackieandlevi.com",
+    "github": "https://github.com/levisl176/jackieandlevi.com"
+  },
   "jobTitle": "",
   "date": {
     "start": "2013",

@@ -2,8 +2,11 @@
   "id": "text-animation",
   "titleShort": "Bower\nPackage:\nText\nAnimation",
   "titleLong": "Text Animation",
-  "url": "http://jackieandlevi.com/text-animation",
-  "repositoryUrl": "https://github.com/levisl176/text-animation",
+  "urls": {
+    "bower": "http://bower.io/search/?q=text-animation",
+    "demo": "http://jackieandlevi.com/text-animation",
+    "github": "https://github.com/levisl176/text-animation"
+  },
   "jobTitle": "",
   "date": "2014",
   "categories": [

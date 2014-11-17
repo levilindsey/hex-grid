@@ -2,8 +2,10 @@
   "id": "shouldihaveanother.beer",
   "titleShort": "Web Doodle:\nBeer?",
   "titleLong": "shouldihaveanother.beer",
-  "url": "http://shouldihaveanother.beer",
-  "repositoryUrl": "https://github.com/levisl176/shouldihaveanother.beer",
+  "urls": {
+    "demo": "http://shouldihaveanother.beer",
+    "github": "https://github.com/levisl176/shouldihaveanother.beer"
+  },
   "jobTitle": "",
   "date": "2014",
   "categories": [

@@ -2,8 +2,10 @@
   "id": "dancing-spokes",
   "titleShort": "Web Doodle:\nDancing\nSpokes",
   "titleLong": "Dancing Spokes",
-  "url": "http://jackieandlevi.com/dancing-spokes",
-  "repositoryUrl": "https://github.com/levisl176/dancing-spokes",
+  "urls": {
+    "live": "http://jackieandlevi.com/dancing-spokes",
+    "github": "https://github.com/levisl176/dancing-spokes"
+  },
   "jobTitle": "",
   "date": "2014",
   "categories": [
@@ -26,5 +28,5 @@
     }
   ],
   "videos": [],
-  "content": "#### Fun with SVG animations and dancing sticks of light!\n\n_See this running at [www.jackieandlevi.com\/dancing-spokes][main-url]!_\n\nThe color of each spoke is always shifting to another random value. At any given point, the hue, saturation, and\nlightness components of the spoke colors are each constrained to a random global range. This creates an interesting\neffect with independently fluctuating colors that almost always seem cohesive.\n\n\n[main-url]: http:\/\/jackieandlevi.com\/dancing-spokes"
+  "content": "#### Fun with SVG animations and dancing sticks of light!\n\nThe color of each spoke is always shifting to another random value. At any given point, the hue, saturation, and\nlightness components of the spoke colors are each constrained to a random global range. This creates an interesting\neffect with independently fluctuating colors that almost always seem cohesive.\n\n\n[main-url]: http:\/\/jackieandlevi.com\/dancing-spokes"
 }

@@ -2,8 +2,10 @@
   "id": "metabounce",
   "titleShort": "Web Doodle:\nMetabounce",
   "titleLong": "Metabounce",
-  "url": "http://jackieandlevi.com/metabounce",
-  "repositoryUrl": "https://github.com/levisl176/metabounce",
+  "urls": {
+    "live": "http://jackieandlevi.com/metabounce",
+    "github": "https://github.com/levisl176/metabounce"
+  },
   "jobTitle": "",
   "date": "2014",
   "categories": [
@@ -33,5 +35,5 @@
     }
   ],
   "videos": [],
-  "content": "#### Fun with SVG, balls, and bouncing!\n\n_See this running at [www.jackieandlevi.com\/metabounce][main-url] or at\n[www.codepen.io\/levisl176\/pen\/lqmAE][codepen-url]!_\n\nThis is a project in which Levi played around with balls and bouncing. This is just for fun, so enjoy!\n\nThe color of each ball is always shifting to another random value. At any given point, the hue, saturation, and\nlightness components of the ball colors are each constrained to a random global range. This creates an interesting\neffect with independently fluctuating colors that almost always seem cohesive.\n\n\n[main-url]: http:\/\/jackieandlevi.com\/metabounce\n[codepen-url]: http:\/\/codepen.io\/levisl176\/pen\/lqmAE"
+  "content": "#### Fun with SVG, balls, and bouncing!\n\nThis is a project in which Levi played around with balls and bouncing. This is just for fun, so enjoy!\n\nThe color of each ball is always shifting to another random value. At any given point, the hue, saturation, and\nlightness components of the ball colors are each constrained to a random global range. This creates an interesting\neffect with independently fluctuating colors that almost always seem cohesive.\n\n\n[main-url]: http:\/\/jackieandlevi.com\/metabounce\n[codepen-url]: http:\/\/codepen.io\/levisl176\/pen\/lqmAE"
 }

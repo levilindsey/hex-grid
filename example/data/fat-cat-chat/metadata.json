@@ -2,8 +2,10 @@
   "id": "fat-cat-chat",
   "titleShort": "Web App:\nIRC-Like\nChat",
   "titleLong": "Fat Cat Chat",
-  "url": "http://jackieandlevi.com/fat-cat-chat",
-  "repositoryUrl": "https://github.com/levisl176/fat-cat-chat",
+  "urls": {
+    "demo": "http://jackieandlevi.com/fat-cat-chat",
+    "github": "https://github.com/levisl176/fat-cat-chat"
+  },
   "jobTitle": "",
   "date": "2014",
   "categories": [

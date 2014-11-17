@@ -2,8 +2,10 @@
   "id": "hex-grid",
   "titleShort": "Hex Grid",
   "titleLong": "Hex Grid",
-  "url": "http://jackieandlevi.com/hex-grid",
-  "repositoryUrl": "https://github.com/levisl176/hex-grid",
+  "urls": {
+    "demo": "http://jackieandlevi.com/hex-grid",
+    "github": "https://github.com/levisl176/hex-grid"
+  },
   "jobTitle": "",
   "date": "2014",
   "categories": [

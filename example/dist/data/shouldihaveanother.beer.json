@@ -2,8 +2,10 @@
   "id": "shouldihaveanother.beer",
   "titleShort": "Web Doodle:\nBeer?",
   "titleLong": "shouldihaveanother.beer",
-  "url": "http://shouldihaveanother.beer",
-  "repositoryUrl": "https://github.com/levisl176/shouldihaveanother.beer",
+  "urls": {
+    "live": "http://shouldihaveanother.beer",
+    "github": "https://github.com/levisl176/shouldihaveanother.beer"
+  },
   "jobTitle": "",
   "date": "2014",
   "categories": [
@@ -30,5 +32,5 @@
     }
   ],
   "videos": [],
-  "content": "_See this running at [shouldihaveanother.beer][main-url]_\n\nLevi built and deployed this simple app in a few hours. It exhibits some fun canvas-based animation.\n\nHis main motivation was the availability of fun new top-level domains.\n\nThis simple web app features randomized delicious beer colors, and delightful animated carbonation.\n\n\n[main-url]: http:\/\/shouldihaveanother.beer"
+  "content": "Levi built and deployed this simple app in a few hours. It exhibits some fun canvas-based animation.\n\nHis main motivation was the availability of fun new top-level domains.\n\nThis simple web app features randomized delicious beer colors, and delightful animated carbonation.\n\n\n[main-url]: http:\/\/shouldihaveanother.beer"
 }

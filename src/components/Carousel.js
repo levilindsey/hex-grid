@@ -7,18 +7,6 @@
 */
 (function () {
 
-  // TODO: add logo
-
-  // TODO: add date
-
-  // TODO: add some sort of category indicator?
-
-  // TODO: also update the tilepost drawing to utilize the reset job
-
-  // TODO: fade out the PagePost text
-
-  // TODO: make sure the tilepost job is getting destroyed properly on resize (text is hanging around...)
-
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
@@ -27,7 +15,7 @@
   config = {};
 
   config.thumbnailHeight = 80;
-  config.thumbnailRibbonPadding = 4;
+  config.thumbnailRibbonPadding = 3;
   config.prevNextButtonPadding = 10;
 
   // ---  --- //
@@ -196,7 +184,6 @@
 
       if (carousel.mediaMetadata.length === 1) {
         thumbnailsRibbon.style.display = 'none';
-        // TODO: also hide the left and right buttons
       }
     }
 
@@ -207,7 +194,7 @@
    * @this Carousel
    */
   function setPrevNextButtonVisibility() {
-    var prevVisibility, nextVisibility;
+    var prevVisibility, nextVisibility, panelVisibility;
     var carousel = this;
 
     // We don't want the prev/next buttons blocking any video controls
@@ -215,14 +202,17 @@
         carousel.mediaMetadata[carousel.currentIndex].isVideo) {
       prevVisibility = 'hidden';
       nextVisibility = 'hidden';
+      panelVisibility = 'hidden';
     } else {
       prevVisibility = carousel.currentIndex > 0 ? 'visible' : 'hidden';
       nextVisibility = carousel.currentIndex < carousel.mediaMetadata.length - 1 ?
         'visible' : 'hidden';
+      panelVisibility = 'visible';
     }
 
     carousel.elements.previousButtonPanel.style.visibility = prevVisibility;
     carousel.elements.nextButtonPanel.style.visibility = nextVisibility;
+    carousel.elements.buttonsContainer.style.visibility = panelVisibility;
   }
 
   /**

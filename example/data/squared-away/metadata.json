@@ -2,8 +2,10 @@
   "id": "squared-away",
   "titleShort": "Tile-Matching\nPuzzle\nGame",
   "titleLong": "Squared Away",
-  "url": "http://jackieandlevi.com/squared-away",
-  "repositoryUrl": "https://github.com/levisl176/squared-away",
+  "urls": {
+    "demo": "http://jackieandlevi.com/squared-away",
+    "github": "https://github.com/levisl176/squared-away"
+  },
   "jobTitle": "",
   "date": "2013",
   "categories": [
