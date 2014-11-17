@@ -41,6 +41,12 @@ body {
 
 /* --- PagePost sub-panels styles --- */
 
+[data-hg-post-logo] {
+  float: left;
+  width: auto;
+  height: 50px;
+}
+
 [data-hg-post-date] {
   color: #999998;
   text-align: right;
@@ -98,6 +104,8 @@ body {
 /* --- PagePost header styles --- */
 
 [data-hg-post-title] {
+  clear: both;
+  margin-top: 3px;
   font-size: 24px;
   text-align: center;
   color: #FFFFFF;

@@ -97,7 +97,7 @@
       postDatum.videos.forEach(updateSrcVideoMetadata);
 
       postDatum.thumbnailSrc = postBaseUrl + data.collectionMetadata.thumbnailName;
-      postDatum.logoSrc = postBaseUrl + data.combinedMetadata.logoName;
+      postDatum.logoSrc = postBaseUrl + data.collectionMetadata.logoName;
 
       // ---  --- //
 

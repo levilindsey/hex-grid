@@ -4497,6 +4497,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var innerWrapper = document.createElement('div');
     var title = document.createElement('h1');
     var content = document.createElement('div');
+    var logo = document.createElement('img');
     var date = document.createElement('div');
     var urls = document.createElement('div');
     var categories = document.createElement('div');
@@ -4506,6 +4507,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     pagePost.tile.grid.parent.appendChild(container);
     container.appendChild(outerWrapper);
     outerWrapper.appendChild(innerWrapper);
+    innerWrapper.appendChild(logo);
     innerWrapper.appendChild(date);
     innerWrapper.appendChild(title);
     innerWrapper.appendChild(urls);
@@ -4518,6 +4520,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     pagePost.elements.container = container;
     pagePost.elements.title = title;
     pagePost.elements.content = content;
+    pagePost.elements.logo = logo;
     pagePost.elements.date = date;
     pagePost.elements.urls = urls;
     pagePost.elements.categories = categories;
@@ -4575,6 +4578,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     content.setAttribute('data-hg-post-content', 'data-hg-post-content');
     content.innerHTML = converter.makeHtml(pagePost.tile.postData.content);
+
+    logo.setAttribute('data-hg-post-logo', 'data-hg-post-logo');
+    logo.setAttribute('alt', pagePost.tile.postData.id + ' logo');
+    logo.setAttribute('src', pagePost.tile.postData.logoSrc);
 
     date.setAttribute('data-hg-post-date', 'data-hg-post-date');
     addDate.call(pagePost);
