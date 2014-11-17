@@ -12,6 +12,8 @@
   config.youtubeVideoBaseUrl = '//www.youtube.com/embed';
   config.youtubeThumbnailBaseUrl = 'http://img.youtube.com/vi';
 
+  config.vimeoVideoBaseUrl = '//player.vimeo.com/video';
+
   config.appRootPath = '/example';
   config.metadataUrl = config.appRootPath + '/dist/data.min.json';
 
@@ -110,10 +112,11 @@
             videoMetadatum.thumbnailSrc = config.youtubeThumbnailBaseUrl + '/' + videoMetadatum.id + '/default.jpg';
             break;
           case 'vimeo':
-            // TODO
+            videoMetadatum.videoSrc = config.vimeoVideoBaseUrl + '/' + videoMetadatum.id;
+            videoMetadatum.thumbnailSrc = null;
             break;
           default:
-            throw new Error('Invalid video host: ' + videoMetadatum.videoHost)
+            throw new Error('Invalid video host: ' + videoMetadatum.videoHost);
         }
       }
     }

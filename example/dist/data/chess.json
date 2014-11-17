@@ -3,7 +3,7 @@
   "titleShort": "Web App:\nChess",
   "titleLong": "Chess",
   "urls": {
-    "live": "http://jackieandlevi.com/chess",
+    "demo": "http://jackieandlevi.com/chess",
     "github": "https://github.com/levisl176/chess"
   },
   "jobTitle": "",

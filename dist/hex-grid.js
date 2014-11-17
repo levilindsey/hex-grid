@@ -2907,6 +2907,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   config.aspectRatio = 16 / 9;
 
+  config.vimeoMetadataBaseUrl = 'http://vimeo.com/api/v2/video';
+
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -3145,8 +3147,19 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     // Pause any playing video
     if (carousel.mediaMetadata[carousel.previousIndex].isVideo) {
-      carousel.elements.mainMedia[carousel.previousIndex].querySelector('iframe').contentWindow
-        .postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+      switch (carousel.mediaMetadata[carousel.previousIndex].videoHost) {
+        case 'youtube':
+          carousel.elements.mainMedia[carousel.previousIndex].querySelector('iframe').contentWindow
+            .postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+          break;
+        case 'vimeo':
+          carousel.elements.mainMedia[carousel.previousIndex].querySelector('iframe').contentWindow
+            .postMessage('{"method": "pause", "value": ""}', '*');
+          break;
+        default:
+          throw new Error('Invalid video host: ' +
+            carousel.mediaMetadata[carousel.previousIndex].videoHost);
+      }
     }
 
     // Hide the caption text
@@ -3204,7 +3217,17 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
         mainMediaElement = document.createElement('div');
         mainMediaElement.appendChild(iframeElement);
 
-        thumbnailSrc = mediumMetadatum.thumbnailSrc;
+        switch (mediumMetadatum.videoHost) {
+          case 'youtube':
+            thumbnailSrc = mediumMetadatum.thumbnailSrc;
+            break;
+          case 'vimeo':
+            thumbnailSrc = '';
+            fetchVimeoThumbnail(mediumMetadatum, index);
+            break;
+          default:
+            throw new Error('Invalid video host: ' + mediumMetadatum.videoHost);
+        }
       } else {
         mainMediaElement = document.createElement('div');
         mainMediaElement.style.backgroundImage = 'url(' + mediumMetadatum.src + ')';
@@ -3250,6 +3273,51 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       carousel.elements.mainMediaRibbon.appendChild(mainMediaElement);
       carousel.elements.thumbnailsRibbon.appendChild(thumbnailElement);
       thumbnailElement.appendChild(thumbnailScreenElement);
+
+      // ---  --- //
+
+      function fetchVimeoThumbnail(mediumMetadatum, index) {
+        var url = config.vimeoMetadataBaseUrl + '/' + mediumMetadatum.id + '.json';
+        var xhr = new XMLHttpRequest();
+
+        xhr.addEventListener('load', onLoad, false);
+        xhr.addEventListener('error', onError, false);
+        xhr.addEventListener('abort', onAbort, false);
+
+        console.log('Sending request for Vimeo metadata to ' + url);
+
+        xhr.open('GET', url, true);
+        xhr.send();
+
+        // ---  --- //
+
+        function onLoad() {
+          var responseData;
+
+          console.log('Vimeo metadata response status=' + xhr.status +
+            ' (' + xhr.statusText + ')');
+
+          try {
+            responseData = JSON.parse(xhr.response);
+          } catch (error) {
+            console.error('Unable to parse Vimeo metadata response body as JSON: ' + xhr.response);
+            return;
+          }
+
+          mediumMetadatum.thumbnailSrc = responseData[0].thumbnail_large;
+
+          carousel.elements.thumbnails[index].style.backgroundImage =
+            'url(' + mediumMetadatum.thumbnailSrc + ')';
+        }
+
+        function onError() {
+          console.error('An error occurred while loading the Vimeo thumbnail');
+        }
+
+        function onAbort() {
+          console.error('The Vimeo thumbnail load has been cancelled by the user');
+        }
+      }
     }
   }
 
@@ -4343,10 +4411,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   // TODO: add logo
 
-  // TODO: add date
-
-  // TODO: add some sort of category indicator?
-
   // TODO: also update the tilepost drawing to utilize the reset job
 
   // TODO: fade out the PagePost text
@@ -4354,6 +4418,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // TODO: make sure the tilepost job is getting destroyed properly on resize (text is hanging around...)
 
   // TODO: refactor PagePost, TilePost, and Carousel code
+
+  // TODO: sort post items by date
 
   // ------------------------------------------------------------------------------------------- //
   // Private static variables

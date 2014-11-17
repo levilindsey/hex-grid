@@ -4,8 +4,9 @@
   "titleLong": "Text Animation",
   "urls": {
     "bower": "http://bower.io/search/?q=text-animation",
-    "live": "http://jackieandlevi.com/text-animation",
-    "github": "https://github.com/levisl176/text-animation"
+    "demo": "http://jackieandlevi.com/text-animation",
+    "github": "https://github.com/levisl176/text-animation",
+    "codepen": "http://codepen.io/levisl176/pen/HGJdF"
   },
   "jobTitle": "",
   "date": "2014",

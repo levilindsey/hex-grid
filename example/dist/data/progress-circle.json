@@ -3,8 +3,9 @@
   "titleShort": "Web Doodle:\nProgress\nCircle",
   "titleLong": "Progress Circle",
   "urls": {
-    "live": "http://jackieandlevi.com/progress-circle",
-    "github": "https://github.com/levisl176/progress-circle"
+    "demo": "http://jackieandlevi.com/progress-circle",
+    "github": "https://github.com/levisl176/progress-circle",
+    "codepen": "http://codepen.io/levisl176/pen/ndklu"
   },
   "jobTitle": "",
   "date": "2014",

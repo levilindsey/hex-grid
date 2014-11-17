@@ -16,6 +16,17 @@
   ],
   "images": [
   ],
-  "videos": [],
+  "videos": [
+    {
+      "videoHost": "vimeo",
+      "id": "50565896",
+      "description": "Idean's introductory video: why a good user experience is important and how Idean can help."
+    },
+    {
+      "videoHost": "vimeo",
+      "id": "88468432",
+      "description": "Idean's UX Rap!"
+    }
+  ],
   "content": ""
 }

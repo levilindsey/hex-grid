@@ -3,8 +3,10 @@
   "titleShort": "Web Doodle:\nMetabounce",
   "titleLong": "Metabounce",
   "urls": {
-    "live": "http://jackieandlevi.com/metabounce",
-    "github": "https://github.com/levisl176/metabounce"
+    "demo": "http://jackieandlevi.com/metabounce",
+    "github": "https://github.com/levisl176/metabounce",
+    "codepen": "http://codepen.io/levisl176/pen/bkmpE",
+    "codepen": "http://codepen.io/levisl176/pen/lqmAE"
   },
   "jobTitle": "",
   "date": "2014",
