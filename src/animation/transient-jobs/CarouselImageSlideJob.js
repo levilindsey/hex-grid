@@ -35,6 +35,8 @@
 
     job.isComplete = true;
     job.onComplete();
+
+    job.carousel.onSlideFinished();
   }
 
   // ------------------------------------------------------------------------------------------- //

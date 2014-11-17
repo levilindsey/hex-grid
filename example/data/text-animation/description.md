@@ -6,7 +6,7 @@ _See this running at [www.jackieandlevi.com/text-animation][main-url] or at
 This text-animation package makes it easy to animate the text of any collection of HTML elements. With this package,
 each character animates individually, and it is simple to customize this animation.
 
-This package is available in the Bower registry as `text-animation`.
+This package is available in the Bower registry as [`text-animation`][bower-url].
 
 ### The In-Order Animation Algorithm
 
@@ -77,3 +77,4 @@ how this algorithm flattens and stores the DOM representation.
 
 [main-url]: http://jackieandlevi.com/text-animation
 [codepen-url]: http://codepen.io/levisl176/full/HGJdF
+[bower-url]: http://bower.io/search/?q=text-animation

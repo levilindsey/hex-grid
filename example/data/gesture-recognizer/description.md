@@ -68,7 +68,7 @@ To recognize a given unknown shape instance, a simple distance metric is used, a
 whichever class yields the smallest distance. This distance between a shape instance and a class template is computed 
 as
 
-![Shape-class distance equation][shape-class-distance-equation-image],
+![Shape-class distance equation][shape-class-distance-equation-image]
 
 where _I_ is the list of the pixel indices&mdash;i.e., keys&mdash;in the pixel indices to directional intensity values
 mappings, _s<sub>&theta;i</sub>_ is the directional intensity value from the &theta; directional mapping of the pixel

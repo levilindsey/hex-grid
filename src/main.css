@@ -18,10 +18,10 @@ body {
 [data-hg-tile-title] {
   font-family: Georgia, serif;
   font-style: italic;
-  color: #F6F6F6;
+  color: #FAFAFA;
 }
 
-/* --- Open post styles --- */
+/* --- Open post panel styles --- */
 
 [data-hg-post-container] {
   font-size: 18px;
@@ -39,14 +39,12 @@ body {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAMBAMAAABcu7ojAAAALVBMVEUmKCkmKConKCknKCooJygoKCcoKSYoKScoKiYoKicoKigpJigpJygqJigqJyiW/QuUAAAAOklEQVQIHWMS1L17gInhPUMBE8O/1ReYGPiArDMLGBiYGPhBYn86gWJ5QNZqA5CYIEiM5wxQ7DxDAgD5Cg+buFLSyQAAAABJRU5ErkJggg==);
 }
 
-[data-hg-post-title] {
-  font-size: 24px;
-  text-align: center;
-}
+/* --- Open post link styles --- */
 
 [data-hg-post-container] a {
   color: #1E90FF;
   text-decoration: none;
+  transition: color 0.2s;
 }
 
 [data-hg-post-container] a:visited {
@@ -63,6 +61,14 @@ body {
   text-decoration: none;
 }
 
+/* --- Open post header styles --- */
+
+[data-hg-post-title] {
+  font-size: 24px;
+  text-align: center;
+  color: #FFFFFF;
+}
+
 [data-hg-post-content] h1,
 [data-hg-post-content] h2,
 [data-hg-post-content] h3,
@@ -70,36 +76,89 @@ body {
 [data-hg-post-content] h5 {
   font-family: Georgia, serif;
   font-style: italic;
-  color: #B2B2B0;
   color: #FFFFFF;
+}
+
+/* --- Open post code styles --- */
+
+[data-hg-post-container] code {
+  color: #999998;
+}
+
+[data-hg-post-container] pre {
+  padding: 8px 8px 8px 16px;
+  overflow: auto;
+  background: hsla(0, 0%, 0%, 0.3);
+}
+
+[data-hg-post-container] pre code {
+  color: #EEEEEE;
+}
+
+/* --- Open post block quote styles --- */
+
+[data-hg-post-container] blockquote {
+  margin-left: 0;
+  margin-right: 0;
+  padding: 1px 16px 1px 44px;
+  font-style: italic;
+  background-color: hsla(0, 0%, 90%, 0.08);
 }
 
 /* --- Carousel styles --- */
 
 [data-hg-carousel-container] {
+}
 
+[data-hg-carousel-sliders-container] {
 }
 
 [data-hg-carousel-main-media] {
 }
 
-[data-hg-carousel-main-thumbnail] {
+[data-hg-carousel-thumbnail] {
 }
 
-[data-hg-carousel-main-thumbnail-screen] {
+[data-hg-carousel-thumbnail-screen] {
+  opacity: 0.7;
+  transition: opacity 0.8s;
 }
 
-[data-hg-carousel-main-button] {
+[data-hg-carousel-thumbnail][data-hg-selected] > [data-hg-carousel-thumbnail-screen] {
+  opacity: 0;
+}
+
+[data-hg-carousel-button] {
+  color: #000000;
+  transition: color 0.2s;
+}
+
+[data-hg-carousel-button]:hover {
+  color: #999999;
+}
+
+[data-hg-carousel-button]:active {
+  color: #FFFFFF;
 }
 
 [data-hg-captions-panel] {
-  margin: 18px;
+  margin: 6px 18px 26px;
   padding: 18px;
   font-size: 14px;
   background-color: #333333;
+  background-color: hsla(0,0%,0%,0.3);
 }
 
-[data-hg-carousel-container],
-[data-hg-carousel-main-thumbnail-screen]{
+[data-hg-captions-panel] > p {
+  opacity: 0;
+  transition: opacity 0.8s;
+}
+
+[data-hg-captions-panel][data-hg-selected] > p {
+  opacity: 1;
+}
+
+[data-hg-carousel-sliders-container],
+[data-hg-carousel-thumbnail-screen]{
   background-color: #111111;
 }

@@ -23,14 +23,11 @@ Some features of this package include:
 
 The following packages/libraries/projects were used in the development of hex-grid:
 
-- [dat.gui][dat-gui-url]
 - [Gulp.js][gulp-url]
 - [Bower][bower-url]
-- Additional packages that are available via [NPM][npm-url] (these are listed within the `package.json` file)
-
-The included example uses some additional technologies:
-
+- [dat.gui][dat-gui-url]
 - [Showdown][showdown-url]
+- Additional packages that are available via [NPM][npm-url] (these are listed within the `package.json` file)
 
 
 [demo-url]: http://www.jackieandlevi.com/hex-grid

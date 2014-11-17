@@ -42,7 +42,7 @@
     var verticalPadding = 2.25 * window.hg.Grid.config.tileOuterRadius;
 
     var width, height, paddingX, paddingY, gradientColor1String,
-      gradientColor2String, innerWrapperPadding;
+      gradientColor2String, innerWrapperPaddingFromCss, innerWrapperVerticalPadding;
 
     if (pagePost.tile.grid.isVertical) {
       width = horizontalSideLength;
@@ -107,16 +107,22 @@
 
     outerWrapper.setAttribute('data-hg-post-outer-wrapper', 'data-hg-post-outer-wrapper');
     outerWrapper.style.width = width + 'px';
-    outerWrapper.style.height = height + 'px';
+    outerWrapper.style.height = height + paddingY * 2 + 'px';
     outerWrapper.style.margin = '0';
-    outerWrapper.style.padding = paddingY + 'px 0 ' + paddingY + 'px ' + paddingX + 'px';
+    outerWrapper.style.padding = '0 0 0 ' + paddingX + 'px';
     outerWrapper.style.overflow = 'auto';
 
     innerWrapper.setAttribute('data-hg-post-inner-wrapper', 'data-hg-post-inner-wrapper');
-    innerWrapperPadding =
+    innerWrapperPaddingFromCss =
       parseInt(window.getComputedStyle(innerWrapper, null).getPropertyValue('padding-top'));
-    innerWrapper.style.minHeight = height - innerWrapperPadding * 2 + 'px';
+    innerWrapperVerticalPadding = innerWrapperPaddingFromCss + paddingY;
+    innerWrapper.style.padding =
+      innerWrapperVerticalPadding + 'px ' + innerWrapperPaddingFromCss + 'px ' +
+      innerWrapperVerticalPadding + 'px ' + innerWrapperPaddingFromCss + 'px';
+    innerWrapper.style.minHeight = height - innerWrapperPaddingFromCss * 2 + 'px';
     innerWrapper.style.overflowX = 'hidden';
+
+    pagePost.innerWrapperPaddingFromCss = innerWrapperPaddingFromCss;
 
     title.setAttribute('data-hg-post-title', 'data-hg-post-title');
     title.innerHTML = pagePost.tile.postData.titleLong;
@@ -148,7 +154,7 @@
     content.innerHTML = converter.makeHtml(pagePost.tile.postData.content);
 
     // Create the Carousel and insert it before the post's main contents
-    pagePost.carousel = new window.hg.Carousel(pagePost.tile.grid, innerWrapper,
+    pagePost.carousel = new window.hg.Carousel(pagePost.tile.grid, pagePost, innerWrapper,
       pagePost.tile.postData.images, pagePost.tile.postData.videos, true);
     innerWrapper.removeChild(pagePost.carousel.elements.container);
     innerWrapper.insertBefore(pagePost.carousel.elements.container, content);
@@ -222,6 +228,7 @@
     pagePost.paddingY = Number.NaN;
     pagePost.halfWidth = Number.NaN;
     pagePost.halfHeight = Number.NaN;
+    pagePost.innerWrapperPaddingFromCss = Number.NaN;
     pagePost.center = {
       x: startCenter.x,
       y: startCenter.y

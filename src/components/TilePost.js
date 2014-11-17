@@ -38,7 +38,7 @@
 
     var outerSideLength = window.hg.Grid.config.tileOuterRadius * 2;
 
-    var textTop = -config.fontSize * (1.5 + 0.65 * (tilePost.tile.postData.titleShort.split('\n').length - 1));
+    var textTop = -config.fontSize * (1.5 + 0.53 * (tilePost.tile.postData.titleShort.split('\n').length - 1));
 
     var longRadiusRatio = 1;
     var shortRadiusRatio = window.hg.Grid.config.tileOuterRadius / window.hg.Grid.config.tileInnerRadius;

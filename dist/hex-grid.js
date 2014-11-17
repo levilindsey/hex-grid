@@ -2892,9 +2892,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 */
 (function () {
 
-  // TODO: add caption panel below thumbnails; fixed height?; different background...; slightly transparent?
+  // TODO: add logo
 
-  // TODO: thumbnail screens: animate fading the screens (use CSS transitions? then only remove screen opacity when the last slide job completes?)
+  // TODO: add date
+
+  // TODO: add some sort of category indicator?
 
   // TODO: also update the tilepost drawing to utilize the reset job
 
@@ -2905,15 +2907,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
-  var haveAddedStyles = false;
-
   var config;
 
   config = {};
 
   config.thumbnailHeight = 80;
   config.thumbnailRibbonPadding = 4;
-  config.thumbnailScreenOpacity = 0.6;
   config.prevNextButtonPadding = 10;
 
   // ---  --- //
@@ -2930,20 +2929,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
-
-  /**
-   * @this Carousel
-   */
-  function calculateDimensions() {
-    var carousel = this;
-
-    carousel.width =
-      parseInt(window.getComputedStyle(carousel.parent, null).getPropertyValue('width'));
-    carousel.mainMediaHeight = carousel.width / config.aspectRatio;
-    carousel.totalHeight = carousel.mainMediaHeight + config.thumbnailHeight + config.thumbnailRibbonPadding;
-
-    carousel.thumbnailRibbonStartPosition = (carousel.width - config.thumbnailWidth) / 2;
-  }
 
   /**
    * @this Carousel
@@ -2967,77 +2952,120 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var carousel = this;
 
     var container = document.createElement('div');
+    var slidersContainer = document.createElement('div');
     var mainMediaRibbon = document.createElement('div');
     var thumbnailsRibbon = document.createElement('div');
+    var buttonsContainer = document.createElement('div');
     var captionsPanel = document.createElement('div');
+    var captionsText = document.createElement('p');
     var previousButtonPanel = document.createElement('div');
+    var previousButtonText = document.createElement('div');
     var nextButtonPanel = document.createElement('div');
+    var nextButtonText = document.createElement('div');
 
     carousel.parent.appendChild(container);
-    container.appendChild(mainMediaRibbon);
-    container.appendChild(thumbnailsRibbon);
+    container.appendChild(slidersContainer);
+    slidersContainer.appendChild(mainMediaRibbon);
+    slidersContainer.appendChild(thumbnailsRibbon);
+    slidersContainer.appendChild(buttonsContainer);
+    buttonsContainer.appendChild(previousButtonPanel);
+    previousButtonPanel.appendChild(previousButtonText);
+    buttonsContainer.appendChild(nextButtonPanel);
+    nextButtonPanel.appendChild(nextButtonText);
     container.appendChild(captionsPanel);
-    container.appendChild(previousButtonPanel);
-    container.appendChild(nextButtonPanel);
+    captionsPanel.appendChild(captionsText);
 
     carousel.elements = {};
     carousel.elements.container = container;
+    carousel.elements.slidersContainer = slidersContainer;
     carousel.elements.mainMediaRibbon = mainMediaRibbon;
     carousel.elements.thumbnailsRibbon = thumbnailsRibbon;
+    carousel.elements.buttonsContainer = buttonsContainer;
+    carousel.elements.captionsPanel = captionsPanel;
+    carousel.elements.captionsText = captionsText;
     carousel.elements.previousButtonPanel = previousButtonPanel;
+    carousel.elements.previousButtonText = previousButtonText;
     carousel.elements.nextButtonPanel = nextButtonPanel;
+    carousel.elements.nextButtonText = nextButtonText;
     carousel.elements.mainMedia = [];
     carousel.elements.thumbnails = [];
     carousel.elements.thumbnailScreens = [];
 
     container.setAttribute('data-hg-carousel-container', 'data-hg-carousel-container');
-    container.style.position = 'relative';
-    container.style.overflow = 'hidden';
-    container.style.width = carousel.width + 'px';
-    container.style.height = carousel.totalHeight + 'px';
+
+    slidersContainer.setAttribute('data-hg-carousel-sliders-container',
+      'data-hg-carousel-sliders-container');
+    slidersContainer.style.position = 'relative';
+    slidersContainer.style.overflow = 'hidden';
+    slidersContainer.style.width = '100%';
     window.hg.util.setUserSelectNone(container);
 
     mainMediaRibbon.style.position = 'relative';
-    mainMediaRibbon.style.width = carousel.width * carousel.mediaMetadata.length + 'px';
-    mainMediaRibbon.style.height = carousel.mainMediaHeight + 'px';
+    mainMediaRibbon.style.width = '100%';
+    mainMediaRibbon.style.height = '0';
+    mainMediaRibbon.style.padding = '56.25% 0 0 0';
 
     thumbnailsRibbon.style.position = 'relative';
     thumbnailsRibbon.style.width = config.thumbnailWidth * carousel.mediaMetadata.length + 'px';
     thumbnailsRibbon.style.height = config.thumbnailHeight + 'px';
-    thumbnailsRibbon.style.left = carousel.thumbnailRibbonStartPosition + 'px';
+    thumbnailsRibbon.style.left = 'calc(50% - ' + config.thumbnailWidth / 2 + 'px)';
     thumbnailsRibbon.style.paddingTop = config.thumbnailRibbonPadding + 'px';
 
-    captionsPanel.setAttribute('data-hg-captions-panel', 'data-hg-captions-panel');
+    buttonsContainer.style.position = 'absolute';
+    buttonsContainer.style.top = '0';
+    buttonsContainer.style.width = '100%';
+    buttonsContainer.style.height = '0';
+    buttonsContainer.style.padding = '56.25% 0 0 0';
 
     previousButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
     previousButtonPanel.style.position = 'absolute';
     previousButtonPanel.style.top = '0';
     previousButtonPanel.style.left = '0';
-    previousButtonPanel.style.width = carousel.width / 3 - config.prevNextButtonPadding + 'px';
-    previousButtonPanel.style.height = carousel.mainMediaHeight + 'px';
-    previousButtonPanel.style.lineHeight = carousel.mainMediaHeight + 'px';
-    previousButtonPanel.style.fontSize = '40px';
-    previousButtonPanel.style.verticalAlign = 'middle';
-    previousButtonPanel.style.textAlign = 'left';
-    previousButtonPanel.style.paddingLeft = config.prevNextButtonPadding + 'px';
+    previousButtonPanel.style.width = 'calc(33.33% - ' + config.prevNextButtonPadding + 'px)';
+    previousButtonPanel.style.height = '100%';
     previousButtonPanel.style.cursor = 'pointer';
-    previousButtonPanel.innerHTML = '&#10094;';
     previousButtonPanel.addEventListener('click', goToPrevious.bind(carousel), false);
+
+    previousButtonText.style.position = 'absolute';
+    previousButtonText.style.top = '0';
+    previousButtonText.style.bottom = '0';
+    previousButtonText.style.left = '0';
+    previousButtonText.style.margin = 'auto';
+    previousButtonText.style.height = '100px';
+    previousButtonText.style.lineHeight = '100px';
+    previousButtonText.style.fontSize = '40px';
+    previousButtonText.style.verticalAlign = 'middle';
+    previousButtonText.style.textAlign = 'left';
+    previousButtonText.style.paddingLeft = config.prevNextButtonPadding + 'px';
+    previousButtonText.innerHTML = '&#10094;';
 
     nextButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
     nextButtonPanel.style.position = 'absolute';
     nextButtonPanel.style.top = '0';
     nextButtonPanel.style.right = '0';
-    nextButtonPanel.style.width = carousel.width * 2 / 3 - config.prevNextButtonPadding + 'px';
-    nextButtonPanel.style.height = carousel.mainMediaHeight + 'px';
-    nextButtonPanel.style.lineHeight = carousel.mainMediaHeight + 'px';
-    nextButtonPanel.style.fontSize = '40px';
-    nextButtonPanel.style.verticalAlign = 'middle';
-    nextButtonPanel.style.textAlign = 'right';
-    nextButtonPanel.style.paddingRight = config.prevNextButtonPadding + 'px';
+    nextButtonPanel.style.width = 'calc(66.67% - ' + config.prevNextButtonPadding + 'px)';
+    nextButtonPanel.style.height = '100%';
     nextButtonPanel.style.cursor = 'pointer';
-    nextButtonPanel.innerHTML = '&#10095;';
     nextButtonPanel.addEventListener('click', goToNext.bind(carousel), false);
+
+    nextButtonText.style.position = 'absolute';
+    nextButtonText.style.top = '0';
+    nextButtonText.style.bottom = '0';
+    nextButtonText.style.right = '0';
+    nextButtonText.style.margin = 'auto';
+    nextButtonText.style.height = '100px';
+    nextButtonText.style.lineHeight = '100px';
+    nextButtonText.style.fontSize = '40px';
+    nextButtonText.style.verticalAlign = 'middle';
+    nextButtonText.style.textAlign = 'right';
+    nextButtonText.style.paddingRight = config.prevNextButtonPadding + 'px';
+    nextButtonText.innerHTML = '&#10095;';
+
+    captionsPanel.setAttribute('data-hg-captions-panel', 'data-hg-captions-panel');
+
+    captionsText.style.margin = '0';
+    captionsText.style.padding = '0';
+    carousel.elements.captionsPanel.setAttribute('data-hg-selected', 'data-hg-selected');
 
     if (!waitToLoadMedia) {
       loadMedia.call(carousel);
@@ -3046,9 +3074,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     // The Carousel should display differently when it contains zero or one item
     if (carousel.mediaMetadata.length === 0) {
       container.style.display = 'none';
-    } else if (carousel.mediaMetadata.length === 1) {
-      thumbnailsRibbon.style.display = 'none';
-      // TODO: also hide the left and right buttons
+      captionsPanel.style.display = 'none';
+    } else {
+      // Show the caption for the first media item
+      captionsText.innerHTML = carousel.mediaMetadata[0].description;
+
+      if (carousel.mediaMetadata.length === 1) {
+        thumbnailsRibbon.style.display = 'none';
+        // TODO: also hide the left and right buttons
+      }
     }
 
     setPrevNextButtonVisibility.call(carousel);
@@ -3121,9 +3155,19 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     // Pause any playing video
     if (carousel.mediaMetadata[carousel.previousIndex].isVideo) {
-      carousel.elements.mainMedia[carousel.previousIndex].contentWindow
+      carousel.elements.mainMedia[carousel.previousIndex].querySelector('iframe').contentWindow
         .postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
     }
+
+    // Hide the caption text
+    carousel.elements.captionsPanel.removeAttribute('data-hg-selected');
+
+    // Mark the old thumbnail as un-selected
+    carousel.elements.thumbnails[carousel.previousIndex].removeAttribute('data-hg-selected');
+
+    // Mark the current thumbnail as selected
+    carousel.elements.thumbnails[carousel.currentIndex].setAttribute('data-hg-selected',
+      'data-hg-selected');
 
     setPrevNextButtonVisibility.call(carousel);
   }
@@ -3147,16 +3191,28 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       carousel.mediaMetadata.forEach(addMedium);
     }
 
+    if (carousel.mediaMetadata.length > 0) {
+      // Mark the first thumbnail as selected
+      carousel.elements.thumbnails[0].setAttribute('data-hg-selected', 'data-hg-selected');
+    }
+
     // ---  --- //
 
     function addMedium(mediumMetadatum, index) {
-      var mainMediaElement, thumbnailElement, thumbnailScreenElement, thumbnailSrc;
+      var mainMediaElement, iframeElement, thumbnailElement, thumbnailScreenElement, thumbnailSrc;
 
       if (mediumMetadatum.isVideo) {
-        mainMediaElement = document.createElement('iframe');
-        mainMediaElement.setAttribute('src', mediumMetadatum.videoSrc);
-        mainMediaElement.setAttribute('allowfullscreen', 'allowfullscreen');
-        mainMediaElement.setAttribute('frameborder', '0');
+        iframeElement = document.createElement('iframe');
+        iframeElement.setAttribute('src', mediumMetadatum.videoSrc);
+        iframeElement.setAttribute('allowfullscreen', 'allowfullscreen');
+        iframeElement.setAttribute('frameborder', '0');
+        iframeElement.style.position = 'absolute';
+        iframeElement.style.top = '0';
+        iframeElement.style.width = '100%';
+        iframeElement.style.height = '100%';
+
+        mainMediaElement = document.createElement('div');
+        mainMediaElement.appendChild(iframeElement);
 
         thumbnailSrc = mediumMetadatum.thumbnailSrc;
       } else {
@@ -3171,9 +3227,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
       mainMediaElement.setAttribute('data-hg-carousel-main-media',
         'data-hg-carousel-main-media');
-      mainMediaElement.style.width = carousel.width + 'px';
-      mainMediaElement.style.height = carousel.mainMediaHeight + 'px';
-      mainMediaElement.style.float = 'left';
+      mainMediaElement.style.position = 'absolute';
+      mainMediaElement.style.top = '0';
+      mainMediaElement.style.left = index * 100 + '%';
+      mainMediaElement.style.width = '100%';
+      mainMediaElement.style.height = '0';
+      mainMediaElement.style.padding = '56.25% 0 0 0';
 
       thumbnailElement = document.createElement('div');
       thumbnailElement.setAttribute('data-hg-carousel-thumbnail',
@@ -3189,7 +3248,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       thumbnailScreenElement = document.createElement('div');
       thumbnailScreenElement.setAttribute('data-hg-carousel-thumbnail-screen',
         'data-hg-carousel-thumbnail-screen');
-      thumbnailScreenElement.style.opacity = config.thumbnailScreenOpacity;
       thumbnailScreenElement.style.width = '100%';
       thumbnailScreenElement.style.height = '100%';
       thumbnailScreenElement.style.cursor = 'pointer';
@@ -3208,13 +3266,24 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this Carousel
    */
+  function onSlideFinished() {
+    var carousel = this;
+
+    // Show the caption for the current media item
+    carousel.elements.captionsText.innerHTML =
+      carousel.mediaMetadata[carousel.currentIndex].description;
+    carousel.elements.captionsPanel.setAttribute('data-hg-selected', 'data-hg-selected');
+  }
+
+  /**
+   * @this Carousel
+   */
   function draw() {
     var carousel = this;
 
-    carousel.elements.mainMediaRibbon.style.left =
-      -carousel.currentIndexPositionRatio * carousel.width + 'px';
-    carousel.elements.thumbnailsRibbon.style.left = carousel.thumbnailRibbonStartPosition -
-      carousel.currentIndexPositionRatio * config.thumbnailWidth + 'px';
+    carousel.elements.mainMediaRibbon.style.left = -carousel.currentIndexPositionRatio * 100 + '%';
+    carousel.elements.thumbnailsRibbon.style.left = 'calc(50% - ' + (config.thumbnailWidth / 2 +
+      carousel.currentIndexPositionRatio * config.thumbnailWidth) + 'px';
   }
 
   /**
@@ -3234,41 +3303,31 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @constructor
    * @global
    * @param {Grid} grid
+   * @param {PagePost} pagePost
    * @param {HTMLElement} parent
    * @param {Array.<String>} images
    * @param {Array.<String>} videos
    * @param {Boolean} [waitToLoadMedia=false]
    */
-  function Carousel(grid, parent, images, videos, waitToLoadMedia) {
+  function Carousel(grid, pagePost, parent, images, videos, waitToLoadMedia) {
     var carousel = this;
 
     carousel.grid = grid;
+    carousel.pagePost = pagePost;
     carousel.parent = parent;
     carousel.elements = null;
     carousel.currentIndex = 0;
     carousel.previousIndex = 0;
     carousel.mediaMetadata = null;
-    carousel.width = Number.NaN;
-    carousel.mainMediaHeight = Number.NaN;
-    carousel.totalHeight = Number.NaN;
-    carousel.thumbnailRibbonStartPosition = Number.NaN;
     carousel.currentIndexPositionRatio = 0;
 
     carousel.loadMedia = loadMedia;
+    carousel.onSlideFinished = onSlideFinished;
     carousel.draw = draw;
     carousel.destroy = destroy;
 
     createMediaMetadataArray.call(carousel, images, videos);
-    calculateDimensions.call(carousel);
     createElements.call(carousel, waitToLoadMedia);
-
-    // Add CSS rules for hover and active states if they have not already been added
-    if (!haveAddedStyles) {
-      haveAddedStyles = true;
-      window.hg.util.addRuleToStyleSheet('[data-hg-carousel-button] { color: #000000; }');
-      window.hg.util.addRuleToStyleSheet('[data-hg-carousel-button]:hover { color: #999999; }');
-      window.hg.util.addRuleToStyleSheet('[data-hg-carousel-button]:active { color: #ffffff; }');
-    }
 
     console.log('Carousel created');
   }
@@ -4327,7 +4386,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var verticalPadding = 2.25 * window.hg.Grid.config.tileOuterRadius;
 
     var width, height, paddingX, paddingY, gradientColor1String,
-      gradientColor2String, innerWrapperPadding;
+      gradientColor2String, innerWrapperPaddingFromCss, innerWrapperVerticalPadding;
 
     if (pagePost.tile.grid.isVertical) {
       width = horizontalSideLength;
@@ -4392,16 +4451,22 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     outerWrapper.setAttribute('data-hg-post-outer-wrapper', 'data-hg-post-outer-wrapper');
     outerWrapper.style.width = width + 'px';
-    outerWrapper.style.height = height + 'px';
+    outerWrapper.style.height = height + paddingY * 2 + 'px';
     outerWrapper.style.margin = '0';
-    outerWrapper.style.padding = paddingY + 'px 0 ' + paddingY + 'px ' + paddingX + 'px';
+    outerWrapper.style.padding = '0 0 0 ' + paddingX + 'px';
     outerWrapper.style.overflow = 'auto';
 
     innerWrapper.setAttribute('data-hg-post-inner-wrapper', 'data-hg-post-inner-wrapper');
-    innerWrapperPadding =
+    innerWrapperPaddingFromCss =
       parseInt(window.getComputedStyle(innerWrapper, null).getPropertyValue('padding-top'));
-    innerWrapper.style.minHeight = height - innerWrapperPadding * 2 + 'px';
+    innerWrapperVerticalPadding = innerWrapperPaddingFromCss + paddingY;
+    innerWrapper.style.padding =
+      innerWrapperVerticalPadding + 'px ' + innerWrapperPaddingFromCss + 'px ' +
+      innerWrapperVerticalPadding + 'px ' + innerWrapperPaddingFromCss + 'px';
+    innerWrapper.style.minHeight = height - innerWrapperPaddingFromCss * 2 + 'px';
     innerWrapper.style.overflowX = 'hidden';
+
+    pagePost.innerWrapperPaddingFromCss = innerWrapperPaddingFromCss;
 
     title.setAttribute('data-hg-post-title', 'data-hg-post-title');
     title.innerHTML = pagePost.tile.postData.titleLong;
@@ -4433,7 +4498,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     content.innerHTML = converter.makeHtml(pagePost.tile.postData.content);
 
     // Create the Carousel and insert it before the post's main contents
-    pagePost.carousel = new window.hg.Carousel(pagePost.tile.grid, innerWrapper,
+    pagePost.carousel = new window.hg.Carousel(pagePost.tile.grid, pagePost, innerWrapper,
       pagePost.tile.postData.images, pagePost.tile.postData.videos, true);
     innerWrapper.removeChild(pagePost.carousel.elements.container);
     innerWrapper.insertBefore(pagePost.carousel.elements.container, content);
@@ -4507,6 +4572,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     pagePost.paddingY = Number.NaN;
     pagePost.halfWidth = Number.NaN;
     pagePost.halfHeight = Number.NaN;
+    pagePost.innerWrapperPaddingFromCss = Number.NaN;
     pagePost.center = {
       x: startCenter.x,
       y: startCenter.y
@@ -6046,7 +6112,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     var outerSideLength = window.hg.Grid.config.tileOuterRadius * 2;
 
-    var textTop = -config.fontSize * (1.5 + 0.65 * (tilePost.tile.postData.titleShort.split('\n').length - 1));
+    var textTop = -config.fontSize * (1.5 + 0.53 * (tilePost.tile.postData.titleShort.split('\n').length - 1));
 
     var longRadiusRatio = 1;
     var shortRadiusRatio = window.hg.Grid.config.tileOuterRadius / window.hg.Grid.config.tileInnerRadius;
@@ -7047,6 +7113,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     job.isComplete = true;
     job.onComplete();
+
+    job.carousel.onSlideFinished();
   }
 
   // ------------------------------------------------------------------------------------------- //
