@@ -26,7 +26,7 @@ body {
 [data-hg-post-container] {
   font-size: 18px;
   font-family: "Open Sans", "Helvetica Neue", Helvetica, sans-serif;
-  color: #DDDDDB;
+  color: #DDDDDD;
 }
 
 [data-hg-post-outer-wrapper] {
@@ -39,16 +39,23 @@ body {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAMBAMAAABcu7ojAAAALVBMVEUmKCkmKConKCknKCooJygoKCcoKSYoKScoKiYoKicoKigpJigpJygqJigqJyiW/QuUAAAAOklEQVQIHWMS1L17gInhPUMBE8O/1ReYGPiArDMLGBiYGPhBYn86gWJ5QNZqA5CYIEiM5wxQ7DxDAgD5Cg+buFLSyQAAAABJRU5ErkJggg==);
 }
 
+[data-hg-post-container] img {
+  max-width: 100%;
+}
+
 /* --- PagePost sub-panels styles --- */
 
-[data-hg-post-logo] {
+div[data-hg-post-logo] {
   float: left;
-  width: auto;
+  width: 45%;
   height: 50px;
+  margin-bottom: 18px;
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 
 [data-hg-post-date] {
-  color: #999998;
+  color: #999999;
   text-align: right;
 }
 
@@ -106,7 +113,6 @@ body {
 
 [data-hg-post-title] {
   clear: both;
-  margin-top: 3px;
   font-size: 24px;
   text-align: center;
   color: #FFFFFF;
@@ -125,7 +131,7 @@ body {
 /* --- PagePost code styles --- */
 
 [data-hg-post-container] code {
-  color: #999998;
+  color: #999999;
 }
 
 [data-hg-post-container] pre {

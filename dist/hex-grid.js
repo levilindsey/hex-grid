@@ -4409,8 +4409,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
  */
 (function () {
 
-  // TODO: add logo
-
   // TODO: also update the tilepost drawing to utilize the reset job
 
   // TODO: fade out the PagePost text
@@ -4423,8 +4421,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
-
-  var haveAddedStyles = false;
 
   var config;
 
@@ -4497,7 +4493,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var innerWrapper = document.createElement('div');
     var title = document.createElement('h1');
     var content = document.createElement('div');
-    var logo = document.createElement('img');
+    var logo = document.createElement('div');
     var date = document.createElement('div');
     var urls = document.createElement('div');
     var categories = document.createElement('div');
@@ -4580,8 +4576,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     content.innerHTML = converter.makeHtml(pagePost.tile.postData.content);
 
     logo.setAttribute('data-hg-post-logo', 'data-hg-post-logo');
-    logo.setAttribute('alt', pagePost.tile.postData.id + ' logo');
-    logo.setAttribute('src', pagePost.tile.postData.logoSrc);
+    logo.style.backgroundImage = 'url(' + pagePost.tile.postData.logoSrc + ')';
 
     date.setAttribute('data-hg-post-date', 'data-hg-post-date');
     addDate.call(pagePost);
@@ -4800,12 +4795,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     pagePost.destroy = destroy;
 
     createElements.call(pagePost);
-
-    // Add CSS rules for hover and active states if they have not already been added
-    if (!haveAddedStyles) {
-      haveAddedStyles = true;
-      window.hg.util.addRuleToStyleSheet('[data-hg-post-container] img { max-width: 100%; }');
-    }
 
     console.log('PagePost created: postId=' + tile.postData.id +
         ', tileIndex=' + tile.originalIndex);

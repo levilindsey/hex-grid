@@ -15,6 +15,18 @@
     "user-experience"
   ],
   "images": [
+    {
+      "fileName": "idean-hawaii.jpg",
+      "description": "Hawaii!! Idean flew their employees to Oahu for their annual retreat."
+    },
+    {
+      "fileName": "palo-alto-studio.jpg",
+      "description": "Idean's office at their head quarters in Palo Alto. The home-like atmosphere of the house definitely reflects the friendly and relaxed atmosphere of the company as a whole."
+    },
+    {
+      "fileName": "idean-definition.png",
+      "description": "Life's too short for crappy UX!"
+    }
   ],
   "videos": [
     {
