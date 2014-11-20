@@ -1,21 +1,21 @@
 #### A dynamic, expandable, animated grid of hexagonal tiles for displaying posts
 
-I was bored with the standard grid layout and wanted to play with particle systems and crazy animations. So I made
+Levi was bored with the standard grid layout and wanted to play with particle systems and crazy animations. So he made
 hex-grid.
 
 ## Features
 
 Some features of this package include:
 
-- A particle system complete with neighbor and anchor position spring dynamics
-- An assortment of **persistent** animations that make the grid _exciting to watch_
-- An assortment of **transient** animations that make the grid _exciting to interact with_
-- A control panel that enables you to adjust most of the many different parameters of this system
-- The ability to display custom collections of posts
-    - These posts will be displayed within individual tiles
-    - These tile posts can be drilled down into for more information
+- A particle system complete with neighbor and anchor position spring forces.
+- An assortment of **persistent** animations that make the grid _exciting to watch_.
+- An assortment of **transient** animations that make the grid _exciting to interact with_.
+- A control panel that enables you to adjust most of the many different parameters of this system.
+- The ability to display custom collections of posts.
+    - These posts will be displayed within individual tiles.
+    - These tile posts can be expanded for more information.
     - The contents of these posts use standard [Markdown syntax][markdown-url], which is then parsed by the system for
-      displaying within the grid
+      displaying within the grid.
 
 ## Acknowledgements / Technology Stack
 

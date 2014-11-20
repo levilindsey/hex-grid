@@ -33,7 +33,7 @@
 
   config.annotations = {
     'sectorColors': {
-      enabled: false,
+      enabled: true,
       create: fillSectorColors,
       destroy: function () {},
       update: fillSectorColors,
@@ -47,7 +47,7 @@
       priority: 100
     },
     'borderTiles': {
-      enabled: false,
+      enabled: true,
       create: fillBorderTiles,
       destroy: function () {},
       update: fillBorderTiles,
@@ -103,7 +103,7 @@
       priority: 900
     },
     'tileIndices': {
-      enabled: false,
+      enabled: true,
       create: createTileIndices,
       destroy: destroyTileIndices,
       update: updateTileIndices,

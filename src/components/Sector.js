@@ -208,7 +208,7 @@
    *
    * @this Sector
    */
-  function collectNewTilesInSector() {
+  function collectNewTilesInSector() {**;// TODO: somehow, too few tiles are created on the "minor" side of the sector (although, this is a bug from both directions)
     var sector, isMovingAwayX, isMovingAwayY, expansionOffsetX, expansionOffsetY, boundingBoxHalfX, boundingBoxHalfY, minX, maxX, minY, maxY;
 
     sector = this;
@@ -542,27 +542,27 @@
       }
     }
 
-    // --- Mark the inner edge tiles as border tiles --- //
-
-    for (i = 0, count = sector.expandedDisplacementTileCount + 1;
-         i < count; i += 1) {
-      innerEdgeTiles[i].expandedState.isBorderTile = true;
-    }
-
-    // --- Mark the outer edge tiles as border tiles --- //
-
-    for (i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount,
-             count = neighborTileArrays.length; i < count; i += 1) {
-      if (neighborTileArrays[i][0]) {
-        neighborTileArrays[i][0].expandedState.isBorderTile = true;
-      }
-    }
-
-    // --- Mark the outermost sector tiles as border tiles --- //
-
-    for (i = 0, count = sector.tilesByIndex.length; i < count; i += 1) {
-      sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
-    }
+    //// --- Mark the inner edge tiles as border tiles --- //
+    //
+    //for (i = 0, count = sector.expandedDisplacementTileCount + 1;
+    //     i < count; i += 1) {
+    //  innerEdgeTiles[i].expandedState.isBorderTile = true;
+    //}
+    //
+    //// --- Mark the outer edge tiles as border tiles --- //
+    //
+    //for (i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount,
+    //         count = neighborTileArrays.length; i < count; i += 1) {
+    //  if (neighborTileArrays[i][0]) {
+    //    neighborTileArrays[i][0].expandedState.isBorderTile = true;
+    //  }
+    //}
+    //
+    //// --- Mark the outermost sector tiles as border tiles --- //
+    //
+    //for (i = 0, count = sector.tilesByIndex.length; i < count; i += 1) {
+    //  sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
+    //}
   }
 
   /**
