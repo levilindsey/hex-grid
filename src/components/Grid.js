@@ -807,7 +807,6 @@
     grid.setBackgroundColor = setBackgroundColor;
     grid.updateTileColor = updateTileColor;
     grid.updateTileMass = updateTileMass;
-    grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
     grid.createPagePost = createPagePost;
     grid.destroyPagePost = destroyPagePost;

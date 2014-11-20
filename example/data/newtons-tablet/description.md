@@ -15,7 +15,7 @@ introductory statics course at the University of California, Riverside in the Wi
 You can read Levi's thesis at [escholarship.org/uc/item/40r3k5v2][thesis-url].
 
 
-[stahovich-url]: http://engr.ucr.edu/faculty/me/stahovich.html
+[stahovich-url]: http://www.engr.ucr.edu/faculty/me/stahovich.html
 [stl-url]: http://smarttools.engr.ucr.edu/
 [livescribe-url]: http://livescribe.com/en-us/
 [thesis-url]: http://escholarship.org/uc/item/40r3k5v2

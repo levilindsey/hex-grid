@@ -208,7 +208,7 @@
    *
    * @this Sector
    */
-  function collectNewTilesInSector() {**;// TODO: somehow, too few tiles are created on the "minor" side of the sector (although, this is a bug from both directions)
+  function collectNewTilesInSector() {//**;// TODO: somehow, too few tiles are created on the "minor" side of the sector (although, this is a bug from both directions)
     var sector, isMovingAwayX, isMovingAwayY, expansionOffsetX, expansionOffsetY, boundingBoxHalfX, boundingBoxHalfY, minX, maxX, minY, maxY;
 
     sector = this;
@@ -216,8 +216,8 @@
     // If the sector is moving "across" the base tile, then an increased region of the sector will
     // be visible in the expanded grid; if instead the sector is moving "away" from the base tile,
     // then a decreased region of the sector will be visible in the expanded grid.
-    isMovingAwayX = sector.expandedDisplacement.x > 0 === sector.majorNeighborDelta.x > 0 && sector.majorNeighborDelta.x !== 0;
-    isMovingAwayY = sector.expandedDisplacement.y > 0 === sector.majorNeighborDelta.y > 0 && sector.majorNeighborDelta.y !== 0;
+    isMovingAwayX = sector.expandedDisplacement.x > 0 === sector.majorNeighborDelta.x > 0 && sector.expandedDisplacement.x !== 0;
+    isMovingAwayY = sector.expandedDisplacement.y > 0 === sector.majorNeighborDelta.y > 0 && sector.expandedDisplacement.y !== 0;
     expansionOffsetX = isMovingAwayX ?
         -Math.abs(sector.expandedDisplacement.x) : Math.abs(sector.expandedDisplacement.x);
     expansionOffsetY = isMovingAwayY ?
