@@ -41,7 +41,6 @@
       job.baseTile.expandedState = null;
 
       job.grid.sectors = [];
-      job.grid.lastExpansionJob = null;
       job.grid.updateAllTilesCollection(job.grid.originalTiles);
 
       // Turn scrolling back on

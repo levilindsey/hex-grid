@@ -7512,7 +7512,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       job.baseTile.expandedState = null;
 
       job.grid.sectors = [];
-      job.grid.lastExpansionJob = null;
       job.grid.updateAllTilesCollection(job.grid.originalTiles);
 
       // Turn scrolling back on
@@ -10523,8 +10522,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     // Don't reset some state if another expansion job started after this one did
     if (job.grid.lastExpansionJob === job) {
-      job.grid.lastExpansionJob = null;
-
       job.grid.pagePost.loadCarouselMedia();
     }
 
