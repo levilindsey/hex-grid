@@ -645,7 +645,7 @@
       grid.allTiles[i].draw();
     }
 
-    if (grid.isPostOpen) {
+    if (grid.isPostOpen || grid.isTransitioning) {
       grid.pagePost.draw();
     }
   }

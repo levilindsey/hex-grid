@@ -1513,7 +1513,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   config.annotations = {
     'tileNeighborConnections': {
-      enabled: true,
+      enabled: false,
       create: createTileNeighborConnections,
       destroy: destroyTileNeighborConnections,
       update: updateTileNeighborConnections,
@@ -1534,7 +1534,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       priority: 400
     },
     'tileIndices': {
-      enabled: true,
+      enabled: false,
       create: createTileIndices,
       destroy: destroyTileIndices,
       update: updateTileIndices,
@@ -1555,7 +1555,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       priority: 1200
     },
     'sectorColors': {
-      enabled: true,
+      enabled: false,
       create: fillSectorColors,
       destroy: function () {},
       update: fillSectorColors,
@@ -4048,7 +4048,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       grid.allTiles[i].draw();
     }
 
-    if (grid.isPostOpen) {
+    if (grid.isPostOpen || grid.isTransitioning) {
       grid.pagePost.draw();
     }
   }
@@ -7587,8 +7587,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       y: job.grid.panCenter.y
     })
         .duration = config.duration + window.hg.OpenPostJob.config.panDurationOffset;
-    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile,
-        panDisplacement)
+    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile, panDisplacement)
         .duration = config.duration + window.hg.OpenPostJob.config.dilateSectorsDurationOffset;
     window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
         .duration = config.duration + window.hg.OpenPostJob.config.fadePostDurationOffset;
@@ -8222,13 +8221,14 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @param {Number} deltaTime
    */
   function updateFadeIn(currentTime, deltaTime) {
-    var job, progress, quick1FadeProgress, quick2FadeProgress;
+    var job, progress, uneasedProgress, quick1FadeProgress, quick2FadeProgress;
 
     job = this;
 
     // Calculate progress with an easing function
     progress = (currentTime - job.startTime) / job.duration;
-    progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+    uneasedProgress = progress;
+    progress = window.hg.util.easingFunctions.easeOutCubic(progress);
     progress = progress > 1 ? 1 : progress;
 
     // Some parts of the animation should happen at different speeds
@@ -8242,7 +8242,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.baseTile.tilePost.elements.title.style.opacity = 1 - quick2FadeProgress;
 
     // Update the opacity of the PagePost
-    job.pagePost.opacity = progress;
+    job.pagePost.opacity = uneasedProgress;
 
     // Update the position of the PagePost
     job.pagePost.center.x = job.pagePostStartPosition.x +
@@ -8269,7 +8269,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @param {Number} deltaTime
    */
   function updateFadeOut(currentTime, deltaTime) {
-    var job, progress, quick1FadeProgress, quick2FadeProgress;
+    var job, progress, quick1FadeProgress;
 
     job = this;
 
@@ -8281,15 +8281,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     // Some parts of the animation should happen at different speeds
     quick1FadeProgress = progress / config.quick1FadeDurationRatio;
     quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
-    quick2FadeProgress = progress / config.quick2FadeDurationRatio;
-    quick2FadeProgress = (quick2FadeProgress > 1 ? 1 : quick2FadeProgress);
 
     // Update the opacity of the center Tile
     job.baseTile.element.style.opacity = progress;
     job.baseTile.tilePost.elements.title.style.opacity = progress;
 
     // Update the opacity of the PagePost
-    job.pagePost.opacity = 1 - quick2FadeProgress;
+    job.pagePost.opacity = 1 - quick1FadeProgress;
 
     // Update the position of the PagePost
     job.pagePost.center.x = job.pagePostStartPosition.x +
@@ -10635,8 +10633,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       y: job.grid.panCenter.y - job.grid.originalCenter.y
     };
 
-    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile,
-        panDisplacement)
+    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile, panDisplacement)
         .duration = config.duration + config.dilateSectorsDurationOffset;
     window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
         .duration = config.duration + config.fadePostDurationOffset;

@@ -155,8 +155,7 @@
       y: job.grid.panCenter.y - job.grid.originalCenter.y
     };
 
-    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile,
-        panDisplacement)
+    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile, panDisplacement)
         .duration = config.duration + config.dilateSectorsDurationOffset;
     window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
         .duration = config.duration + config.fadePostDurationOffset;

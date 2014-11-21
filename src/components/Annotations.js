@@ -33,7 +33,7 @@
 
   config.annotations = {
     'tileNeighborConnections': {
-      enabled: true,
+      enabled: false,
       create: createTileNeighborConnections,
       destroy: destroyTileNeighborConnections,
       update: updateTileNeighborConnections,
@@ -54,7 +54,7 @@
       priority: 400
     },
     'tileIndices': {
-      enabled: true,
+      enabled: false,
       create: createTileIndices,
       destroy: destroyTileIndices,
       update: updateTileIndices,
@@ -75,7 +75,7 @@
       priority: 1200
     },
     'sectorColors': {
-      enabled: true,
+      enabled: false,
       create: fillSectorColors,
       destroy: function () {},
       update: fillSectorColors,
