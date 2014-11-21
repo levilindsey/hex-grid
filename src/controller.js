@@ -497,8 +497,10 @@
 
     resetPersistentJobs(grid);
 
-    expandedTile = getTileFromPostId(grid, expandedPostId);
-    controller.transientJobs.openPost.create(grid, expandedTile);
+    if (expandedPostId) {
+      expandedTile = getTileFromPostId(grid, expandedPostId);
+      controller.transientJobs.openPost.create(grid, expandedTile);
+    }
 
     // ---  --- //
 

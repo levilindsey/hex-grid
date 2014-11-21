@@ -554,26 +554,29 @@
 
     // If the dimensions of the expanded post area are larger than that of the viewport, then we cannot simply use the
     // number of tiles along a side of this area
-    count = innerEdgeTiles.length > sector.expandedDisplacementTileCount + 1 ?
-      sector.expandedDisplacementTileCount + 1 : innerEdgeTiles.length;
+    count = sector.expandedDisplacementTileCount + 1;
+    count = innerEdgeTiles.length < count ? innerEdgeTiles.length : count;
 
     for (i = 0; i < count; i += 1) {
       innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Mark the outer edge tiles as border tiles --- //
-**;sector.tilesByIndex[0]
-    for (i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount,
-             count = neighborTileArrays.length; i < count; i += 1) {
+
+    i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount;
+    i = i < 0 ? 0 : i;
+
+    for (count = neighborTileArrays.length; i < count; i += 1) {
       if (neighborTileArrays[i][0]) {
         neighborTileArrays[i][0].expandedState.isBorderTile = true;
       }
     }
 
     // --- Mark the outermost sector tiles as border tiles --- //
-
     for (i = 0, count = sector.tilesByIndex.length; i < count; i += 1) {
-      sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
+      if (sector.tilesByIndex[i].length) {
+        sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
+      }
     }
   }
 
