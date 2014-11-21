@@ -642,6 +642,9 @@
   function destroy() {
     var tile = this;
 
+    if (tile.holdsContent) {
+      destroyTilePost.call(tile);
+    }
     tile.svg.removeChild(tile.element);
   }
 

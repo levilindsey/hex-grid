@@ -529,6 +529,16 @@
 
     grid = this;
 
+    if (grid.allTiles) {
+      grid.allTiles.forEach(function (tile) {
+        tile.destroy();
+      });
+    }
+
+    if (grid.isPostOpen) {
+      grid.pagePost.destroy();
+    }
+
     grid.originalCenter = {x: Number.NaN, y: Number.NaN};
     grid.currentCenter = {x: Number.NaN, y: Number.NaN};
     grid.panCenter = {x: Number.NaN, y: Number.NaN};

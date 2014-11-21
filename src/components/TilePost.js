@@ -157,8 +157,8 @@
   function destroy() {
     var tilePost = this;
 
-    tilePost.svg.removeChild(tilePost.elements.container);
-    tilePost.svgDefs.removeChild(tilePost.elements.backgroundPattern);
+    tilePost.tile.grid.parent.removeChild(tilePost.elements.title);
+    tilePost.tile.grid.svgDefs.removeChild(tilePost.elements.backgroundPattern);
   }
 
   // ------------------------------------------------------------------------------------------- //

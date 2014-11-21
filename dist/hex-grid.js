@@ -3932,6 +3932,16 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     grid = this;
 
+    if (grid.allTiles) {
+      grid.allTiles.forEach(function (tile) {
+        tile.destroy();
+      });
+    }
+
+    if (grid.isPostOpen) {
+      grid.pagePost.destroy();
+    }
+
     grid.originalCenter = {x: Number.NaN, y: Number.NaN};
     grid.currentCenter = {x: Number.NaN, y: Number.NaN};
     grid.panCenter = {x: Number.NaN, y: Number.NaN};
@@ -6160,6 +6170,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function destroy() {
     var tile = this;
 
+    if (tile.holdsContent) {
+      destroyTilePost.call(tile);
+    }
     tile.svg.removeChild(tile.element);
   }
 
@@ -6453,8 +6466,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function destroy() {
     var tilePost = this;
 
-    tilePost.svg.removeChild(tilePost.elements.container);
-    tilePost.svgDefs.removeChild(tilePost.elements.backgroundPattern);
+    tilePost.tile.grid.parent.removeChild(tilePost.elements.title);
+    tilePost.tile.grid.svgDefs.removeChild(tilePost.elements.backgroundPattern);
   }
 
   // ------------------------------------------------------------------------------------------- //
