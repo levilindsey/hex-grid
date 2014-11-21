@@ -16,7 +16,10 @@
     "canvas",
     "animation",
     "library",
-    "app"
+    "app",
+    "data-driven",
+    "dat.gui",
+    "gulp.js"
   ],
   "images": [
   ],
