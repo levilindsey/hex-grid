@@ -1512,33 +1512,19 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config.cornerTileLightness = 30;
 
   config.annotations = {
-    'sectorColors': {
+    'tileNeighborConnections': {
       enabled: true,
-      create: fillSectorColors,
-      destroy: function () {},
-      update: fillSectorColors,
-      priority: 0
+      create: createTileNeighborConnections,
+      destroy: destroyTileNeighborConnections,
+      update: updateTileNeighborConnections,
+      priority: 1300
     },
-    'contentTiles': {
+    'tileAnchorCenters': {
       enabled: false,
-      create: fillContentTiles,
-      destroy: function () {},
-      update: fillContentTiles,
-      priority: 100
-    },
-    'borderTiles': {
-      enabled: true,
-      create: fillBorderTiles,
-      destroy: function () {},
-      update: fillBorderTiles,
-      priority: 200
-    },
-    'cornerTiles': {
-      enabled: false,
-      create: fillCornerTiles,
-      destroy: function () {},
-      update: fillCornerTiles,
-      priority: 300
+      create: createTileAnchorCenters,
+      destroy: destroyTileAnchorCenters,
+      update: updateTileAnchorCenters,
+      priority: 500
     },
     'transparentTiles': {
       enabled: false,
@@ -1547,12 +1533,54 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       update: function () {},
       priority: 400
     },
-    'tileAnchorCenters': {
+    'tileIndices': {
+      enabled: true,
+      create: createTileIndices,
+      destroy: destroyTileIndices,
+      update: updateTileIndices,
+      priority: 1000
+    },
+    'tileForces': {
       enabled: false,
-      create: createTileAnchorCenters,
-      destroy: destroyTileAnchorCenters,
-      update: updateTileAnchorCenters,
-      priority: 500
+      create: createTileForces,
+      destroy: destroyTileForces,
+      update: updateTileForces,
+      priority: 1100
+    },
+    'tileVelocities': {
+      enabled: false,
+      create: createTileVelocities,
+      destroy: destroyTileVelocities,
+      update: updateTileVelocities,
+      priority: 1200
+    },
+    'sectorColors': {
+      enabled: true,
+      create: fillSectorColors,
+      destroy: function () {},
+      update: fillSectorColors,
+      priority: 0
+    },
+    'borderTiles': {
+      enabled: false,
+      create: fillBorderTiles,
+      destroy: function () {},
+      update: fillBorderTiles,
+      priority: 200
+    },
+    'contentTiles': {
+      enabled: false,
+      create: fillContentTiles,
+      destroy: function () {},
+      update: fillContentTiles,
+      priority: 100
+    },
+    'cornerTiles': {
+      enabled: false,
+      create: fillCornerTiles,
+      destroy: function () {},
+      update: fillCornerTiles,
+      priority: 300
     },
     'tileParticleCenters': {
       enabled: false,
@@ -1581,34 +1609,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       destroy: destroyTileOuterRadii,
       update: updateTileOuterRadii,
       priority: 900
-    },
-    'tileIndices': {
-      enabled: true,
-      create: createTileIndices,
-      destroy: destroyTileIndices,
-      update: updateTileIndices,
-      priority: 1000
-    },
-    'tileForces': {
-      enabled: false,
-      create: createTileForces,
-      destroy: destroyTileForces,
-      update: updateTileForces,
-      priority: 1100
-    },
-    'tileVelocities': {
-      enabled: false,
-      create: createTileVelocities,
-      destroy: destroyTileVelocities,
-      update: updateTileVelocities,
-      priority: 1200
-    },
-    'tileNeighborConnections': {
-      enabled: false,
-      create: createTileNeighborConnections,
-      destroy: destroyTileNeighborConnections,
-      update: updateTileNeighborConnections,
-      priority: 1300
     },
     'contentAreaGuidelines': {
       enabled: false,
@@ -5229,7 +5229,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
       // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
       for (minorIndex in sector.tilesByIndex[majorIndex]) {
-        setTileNeighborStates(sector, majorIndex, minorIndex);
+        setTileNeighborStates(sector, majorIndex, parseInt(minorIndex));
       }
     }
 
@@ -5315,7 +5315,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @param {Array.<Sector>} sectors
    */
   function initializeExpandedStateExternalTileNeighbors(sectors) {
-
     var sector, innerEdgeTiles, neighborTileArrays, i, count, lowerNeighborIndex,
         upperNeighborIndex, innerEdgeNeighborSector, neighborMajorIndex;
 

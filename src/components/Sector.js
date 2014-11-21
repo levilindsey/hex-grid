@@ -407,7 +407,7 @@
 
       // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
       for (minorIndex in sector.tilesByIndex[majorIndex]) {
-        setTileNeighborStates(sector, majorIndex, minorIndex);
+        setTileNeighborStates(sector, majorIndex, parseInt(minorIndex));
       }
     }
 
@@ -493,7 +493,6 @@
    * @param {Array.<Sector>} sectors
    */
   function initializeExpandedStateExternalTileNeighbors(sectors) {
-
     var sector, innerEdgeTiles, neighborTileArrays, i, count, lowerNeighborIndex,
         upperNeighborIndex, innerEdgeNeighborSector, neighborMajorIndex;
 
