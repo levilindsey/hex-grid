@@ -4047,10 +4047,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
       grid.allTiles[i].draw();
     }
-
-    if (grid.isPostOpen || grid.isTransitioning) {
-      grid.pagePost.draw();
-    }
   }
 
   /**
@@ -8142,7 +8138,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
       job.baseTile.show();
     } else {
-      job.baseTile.hide();
+      // Don't reset some state if another expansion job started after this one did
+      if (job.parentExpansionJob === job.grid.lastExpansionJob) {
+        job.baseTile.hide();
+      }
     }
 
     job.baseTile.element.style.pointerEvents = 'auto';
@@ -8312,7 +8311,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @this FadePostJob
    */
   function draw() {
-    // This animation job updates the state of the PagePost, so it has nothing of its own to draw
+    var job = this;
+
+    job.pagePost.draw();
   }
 
   /**
