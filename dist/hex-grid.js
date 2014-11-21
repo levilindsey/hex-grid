@@ -1293,190 +1293,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 })();
 
 /**
- * This module defines a singleton for animating things.
- *
- * The animator singleton handles the animation loop for the application and updates all
- * registered AnimationJobs during each animation frame.
- *
- * @module animator
- */
-(function () {
-  /**
-   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, init: Function, isComplete: Boolean}} AnimationJob
-   */
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var animator = {};
-  var config = {};
-
-  config.deltaTimeUpperThreshold = 200;
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * This is the animation loop that drives all of the animation.
-   */
-  function animationLoop() {
-    var currentTime, deltaTime;
-
-    currentTime = Date.now();
-    deltaTime = currentTime - animator.previousTime;
-    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
-        config.deltaTimeUpperThreshold : deltaTime;
-    animator.isLooping = true;
-
-    if (!animator.isPaused) {
-      updateJobs(currentTime, deltaTime);
-      drawJobs();
-      window.hg.util.requestAnimationFrame(animationLoop);
-    } else {
-      animator.isLooping = false;
-    }
-
-    animator.previousTime = currentTime;
-  }
-
-  /**
-   * Updates all of the active AnimationJobs.
-   *
-   * @param {Number} currentTime
-   * @param {Number} deltaTime
-   */
-  function updateJobs(currentTime, deltaTime) {
-    var i, count;
-
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].update(currentTime, deltaTime);
-
-      // Remove jobs from the list after they are complete
-      if (animator.jobs[i].isComplete) {
-        removeJob(animator.jobs[i], i);
-        i--;
-        count--;
-      }
-    }
-  }
-
-  /**
-   * Removes the given job from the collection of active, animating jobs.
-   *
-   * @param {AnimationJob} job
-   * @param {Number} [index]
-   */
-  function removeJob(job, index) {
-    var count;
-
-    if (typeof index === 'number') {
-      animator.jobs.splice(index, 1);
-    } else {
-      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
-        if (animator.jobs[index] === job) {
-          animator.jobs.splice(index, 1);
-          break;
-        }
-      }
-    }
-
-    // Stop the animation loop when there are no more jobs to animate
-    if (animator.jobs.length === 0) {
-      animator.isPaused = true;
-    }
-  }
-
-  /**
-   * Draws all of the active AnimationJobs.
-   */
-  function drawJobs() {
-    var i, count;
-
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].draw();
-    }
-  }
-
-  /**
-   * Starts the animation loop if it is not already running
-   */
-  function startAnimationLoop() {
-    animator.isPaused = false;
-    if (!animator.isLooping) {
-      animator.previousTime = Date.now();
-      animationLoop();
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public static functions
-
-  /**
-   * Starts the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function startJob(job) {
-    // Is this a restart?
-    if (!job.isComplete) {
-      console.log('Job restarting: ' + job.constructor.name);
-      job.cancel();
-
-      job.init();// TODO: get rid of this init function
-      job.start();
-    } else {
-      console.log('Job starting: ' + job.constructor.name);
-
-      job.init();// TODO: get rid of this init function
-      job.start();
-      animator.jobs.push(job);
-    }
-
-    startAnimationLoop();
-  }
-
-  /**
-   * Cancels the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function cancelJob(job) {
-    console.log('Job cancelling: ' + job.constructor.name);
-
-    job.cancel();
-    removeJob(job);
-  }
-
-  /**
-   * Cancels all running AnimationJobs.
-   */
-  function cancelAll() {
-    while (animator.jobs.length) {
-      cancelJob(animator.jobs[0]);
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this singleton
-
-  animator.jobs = [];
-  animator.previousTime = Date.now();
-  animator.isLooping = false;
-  animator.isPaused = true;
-  animator.startJob = startJob;
-  animator.cancelJob = cancelJob;
-  animator.cancelAll = cancelAll;
-
-  animator.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.animator = animator;
-
-  console.log('animator module loaded');
-})();
-
-/**
  * @typedef {AnimationJob} Annotations
  */
 
@@ -5018,7 +4834,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    *
    * @this Sector
    */
-  function collectNewTilesInSector() {//**;// TODO: somehow, too few tiles are created on the "minor" side of the sector (although, this is a bug from both directions)
+  function collectNewTilesInSector() {
     var sector, bounds;
 
     sector = this;
@@ -5045,72 +4861,23 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
      * @returns {{minX: Number, maxX: Number, minY: Number, maxY: Number}}
      */
     function computeBounds() {
-      var isMovingAwayX, isMovingAwayY, expansionOffsetX, expansionOffsetY, boundingBoxHalfX, boundingBoxHalfY, minX,
-        maxX, minY, maxY;
+      var minX, maxX, minY, maxY, viewportHalfWidth, viewportHalfHeight;
 
-      // If the sector is moving "across" the base tile, then an increased region of the sector will
-      // be visible in the expanded grid; if instead the sector is moving "away" from the base tile,
-      // then a decreased region of the sector will be visible in the expanded grid.
-      isMovingAwayX = sector.expandedDisplacement.x > 0 === sector.majorNeighborDelta.x > 0 &&
-        sector.expandedDisplacement.x !== 0;
-      isMovingAwayY = sector.expandedDisplacement.y > 0 === sector.majorNeighborDelta.y > 0 &&
-        sector.expandedDisplacement.y !== 0;
-      expansionOffsetX = isMovingAwayX ?
-        -Math.abs(sector.expandedDisplacement.x) : Math.abs(sector.expandedDisplacement.x);
-      expansionOffsetY = isMovingAwayY ?
-        -Math.abs(sector.expandedDisplacement.y) : Math.abs(sector.expandedDisplacement.y);
-      expansionOffsetY = 0;**;// TODO: re-think this expansion offset thing; makes some sectors work, but breaks others
+      // Calculate the dimensions of the viewport with a little extra padding around the edges
+      viewportHalfWidth = window.innerWidth / 2 + window.hg.Grid.config.tileLongLengthWithGap;
+      viewportHalfHeight = window.innerHeight / 2 + window.hg.Grid.config.tileLongLengthWithGap;
 
-      // Calculate the dimensional extremes for this sector
-      boundingBoxHalfX = window.innerWidth / 2 + expansionOffsetX + window.hg.Grid.config.tileShortLengthWithGap;
-      boundingBoxHalfY = window.innerHeight / 2 + expansionOffsetY + window.hg.Grid.config.tileShortLengthWithGap;
-      minX = sector.baseTile.originalAnchor.x - boundingBoxHalfX;
-      maxX = sector.baseTile.originalAnchor.x + boundingBoxHalfX;
-      minY = sector.baseTile.originalAnchor.y - boundingBoxHalfY;
-      maxY = sector.baseTile.originalAnchor.y + boundingBoxHalfY;
+      // Calculate the viewport bounding box around the base tile BEFORE sector expansion has been considered
+      minX = sector.baseTile.originalAnchor.x - viewportHalfWidth;
+      maxX = sector.baseTile.originalAnchor.x + viewportHalfWidth;
+      minY = sector.baseTile.originalAnchor.y - viewportHalfHeight;
+      maxY = sector.baseTile.originalAnchor.y + viewportHalfHeight;
 
-      if (sector.index === 4 && true) {// TODO: remove me
-        console.warn('sector.expandedDisplacement.x', sector.expandedDisplacement.x);
-        console.warn('sector.expandedDisplacement.y', sector.expandedDisplacement.y);
-        console.warn('isMovingAwayX', isMovingAwayX);
-        console.warn('isMovingAwayY', isMovingAwayY);
-        console.warn('expansionOffsetX', expansionOffsetX);
-        console.warn('expansionOffsetY', expansionOffsetY);
-        console.warn('boundingBoxHalfX', boundingBoxHalfX);
-        console.warn('boundingBoxHalfY', boundingBoxHalfY);
-        console.warn('minX', minX);
-        console.warn('maxX', maxX);
-        console.warn('minY', minY);
-        console.warn('maxY', maxY);
-        console.warn('sector.baseTile.originalAnchor.x', sector.baseTile.originalAnchor.x);
-        console.warn('sector.baseTile.originalAnchor.y', sector.baseTile.originalAnchor.y);
-        console.warn('window.innerWidth / 2', window.innerWidth / 2);
-        console.warn('window.innerHeight / 2', window.innerHeight / 2);
-        console.warn('sector.minorNeighborDelta.x', sector.minorNeighborDelta.x);
-        console.warn('sector.minorNeighborDelta.y', sector.minorNeighborDelta.y);
-        console.warn('sector.majorNeighborDelta.x', sector.majorNeighborDelta.x);
-        console.warn('sector.majorNeighborDelta.y', sector.majorNeighborDelta.y);
-
-        var startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
-        var startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDelta.y;
-        var majorIndex = 0;
-        var minorIndex = 6;
-        var majorDisplacementX = sector.majorNeighborDelta.x * majorIndex;
-        var majorDisplacementY = sector.majorNeighborDelta.y * majorIndex;
-        var minorDisplacementX = sector.minorNeighborDelta.x * minorIndex;
-        var minorDisplacementY = sector.minorNeighborDelta.y * minorIndex;
-        var testTileX = startX + majorDisplacementX + minorDisplacementX;
-        var testTileY = startY + majorDisplacementY + minorDisplacementY;
-        console.warn('startX', startX);
-        console.warn('startY', startY);
-        console.warn('majorDisplacementX', majorDisplacementX);
-        console.warn('majorDisplacementY', majorDisplacementY);
-        console.warn('minorDisplacementX', minorDisplacementX);
-        console.warn('minorDisplacementY', minorDisplacementY);
-        console.warn('testTileX', testTileX);
-        console.warn('testTileY', testTileY);
-        debugger;
-      }
+      // Add the offset from sector expansion
+      minX -= sector.expandedDisplacement.x;
+      maxX -= sector.expandedDisplacement.x;
+      minY -= sector.expandedDisplacement.y;
+      maxY -= sector.expandedDisplacement.y;
 
       return {
         minX: minX,
@@ -5409,28 +5176,31 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       }
     }
 
-    // TODO: uncomment this
-    //// --- Mark the inner edge tiles as border tiles --- //
-    //
-    //for (i = 0, count = sector.expandedDisplacementTileCount + 1;
-    //     i < count; i += 1) {
-    //  innerEdgeTiles[i].expandedState.isBorderTile = true;
-    //}
-    //
-    //// --- Mark the outer edge tiles as border tiles --- //
-    //
-    //for (i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount,
-    //         count = neighborTileArrays.length; i < count; i += 1) {
-    //  if (neighborTileArrays[i][0]) {
-    //    neighborTileArrays[i][0].expandedState.isBorderTile = true;
-    //  }
-    //}
-    //
-    //// --- Mark the outermost sector tiles as border tiles --- //
-    //
-    //for (i = 0, count = sector.tilesByIndex.length; i < count; i += 1) {
-    //  sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
-    //}
+    // --- Mark the inner edge tiles as border tiles --- //
+
+    // If the dimensions of the expanded post area are larger than that of the viewport, then we cannot simply use the
+    // number of tiles along a side of this area
+    count = innerEdgeTiles.length > sector.expandedDisplacementTileCount + 1 ?
+      sector.expandedDisplacementTileCount + 1 : innerEdgeTiles.length;
+
+    for (i = 0; i < count; i += 1) {
+      innerEdgeTiles[i].expandedState.isBorderTile = true;
+    }
+
+    // --- Mark the outer edge tiles as border tiles --- //
+
+    for (i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount,
+             count = neighborTileArrays.length; i < count; i += 1) {
+      if (neighborTileArrays[i][0]) {
+        neighborTileArrays[i][0].expandedState.isBorderTile = true;
+      }
+    }
+
+    // --- Mark the outermost sector tiles as border tiles --- //
+
+    for (i = 0, count = sector.tilesByIndex.length; i < count; i += 1) {
+      sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
+    }
   }
 
   /**
@@ -6525,6 +6295,190 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   window.hg.TilePost = TilePost;
 
   console.log('TilePost module loaded');
+})();
+
+/**
+ * This module defines a singleton for animating things.
+ *
+ * The animator singleton handles the animation loop for the application and updates all
+ * registered AnimationJobs during each animation frame.
+ *
+ * @module animator
+ */
+(function () {
+  /**
+   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, init: Function, isComplete: Boolean}} AnimationJob
+   */
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var animator = {};
+  var config = {};
+
+  config.deltaTimeUpperThreshold = 200;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * This is the animation loop that drives all of the animation.
+   */
+  function animationLoop() {
+    var currentTime, deltaTime;
+
+    currentTime = Date.now();
+    deltaTime = currentTime - animator.previousTime;
+    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
+        config.deltaTimeUpperThreshold : deltaTime;
+    animator.isLooping = true;
+
+    if (!animator.isPaused) {
+      updateJobs(currentTime, deltaTime);
+      drawJobs();
+      window.hg.util.requestAnimationFrame(animationLoop);
+    } else {
+      animator.isLooping = false;
+    }
+
+    animator.previousTime = currentTime;
+  }
+
+  /**
+   * Updates all of the active AnimationJobs.
+   *
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateJobs(currentTime, deltaTime) {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].update(currentTime, deltaTime);
+
+      // Remove jobs from the list after they are complete
+      if (animator.jobs[i].isComplete) {
+        removeJob(animator.jobs[i], i);
+        i--;
+        count--;
+      }
+    }
+  }
+
+  /**
+   * Removes the given job from the collection of active, animating jobs.
+   *
+   * @param {AnimationJob} job
+   * @param {Number} [index]
+   */
+  function removeJob(job, index) {
+    var count;
+
+    if (typeof index === 'number') {
+      animator.jobs.splice(index, 1);
+    } else {
+      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
+        if (animator.jobs[index] === job) {
+          animator.jobs.splice(index, 1);
+          break;
+        }
+      }
+    }
+
+    // Stop the animation loop when there are no more jobs to animate
+    if (animator.jobs.length === 0) {
+      animator.isPaused = true;
+    }
+  }
+
+  /**
+   * Draws all of the active AnimationJobs.
+   */
+  function drawJobs() {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].draw();
+    }
+  }
+
+  /**
+   * Starts the animation loop if it is not already running
+   */
+  function startAnimationLoop() {
+    animator.isPaused = false;
+    if (!animator.isLooping) {
+      animator.previousTime = Date.now();
+      animationLoop();
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Starts the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function startJob(job) {
+    // Is this a restart?
+    if (!job.isComplete) {
+      console.log('Job restarting: ' + job.constructor.name);
+      job.cancel();
+
+      job.init();// TODO: get rid of this init function
+      job.start();
+    } else {
+      console.log('Job starting: ' + job.constructor.name);
+
+      job.init();// TODO: get rid of this init function
+      job.start();
+      animator.jobs.push(job);
+    }
+
+    startAnimationLoop();
+  }
+
+  /**
+   * Cancels the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function cancelJob(job) {
+    console.log('Job cancelling: ' + job.constructor.name);
+
+    job.cancel();
+    removeJob(job);
+  }
+
+  /**
+   * Cancels all running AnimationJobs.
+   */
+  function cancelAll() {
+    while (animator.jobs.length) {
+      cancelJob(animator.jobs[0]);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  animator.jobs = [];
+  animator.previousTime = Date.now();
+  animator.isLooping = false;
+  animator.isPaused = true;
+  animator.startJob = startJob;
+  animator.cancelJob = cancelJob;
+  animator.cancelAll = cancelAll;
+
+  animator.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.animator = animator;
+
+  console.log('animator module loaded');
 })();
 
 /**

@@ -208,7 +208,7 @@
    *
    * @this Sector
    */
-  function collectNewTilesInSector() {//**;// TODO: somehow, too few tiles are created on the "minor" side of the sector (although, this is a bug from both directions)
+  function collectNewTilesInSector() {
     var sector, bounds;
 
     sector = this;
@@ -235,72 +235,23 @@
      * @returns {{minX: Number, maxX: Number, minY: Number, maxY: Number}}
      */
     function computeBounds() {
-      var isMovingAwayX, isMovingAwayY, expansionOffsetX, expansionOffsetY, boundingBoxHalfX, boundingBoxHalfY, minX,
-        maxX, minY, maxY;
+      var minX, maxX, minY, maxY, viewportHalfWidth, viewportHalfHeight;
 
-      // If the sector is moving "across" the base tile, then an increased region of the sector will
-      // be visible in the expanded grid; if instead the sector is moving "away" from the base tile,
-      // then a decreased region of the sector will be visible in the expanded grid.
-      isMovingAwayX = sector.expandedDisplacement.x > 0 === sector.majorNeighborDelta.x > 0 &&
-        sector.expandedDisplacement.x !== 0;
-      isMovingAwayY = sector.expandedDisplacement.y > 0 === sector.majorNeighborDelta.y > 0 &&
-        sector.expandedDisplacement.y !== 0;
-      expansionOffsetX = isMovingAwayX ?
-        -Math.abs(sector.expandedDisplacement.x) : Math.abs(sector.expandedDisplacement.x);
-      expansionOffsetY = isMovingAwayY ?
-        -Math.abs(sector.expandedDisplacement.y) : Math.abs(sector.expandedDisplacement.y);
-      expansionOffsetY = 0;**;// TODO: re-think this expansion offset thing; makes some sectors work, but breaks others
+      // Calculate the dimensions of the viewport with a little extra padding around the edges
+      viewportHalfWidth = window.innerWidth / 2 + window.hg.Grid.config.tileLongLengthWithGap;
+      viewportHalfHeight = window.innerHeight / 2 + window.hg.Grid.config.tileLongLengthWithGap;
 
-      // Calculate the dimensional extremes for this sector
-      boundingBoxHalfX = window.innerWidth / 2 + expansionOffsetX + window.hg.Grid.config.tileShortLengthWithGap;
-      boundingBoxHalfY = window.innerHeight / 2 + expansionOffsetY + window.hg.Grid.config.tileShortLengthWithGap;
-      minX = sector.baseTile.originalAnchor.x - boundingBoxHalfX;
-      maxX = sector.baseTile.originalAnchor.x + boundingBoxHalfX;
-      minY = sector.baseTile.originalAnchor.y - boundingBoxHalfY;
-      maxY = sector.baseTile.originalAnchor.y + boundingBoxHalfY;
+      // Calculate the viewport bounding box around the base tile BEFORE sector expansion has been considered
+      minX = sector.baseTile.originalAnchor.x - viewportHalfWidth;
+      maxX = sector.baseTile.originalAnchor.x + viewportHalfWidth;
+      minY = sector.baseTile.originalAnchor.y - viewportHalfHeight;
+      maxY = sector.baseTile.originalAnchor.y + viewportHalfHeight;
 
-      if (sector.index === 4 && true) {// TODO: remove me
-        console.warn('sector.expandedDisplacement.x', sector.expandedDisplacement.x);
-        console.warn('sector.expandedDisplacement.y', sector.expandedDisplacement.y);
-        console.warn('isMovingAwayX', isMovingAwayX);
-        console.warn('isMovingAwayY', isMovingAwayY);
-        console.warn('expansionOffsetX', expansionOffsetX);
-        console.warn('expansionOffsetY', expansionOffsetY);
-        console.warn('boundingBoxHalfX', boundingBoxHalfX);
-        console.warn('boundingBoxHalfY', boundingBoxHalfY);
-        console.warn('minX', minX);
-        console.warn('maxX', maxX);
-        console.warn('minY', minY);
-        console.warn('maxY', maxY);
-        console.warn('sector.baseTile.originalAnchor.x', sector.baseTile.originalAnchor.x);
-        console.warn('sector.baseTile.originalAnchor.y', sector.baseTile.originalAnchor.y);
-        console.warn('window.innerWidth / 2', window.innerWidth / 2);
-        console.warn('window.innerHeight / 2', window.innerHeight / 2);
-        console.warn('sector.minorNeighborDelta.x', sector.minorNeighborDelta.x);
-        console.warn('sector.minorNeighborDelta.y', sector.minorNeighborDelta.y);
-        console.warn('sector.majorNeighborDelta.x', sector.majorNeighborDelta.x);
-        console.warn('sector.majorNeighborDelta.y', sector.majorNeighborDelta.y);
-
-        var startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
-        var startY = sector.baseTile.originalAnchor.y + sector.majorNeighborDelta.y;
-        var majorIndex = 0;
-        var minorIndex = 6;
-        var majorDisplacementX = sector.majorNeighborDelta.x * majorIndex;
-        var majorDisplacementY = sector.majorNeighborDelta.y * majorIndex;
-        var minorDisplacementX = sector.minorNeighborDelta.x * minorIndex;
-        var minorDisplacementY = sector.minorNeighborDelta.y * minorIndex;
-        var testTileX = startX + majorDisplacementX + minorDisplacementX;
-        var testTileY = startY + majorDisplacementY + minorDisplacementY;
-        console.warn('startX', startX);
-        console.warn('startY', startY);
-        console.warn('majorDisplacementX', majorDisplacementX);
-        console.warn('majorDisplacementY', majorDisplacementY);
-        console.warn('minorDisplacementX', minorDisplacementX);
-        console.warn('minorDisplacementY', minorDisplacementY);
-        console.warn('testTileX', testTileX);
-        console.warn('testTileY', testTileY);
-        debugger;
-      }
+      // Add the offset from sector expansion
+      minX -= sector.expandedDisplacement.x;
+      maxX -= sector.expandedDisplacement.x;
+      minY -= sector.expandedDisplacement.y;
+      maxY -= sector.expandedDisplacement.y;
 
       return {
         minX: minX,
@@ -599,28 +550,31 @@
       }
     }
 
-    // TODO: uncomment this
-    //// --- Mark the inner edge tiles as border tiles --- //
-    //
-    //for (i = 0, count = sector.expandedDisplacementTileCount + 1;
-    //     i < count; i += 1) {
-    //  innerEdgeTiles[i].expandedState.isBorderTile = true;
-    //}
-    //
-    //// --- Mark the outer edge tiles as border tiles --- //
-    //
-    //for (i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount,
-    //         count = neighborTileArrays.length; i < count; i += 1) {
-    //  if (neighborTileArrays[i][0]) {
-    //    neighborTileArrays[i][0].expandedState.isBorderTile = true;
-    //  }
-    //}
-    //
-    //// --- Mark the outermost sector tiles as border tiles --- //
-    //
-    //for (i = 0, count = sector.tilesByIndex.length; i < count; i += 1) {
-    //  sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
-    //}
+    // --- Mark the inner edge tiles as border tiles --- //
+
+    // If the dimensions of the expanded post area are larger than that of the viewport, then we cannot simply use the
+    // number of tiles along a side of this area
+    count = innerEdgeTiles.length > sector.expandedDisplacementTileCount + 1 ?
+      sector.expandedDisplacementTileCount + 1 : innerEdgeTiles.length;
+
+    for (i = 0; i < count; i += 1) {
+      innerEdgeTiles[i].expandedState.isBorderTile = true;
+    }
+
+    // --- Mark the outer edge tiles as border tiles --- //
+**;sector.tilesByIndex[0]
+    for (i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount,
+             count = neighborTileArrays.length; i < count; i += 1) {
+      if (neighborTileArrays[i][0]) {
+        neighborTileArrays[i][0].expandedState.isBorderTile = true;
+      }
+    }
+
+    // --- Mark the outermost sector tiles as border tiles --- //
+
+    for (i = 0, count = sector.tilesByIndex.length; i < count; i += 1) {
+      sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
+    }
   }
 
   /**
