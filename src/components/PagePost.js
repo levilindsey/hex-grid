@@ -9,10 +9,6 @@
 
   // TODO: also update the tilepost drawing to utilize the reset job
 
-  // TODO: fade out the PagePost text
-
-  // TODO: make sure the tilepost job is getting destroyed properly on resize (text is hanging around...)
-
   // TODO: refactor PagePost, TilePost, and Carousel code
 
   // TODO: sort post items by date

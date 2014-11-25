@@ -16,7 +16,8 @@
     "front-end",
     "animation",
     "library",
-    "bower"
+    "bower",
+    "gulp.js"
   ],
   "images": [
     {

@@ -15,8 +15,10 @@
     "app",
     "front-end",
     "angularjs",
+    "gulp.js",
     "material-design",
-    "animation"
+    "animation",
+    "data-driven"
   ],
   "images": [
   ],

@@ -15,7 +15,8 @@
     "doodle",
     "front-end",
     "canvas",
-    "animation"
+    "animation",
+    "gulp.js"
   ],
   "images": [
     {

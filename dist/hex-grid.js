@@ -3430,7 +3430,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config.tileHue = 230;//147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
-  config.tileOuterRadius = 80;
+  config.tileOuterRadius = 50;//80
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
   config.firstRowYOffset = config.tileOuterRadius * -0.8;
@@ -4417,10 +4417,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 (function () {
 
   // TODO: also update the tilepost drawing to utilize the reset job
-
-  // TODO: fade out the PagePost text
-
-  // TODO: make sure the tilepost job is getting destroyed properly on resize (text is hanging around...)
 
   // TODO: refactor PagePost, TilePost, and Carousel code
 
@@ -10608,6 +10604,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.startTime = Date.now();
     job.isComplete = false;
 
+    if (job.grid.isTransitioning) {
+      job.previousJob.cancel();
+    }
+
     job.grid.isPostOpen = true;
     job.grid.isTransitioning = true;
     job.grid.expandedTile = job.baseTile;
@@ -10707,6 +10707,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.startTime = 0;
     job.isComplete = true;
     job.sectors = [];
+    job.previousJob = grid.lastExpansionJob;
 
     job.start = start;
     job.update = update;

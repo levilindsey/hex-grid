@@ -130,6 +130,10 @@
     job.startTime = Date.now();
     job.isComplete = false;
 
+    if (job.grid.isTransitioning) {
+      job.previousJob.cancel();
+    }
+
     job.grid.isPostOpen = true;
     job.grid.isTransitioning = true;
     job.grid.expandedTile = job.baseTile;
@@ -229,6 +233,7 @@
     job.startTime = 0;
     job.isComplete = true;
     job.sectors = [];
+    job.previousJob = grid.lastExpansionJob;
 
     job.start = start;
     job.update = update;
