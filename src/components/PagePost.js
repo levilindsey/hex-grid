@@ -45,6 +45,23 @@
         window.hg.Grid.config.tileOuterRadius *
         (3 * window.hg.OpenPostJob.config.expandedDisplacementTileCount + 2);
 
+    // Adjust post dimensions for smaller openings
+    switch (window.hg.OpenPostJob.config.expandedDisplacementTileCount) {
+      case 2:
+        verticalSideLength += window.hg.Grid.config.tileOuterRadius;
+        break;
+      case 1:
+        verticalSideLength += window.hg.Grid.config.tileOuterRadius * 3;
+        horizontalSideLength -= window.hg.Grid.config.tileShortLengthWithGap;
+        break;
+      case 0:
+        verticalSideLength += window.hg.Grid.config.tileOuterRadius * 4;
+        horizontalSideLength -= window.hg.Grid.config.tileShortLengthWithGap;
+        break;
+      default:
+        break;
+    }
+
     var horizontalPadding = 1.15 * window.hg.Grid.config.tileShortLengthWithGap;
     var verticalPadding = 2.25 * window.hg.Grid.config.tileOuterRadius;
 
