@@ -3430,7 +3430,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config.tileHue = 230;//147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
-  config.tileOuterRadius = 50;//80
+  config.tileOuterRadius = 80;
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
   config.firstRowYOffset = config.tileOuterRadius * -0.8;
@@ -4046,6 +4046,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
       grid.allTiles[i].draw();
+    }
+
+    if (grid.isPostOpen) {
+      grid.pagePost.draw();
     }
   }
 
