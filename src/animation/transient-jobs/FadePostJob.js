@@ -104,7 +104,8 @@
       job.pagePostStartPosition.x = job.baseTile.particle.px;
       job.pagePostStartPosition.y = job.baseTile.particle.py;
       job.pagePostDisplacement.x = job.grid.originalCenter.x - job.pagePostStartPosition.x;
-      job.pagePostDisplacement.y = job.grid.originalCenter.y - job.pagePostStartPosition.y;
+      job.pagePostDisplacement.y = job.grid.originalCenter.y - job.pagePostStartPosition.y +
+          job.grid.scrollTop;
 
       job.pagePost = job.grid.createPagePost(job.baseTile, job.pagePostStartPosition);
 
@@ -116,9 +117,10 @@
           window.hg.Tile.computeVertexDeltas(expandedTileOuterRadius, job.grid.isVertical);
     } else {
       job.pagePostStartPosition.x = job.grid.originalCenter.x;
-      job.pagePostStartPosition.y = job.grid.originalCenter.y;
+      job.pagePostStartPosition.y = job.grid.originalCenter.y + job.grid.scrollTop;
       job.pagePostDisplacement.x = job.pagePostStartPosition.x - job.grid.currentCenter.x;
-      job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y;
+      job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y -
+          job.grid.scrollTop;
     }
 
     job.baseTile.element.style.pointerEvents = 'none';

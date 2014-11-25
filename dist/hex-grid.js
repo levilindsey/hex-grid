@@ -3952,7 +3952,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid.allTiles = null;
     grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
-    grid.parent.style.overflow = 'auto';
+    grid.parent.style.overflowX = 'hidden';
+    grid.parent.style.overflowY = 'auto';
 
     clearSvg.call(grid);
     computeGridParameters.call(grid);
@@ -4185,6 +4186,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid.allTiles = null;
     grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
+    grid.scrollTop = Number.NaN;
 
     grid.annotations = new window.hg.Annotations(grid);
 
@@ -7514,9 +7516,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       job.grid.sectors = [];
       job.grid.updateAllTilesCollection(job.grid.originalTiles);
 
-      // Turn scrolling back on
-      job.grid.parent.style.overflow = 'auto';
-
       job.grid.isTransitioning = false;
       job.grid.expandedTile = null;
 
@@ -7588,6 +7587,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
         .duration = config.duration + window.hg.OpenPostJob.config.fadePostDurationOffset;
 
     job.grid.annotations.setExpandedAnnotations(false);
+
+    // Turn scrolling back on
+    job.grid.parent.style.overflowY = 'auto';
   }
 
   /**
@@ -8189,7 +8191,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       job.pagePostStartPosition.x = job.baseTile.particle.px;
       job.pagePostStartPosition.y = job.baseTile.particle.py;
       job.pagePostDisplacement.x = job.grid.originalCenter.x - job.pagePostStartPosition.x;
-      job.pagePostDisplacement.y = job.grid.originalCenter.y - job.pagePostStartPosition.y;
+      job.pagePostDisplacement.y = job.grid.originalCenter.y - job.pagePostStartPosition.y +
+          job.grid.scrollTop;
 
       job.pagePost = job.grid.createPagePost(job.baseTile, job.pagePostStartPosition);
 
@@ -8201,9 +8204,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
           window.hg.Tile.computeVertexDeltas(expandedTileOuterRadius, job.grid.isVertical);
     } else {
       job.pagePostStartPosition.x = job.grid.originalCenter.x;
-      job.pagePostStartPosition.y = job.grid.originalCenter.y;
+      job.pagePostStartPosition.y = job.grid.originalCenter.y + job.grid.scrollTop;
       job.pagePostDisplacement.x = job.pagePostStartPosition.x - job.grid.currentCenter.x;
-      job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y;
+      job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y -
+          job.grid.scrollTop;
     }
 
     job.baseTile.element.style.pointerEvents = 'none';
@@ -10909,8 +10913,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.startTime = 0;
     job.isComplete = true;
 
+    grid.scrollTop = grid.parent.scrollTop;
+
     // The current viewport coordinates of the point that we would like to move to the center of the viewport
-    job.endPoint = destinationPoint || {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
+    job.endPoint = destinationPoint || {
+      x: tile.originalAnchor.x,
+      y: tile.originalAnchor.y - grid.scrollTop
+    };
 
     // The center of the viewport
     job.startPoint = {x: grid.originalCenter.x, y: grid.originalCenter.y};

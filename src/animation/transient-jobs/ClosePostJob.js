@@ -43,9 +43,6 @@
       job.grid.sectors = [];
       job.grid.updateAllTilesCollection(job.grid.originalTiles);
 
-      // Turn scrolling back on
-      job.grid.parent.style.overflow = 'auto';
-
       job.grid.isTransitioning = false;
       job.grid.expandedTile = null;
 
@@ -117,6 +114,9 @@
         .duration = config.duration + window.hg.OpenPostJob.config.fadePostDurationOffset;
 
     job.grid.annotations.setExpandedAnnotations(false);
+
+    // Turn scrolling back on
+    job.grid.parent.style.overflowY = 'auto';
   }
 
   /**

@@ -175,8 +175,13 @@
     job.startTime = 0;
     job.isComplete = true;
 
+    grid.scrollTop = grid.parent.scrollTop;
+
     // The current viewport coordinates of the point that we would like to move to the center of the viewport
-    job.endPoint = destinationPoint || {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
+    job.endPoint = destinationPoint || {
+      x: tile.originalAnchor.x,
+      y: tile.originalAnchor.y - grid.scrollTop
+    };
 
     // The center of the viewport
     job.startPoint = {x: grid.originalCenter.x, y: grid.originalCenter.y};

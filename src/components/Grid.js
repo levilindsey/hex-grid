@@ -549,7 +549,8 @@
     grid.allTiles = null;
     grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
-    grid.parent.style.overflow = 'auto';
+    grid.parent.style.overflowX = 'hidden';
+    grid.parent.style.overflowY = 'auto';
 
     clearSvg.call(grid);
     computeGridParameters.call(grid);
@@ -782,6 +783,7 @@
     grid.allTiles = null;
     grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
+    grid.scrollTop = Number.NaN;
 
     grid.annotations = new window.hg.Annotations(grid);
 
