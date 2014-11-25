@@ -64,7 +64,8 @@
 
     id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    tile.currentVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.originalVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.currentVertexDeltas = tile.originalVertexDeltas.slice(0);
     tile.vertices = [];
     updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
 

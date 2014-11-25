@@ -43,11 +43,10 @@
       // Don't reset some state if another expansion job started after this one did
       if (job.parentExpansionJob === job.grid.lastExpansionJob) {
         job.grid.destroyPagePost();
-
-        job.baseTile.originalVertexDeltas = null;
-        job.baseTile.expandedVertexDeltas = null;
       } else {
         job.pagePost.destroy();
+
+        job.baseTile.currentVertexDeltas = job.baseTile.originalVertexDeltas.slice(0);
       }
 
       job.baseTile.show();
@@ -76,7 +75,7 @@
 
     for (i = 0, count = currentVertexDeltas.length; i < count; i += 1) {
       currentVertexDeltas[i] =
-          oldVertexDeltas[i] + (newVertexDeltas[i] - oldVertexDeltas[i]) * progress;
+        oldVertexDeltas[i] + (newVertexDeltas[i] - oldVertexDeltas[i]) * progress;
     }
   }
 
@@ -105,22 +104,21 @@
       job.pagePostStartPosition.y = job.baseTile.particle.py;
       job.pagePostDisplacement.x = job.grid.originalCenter.x - job.pagePostStartPosition.x;
       job.pagePostDisplacement.y = job.grid.originalCenter.y - job.pagePostStartPosition.y +
-          job.grid.scrollTop;
+      job.grid.scrollTop;
 
       job.pagePost = job.grid.createPagePost(job.baseTile, job.pagePostStartPosition);
 
       expandedTileOuterRadius = window.hg.OpenPostJob.config.expandedDisplacementTileCount *
-          window.hg.Grid.config.tileShortLengthWithGap;
+      window.hg.Grid.config.tileShortLengthWithGap;
 
-      job.baseTile.originalVertexDeltas = job.baseTile.currentVertexDeltas.slice(0);
       job.baseTile.expandedVertexDeltas =
-          window.hg.Tile.computeVertexDeltas(expandedTileOuterRadius, job.grid.isVertical);
+        window.hg.Tile.computeVertexDeltas(expandedTileOuterRadius, job.grid.isVertical);
     } else {
       job.pagePostStartPosition.x = job.grid.originalCenter.x;
       job.pagePostStartPosition.y = job.grid.originalCenter.y + job.grid.scrollTop;
       job.pagePostDisplacement.x = job.pagePostStartPosition.x - job.grid.currentCenter.x;
       job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y -
-          job.grid.scrollTop;
+      job.grid.scrollTop;
     }
 
     job.baseTile.element.style.pointerEvents = 'none';
@@ -161,12 +159,12 @@
 
     // Update the position of the PagePost
     job.pagePost.center.x = job.pagePostStartPosition.x +
-        job.pagePostDisplacement.x * progress;
+    job.pagePostDisplacement.x * progress;
     job.pagePost.center.y = job.pagePostStartPosition.y +
-        job.pagePostDisplacement.y * progress;
+    job.pagePostDisplacement.y * progress;
 
     interpolateVertexDeltas(job.baseTile.currentVertexDeltas, job.baseTile.originalVertexDeltas,
-        job.baseTile.expandedVertexDeltas, quick1FadeProgress);
+      job.baseTile.expandedVertexDeltas, quick1FadeProgress);
 
     // Is the job done?
     if (progress === 1) {
@@ -206,12 +204,12 @@
 
     // Update the position of the PagePost
     job.pagePost.center.x = job.pagePostStartPosition.x +
-        job.pagePostDisplacement.x * progress;
+    job.pagePostDisplacement.x * progress;
     job.pagePost.center.y = job.pagePostStartPosition.y +
-        job.pagePostDisplacement.y * progress;
+    job.pagePostDisplacement.y * progress;
 
     interpolateVertexDeltas(job.baseTile.currentVertexDeltas, job.baseTile.expandedVertexDeltas,
-        job.baseTile.originalVertexDeltas, quick1FadeProgress);
+      job.baseTile.originalVertexDeltas, quick1FadeProgress);
 
     // Is the job done?
     if (progress === 1) {
@@ -285,7 +283,7 @@
     job.init = init;
 
     console.log('FadePostJob created: tileIndex=' + job.baseTile.originalIndex +
-        ', isFadingIn=' + job.isFadingIn);
+    ', isFadingIn=' + job.isFadingIn);
   }
 
   FadePostJob.config = config;

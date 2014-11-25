@@ -59,14 +59,14 @@
    * @this ClosePostJob
    */
   function destroySectors() {
-    var job, i, alsoDestroyOriginalTileExpandedState;
+    var job, i, count, alsoDestroyOriginalTileExpandedState;
 
     job = this;
 
     alsoDestroyOriginalTileExpandedState = job.grid.lastExpansionJob === job;
 
     // Destroy the sectors
-    for (i = 0; i < 6; i += 1) {
+    for (i = 0, count = job.sectors.length; i < count; i += 1) {
       job.sectors[i].destroy(alsoDestroyOriginalTileExpandedState);
     }
 

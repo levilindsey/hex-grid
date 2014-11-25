@@ -231,7 +231,6 @@
     var openClosePostJobFolder, data;
 
     openClosePostJobFolder = parentFolder.addFolder('Open/Close Post');
-    openClosePostJobFolder.open();// TODO: remove me
 
     data = {
       'triggerOpenPost': window.hg.controller.transientJobs.openPost.createRandom.bind(

@@ -5606,7 +5606,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    tile.currentVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.originalVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.currentVertexDeltas = tile.originalVertexDeltas.slice(0);
     tile.vertices = [];
     updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
 
@@ -7549,14 +7550,14 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @this ClosePostJob
    */
   function destroySectors() {
-    var job, i, alsoDestroyOriginalTileExpandedState;
+    var job, i, count, alsoDestroyOriginalTileExpandedState;
 
     job = this;
 
     alsoDestroyOriginalTileExpandedState = job.grid.lastExpansionJob === job;
 
     // Destroy the sectors
-    for (i = 0; i < 6; i += 1) {
+    for (i = 0, count = job.sectors.length; i < count; i += 1) {
       job.sectors[i].destroy(alsoDestroyOriginalTileExpandedState);
     }
 
@@ -8147,11 +8148,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       // Don't reset some state if another expansion job started after this one did
       if (job.parentExpansionJob === job.grid.lastExpansionJob) {
         job.grid.destroyPagePost();
-
-        job.baseTile.originalVertexDeltas = null;
-        job.baseTile.expandedVertexDeltas = null;
       } else {
         job.pagePost.destroy();
+
+        job.baseTile.currentVertexDeltas = job.baseTile.originalVertexDeltas.slice(0);
       }
 
       job.baseTile.show();
@@ -8180,7 +8180,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     for (i = 0, count = currentVertexDeltas.length; i < count; i += 1) {
       currentVertexDeltas[i] =
-          oldVertexDeltas[i] + (newVertexDeltas[i] - oldVertexDeltas[i]) * progress;
+        oldVertexDeltas[i] + (newVertexDeltas[i] - oldVertexDeltas[i]) * progress;
     }
   }
 
@@ -8209,22 +8209,21 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       job.pagePostStartPosition.y = job.baseTile.particle.py;
       job.pagePostDisplacement.x = job.grid.originalCenter.x - job.pagePostStartPosition.x;
       job.pagePostDisplacement.y = job.grid.originalCenter.y - job.pagePostStartPosition.y +
-          job.grid.scrollTop;
+      job.grid.scrollTop;
 
       job.pagePost = job.grid.createPagePost(job.baseTile, job.pagePostStartPosition);
 
       expandedTileOuterRadius = window.hg.OpenPostJob.config.expandedDisplacementTileCount *
-          window.hg.Grid.config.tileShortLengthWithGap;
+      window.hg.Grid.config.tileShortLengthWithGap;
 
-      job.baseTile.originalVertexDeltas = job.baseTile.currentVertexDeltas.slice(0);
       job.baseTile.expandedVertexDeltas =
-          window.hg.Tile.computeVertexDeltas(expandedTileOuterRadius, job.grid.isVertical);
+        window.hg.Tile.computeVertexDeltas(expandedTileOuterRadius, job.grid.isVertical);
     } else {
       job.pagePostStartPosition.x = job.grid.originalCenter.x;
       job.pagePostStartPosition.y = job.grid.originalCenter.y + job.grid.scrollTop;
       job.pagePostDisplacement.x = job.pagePostStartPosition.x - job.grid.currentCenter.x;
       job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y -
-          job.grid.scrollTop;
+      job.grid.scrollTop;
     }
 
     job.baseTile.element.style.pointerEvents = 'none';
@@ -8265,12 +8264,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     // Update the position of the PagePost
     job.pagePost.center.x = job.pagePostStartPosition.x +
-        job.pagePostDisplacement.x * progress;
+    job.pagePostDisplacement.x * progress;
     job.pagePost.center.y = job.pagePostStartPosition.y +
-        job.pagePostDisplacement.y * progress;
+    job.pagePostDisplacement.y * progress;
 
     interpolateVertexDeltas(job.baseTile.currentVertexDeltas, job.baseTile.originalVertexDeltas,
-        job.baseTile.expandedVertexDeltas, quick1FadeProgress);
+      job.baseTile.expandedVertexDeltas, quick1FadeProgress);
 
     // Is the job done?
     if (progress === 1) {
@@ -8310,12 +8309,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     // Update the position of the PagePost
     job.pagePost.center.x = job.pagePostStartPosition.x +
-        job.pagePostDisplacement.x * progress;
+    job.pagePostDisplacement.x * progress;
     job.pagePost.center.y = job.pagePostStartPosition.y +
-        job.pagePostDisplacement.y * progress;
+    job.pagePostDisplacement.y * progress;
 
     interpolateVertexDeltas(job.baseTile.currentVertexDeltas, job.baseTile.expandedVertexDeltas,
-        job.baseTile.originalVertexDeltas, quick1FadeProgress);
+      job.baseTile.originalVertexDeltas, quick1FadeProgress);
 
     // Is the job done?
     if (progress === 1) {
@@ -8389,7 +8388,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.init = init;
 
     console.log('FadePostJob created: tileIndex=' + job.baseTile.originalIndex +
-        ', isFadingIn=' + job.isFadingIn);
+    ', isFadingIn=' + job.isFadingIn);
   }
 
   FadePostJob.config = config;
