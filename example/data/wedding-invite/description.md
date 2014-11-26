@@ -2,8 +2,6 @@
 
 Levi developed this simple web app as the invite and RSVP system for his and [Jackie's][jackie-url] wedding.
 
-_PHP and jQuery_
-
 
 [main-url]: http://jackieandlevi.com/wedding/invite
 [jackie-url]: http://jackieandlevi.com/jackie

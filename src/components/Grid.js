@@ -149,7 +149,7 @@
 
     // Make sure the grid element is tall enough to contain the needed number of rows
     if (rowIndex > grid.rowCount) {
-      grid.rowCount = rowIndex;
+      grid.rowCount = rowIndex + (grid.isVertical ? 0 : 1);
       grid.height = (grid.rowCount - 2) * grid.rowDeltaY;
     } else {
       grid.height = parentHeight;
