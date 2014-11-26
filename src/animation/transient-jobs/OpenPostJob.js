@@ -17,6 +17,11 @@
 
   config.expandedDisplacementTileCount = 3;
 
+  config.spreadDurationOffset = -200;
+  config.panDurationOffset = -100;
+  config.fadePostDurationOffset = 1100;
+  config.dilateSectorsDurationOffset = 0;
+
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -39,11 +44,10 @@
 
     // Don't reset some state if another expansion job started after this one did
     if (job.grid.lastExpansionJob === job) {
-      job.grid.lastExpansionJob = null;
+      job.grid.pagePost.loadCarouselMedia();
     }
 
     job.isComplete = true;
-
     job.onComplete();
   }
 
@@ -108,26 +112,6 @@
     }
   }
 
-  /**
-   * @this OpenPostJob
-   * @param {Number} panDisplacementX
-   * @param {Number} panDisplacementY
-   */
-  function setFinalPositions(panDisplacementX, panDisplacementY) {
-    var job, i;
-
-    job = this;
-
-    // Displace the sectors
-    for (i = 0; i < 6; i += 1) {
-      // Update the Sector's base position to account for the panning
-      job.sectors[i].originalAnchor.x += panDisplacementX;
-      job.sectors[i].originalAnchor.y += panDisplacementY;
-
-      job.sectors[i].setOriginalPositionForExpansion(true);
-    }
-  }
-
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -140,11 +124,15 @@
    * @this OpenPostJob
    */
   function start() {
-    var panDisplacementX, panDisplacementY;
+    var panDisplacement;
     var job = this;
 
     job.startTime = Date.now();
     job.isComplete = false;
+
+    if (job.grid.isTransitioning) {
+      job.previousJob.cancel();
+    }
 
     job.grid.isPostOpen = true;
     job.grid.isTransitioning = true;
@@ -159,13 +147,20 @@
     job.grid.annotations.setExpandedAnnotations(true);
 
     // Start the sub-jobs
-    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
-    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile);
+    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile)
+        .duration = config.duration + config.spreadDurationOffset;
+    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile)
+        .duration = config.duration + config.panDurationOffset;
 
-    // Set the final positions at the start, and animate everything in "reverse"
-    panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
-    panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
-    setFinalPositions.call(job, panDisplacementX, panDisplacementY);
+    panDisplacement = {
+      x: job.grid.panCenter.x - job.grid.originalCenter.x,
+      y: job.grid.panCenter.y - job.grid.originalCenter.y
+    };
+
+    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile, panDisplacement)
+        .duration = config.duration + config.dilateSectorsDurationOffset;
+    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+        .duration = config.duration + config.fadePostDurationOffset;
 
     // TODO: this should instead fade out the old persistent animations and fade in the new ones
     window.hg.controller.resetPersistentJobs(job.grid);
@@ -181,29 +176,10 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, progress, i, dx, dy;
-
-    job = this;
-
-    // Calculate progress with an easing function
-    // Because the final positions were set at the start, the progress needs to update in "reverse"
-    progress = (currentTime - job.startTime) / config.duration;
-    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
-    progress = progress < 0 ? 0 : progress;
-
-    // Update the offsets for each of the six sectors
-    for (i = 0; i < 6; i += 1) {
-      dx = job.sectors[i].expandedDisplacement.x * progress;
-      dy = job.sectors[i].expandedDisplacement.y * progress;
-
-      job.sectors[i].updateCurrentPosition(dx, dy);
-    }
-
-    // Update the opacity of the center tile
-    job.baseTile.element.style.opacity = progress;
+    var job = this;
 
     // Is the job done?
-    if (progress === 0) {
+    if (currentTime - job.startTime >= config.duration) {
       handleComplete.call(job, false);
     }
   }
@@ -257,6 +233,7 @@
     job.startTime = 0;
     job.isComplete = true;
     job.sectors = [];
+    job.previousJob = grid.lastExpansionJob;
 
     job.start = start;
     job.update = update;

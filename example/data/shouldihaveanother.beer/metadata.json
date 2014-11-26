@@ -1,0 +1,38 @@
+{
+  "id": "shouldihaveanother.beer",
+  "titleShort": "Web Doodle:\nBeer?",
+  "titleLong": "shouldihaveanother.beer",
+  "urls": {
+    "demo": "http://shouldihaveanother.beer",
+    "github": "https://github.com/levisl176/shouldihaveanother.beer"
+  },
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "website",
+    "doodle",
+    "front-end",
+    "canvas",
+    "animation",
+    "gulp.js",
+    "tiny"
+  ],
+  "images": [
+    {
+      "fileName": "screenshot1.png",
+      "description": "This simple web app features randomized delicious beer colors, and delightful animated carbonation."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "This simple web app features randomized delicious beer colors, and delightful animated carbonation."
+    },
+    {
+      "fileName": "screenshot3.png",
+      "description": "This simple web app features randomized delicious beer colors, and delightful animated carbonation."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}

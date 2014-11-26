@@ -1,0 +1,27 @@
+
+{
+  "id": "jackieandlevi-profiles",
+  "titleShort": "Web App:\nMaterial\nDesign",
+  "titleLong": "Profile pages",
+  "urls": {
+    "demo": "http://jackieandlevi.com/levi",
+    "github": "https://github.com/levisl176/jackieandlevi-profiles"
+  },
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "app",
+    "front-end",
+    "angularjs",
+    "gulp.js",
+    "material-design",
+    "animation",
+    "data-driven"
+  ],
+  "images": [
+  ],
+  "videos": [],
+  "content": ""
+}

@@ -1,0 +1,24 @@
+{
+  "id": "voicebox-technologies",
+  "titleShort": "Audio\nSignal\nProcessing",
+  "titleLong": "Audio Signal Processing",
+  "urls": {
+    "homepage": "http://voicebox.com"
+  },
+  "jobTitle": "Summer Intern (Software Engineer)",
+  "date": "2011",
+  "categories": [
+    "work",
+    "intern",
+    "c",
+    "c++"
+  ],
+  "images": [
+    {
+      "fileName": "spectrogram.jpg",
+      "description": "A spectrogram with its corresponding waveform."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}

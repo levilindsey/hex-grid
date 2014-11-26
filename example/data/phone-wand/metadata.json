@@ -1,0 +1,54 @@
+{
+  "id": "phone-wand",
+  "titleShort": "Blind-\nAccessible\nNavigation",
+  "titleLong": "Phone Wand",
+  "urls": {
+    "googleCode": "https://code.google.com/p/mobileaccessibility/source/browse/#svn%2Ftrunk%2FPhoneWand"
+  },
+  "jobTitle": "",
+  "date": "2011",
+  "categories": [
+    "school",
+    "research",
+    "uw",
+    "android",
+    "java",
+    "accessibility",
+    "google-maps-api",
+    "app"
+  ],
+  "images": [
+    {
+      "fileName": "fixedinputscreen2.png",
+      "description": "This screen presents the current destination. This is essentially a home screen. From here, the user can enter a new destination, find a list of old destinations, find a list of other possible matches for the destination that was typed in the keyboard, or start navigating toward the current destination."
+    },
+    {
+      "fileName": "fixedkeyboard1.png",
+      "description": "This screen presents a custom, blind-accessible keyboard. The user can drag a finger over the the buttons to hear them quickly read aloud via TTS."
+    },
+    {
+      "fileName": "fixedroute1.png",
+      "description": "While on this screen, the system provides vibrational feedback to guide the user through the route."
+    },
+    {
+      "fileName": "fixeddirections2.png",
+      "description": "This screen presents a list of the steps in the current route. The user can drag a finger over the items to hear them read aloud via TTS."
+    },
+    {
+      "fileName": "fixedroutearchive2.png",
+      "description": "This screen presents a list of previously entered destinations. The user can drag a finger over the items to hear them read aloud via TTS."
+    },
+    {
+      "fileName": "screen-transition-diagram-small.png",
+      "description": "This diagram illustrates all of the different screens of the system and how to navigate from one to another."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "qooZe704Ppw",
+      "description": "A narrated demonstrational video explaining how to use the Phone Wand application."
+    }
+  ],
+  "content": ""
+}

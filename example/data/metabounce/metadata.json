@@ -1,0 +1,41 @@
+{
+  "id": "metabounce",
+  "titleShort": "Web Doodle:\nMetabounce",
+  "titleLong": "Metabounce",
+  "urls": {
+    "demo": "http://jackieandlevi.com/metabounce",
+    "github": "https://github.com/levisl176/metabounce",
+    "codepen": "http://codepen.io/levisl176/pen/lqmAE",
+    "codepen": "http://codepen.io/levisl176/pen/bkmpE"
+  },
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "doodle",
+    "front-end",
+    "svg",
+    "animation"
+  ],
+  "images": [
+    {
+      "fileName": "screenshot1.png",
+      "description": "Both the inner and main balls grow and eventually pop with delightful animations. A popping ball will push&mdash;and possibly pop&mdash;neighboring balls."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "The balls can be rendered with transparency and multiple gradients that make them resemble iridescent bubbles."
+    },
+    {
+      "fileName": "screenshot3.png",
+      "description": "This app includes many parameters that adjust things like: bounce squish intensity, gravity, drag, pop force thresholds, ball growth rates, pop neighbor displacement power, nested balls, ball colors, ball count, ball size, etc."
+    },
+    {
+      "fileName": "screenshot4.png",
+      "description": "This app includes many parameters that adjust things like: bounce squish intensity, gravity, drag, pop force thresholds, ball growth rates, pop neighbor displacement power, nested balls, ball colors, ball count, ball size, etc."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}

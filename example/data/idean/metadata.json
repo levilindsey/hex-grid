@@ -1,0 +1,55 @@
+{
+  "id": "idean",
+  "titleShort": "Idean",
+  "titleLong": "Idean",
+  "urls": {
+    "homepage": "http://idean.com"
+  },
+  "jobTitle": "UI Developer",
+  "date": "2014",
+  "categories": [
+    "work",
+    "web",
+    "front-end",
+    "back-end",
+    "user-experience",
+    "data-driven",
+    "mean-stack",
+    "angularjs",
+    "node.js",
+    "mongodb",
+    "express",
+    "gulp.js",
+    "grunt",
+    "d3.js",
+    "svg",
+    "php"
+  ],
+  "images": [
+    {
+      "fileName": "idean-hawaii.jpg",
+      "description": "Hawaii!! Idean flew their employees to Oahu for their annual retreat."
+    },
+    {
+      "fileName": "palo-alto-studio.jpg",
+      "description": "Idean's office at their head quarters in Palo Alto. The home-like atmosphere of the house definitely reflects the friendly and relaxed atmosphere of the company as a whole."
+    },
+    {
+      "fileName": "idean-definition.png",
+      "description": "Life's too short for crappy UX!"
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "vimeo",
+      "id": "50565896",
+      "description": "Idean's introductory video: why a good user experience is important and how Idean can help."
+    },
+    {
+      "videoHost": "vimeo",
+      "id": "88468432",
+      "description": "Idean's UX Rap!"
+    }
+  ],
+  "content": ""
+}

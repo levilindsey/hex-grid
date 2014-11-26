@@ -41,11 +41,7 @@
       job.baseTile.expandedState = null;
 
       job.grid.sectors = [];
-      job.grid.lastExpansionJob = null;
       job.grid.updateAllTilesCollection(job.grid.originalTiles);
-
-      // Turn scrolling back on
-      job.grid.parent.style.overflow = 'auto';
 
       job.grid.isTransitioning = false;
       job.grid.expandedTile = null;
@@ -56,7 +52,6 @@
     }
 
     job.isComplete = true;
-
     job.onComplete();
   }
 
@@ -64,38 +59,18 @@
    * @this ClosePostJob
    */
   function destroySectors() {
-    var job, i, alsoDestroyOriginalTileExpandedState;
+    var job, i, count, alsoDestroyOriginalTileExpandedState;
 
     job = this;
 
     alsoDestroyOriginalTileExpandedState = job.grid.lastExpansionJob === job;
 
     // Destroy the sectors
-    for (i = 0; i < 6; i += 1) {
+    for (i = 0, count = job.sectors.length; i < count; i += 1) {
       job.sectors[i].destroy(alsoDestroyOriginalTileExpandedState);
     }
 
     job.sectors = [];
-  }
-
-  /**
-   * @this ClosePostJob
-   * @param {Number} panDisplacementX
-   * @param {Number} panDisplacementY
-   */
-  function setFinalPositions(panDisplacementX, panDisplacementY) {
-    var job, i;
-
-    job = this;
-
-    // Displace the sectors
-    for (i = 0; i < 6; i += 1) {
-      // Update the Sector's base position to account for the panning
-      job.sectors[i].originalAnchor.x -= panDisplacementX;
-      job.sectors[i].originalAnchor.y -= panDisplacementY;
-
-      job.sectors[i].setOriginalPositionForExpansion(false);
-    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -110,7 +85,7 @@
    * @this ClosePostJob
    */
   function start() {
-    var panDisplacementX, panDisplacementY;
+    var panDisplacement;
     var job = this;
 
     job.startTime = Date.now();
@@ -120,20 +95,28 @@
     job.grid.isTransitioning = true;
     job.grid.lastExpansionJob = job;
 
-    panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
-    panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
+    panDisplacement = {
+      x: job.grid.originalCenter.x - job.grid.panCenter.x,
+      y: job.grid.originalCenter.y - job.grid.panCenter.y
+    };
 
     // Start the sub-jobs
-    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
+    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.spreadDurationOffset;
     window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile, {
       x: job.grid.panCenter.x,
       y: job.grid.panCenter.y
-    });
-
-    // Set the final positions at the start, and animate everything in "reverse"
-    setFinalPositions.call(job, panDisplacementX, panDisplacementY);
+    })
+        .duration = config.duration + window.hg.OpenPostJob.config.panDurationOffset;
+    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile, panDisplacement)
+        .duration = config.duration + window.hg.OpenPostJob.config.dilateSectorsDurationOffset;
+    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.fadePostDurationOffset;
 
     job.grid.annotations.setExpandedAnnotations(false);
+
+    // Turn scrolling back on
+    job.grid.parent.style.overflowY = 'auto';
   }
 
   /**
@@ -146,29 +129,10 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, progress, i, dx, dy;
-
-    job = this;
-
-    // Calculate progress with an easing function
-    // Because the final positions were set at the start, the progress needs to update in "reverse"
-    progress = (currentTime - job.startTime) / config.duration;
-    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
-    progress = progress < 0 ? 0 : progress;
-
-    // Update the offsets for each of the six sectors
-    for (i = 0; i < 6; i += 1) {
-      dx = -job.sectors[i].expandedDisplacement.x * progress;
-      dy = -job.sectors[i].expandedDisplacement.y * progress;
-
-      job.sectors[i].updateCurrentPosition(dx, dy);
-    }
-
-    // Update the opacity of the center tile
-    job.baseTile.element.style.opacity = 1 - progress;
+    var job = this;
 
     // Is the job done?
-    if (progress === 0) {
+    if (currentTime - job.startTime >= config.duration) {
       handleComplete.call(job, false);
     }
   }

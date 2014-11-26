@@ -1,0 +1,54 @@
+{
+  "id": "newtons-tablet",
+  "titleShort": "Intelligent\nTutoring\nSystem:\nTablet",
+  "titleLong": "Newtons Tablet",
+  "urls": {
+    "published": "http://escholarship.org/uc/item/40r3k5v2"
+  },
+  "jobTitle": "Graduate Student Researcher (Software Engineer)",
+  "date": {
+    "start": "2012",
+    "end": "2013"
+  },
+  "categories": [
+    "work",
+    "school",
+    "research",
+    "ucr",
+    "c-sharp",
+    "java",
+    "app",
+    "tablet",
+    "data-driven"
+  ],
+  "images": [
+    {
+      "fileName": "boundary-trace-stage-screenshot.png",
+      "description": "A screenshot of the program during the boundary-trace stage. At this point, the student is identifying and isolating the individual bodies from complex overall system."
+    },
+    {
+      "fileName": "force-drawing-stage-screenshot.png",
+      "description": "A screenshot of the program in during the force-drawing stage."
+    },
+    {
+      "fileName": "error-mode-screenshot.png",
+      "description": "A screenshot of the program showing error feedback. During each stage in the problem solving process, the program evaluates the student's work and provides guided feedback for any errors."
+    },
+    {
+      "fileName": "exp-eqn-entry-stage-screenshot.png",
+      "description": "A screenshot of the program during the final, equation-entry stage."
+    },
+    {
+      "fileName": "matching-points-from-resampling.png",
+      "description": "The Importance of Resampling for Matching Points. In these two examples, the blue points represent the hand-drawn stroke, and the red points represent the boundary of the underlying body. Lines are drawn from a point in one set to the closest point in the other set if the closest point is within the distance threshold. The points with a yellow center represent points that do not have any close matches from the other set. (a) Many of the points from a densely sampled trace stroke will not match any of the points from a sparsely sampled boundary polygon. (b) Resampling the trace and the boundary polygon to the same number of points—40 in this case—greatly increases the likelihood of points having matches."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "LAlzil4WsGw",
+      "description": "A narrated demonstrational video explaining how to use the Newton's Tablet program."
+    }
+  ],
+  "content": "#### An Intelligent Tutoring System running on Window's tablets\n\nIn his graduate studies at the University of California, Riverside, Levi worked with Professor\n[Thomas Stahovich][stahovich-url] in the [Smart Tools lab][stl-url].\n\nLevi led the development of a statics tutorial system, which both helped novice students tackle difficult concepts and\nprovided the lab with key insights into the learning process and how students think.\n\nThis work resulted in the production of two completely different software programs: one which ran on tablet PC\ncomputers with a standard computer interface (_written in C# with WPF_), and one which ran on\n[Livescribe smartpens][livescribe-url] with specially designed paper worksheets (_written in Java_). Both programs\nwere designed with natural user interface as a paramount concern. These programs were deployed to 150 students in an\nintroductory statics course at the University of California, Riverside in the Winter of 2012.\n\nYou can read Levi's thesis at [escholarship.org\/uc\/item\/40r3k5v2][thesis-url].\n\n\n[stahovich-url]: http:\/\/www.engr.ucr.edu\/faculty\/me\/stahovich.html\n[stl-url]: http:\/\/smarttools.engr.ucr.edu\/\n[livescribe-url]: http:\/\/livescribe.com\/en-us\/\n[thesis-url]: http:\/\/escholarship.org\/uc\/item\/40r3k5v2"
+}

@@ -32,33 +32,19 @@
   config.cornerTileLightness = 30;
 
   config.annotations = {
-    'sectorColors': {
+    'tileNeighborConnections': {
       enabled: false,
-      create: fillSectorColors,
-      destroy: function () {},
-      update: fillSectorColors,
-      priority: 0
+      create: createTileNeighborConnections,
+      destroy: destroyTileNeighborConnections,
+      update: updateTileNeighborConnections,
+      priority: 1300
     },
-    'contentTiles': {
+    'tileAnchorCenters': {
       enabled: false,
-      create: fillContentTiles,
-      destroy: function () {},
-      update: fillContentTiles,
-      priority: 100
-    },
-    'borderTiles': {
-      enabled: false,
-      create: fillBorderTiles,
-      destroy: function () {},
-      update: fillBorderTiles,
-      priority: 200
-    },
-    'cornerTiles': {
-      enabled: false,
-      create: fillCornerTiles,
-      destroy: function () {},
-      update: fillCornerTiles,
-      priority: 300
+      create: createTileAnchorCenters,
+      destroy: destroyTileAnchorCenters,
+      update: updateTileAnchorCenters,
+      priority: 500
     },
     'transparentTiles': {
       enabled: false,
@@ -67,12 +53,54 @@
       update: function () {},
       priority: 400
     },
-    'tileAnchorCenters': {
+    'tileIndices': {
       enabled: false,
-      create: createTileAnchorCenters,
-      destroy: destroyTileAnchorCenters,
-      update: updateTileAnchorCenters,
-      priority: 500
+      create: createTileIndices,
+      destroy: destroyTileIndices,
+      update: updateTileIndices,
+      priority: 1000
+    },
+    'tileForces': {
+      enabled: false,
+      create: createTileForces,
+      destroy: destroyTileForces,
+      update: updateTileForces,
+      priority: 1100
+    },
+    'tileVelocities': {
+      enabled: false,
+      create: createTileVelocities,
+      destroy: destroyTileVelocities,
+      update: updateTileVelocities,
+      priority: 1200
+    },
+    'sectorColors': {
+      enabled: false,
+      create: fillSectorColors,
+      destroy: function () {},
+      update: fillSectorColors,
+      priority: 0
+    },
+    'borderTiles': {
+      enabled: false,
+      create: fillBorderTiles,
+      destroy: function () {},
+      update: fillBorderTiles,
+      priority: 200
+    },
+    'contentTiles': {
+      enabled: false,
+      create: fillContentTiles,
+      destroy: function () {},
+      update: fillContentTiles,
+      priority: 100
+    },
+    'cornerTiles': {
+      enabled: false,
+      create: fillCornerTiles,
+      destroy: function () {},
+      update: fillCornerTiles,
+      priority: 300
     },
     'tileParticleCenters': {
       enabled: false,
@@ -101,34 +129,6 @@
       destroy: destroyTileOuterRadii,
       update: updateTileOuterRadii,
       priority: 900
-    },
-    'tileIndices': {
-      enabled: false,
-      create: createTileIndices,
-      destroy: destroyTileIndices,
-      update: updateTileIndices,
-      priority: 1000
-    },
-    'tileForces': {
-      enabled: false,
-      create: createTileForces,
-      destroy: destroyTileForces,
-      update: updateTileForces,
-      priority: 1100
-    },
-    'tileVelocities': {
-      enabled: false,
-      create: createTileVelocities,
-      destroy: destroyTileVelocities,
-      update: updateTileVelocities,
-      priority: 1200
-    },
-    'tileNeighborConnections': {
-      enabled: false,
-      create: createTileNeighborConnections,
-      destroy: destroyTileNeighborConnections,
-      update: updateTileNeighborConnections,
-      priority: 1300
     },
     'contentAreaGuidelines': {
       enabled: false,

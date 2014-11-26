@@ -1,0 +1,42 @@
+{
+  "id": "text-animation",
+  "titleShort": "Bower\nPackage:\nText\nAnimation",
+  "titleLong": "Text Animation",
+  "urls": {
+    "bower": "http://bower.io/search/?q=text-animation",
+    "demo": "http://jackieandlevi.com/text-animation",
+    "github": "https://github.com/levisl176/text-animation",
+    "codepen": "http://codepen.io/levisl176/pen/HGJdF"
+  },
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "front-end",
+    "animation",
+    "library",
+    "bower",
+    "gulp.js"
+  ],
+  "images": [
+    {
+      "fileName": "screenshot1.png",
+      "description": "Text falling into place with a shadow effect."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "Text sliding into place."
+    },
+    {
+      "fileName": "screenshot3.png",
+      "description": "Text swirling into place."
+    },
+    {
+      "fileName": "screenshot4.png",
+      "description": "Text rolling into place."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}

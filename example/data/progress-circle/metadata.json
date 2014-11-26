@@ -1,0 +1,33 @@
+{
+  "id": "progress-circle",
+  "titleShort": "Web Doodle:\nProgress\nCircle",
+  "titleLong": "Progress Circle",
+  "urls": {
+    "demo": "http://jackieandlevi.com/progress-circle",
+    "github": "https://github.com/levisl176/progress-circle",
+    "codepen": "http://codepen.io/levisl176/pen/ndklu"
+  },
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "doodle",
+    "front-end",
+    "svg",
+    "tiny",
+    "animation"
+  ],
+  "images": [
+    {
+      "fileName": "screenshot1.png",
+      "description": "The progress circle with its larger radius. The dots revolve in a clockwise direction while the colors of the dots transition in such a way to make the colors appear to transition in a counter-clockwise direction."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "The progress circle with its smaller radius. The lightness increases as the radius decreases."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}

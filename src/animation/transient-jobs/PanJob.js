@@ -103,7 +103,7 @@
 
     // Calculate progress with an easing function
     // Because the final positions were set at the start, the progress needs to update in "reverse"
-    progress = (currentTime - job.startTime) / config.duration;
+    progress = (currentTime - job.startTime) / job.duration;
     progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
     progress = progress < 0 ? 0 : progress;
 
@@ -175,11 +175,18 @@
     job.startTime = 0;
     job.isComplete = true;
 
+    grid.scrollTop = grid.parent.scrollTop;
+
     // The current viewport coordinates of the point that we would like to move to the center of the viewport
-    job.endPoint = destinationPoint || {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
+    job.endPoint = destinationPoint || {
+      x: tile.originalAnchor.x,
+      y: tile.originalAnchor.y - grid.scrollTop
+    };
 
     // The center of the viewport
     job.startPoint = {x: grid.originalCenter.x, y: grid.originalCenter.y};
+
+    job.duration = config.duration;
 
     job.start = start;
     job.update = update;

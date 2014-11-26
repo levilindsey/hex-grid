@@ -1,3 +1,82 @@
+//
+// showdown.js -- A javascript port of Markdown.
+//
+// Copyright (c) 2007 John Fraser.
+//
+// Original Markdown Copyright (c) 2004-2005 John Gruber
+//   <http://daringfireball.net/projects/markdown/>
+//
+// Redistributable under a BSD-style open source license.
+// See license.txt for more information.
+//
+// The full source distribution is at:
+//
+//				A A L
+//				T C A
+//				T K B
+//
+//   <http://www.attacklab.net/>
+//
+//
+// Wherever possible, Showdown is a straight, line-by-line port
+// of the Perl version of Markdown.
+//
+// This is not a normal parser design; it's basically just a
+// series of string substitutions.  It's hard to read and
+// maintain this way,  but keeping Showdown close to the original
+// design makes it easier to port new features.
+//
+// More importantly, Showdown behaves like markdown.pl in most
+// edge cases.  So web applications can do client-side preview
+// in Javascript, and then build identical HTML on the server.
+//
+// This port needs the new RegExp functionality of ECMA 262,
+// 3rd Edition (i.e. Javascript 1.5).  Most modern web browsers
+// should do fine.  Even with the new regular expression features,
+// We do a lot of work to emulate Perl's regex functionality.
+// The tricky changes in this file mostly have the "attacklab:"
+// label.  Major or self-explanatory changes don't.
+//
+// Smart diff tools like Araxis Merge will be able to match up
+// this file with markdown.pl in a useful way.  A little tweaking
+// helps: in a copy of markdown.pl, replace "#" with "//" and
+// replace "$text" with "text".  Be sure to ignore whitespace
+// and line endings.
+//
+//
+// Showdown usage:
+//
+//   var text = "Markdown *rocks*.";
+//
+//   var converter = new Showdown.converter();
+//   var html = converter.makeHtml(text);
+//
+//   alert(html);
+//
+// Note: move the sample code to the bottom of this
+// file before uncommenting it.
+//
+//
+// Showdown namespace
+//
+var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.forEach=="function")a.forEach(b);else{var c,d=a.length;for(c=0;c<d;c++)b(a[c],c,a)}},stdExtName=function(a){return a.replace(/[_-]||\s/g,"").toLowerCase()};Showdown.converter=function(a){var b,c,d,e=0,f=[],g=[];if(typeof module!="undefind"&&typeof exports!="undefined"&&typeof require!="undefind"){var h=require("fs");if(h){var i=h.readdirSync((__dirname||".")+"/extensions").filter(function(a){return~a.indexOf(".js")}).map(function(a){return a.replace(/\.js$/,"")});Showdown.forEach(i,function(a){var b=stdExtName(a);Showdown.extensions[b]=require("./extensions/"+a)})}}a&&a.extensions&&Showdown.forEach(a.extensions,function(a){typeof a=="string"&&(a=Showdown.extensions[stdExtName(a)]);if(typeof a!="function")throw"Extension '"+a+"' could not be loaded.  It was either not found or is not a valid extension.";Showdown.forEach(a(this),function(a){a.type?a.type==="language"||a.type==="lang"?f.push(a):(a.type==="output"||a.type==="html")&&g.push(a):g.push(a)})}),this.makeHtml=function(a){return b={},c={},d=[],a=a.replace(/~/g,"~T"),a=a.replace(/\$/g,"~D"),a=a.replace(/\r\n/g,"\n"),a=a.replace(/\r/g,"\n"),a="\n\n"+a+"\n\n",a=L(a),a=a.replace(/^[ \t]+$/mg,""),Showdown.forEach(f,function(b){a=j(b,a)}),a=y(a),a=l(a),a=k(a),a=n(a),a=J(a),a=a.replace(/~D/g,"$$"),a=a.replace(/~T/g,"~"),Showdown.forEach(g,function(b){a=j(b,a)}),a};var j=function(a,b){if(a.regex){var c=new RegExp(a.regex,"g");return b.replace(c,a.replace)}if(a.filter)return a.filter(b)},k=function(a){return a+="~0",a=a.replace(/^[ ]{0,3}\[(.+)\]:[ \t]*\n?[ \t]*<?(\S+?)>?[ \t]*\n?[ \t]*(?:(\n*)["(](.+?)[")][ \t]*)?(?:\n+|(?=~0))/gm,function(a,d,e,f,g){return d=d.toLowerCase(),b[d]=F(e),f?f+g:(g&&(c[d]=g.replace(/"/g,"&quot;")),"")}),a=a.replace(/~0/,""),a},l=function(a){a=a.replace(/\n/g,"\n\n");var b="p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math|ins|del|style|section|header|footer|nav|article|aside",c="p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math|style|section|header|footer|nav|article|aside";return a=a.replace(/^(<(p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math|ins|del)\b[^\r]*?\n<\/\2>[ \t]*(?=\n+))/gm,m),a=a.replace(/^(<(p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math|style|section|header|footer|nav|article|aside)\b[^\r]*?<\/\2>[ \t]*(?=\n+)\n)/gm,m),a=a.replace(/(\n[ ]{0,3}(<(hr)\b([^<>])*?\/?>)[ \t]*(?=\n{2,}))/g,m),a=a.replace(/(\n\n[ ]{0,3}<!(--[^\r]*?--\s*)+>[ \t]*(?=\n{2,}))/g,m),a=a.replace(/(?:\n\n)([ ]{0,3}(?:<([?%])[^\r]*?\2>)[ \t]*(?=\n{2,}))/g,m),a=a.replace(/\n\n/g,"\n"),a},m=function(a,b){var c=b;return c=c.replace(/\n\n/g,"\n"),c=c.replace(/^\n/,""),c=c.replace(/\n+$/g,""),c="\n\n~K"+(d.push(c)-1)+"K\n\n",c},n=function(a){a=u(a);var b=z("<hr />");return a=a.replace(/^[ ]{0,2}([ ]?\*[ ]?){3,}[ \t]*$/gm,b),a=a.replace(/^[ ]{0,2}([ ]?\-[ ]?){3,}[ \t]*$/gm,b),a=a.replace(/^[ ]{0,2}([ ]?\_[ ]?){3,}[ \t]*$/gm,b),a=w(a),a=x(a),a=D(a),a=l(a),a=E(a),a},o=function(a){return a=A(a),a=p(a),a=G(a),a=s(a),a=q(a),a=H(a),a=F(a),a=C(a),a=a.replace(/  +\n/g," <br />\n"),a},p=function(a){var b=/(<[a-z\/!$]("[^"]*"|'[^']*'|[^'">])*>|<!(--.*?--\s*)+>)/gi;return a=a.replace(b,function(a){var b=a.replace(/(.)<\/?code>(?=.)/g,"$1`");return b=M(b,"\\`*_"),b}),a},q=function(a){return a=a.replace(/(\[((?:\[[^\]]*\]|[^\[\]])*)\][ ]?(?:\n[ ]*)?\[(.*?)\])()()()()/g,r),a=a.replace(/(\[((?:\[[^\]]*\]|[^\[\]])*)\]\([ \t]*()<?(.*?(?:\(.*?\).*?)?)>?[ \t]*((['"])(.*?)\6[ \t]*)?\))/g,r),a=a.replace(/(\[([^\[\]]+)\])()()()()()/g,r),a},r=function(a,d,e,f,g,h,i,j){j==undefined&&(j="");var k=d,l=e,m=f.toLowerCase(),n=g,o=j;if(n==""){m==""&&(m=l.toLowerCase().replace(/ ?\n/g," ")),n="#"+m;if(b[m]!=undefined)n=b[m],c[m]!=undefined&&(o=c[m]);else{if(!(k.search(/\(\s*\)$/m)>-1))return k;n=""}}n=M(n,"*_");var p='<a href="'+n+'"';return o!=""&&(o=o.replace(/"/g,"&quot;"),o=M(o,"*_"),p+=' title="'+o+'"'),p+=">"+l+"</a>",p},s=function(a){return a=a.replace(/(!\[(.*?)\][ ]?(?:\n[ ]*)?\[(.*?)\])()()()()/g,t),a=a.replace(/(!\[(.*?)\]\s?\([ \t]*()<?(\S+?)>?[ \t]*((['"])(.*?)\6[ \t]*)?\))/g,t),a},t=function(a,d,e,f,g,h,i,j){var k=d,l=e,m=f.toLowerCase(),n=g,o=j;o||(o="");if(n==""){m==""&&(m=l.toLowerCase().replace(/ ?\n/g," ")),n="#"+m;if(b[m]==undefined)return k;n=b[m],c[m]!=undefined&&(o=c[m])}l=l.replace(/"/g,"&quot;"),n=M(n,"*_");var p='<img src="'+n+'" alt="'+l+'"';return o=o.replace(/"/g,"&quot;"),o=M(o,"*_"),p+=' title="'+o+'"',p+=" />",p},u=function(a){function b(a){return a.replace(/[^\w]/g,"").toLowerCase()}return a=a.replace(/^(.+)[ \t]*\n=+[ \t]*\n+/gm,function(a,c){return z('<h1 id="'+b(c)+'">'+o(c)+"</h1>")}),a=a.replace(/^(.+)[ \t]*\n-+[ \t]*\n+/gm,function(a,c){return z('<h2 id="'+b(c)+'">'+o(c)+"</h2>")}),a=a.replace(/^(\#{1,6})[ \t]*(.+?)[ \t]*\#*\n+/gm,function(a,c,d){var e=c.length;return z("<h"+e+' id="'+b(d)+'">'+o(d)+"</h"+e+">")}),a},v,w=function(a){a+="~0";var b=/^(([ ]{0,3}([*+-]|\d+[.])[ \t]+)[^\r]+?(~0|\n{2,}(?=\S)(?![ \t]*(?:[*+-]|\d+[.])[ \t]+)))/gm;return e?a=a.replace(b,function(a,b,c){var d=b,e=c.search(/[*+-]/g)>-1?"ul":"ol";d=d.replace(/\n{2,}/g,"\n\n\n");var f=v(d);return f=f.replace(/\s+$/,""),f="<"+e+">"+f+"</"+e+">\n",f}):(b=/(\n\n|^\n?)(([ ]{0,3}([*+-]|\d+[.])[ \t]+)[^\r]+?(~0|\n{2,}(?=\S)(?![ \t]*(?:[*+-]|\d+[.])[ \t]+)))/g,a=a.replace(b,function(a,b,c,d){var e=b,f=c,g=d.search(/[*+-]/g)>-1?"ul":"ol",f=f.replace(/\n{2,}/g,"\n\n\n"),h=v(f);return h=e+"<"+g+">\n"+h+"</"+g+">\n",h})),a=a.replace(/~0/,""),a};v=function(a){return e++,a=a.replace(/\n{2,}$/,"\n"),a+="~0",a=a.replace(/(\n)?(^[ \t]*)([*+-]|\d+[.])[ \t]+([^\r]+?(\n{1,2}))(?=\n*(~0|\2([*+-]|\d+[.])[ \t]+))/gm,function(a,b,c,d,e){var f=e,g=b,h=c;return g||f.search(/\n{2,}/)>-1?f=n(K(f)):(f=w(K(f)),f=f.replace(/\n$/,""),f=o(f)),"<li>"+f+"</li>\n"}),a=a.replace(/~0/g,""),e--,a};var x=function(a){return a+="~0",a=a.replace(/(?:\n\n|^)((?:(?:[ ]{4}|\t).*\n+)+)(\n*[ ]{0,3}[^ \t\n]|(?=~0))/g,function(a,b,c){var d=b,e=c;return d=B(K(d)),d=L(d),d=d.replace(/^\n+/g,""),d=d.replace(/\n+$/g,""),d="<pre><code>"+d+"\n</code></pre>",z(d)+e}),a=a.replace(/~0/,""),a},y=function(a){return a+="~0",a=a.replace(/(?:^|\n)```(.*)\n([\s\S]*?)\n```/g,function(a,b,c){var d=b,e=c;return e=B(e),e=L(e),e=e.replace(/^\n+/g,""),e=e.replace(/\n+$/g,""),e="<pre><code"+(d?' class="'+d+'"':"")+">"+e+"\n</code></pre>",z(e)}),a=a.replace(/~0/,""),a},z=function(a){return a=a.replace(/(^\n+|\n+$)/g,""),"\n\n~K"+(d.push(a)-1)+"K\n\n"},A=function(a){return a=a.replace(/(^|[^\\])(`+)([^\r]*?[^`])\2(?!`)/gm,function(a,b,c,d,e){var f=d;return f=f.replace(/^([ \t]*)/g,""),f=f.replace(/[ \t]*$/g,""),f=B(f),b+"<code>"+f+"</code>"}),a},B=function(a){return a=a.replace(/&/g,"&amp;"),a=a.replace(/</g,"&lt;"),a=a.replace(/>/g,"&gt;"),a=M(a,"*_{}[]\\",!1),a},C=function(a){return a=a.replace(/(\*\*|__)(?=\S)([^\r]*?\S[*_]*)\1/g,"<strong>$2</strong>"),a=a.replace(/(\*|_)(?=\S)([^\r]*?\S)\1/g,"<em>$2</em>"),a},D=function(a){return a=a.replace(/((^[ \t]*>[ \t]?.+\n(.+\n)*\n*)+)/gm,function(a,b){var c=b;return c=c.replace(/^[ \t]*>[ \t]?/gm,"~0"),c=c.replace(/~0/g,""),c=c.replace(/^[ \t]+$/gm,""),c=n(c),c=c.replace(/(^|\n)/g,"$1  "),c=c.replace(/(\s*<pre>[^\r]+?<\/pre>)/gm,function(a,b){var c=b;return c=c.replace(/^  /mg,"~0"),c=c.replace(/~0/g,""),c}),z("<blockquote>\n"+c+"\n</blockquote>")}),a},E=function(a){a=a.replace(/^\n+/g,""),a=a.replace(/\n+$/g,"");var b=a.split(/\n{2,}/g),c=[],e=b.length;for(var f=0;f<e;f++){var g=b[f];g.search(/~K(\d+)K/g)>=0?c.push(g):g.search(/\S/)>=0&&(g=o(g),g=g.replace(/^([ \t]*)/g,"<p>"),g+="</p>",c.push(g))}e=c.length;for(var f=0;f<e;f++)while(c[f].search(/~K(\d+)K/)>=0){var h=d[RegExp.$1];h=h.replace(/\$/g,"$$$$"),c[f]=c[f].replace(/~K\d+K/,h)}return c.join("\n\n")},F=function(a){return a=a.replace(/&(?!#?[xX]?(?:[0-9a-fA-F]+|\w+);)/g,"&amp;"),a=a.replace(/<(?![a-z\/?\$!])/gi,"&lt;"),a},G=function(a){return a=a.replace(/\\(\\)/g,N),a=a.replace(/\\([`*_{}\[\]()>#+-.!])/g,N),a},H=function(a){return a=a.replace(/<((https?|ftp|dict):[^'">\s]+)>/gi,'<a href="$1">$1</a>'),a=a.replace(/<(?:mailto:)?([-.\w]+\@[-a-z0-9]+(\.[-a-z0-9]+)*\.[a-z]+)>/gi,function(a,b){return I(J(b))}),a},I=function(a){var b=[function(a){return"&#"+a.charCodeAt(0)+";"},function(a){return"&#x"+a.charCodeAt(0).toString(16)+";"},function(a){return a}];return a="mailto:"+a,a=a.replace(/./g,function(a){if(a=="@")a=b[Math.floor(Math.random()*2)](a);else if(a!=":"){var c=Math.random();a=c>.9?b[2](a):c>.45?b[1](a):b[0](a)}return a}),a='<a href="'+a+'">'+a+"</a>",a=a.replace(/">.+:/g,'">'),a},J=function(a){return a=a.replace(/~E(\d+)E/g,function(a,b){var c=parseInt(b);return String.fromCharCode(c)}),a},K=function(a){return a=a.replace(/^(\t|[ ]{1,4})/gm,"~0"),a=a.replace(/~0/g,""),a},L=function(a){return a=a.replace(/\t(?=\t)/g,"    "),a=a.replace(/\t/g,"~A~B"),a=a.replace(/~B(.+?)~A/g,function(a,b,c){var d=b,e=4-d.length%4;for(var f=0;f<e;f++)d+=" ";return d}),a=a.replace(/~A/g,"    "),a=a.replace(/~B/g,""),a},M=function(a,b,c){var d="(["+b.replace(/([\[\]\\])/g,"\\$1")+"])";c&&(d="\\\\"+d);var e=new RegExp(d,"g");return a=a.replace(e,N),a},N=function(a,b){var c=b.charCodeAt(0);return"~E"+c+"E"}},typeof module!="undefined"&&(module.exports=Showdown),typeof define=="function"&&define.amd&&define("showdown",function(){return Showdown});
+//
+//  Twitter Extension
+//  @username   ->  <a href="http://twitter.com/username">@username</a>
+//  #hashtag    ->  <a href="http://twitter.com/search/%23hashtag">#hashtag</a>
+//
+(function(){var a=function(a){return[{type:"lang",regex:"\\B(\\\\)?@([\\S]+)\\b",replace:function(a,b,c){return b==="\\"?a:'<a href="http://twitter.com/'+c+'">@'+c+"</a>"}},{type:"lang",regex:"\\B(\\\\)?#([\\S]+)\\b",replace:function(a,b,c){return b==="\\"?a:'<a href="http://twitter.com/search/%23'+c+'">#'+c+"</a>"}},{type:"lang",regex:"\\\\@",replace:"@"}]};typeof window!="undefined"&&window.Showdown&&window.Showdown.extensions&&(window.Showdown.extensions.twitter=a),typeof module!="undefined"&&(module.exports=a)})();
+//
+//  Google Prettify
+//  A showdown extension to add Google Prettify (http://code.google.com/p/google-code-prettify/)
+//  hints to showdown's HTML output.
+//
+(function(){var a=function(a){return[{type:"output",filter:function(a){return a.replace(/(<pre>)?<code>/gi,function(a,b){return b?'<pre class="prettyprint linenums" tabIndex="0"><code data-inner="1">':'<code class="prettyprint">'})}}]};typeof window!="undefined"&&window.Showdown&&window.Showdown.extensions&&(window.Showdown.extensions.googlePrettify=a),typeof module!="undefined"&&(module.exports=a)})();
+//
+//  Github Extension (WIP)
+//  ~~strike-through~~   ->  <del>strike-through</del>
+//
+(function(){var a=function(a){return[{type:"lang",regex:"(~T){2}([^~]+)(~T){2}",replace:function(a,b,c,d){return"<del>"+c+"</del>"}}]};typeof window!="undefined"&&window.Showdown&&window.Showdown.extensions&&(window.Showdown.extensions.github=a),typeof module!="undefined"&&(module.exports=a)})();
 'use strict';
 
 /**
@@ -69,6 +148,33 @@
       create: createTransientJob.bind(controller, null, 'closePost'),
       createRandom: closePost,
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost'),
+      canRunWithOpenGrid: true
+    },
+    carouselImageSlide: {
+      constructorName: 'CarouselImageSlideJob',
+      jobs: [],
+      timeouts: [],
+      create: createTransientJob.bind(controller, null, 'carouselImageSlide'),
+      createRandom: null,
+      toggleRecurrence: null,
+      canRunWithOpenGrid: true
+    },
+    dilateSectors: {
+      constructorName: 'DilateSectorsJob',
+      jobs: [],
+      timeouts: [],
+      create: createTransientJob.bind(controller, null, 'dilateSectors'),
+      createRandom: null,
+      toggleRecurrence: null,
+      canRunWithOpenGrid: true
+    },
+    fadePost: {
+      constructorName: 'FadePostJob',
+      jobs: [],
+      timeouts: [],
+      create: createTransientJob.bind(controller, null, 'fadePost'),
+      createRandom: null,
+      toggleRecurrence: null,
       canRunWithOpenGrid: true
     },
     displacementRadiate: {
@@ -196,6 +302,7 @@
    * @param {Grid} grid
    * @param {?Tile} tile
    * @param {*} [extraArg]
+   * @returns {?AnimationJob}
    */
   function createTransientJob(creator, jobId, grid, tile, extraArg) {
     var job;
@@ -209,9 +316,13 @@
       // Store a reference to this job within the controller
       controller.transientJobs[jobId].jobs[grid.index].push(job);
       window.hg.animator.startJob(job);
+
+      return job;
     } else {
       console.log('Cannot create a ' + controller.transientJobs[jobId].constructorName +
           ' while the Grid is expanded');
+
+      return null;
     }
 
     // ---  --- //
@@ -226,9 +337,10 @@
   /**
    * @param {String} jobId
    * @param {Grid} grid
+   * @returns {?AnimationJob}
    */
   function createTransientJobWithARandomTile(jobId, grid) {
-    controller.transientJobs[jobId].create(grid, getRandomOriginalTile(grid));
+    return controller.transientJobs[jobId].create(grid, getRandomOriginalTile(grid));
   }
 
   /**
@@ -372,23 +484,27 @@
 
   /**
    * @param {Grid} grid
-   * @returns {Window.hg.LinesRadiateJob}
+   * @returns {?Window.hg.OpenPostJob}
    */
   function openRandomPost(grid) {
     // If no post is open, pick a random content tile, and open the post; otherwise, do nothing
     if (!grid.isPostOpen) {
-      controller.transientJobs.openPost.create(grid, getRandomContentTile(grid));
+      return controller.transientJobs.openPost.create(grid, getRandomContentTile(grid));
+    } else {
+      return null;
     }
   }
 
   /**
    * @param {Grid} grid
-   * @returns {Window.hg.LinesRadiateJob}
+   * @returns {?Window.hg.ClosePostJob}
    */
   function closePost(grid) {
     // If a post is open, close it; otherwise, do nothing
     if (grid.isPostOpen) {
-      controller.transientJobs.closePost.create(grid, grid.expandedTile);
+      return controller.transientJobs.closePost.create(grid, grid.expandedTile);
+    } else {
+      return null;
     }
   }
 
@@ -460,8 +576,10 @@
 
     resetPersistentJobs(grid);
 
-    expandedTile = getTileFromPostId(grid, expandedPostId);
-    controller.transientJobs.openPost.create(grid, expandedTile);
+    if (expandedPostId) {
+      expandedTile = getTileFromPostId(grid, expandedPostId);
+      controller.transientJobs.openPost.create(grid, expandedTile);
+    }
 
     // ---  --- //
 
@@ -788,6 +906,18 @@
   }
 
   /**
+   * Sets the userSelect style of the given element to 'none'.
+   *
+   * @param {HTMLElement} element
+   */
+  function setUserSelectNone(element) {
+    element.style.userSelect = 'none';
+    element.style.webkitUserSelect = 'none';
+    element.style.MozUserSelect = 'none';
+    element.style.msUserSelect = 'none';
+  }
+
+  /**
    * Removes any children elements from the given parent that have the given class.
    *
    * @param {HTMLElement} parent The parent to remove children from.
@@ -1092,6 +1222,28 @@
     return null;
   }
 
+  var utilStyleSheet;
+
+  /**
+   * Adds the given style rule to a style sheet for the current document.
+   *
+   * @param {String} styleRule
+   */
+  function addRuleToStyleSheet(styleRule) {
+    // Create the custom style sheet if it doesn't already exist
+    if (!utilStyleSheet) {
+      utilStyleSheet = document.createElement('style');
+      document.getElementsByTagName('head')[0].appendChild(utilStyleSheet);
+    }
+
+    // Add the given rule to the custom style sheet
+    if (utilStyleSheet.styleSheet) {
+      utilStyleSheet.styleSheet.cssText = styleRule;
+    } else {
+      utilStyleSheet.appendChild(document.createTextNode(styleRule));
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -1116,6 +1268,7 @@
     getQueryStringParameterValue: getQueryStringParameterValue,
     setTransitionDurationSeconds: setTransitionDurationSeconds,
     setTransitionDelaySeconds: setTransitionDelaySeconds,
+    setUserSelectNone: setUserSelectNone,
     removeChildrenWithClass: removeChildrenWithClass,
     setTransitionCubicBezierTimingFunction: setTransitionCubicBezierTimingFunction,
     easingFunctions: easingFunctions,
@@ -1129,6 +1282,7 @@
     hsvToHsl: hsvToHsl,
     hslToHsv: hslToHsv,
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,
+    addRuleToStyleSheet: addRuleToStyleSheet,
     svgNamespace: 'http://www.w3.org/2000/svg',
     xlinkNamespace: 'http://www.w3.org/1999/xlink'
   };
@@ -1358,33 +1512,19 @@
   config.cornerTileLightness = 30;
 
   config.annotations = {
-    'sectorColors': {
+    'tileNeighborConnections': {
       enabled: false,
-      create: fillSectorColors,
-      destroy: function () {},
-      update: fillSectorColors,
-      priority: 0
+      create: createTileNeighborConnections,
+      destroy: destroyTileNeighborConnections,
+      update: updateTileNeighborConnections,
+      priority: 1300
     },
-    'contentTiles': {
+    'tileAnchorCenters': {
       enabled: false,
-      create: fillContentTiles,
-      destroy: function () {},
-      update: fillContentTiles,
-      priority: 100
-    },
-    'borderTiles': {
-      enabled: false,
-      create: fillBorderTiles,
-      destroy: function () {},
-      update: fillBorderTiles,
-      priority: 200
-    },
-    'cornerTiles': {
-      enabled: false,
-      create: fillCornerTiles,
-      destroy: function () {},
-      update: fillCornerTiles,
-      priority: 300
+      create: createTileAnchorCenters,
+      destroy: destroyTileAnchorCenters,
+      update: updateTileAnchorCenters,
+      priority: 500
     },
     'transparentTiles': {
       enabled: false,
@@ -1393,12 +1533,54 @@
       update: function () {},
       priority: 400
     },
-    'tileAnchorCenters': {
+    'tileIndices': {
       enabled: false,
-      create: createTileAnchorCenters,
-      destroy: destroyTileAnchorCenters,
-      update: updateTileAnchorCenters,
-      priority: 500
+      create: createTileIndices,
+      destroy: destroyTileIndices,
+      update: updateTileIndices,
+      priority: 1000
+    },
+    'tileForces': {
+      enabled: false,
+      create: createTileForces,
+      destroy: destroyTileForces,
+      update: updateTileForces,
+      priority: 1100
+    },
+    'tileVelocities': {
+      enabled: false,
+      create: createTileVelocities,
+      destroy: destroyTileVelocities,
+      update: updateTileVelocities,
+      priority: 1200
+    },
+    'sectorColors': {
+      enabled: false,
+      create: fillSectorColors,
+      destroy: function () {},
+      update: fillSectorColors,
+      priority: 0
+    },
+    'borderTiles': {
+      enabled: false,
+      create: fillBorderTiles,
+      destroy: function () {},
+      update: fillBorderTiles,
+      priority: 200
+    },
+    'contentTiles': {
+      enabled: false,
+      create: fillContentTiles,
+      destroy: function () {},
+      update: fillContentTiles,
+      priority: 100
+    },
+    'cornerTiles': {
+      enabled: false,
+      create: fillCornerTiles,
+      destroy: function () {},
+      update: fillCornerTiles,
+      priority: 300
     },
     'tileParticleCenters': {
       enabled: false,
@@ -1427,34 +1609,6 @@
       destroy: destroyTileOuterRadii,
       update: updateTileOuterRadii,
       priority: 900
-    },
-    'tileIndices': {
-      enabled: false,
-      create: createTileIndices,
-      destroy: destroyTileIndices,
-      update: updateTileIndices,
-      priority: 1000
-    },
-    'tileForces': {
-      enabled: false,
-      create: createTileForces,
-      destroy: destroyTileForces,
-      update: updateTileForces,
-      priority: 1100
-    },
-    'tileVelocities': {
-      enabled: false,
-      create: createTileVelocities,
-      destroy: destroyTileVelocities,
-      update: updateTileVelocities,
-      priority: 1200
-    },
-    'tileNeighborConnections': {
-      enabled: false,
-      create: createTileNeighborConnections,
-      destroy: destroyTileNeighborConnections,
-      update: updateTileNeighborConnections,
-      priority: 1300
     },
     'contentAreaGuidelines': {
       enabled: false,
@@ -2732,6 +2886,522 @@
 })();
 
 /**
+* This module defines a constructor for Carousel objects.
+*
+* Carousel objects display the images and videos for a post.
+*
+* @module Carousel
+*/
+(function () {
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config;
+
+  config = {};
+
+  config.thumbnailHeight = 80;
+  config.thumbnailRibbonPadding = 3;
+  config.prevNextButtonPadding = 10;
+
+  // ---  --- //
+
+  config.aspectRatio = 16 / 9;
+
+  config.vimeoMetadataBaseUrl = 'http://vimeo.com/api/v2/video';
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.thumbnailWidth = config.thumbnailHeight * config.aspectRatio;
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * @this Carousel
+   * @param {Array.<String>} images
+   * @param {Array.<String>} videos
+   */
+  function createMediaMetadataArray(images, videos) {
+    var carousel = this;
+
+    carousel.mediaMetadata = videos.concat(images).map(function (medium) {
+      medium.isVideo = !!medium.videoHost;
+      return medium;
+    });
+  }
+
+  /**
+   * @this Carousel
+   * @param {Boolean} [waitToLoadMedia=false]
+   */
+  function createElements(waitToLoadMedia) {
+    var carousel = this;
+
+    var container = document.createElement('div');
+    var slidersContainer = document.createElement('div');
+    var mainMediaRibbon = document.createElement('div');
+    var thumbnailsRibbon = document.createElement('div');
+    var buttonsContainer = document.createElement('div');
+    var captionsPanel = document.createElement('div');
+    var captionsText = document.createElement('p');
+    var previousButtonPanel = document.createElement('div');
+    var previousButtonText = document.createElement('div');
+    var nextButtonPanel = document.createElement('div');
+    var nextButtonText = document.createElement('div');
+
+    carousel.parent.appendChild(container);
+    container.appendChild(slidersContainer);
+    slidersContainer.appendChild(mainMediaRibbon);
+    slidersContainer.appendChild(thumbnailsRibbon);
+    slidersContainer.appendChild(buttonsContainer);
+    buttonsContainer.appendChild(previousButtonPanel);
+    previousButtonPanel.appendChild(previousButtonText);
+    buttonsContainer.appendChild(nextButtonPanel);
+    nextButtonPanel.appendChild(nextButtonText);
+    container.appendChild(captionsPanel);
+    captionsPanel.appendChild(captionsText);
+
+    carousel.elements = {};
+    carousel.elements.container = container;
+    carousel.elements.slidersContainer = slidersContainer;
+    carousel.elements.mainMediaRibbon = mainMediaRibbon;
+    carousel.elements.thumbnailsRibbon = thumbnailsRibbon;
+    carousel.elements.buttonsContainer = buttonsContainer;
+    carousel.elements.captionsPanel = captionsPanel;
+    carousel.elements.captionsText = captionsText;
+    carousel.elements.previousButtonPanel = previousButtonPanel;
+    carousel.elements.previousButtonText = previousButtonText;
+    carousel.elements.nextButtonPanel = nextButtonPanel;
+    carousel.elements.nextButtonText = nextButtonText;
+    carousel.elements.mainMedia = [];
+    carousel.elements.thumbnails = [];
+    carousel.elements.thumbnailScreens = [];
+
+    container.setAttribute('data-hg-carousel-container', 'data-hg-carousel-container');
+
+    slidersContainer.setAttribute('data-hg-carousel-sliders-container',
+      'data-hg-carousel-sliders-container');
+    slidersContainer.style.position = 'relative';
+    slidersContainer.style.overflow = 'hidden';
+    slidersContainer.style.width = '100%';
+    window.hg.util.setUserSelectNone(container);
+
+    mainMediaRibbon.style.position = 'relative';
+    mainMediaRibbon.style.width = '100%';
+    mainMediaRibbon.style.height = '0';
+    mainMediaRibbon.style.padding = '56.25% 0 0 0';
+
+    thumbnailsRibbon.style.position = 'relative';
+    thumbnailsRibbon.style.width = config.thumbnailWidth * carousel.mediaMetadata.length + 'px';
+    thumbnailsRibbon.style.height = config.thumbnailHeight + 'px';
+    thumbnailsRibbon.style.left = 'calc(50% - ' + config.thumbnailWidth / 2 + 'px)';
+    thumbnailsRibbon.style.paddingTop = config.thumbnailRibbonPadding + 'px';
+
+    buttonsContainer.style.position = 'absolute';
+    buttonsContainer.style.top = '0';
+    buttonsContainer.style.width = '100%';
+    buttonsContainer.style.height = '0';
+    buttonsContainer.style.padding = '56.25% 0 0 0';
+
+    previousButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
+    previousButtonPanel.style.position = 'absolute';
+    previousButtonPanel.style.top = '0';
+    previousButtonPanel.style.left = '0';
+    previousButtonPanel.style.width = 'calc(33.33% - ' + config.prevNextButtonPadding + 'px)';
+    previousButtonPanel.style.height = '100%';
+    previousButtonPanel.style.cursor = 'pointer';
+    previousButtonPanel.addEventListener('click', goToPrevious.bind(carousel), false);
+
+    previousButtonText.style.position = 'absolute';
+    previousButtonText.style.top = '0';
+    previousButtonText.style.bottom = '0';
+    previousButtonText.style.left = '0';
+    previousButtonText.style.margin = 'auto';
+    previousButtonText.style.height = '100px';
+    previousButtonText.style.lineHeight = '100px';
+    previousButtonText.style.fontSize = '40px';
+    previousButtonText.style.verticalAlign = 'middle';
+    previousButtonText.style.textAlign = 'left';
+    previousButtonText.style.paddingLeft = config.prevNextButtonPadding + 'px';
+    previousButtonText.innerHTML = '&#10094;';
+
+    nextButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
+    nextButtonPanel.style.position = 'absolute';
+    nextButtonPanel.style.top = '0';
+    nextButtonPanel.style.right = '0';
+    nextButtonPanel.style.width = 'calc(66.67% - ' + config.prevNextButtonPadding + 'px)';
+    nextButtonPanel.style.height = '100%';
+    nextButtonPanel.style.cursor = 'pointer';
+    nextButtonPanel.addEventListener('click', goToNext.bind(carousel), false);
+
+    nextButtonText.style.position = 'absolute';
+    nextButtonText.style.top = '0';
+    nextButtonText.style.bottom = '0';
+    nextButtonText.style.right = '0';
+    nextButtonText.style.margin = 'auto';
+    nextButtonText.style.height = '100px';
+    nextButtonText.style.lineHeight = '100px';
+    nextButtonText.style.fontSize = '40px';
+    nextButtonText.style.verticalAlign = 'middle';
+    nextButtonText.style.textAlign = 'right';
+    nextButtonText.style.paddingRight = config.prevNextButtonPadding + 'px';
+    nextButtonText.innerHTML = '&#10095;';
+
+    captionsPanel.setAttribute('data-hg-captions-panel', 'data-hg-captions-panel');
+
+    captionsText.style.margin = '0';
+    captionsText.style.padding = '0';
+    carousel.elements.captionsPanel.setAttribute('data-hg-selected', 'data-hg-selected');
+
+    if (!waitToLoadMedia) {
+      loadMedia.call(carousel);
+    }
+
+    // The Carousel should display differently when it contains zero or one item
+    if (carousel.mediaMetadata.length === 0) {
+      container.style.display = 'none';
+      captionsPanel.style.display = 'none';
+    } else {
+      // Show the caption for the first media item
+      captionsText.innerHTML = carousel.mediaMetadata[0].description;
+
+      if (carousel.mediaMetadata.length === 1) {
+        thumbnailsRibbon.style.display = 'none';
+      }
+    }
+
+    setPrevNextButtonVisibility.call(carousel);
+  }
+
+  /**
+   * @this Carousel
+   */
+  function setPrevNextButtonVisibility() {
+    var prevVisibility, nextVisibility, panelVisibility;
+    var carousel = this;
+
+    // We don't want the prev/next buttons blocking any video controls
+    if (!carousel.mediaMetadata.length ||
+        carousel.mediaMetadata[carousel.currentIndex].isVideo) {
+      prevVisibility = 'hidden';
+      nextVisibility = 'hidden';
+      panelVisibility = 'hidden';
+    } else {
+      prevVisibility = carousel.currentIndex > 0 ? 'visible' : 'hidden';
+      nextVisibility = carousel.currentIndex < carousel.mediaMetadata.length - 1 ?
+        'visible' : 'hidden';
+      panelVisibility = 'visible';
+    }
+
+    carousel.elements.previousButtonPanel.style.visibility = prevVisibility;
+    carousel.elements.nextButtonPanel.style.visibility = nextVisibility;
+    carousel.elements.buttonsContainer.style.visibility = panelVisibility;
+  }
+
+  /**
+   * @this Carousel
+   */
+  function goToPrevious() {
+    var nextIndex;
+    var carousel = this;
+
+    if (carousel.currentIndex > 0) {
+      nextIndex = (carousel.currentIndex + carousel.mediaMetadata.length - 1) %
+        carousel.mediaMetadata.length;
+      goToIndex.call(carousel, nextIndex);
+    } else {
+      console.warn('Carousel cannot go to previous. Already at first medium.');
+    }
+  }
+
+  /**
+   * @this Carousel
+   */
+  function goToNext() {
+    var nextIndex;
+    var carousel = this;
+
+    if (carousel.currentIndex < carousel.mediaMetadata.length - 1) {
+      nextIndex = (carousel.currentIndex + 1) % carousel.mediaMetadata.length;
+      goToIndex.call(carousel, nextIndex);
+    } else {
+      console.warn('Carousel cannot go to next. Already at last medium.');
+    }
+  }
+
+  /**
+   * @this Carousel
+   * @param {Number} nextIndex
+   */
+  function goToIndex(nextIndex) {
+    var carousel = this;
+
+    carousel.previousIndex = carousel.currentIndex;
+    carousel.currentIndex = nextIndex;
+
+    window.hg.controller.transientJobs.carouselImageSlide.create(carousel.grid, null, carousel);
+
+    // Pause any playing video
+    if (carousel.mediaMetadata[carousel.previousIndex].isVideo) {
+      switch (carousel.mediaMetadata[carousel.previousIndex].videoHost) {
+        case 'youtube':
+          carousel.elements.mainMedia[carousel.previousIndex].querySelector('iframe').contentWindow
+            .postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+          break;
+        case 'vimeo':
+          carousel.elements.mainMedia[carousel.previousIndex].querySelector('iframe').contentWindow
+            .postMessage('{"method": "pause", "value": ""}', '*');
+          break;
+        default:
+          throw new Error('Invalid video host: ' +
+            carousel.mediaMetadata[carousel.previousIndex].videoHost);
+      }
+    }
+
+    // Hide the caption text
+    carousel.elements.captionsPanel.removeAttribute('data-hg-selected');
+
+    // Mark the old thumbnail as un-selected
+    carousel.elements.thumbnails[carousel.previousIndex].removeAttribute('data-hg-selected');
+
+    // Mark the current thumbnail as selected
+    carousel.elements.thumbnails[carousel.currentIndex].setAttribute('data-hg-selected',
+      'data-hg-selected');
+
+    setPrevNextButtonVisibility.call(carousel);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * @this Carousel
+   */
+  function loadMedia() {
+    var carousel = this;
+
+    if (carousel.elements.mainMedia.length === 0) {
+      carousel.mediaMetadata.forEach(addMedium);
+    }
+
+    if (carousel.mediaMetadata.length > 0) {
+      // Mark the first thumbnail as selected
+      carousel.elements.thumbnails[0].setAttribute('data-hg-selected', 'data-hg-selected');
+    }
+
+    // ---  --- //
+
+    function addMedium(mediumMetadatum, index) {
+      var mainMediaElement, iframeElement, thumbnailElement, thumbnailScreenElement, thumbnailSrc;
+
+      if (mediumMetadatum.isVideo) {
+        iframeElement = document.createElement('iframe');
+        iframeElement.setAttribute('src', mediumMetadatum.videoSrc);
+        iframeElement.setAttribute('allowfullscreen', 'allowfullscreen');
+        iframeElement.setAttribute('frameborder', '0');
+        iframeElement.style.position = 'absolute';
+        iframeElement.style.top = '0';
+        iframeElement.style.width = '100%';
+        iframeElement.style.height = '100%';
+
+        mainMediaElement = document.createElement('div');
+        mainMediaElement.appendChild(iframeElement);
+
+        switch (mediumMetadatum.videoHost) {
+          case 'youtube':
+            thumbnailSrc = mediumMetadatum.thumbnailSrc;
+            break;
+          case 'vimeo':
+            thumbnailSrc = '';
+            fetchVimeoThumbnail(mediumMetadatum, index);
+            break;
+          default:
+            throw new Error('Invalid video host: ' + mediumMetadatum.videoHost);
+        }
+      } else {
+        mainMediaElement = document.createElement('div');
+        mainMediaElement.style.backgroundImage = 'url(' + mediumMetadatum.src + ')';
+        mainMediaElement.style.backgroundSize = 'contain';
+        mainMediaElement.style.backgroundRepeat = 'no-repeat';
+        mainMediaElement.style.backgroundPosition = '50% 50%';
+
+        thumbnailSrc = mediumMetadatum.src;
+      }
+
+      mainMediaElement.setAttribute('data-hg-carousel-main-media',
+        'data-hg-carousel-main-media');
+      mainMediaElement.style.position = 'absolute';
+      mainMediaElement.style.top = '0';
+      mainMediaElement.style.left = index * 100 + '%';
+      mainMediaElement.style.width = '100%';
+      mainMediaElement.style.height = '0';
+      mainMediaElement.style.padding = '56.25% 0 0 0';
+
+      thumbnailElement = document.createElement('div');
+      thumbnailElement.setAttribute('data-hg-carousel-thumbnail',
+        'data-hg-carousel-thumbnail');
+      thumbnailElement.style.backgroundImage = 'url(' + thumbnailSrc + ')';
+      thumbnailElement.style.backgroundSize = 'contain';
+      thumbnailElement.style.backgroundRepeat = 'no-repeat';
+      thumbnailElement.style.backgroundPosition = '50% 50%';
+      thumbnailElement.style.width = config.thumbnailWidth + 'px';
+      thumbnailElement.style.height = config.thumbnailHeight + 'px';
+      thumbnailElement.style.float = 'left';
+
+      thumbnailScreenElement = document.createElement('div');
+      thumbnailScreenElement.setAttribute('data-hg-carousel-thumbnail-screen',
+        'data-hg-carousel-thumbnail-screen');
+      thumbnailScreenElement.style.width = '100%';
+      thumbnailScreenElement.style.height = '100%';
+      thumbnailScreenElement.style.cursor = 'pointer';
+      thumbnailScreenElement.addEventListener('click', goToIndex.bind(carousel, index), false);
+
+      carousel.elements.mainMedia.push(mainMediaElement);
+      carousel.elements.thumbnails.push(thumbnailElement);
+      carousel.elements.thumbnailScreens.push(thumbnailScreenElement);
+
+      carousel.elements.mainMediaRibbon.appendChild(mainMediaElement);
+      carousel.elements.thumbnailsRibbon.appendChild(thumbnailElement);
+      thumbnailElement.appendChild(thumbnailScreenElement);
+
+      // ---  --- //
+
+      function fetchVimeoThumbnail(mediumMetadatum, index) {
+        var url = config.vimeoMetadataBaseUrl + '/' + mediumMetadatum.id + '.json';
+        var xhr = new XMLHttpRequest();
+
+        xhr.addEventListener('load', onLoad, false);
+        xhr.addEventListener('error', onError, false);
+        xhr.addEventListener('abort', onAbort, false);
+
+        console.log('Sending request for Vimeo metadata to ' + url);
+
+        xhr.open('GET', url, true);
+        xhr.send();
+
+        // ---  --- //
+
+        function onLoad() {
+          var responseData;
+
+          console.log('Vimeo metadata response status=' + xhr.status +
+            ' (' + xhr.statusText + ')');
+
+          try {
+            responseData = JSON.parse(xhr.response);
+          } catch (error) {
+            console.error('Unable to parse Vimeo metadata response body as JSON: ' + xhr.response);
+            return;
+          }
+
+          mediumMetadatum.thumbnailSrc = responseData[0].thumbnail_large;
+
+          carousel.elements.thumbnails[index].style.backgroundImage =
+            'url(' + mediumMetadatum.thumbnailSrc + ')';
+        }
+
+        function onError() {
+          console.error('An error occurred while loading the Vimeo thumbnail');
+        }
+
+        function onAbort() {
+          console.error('The Vimeo thumbnail load has been cancelled by the user');
+        }
+      }
+    }
+  }
+
+  /**
+   * @this Carousel
+   */
+  function onSlideFinished() {
+    var carousel = this;
+
+    // Show the caption for the current media item
+    carousel.elements.captionsText.innerHTML =
+      carousel.mediaMetadata[carousel.currentIndex].description;
+    carousel.elements.captionsPanel.setAttribute('data-hg-selected', 'data-hg-selected');
+  }
+
+  /**
+   * @this Carousel
+   */
+  function draw() {
+    var carousel = this;
+
+    carousel.elements.mainMediaRibbon.style.left = -carousel.currentIndexPositionRatio * 100 + '%';
+    carousel.elements.thumbnailsRibbon.style.left = 'calc(50% - ' + (config.thumbnailWidth / 2 +
+      carousel.currentIndexPositionRatio * config.thumbnailWidth) + 'px';
+  }
+
+  /**
+   * @this Carousel
+   */
+  function destroy() {
+    var carousel = this;
+
+    carousel.parent.removeChild(carousel.elements.container);
+    carousel.elements.container = null;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {PagePost} pagePost
+   * @param {HTMLElement} parent
+   * @param {Array.<String>} images
+   * @param {Array.<String>} videos
+   * @param {Boolean} [waitToLoadMedia=false]
+   */
+  function Carousel(grid, pagePost, parent, images, videos, waitToLoadMedia) {
+    var carousel = this;
+
+    carousel.grid = grid;
+    carousel.pagePost = pagePost;
+    carousel.parent = parent;
+    carousel.elements = null;
+    carousel.currentIndex = 0;
+    carousel.previousIndex = 0;
+    carousel.mediaMetadata = null;
+    carousel.currentIndexPositionRatio = 0;
+
+    carousel.loadMedia = loadMedia;
+    carousel.onSlideFinished = onSlideFinished;
+    carousel.draw = draw;
+    carousel.destroy = destroy;
+
+    createMediaMetadataArray.call(carousel, images, videos);
+    createElements.call(carousel, waitToLoadMedia);
+
+    console.log('Carousel created');
+  }
+
+  Carousel.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Carousel = Carousel;
+
+  console.log('Carousel module loaded');
+})();
+
+/**
  * @typedef {AnimationJob} Grid
  */
 
@@ -2755,8 +3425,8 @@
 
   config.targetContentAreaWidth = 800;
   config.backgroundHue = 230;
-  config.backgroundSaturation = 2;
-  config.backgroundLightness = 8;
+  config.backgroundSaturation = 1;
+  config.backgroundLightness = 4;
   config.tileHue = 230;//147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
@@ -2775,9 +3445,10 @@
 
     config.tileInnerRadius = config.tileOuterRadius * config.sqrtThreeOverTwo;
 
+    config.longGap = config.tileGap * config.twoOverSqrtThree;
+
     config.tileShortLengthWithGap = config.tileInnerRadius * 2 + config.tileGap;
-    config.tileLongLengthWithGap =
-        config.tileOuterRadius * 2 + config.tileGap * config.twoOverSqrtThree;
+    config.tileLongLengthWithGap = config.tileOuterRadius * 2 + config.longGap;
   };
 
   config.computeDependentValues();
@@ -2881,7 +3552,7 @@
 
     // Make sure the grid element is tall enough to contain the needed number of rows
     if (rowIndex > grid.rowCount) {
-      grid.rowCount = rowIndex;
+      grid.rowCount = rowIndex + (grid.isVertical ? 0 : 1);
       grid.height = (grid.rowCount - 2) * grid.rowDeltaY;
     } else {
       grid.height = parentHeight;
@@ -2938,11 +3609,11 @@
 
     grid.svg.style.display = 'block';
     grid.svg.style.position = 'relative';
-    grid.svg.style.width = '100%';
+    grid.svg.style.width = '1px';
+    grid.svg.style.height = '1px';
     grid.svg.style.zIndex = '1000';
+    grid.svg.style.overflow = 'visible';
     grid.svg.setAttribute('data-hg-svg', 'data-hg-svg');
-
-    updateBackgroundColor.call(grid);
 
     grid.svgDefs = document.createElementNS(window.hg.util.svgNamespace, 'defs');
     grid.svg.appendChild(grid.svgDefs);
@@ -3261,6 +3932,16 @@
 
     grid = this;
 
+    if (grid.allTiles) {
+      grid.allTiles.forEach(function (tile) {
+        tile.destroy();
+      });
+    }
+
+    if (grid.isPostOpen) {
+      grid.pagePost.destroy();
+    }
+
     grid.originalCenter = {x: Number.NaN, y: Number.NaN};
     grid.currentCenter = {x: Number.NaN, y: Number.NaN};
     grid.panCenter = {x: Number.NaN, y: Number.NaN};
@@ -3269,13 +3950,13 @@
     grid.expandedTile = null;
     grid.sectors = [];
     grid.allTiles = null;
+    grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
-    grid.parent.style.overflow = 'auto';
+    grid.parent.style.overflowX = 'hidden';
+    grid.parent.style.overflowY = 'auto';
 
     clearSvg.call(grid);
     computeGridParameters.call(grid);
-
-    grid.svg.style.height = grid.height + 'px';
 
     createTiles.call(grid);
 
@@ -3287,12 +3968,10 @@
    *
    * @this Grid
    */
-  function updateBackgroundColor() {
-    var grid;
+  function setBackgroundColor() {
+    var grid = this;
 
-    grid = this;
-
-    grid.svg.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
+    grid.parent.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
         config.backgroundSaturation + '%,' + config.backgroundLightness + '%)';
   }
 
@@ -3306,8 +3985,9 @@
 
     grid = this;
 
-    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
-      grid.allTiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+    for (i = 0, count = grid.allNonContentTiles.length; i < count; i += 1) {
+      grid.allNonContentTiles[i].setColor(config.tileHue, config.tileSaturation,
+          config.tileLightness);
     }
   }
 
@@ -3368,6 +4048,10 @@
     for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
       grid.allTiles[i].draw();
     }
+
+    if (grid.isPostOpen) {
+      grid.pagePost.draw();
+    }
   }
 
   /**
@@ -3402,6 +4086,30 @@
   }
 
   /**
+   * @this Grid
+   * @param {Tile} tile
+   * @param {{x:Number,y:Number}} startPosition
+   * @returns {PagePost}
+   */
+  function createPagePost(tile, startPosition) {
+    var grid = this;
+
+    grid.pagePost = new window.hg.PagePost(tile, startPosition);
+
+    return grid.pagePost;
+  }
+
+  /**
+   * @this Grid
+   */
+  function destroyPagePost() {
+    var grid = this;
+
+    grid.pagePost.destroy();
+    grid.pagePost = null;
+  }
+
+  /**
    * Sets the allTiles property to be the given array.
    *
    * @this Grid
@@ -3409,8 +4117,17 @@
    */
   function updateAllTilesCollection(newTiles) {
     var grid = this;
+    var i, count, j;
 
     grid.allTiles = newTiles;
+    grid.allNonContentTiles = [];
+
+    // Create a collection of all of the non-content tiles
+    for (j = 0, i = 0, count = newTiles.length; i < count; i += 1) {
+      if (!newTiles[i].holdsContent) {
+        grid.allNonContentTiles[j++] = newTiles[i];
+      }
+    }
 
     // Reset the annotations for the new tile collection
     grid.annotations.destroyAnnotations();
@@ -3462,11 +4179,14 @@
     grid.currentCenter = null;
     grid.panCenter = null;
     grid.isPostOpen = false;
+    grid.pagePost = null;
     grid.isTransitioning = false;
     grid.expandedTile = null;
     grid.sectors = null;
     grid.allTiles = null;
+    grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
+    grid.scrollTop = Number.NaN;
 
     grid.annotations = new window.hg.Annotations(grid);
 
@@ -3499,14 +4219,18 @@
     grid.cancel = cancel;
     grid.init = init;
 
-    grid.updateBackgroundColor = updateBackgroundColor;
+    grid.setBackgroundColor = setBackgroundColor;
     grid.updateTileColor = updateTileColor;
     grid.updateTileMass = updateTileMass;
-    grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
+    grid.createPagePost = createPagePost;
+    grid.destroyPagePost = destroyPagePost;
     grid.updateAllTilesCollection = updateAllTilesCollection;
 
+    grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
+
     createSvg.call(grid);
+    setBackgroundColor.call(grid);
     computeContentIndices.call(grid);
     resize.call(grid);
   }
@@ -3531,7 +4255,7 @@
   var config = {};
 
   config.contentTileClickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
-  config.emptyTileClickAnimation = 'Radiate Lines'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
+  config.emptyTileClickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
 
   config.possibleClickAnimations = {
     'Radiate Highlight': window.hg.controller.transientJobs.highlightRadiate.create,
@@ -3641,10 +4365,19 @@
    * @param {Tile} tile
    */
   function createClickAnimation(grid, tile) {
+    // Close any open post
+    if (grid.isPostOpen) {
+      window.hg.controller.transientJobs.closePost.create(grid, grid.expandedTile);
+    }
+
     if (tile.holdsContent) {
+      // Trigger an animation for the click
       config.possibleClickAnimations[config.contentTileClickAnimation](grid, tile);
+
+      // Open the post for the given tile
       window.hg.controller.transientJobs.openPost.create(grid, tile);
     } else {
+      // Trigger an animation for the click
       config.possibleClickAnimations[config.emptyTileClickAnimation](grid, tile);
     }
   }
@@ -3688,16 +4421,19 @@
  * @module PagePost
  */
 (function () {
+
+  // TODO: also update the tilepost drawing to utilize the reset job
+
+  // TODO: refactor PagePost, TilePost, and Carousel code
+
+  // TODO: sort post items by date
+
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
-
-// TODO:
 
   var config;
 
   config = {};
-
-  // TODO:
 
   //  --- Dependent parameters --- //
 
@@ -3713,33 +4449,299 @@
    * @this PagePost
    */
   function createElements() {
-    var tilePost = this;
+    var pagePost = this;
+
+    var converter = new Showdown.converter({extensions: ['github']});
+
+    var horizontalSideLength = window.hg.Grid.config.tileShortLengthWithGap *
+        (window.hg.OpenPostJob.config.expandedDisplacementTileCount + 4.25);
+    var verticalSideLength = window.hg.Grid.config.longGap *
+        (window.hg.OpenPostJob.config.expandedDisplacementTileCount * 2) +
+        window.hg.Grid.config.tileOuterRadius *
+        (3 * window.hg.OpenPostJob.config.expandedDisplacementTileCount + 2);
+
+    // Adjust post dimensions for smaller openings
+    switch (window.hg.OpenPostJob.config.expandedDisplacementTileCount) {
+      case 2:
+        verticalSideLength += window.hg.Grid.config.tileOuterRadius;
+        break;
+      case 1:
+        verticalSideLength += window.hg.Grid.config.tileOuterRadius * 3;
+        horizontalSideLength -= window.hg.Grid.config.tileShortLengthWithGap;
+        break;
+      case 0:
+        verticalSideLength += window.hg.Grid.config.tileOuterRadius * 4;
+        horizontalSideLength -= window.hg.Grid.config.tileShortLengthWithGap;
+        break;
+      default:
+        break;
+    }
+
+    var horizontalPadding = 1.15 * window.hg.Grid.config.tileShortLengthWithGap;
+    var verticalPadding = 2.25 * window.hg.Grid.config.tileOuterRadius;
+
+    var width, height, paddingX, paddingY, gradientColor1String,
+      gradientColor2String, innerWrapperPaddingFromCss, innerWrapperVerticalPadding;
+
+    if (pagePost.tile.grid.isVertical) {
+      width = horizontalSideLength;
+      height = verticalSideLength;
+      paddingX = horizontalPadding;
+      paddingY = verticalPadding;
+    } else {
+      width = verticalSideLength;
+      height = horizontalSideLength;
+      paddingX = verticalPadding;
+      paddingY = horizontalPadding;
+    }
+
+    width -= paddingX * 2;
+    height -= paddingY * 2;
+
+    pagePost.paddingX = paddingX;
+    pagePost.paddingY = paddingY;
+    pagePost.halfWidth = width / 2;
+    pagePost.halfHeight = height / 2;
+
+    gradientColor1String = 'hsl(' +
+      window.hg.Grid.config.backgroundHue + ',' +
+      window.hg.Grid.config.backgroundSaturation + '%,' +
+      window.hg.Grid.config.backgroundLightness + '%)';
+    gradientColor2String = 'hsla(' +
+      window.hg.Grid.config.backgroundHue + ',' +
+      window.hg.Grid.config.backgroundSaturation + '%,' +
+      window.hg.Grid.config.backgroundLightness + '%,0)';
+
+    // ---  --- //
 
     var container = document.createElement('div');
+    var outerWrapper = document.createElement('div');
+    var innerWrapper = document.createElement('div');
     var title = document.createElement('h1');
+    var content = document.createElement('div');
+    var logo = document.createElement('div');
+    var date = document.createElement('div');
+    var urls = document.createElement('div');
+    var categories = document.createElement('div');
+    var topGradient = document.createElement('div');
+    var bottomGradient = document.createElement('div');
 
-    tilePost.elements = [];
-    tilePost.elements.container = container;
-    tilePost.elements.title = title;
+    pagePost.tile.grid.parent.appendChild(container);
+    container.appendChild(outerWrapper);
+    outerWrapper.appendChild(innerWrapper);
+    innerWrapper.appendChild(logo);
+    innerWrapper.appendChild(date);
+    innerWrapper.appendChild(title);
+    innerWrapper.appendChild(urls);
+    innerWrapper.appendChild(content);
+    innerWrapper.appendChild(categories);
+    container.appendChild(topGradient);
+    container.appendChild(bottomGradient);
 
-    //**;
-    // TODO:
-    // - the contents of this PagePost should be within normal (non-SVG) DOM elements
-    // - these elements should be positioned behind the SVG element
-    // - this should fade in (as controlled by the OpenPostJob)
+    pagePost.elements = [];
+    pagePost.elements.container = container;
+    pagePost.elements.title = title;
+    pagePost.elements.content = content;
+    pagePost.elements.logo = logo;
+    pagePost.elements.date = date;
+    pagePost.elements.urls = urls;
+    pagePost.elements.categories = categories;
 
-    //id = !isNaN(pagePost.originalIndex) ? pagePost.originalIndex : parseInt(Math.random() * 1000000 + 1000);
-    //
-    //pagePost.vertexDeltas = computeVertexDeltas(pagePost.outerRadius, pagePost.isVertical);
-    //pagePost.vertices = [];
-    //updateVertices.call(pagePost, pagePost.currentAnchor.x, pagePost.currentAnchor.y);
-    //
-    //pagePost.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
-    //pagePost.svg.appendChild(pagePost.element);
-    //
-    //pagePost.element.id = 'hg-' + id;
-    //pagePost.element.classList.add('hg-pagePost');
-    //pagePost.element.style.cursor = 'pointer';
+    container.setAttribute('data-hg-post-container', 'data-hg-post-container');
+    container.style.position = 'absolute';
+    container.style.width = width + paddingX + 'px';
+    container.style.height = height + paddingY * 2 + 'px';
+    container.style.margin = '0';
+    container.style.padding = '0';
+    container.style.overflow = 'hidden';
+    container.style.zIndex = '500';
+
+    outerWrapper.setAttribute('data-hg-post-outer-wrapper', 'data-hg-post-outer-wrapper');
+    outerWrapper.style.width = width + 'px';
+    outerWrapper.style.height = height + paddingY * 2 + 'px';
+    outerWrapper.style.margin = '0';
+    outerWrapper.style.padding = '0 0 0 ' + paddingX + 'px';
+    outerWrapper.style.overflow = 'auto';
+
+    innerWrapper.setAttribute('data-hg-post-inner-wrapper', 'data-hg-post-inner-wrapper');
+    innerWrapperPaddingFromCss =
+      parseInt(window.getComputedStyle(innerWrapper, null).getPropertyValue('padding-top'));
+    innerWrapperVerticalPadding = innerWrapperPaddingFromCss + paddingY;
+    innerWrapper.style.padding =
+      innerWrapperVerticalPadding + 'px ' + innerWrapperPaddingFromCss + 'px ' +
+      innerWrapperVerticalPadding + 'px ' + innerWrapperPaddingFromCss + 'px';
+    innerWrapper.style.minHeight = height - innerWrapperPaddingFromCss * 2 + 'px';
+    innerWrapper.style.overflowX = 'hidden';
+
+    pagePost.innerWrapperPaddingFromCss = innerWrapperPaddingFromCss;
+
+    title.setAttribute('data-hg-post-title', 'data-hg-post-title');
+    title.innerHTML = pagePost.tile.postData.titleLong;
+
+    topGradient.style.position = 'absolute';
+    topGradient.style.top = '0';
+    topGradient.style.left = paddingX + 'px';
+    topGradient.style.height = paddingY + 'px';
+    topGradient.style.width = width + 'px';
+    topGradient.style.backgroundColor = '#000000';
+    topGradient.style.background =
+      'linear-gradient(0,' + gradientColor2String + ',' + gradientColor1String + ' 75%)';
+    topGradient.style.pointerEvents = 'none';
+
+    bottomGradient.style.position = 'absolute';
+    bottomGradient.style.bottom = '0';
+    bottomGradient.style.left = paddingX + 'px';
+    bottomGradient.style.height = paddingY + 'px';
+    bottomGradient.style.width = width + 'px';
+    bottomGradient.style.backgroundColor = '#000000';
+    bottomGradient.style.background =
+      'linear-gradient(0,' + gradientColor1String + ' 25%,' + gradientColor2String + ')';
+    bottomGradient.style.pointerEvents = 'none';
+
+    content.setAttribute('data-hg-post-content', 'data-hg-post-content');
+    content.innerHTML = converter.makeHtml(pagePost.tile.postData.content);
+
+    logo.setAttribute('data-hg-post-logo', 'data-hg-post-logo');
+    logo.style.backgroundImage = 'url(' + pagePost.tile.postData.logoSrc + ')';
+
+    date.setAttribute('data-hg-post-date', 'data-hg-post-date');
+    addDate.call(pagePost);
+
+    urls.setAttribute('data-hg-post-urls', 'data-hg-post-urls');
+    addUrls.call(pagePost);
+
+    categories.setAttribute('data-hg-post-categories', 'data-hg-post-categories');
+    addCategories.call(pagePost);
+
+    // Create the Carousel and insert it before the post's main contents
+    pagePost.carousel = new window.hg.Carousel(pagePost.tile.grid, pagePost, innerWrapper,
+      pagePost.tile.postData.images, pagePost.tile.postData.videos, true);
+    innerWrapper.removeChild(pagePost.carousel.elements.container);
+    innerWrapper.insertBefore(pagePost.carousel.elements.container, urls);
+
+    draw.call(pagePost);
+  }
+
+  /**
+   * @this PagePost
+   */
+  function addDate() {
+    var pagePost = this;
+    var dateElement = pagePost.elements.date;
+    var dateValue = pagePost.tile.postData.date;
+
+    // Date values can be given as a single string or as an object with a start and end property
+    if (typeof dateValue === 'object') {
+      dateElement.innerHTML = dateValue.start + ' &ndash; ' + dateValue.end;
+    } else {
+      dateElement.innerHTML = dateValue;
+    }
+
+    // Hide the date panel if no date was given
+    if (!pagePost.tile.postData.date) {
+      dateElement.style.display = 'none';
+    }
+  }
+
+  /**
+   * @this PagePost
+   */
+  function addUrls() {
+    var pagePost = this;
+    var urlsElement = pagePost.elements.urls;
+    var urlKeys = Object.keys(pagePost.tile.postData.urls);
+
+    urlKeys.forEach(function (key) {
+      addUrl(key, pagePost.tile.postData.urls[key]);
+    });
+
+    // Hide the URLs panel if no URLs were given
+    if (!urlKeys.length) {
+      urlsElement.style.display = 'none';
+    }
+
+    // ---  --- //
+
+    function addUrl(key, url) {
+      var label, cleanedUrl, paragraphElement, linkElement;
+
+      // Remove the protocol from the URL to make it more human-readable
+      cleanedUrl = url.replace(/^.*:\/\//, '');
+
+      // Determine what label to use
+      switch (key) {
+        case 'homepage':
+          label = 'Homepage';
+          break;
+        case 'published':
+          label = 'Published at';
+          break;
+        case 'demo':
+          label = 'Demo Site';
+          break;
+        case 'npm':
+          label = 'NPM Registry';
+          break;
+        case 'bower':
+          label = 'Bower Registry';
+          break;
+        case 'codepen':
+          label = 'CodePen';
+          break;
+        case 'github':
+          label = 'Repository';
+          break;
+        case 'googleCode':
+          label = 'Repository';
+          break;
+        default:
+          console.warn('Unknown URL type: ' + key);
+          label = key;
+          break;
+      }
+
+      // --- Create the elements --- //
+
+      paragraphElement = document.createElement('p');
+      linkElement = document.createElement('a');
+
+      paragraphElement.innerHTML = label + ': ';
+      paragraphElement.style.overflow = 'hidden';
+      paragraphElement.style.whiteSpace = 'nowrap';
+      paragraphElement.style.textOverflow = 'ellipsis';
+
+      linkElement.innerHTML = cleanedUrl;
+      linkElement.setAttribute('href', url);
+
+      paragraphElement.appendChild(linkElement);
+      urlsElement.appendChild(paragraphElement);
+    }
+  }
+
+  /**
+   * @this PagePost
+   */
+  function addCategories() {
+    var pagePost = this;
+    var categoriesElement = pagePost.elements.categories;
+
+    pagePost.tile.postData.categories.forEach(addCategoryCard);
+
+    // Hide the categories panel if no categories were given
+    if (!pagePost.tile.postData.categories.length) {
+      categoriesElement.style.display = 'none';
+    }
+
+    // ---  --- //
+
+    function addCategoryCard(category) {
+      var categoryCard = document.createElement('span');
+      categoriesElement.appendChild(categoryCard);
+
+      categoryCard.setAttribute('data-hg-post-category-card', 'data-hg-post-category-card');
+      categoryCard.style.display = 'inline-block';
+      categoryCard.innerHTML = category;
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3754,11 +4756,38 @@
   /**
    * @this PagePost
    */
+  function loadCarouselMedia() {
+    var pagePost = this;
+
+    pagePost.carousel.loadMedia();
+  }
+
+  /**
+   * @this PagePost
+   */
+  function draw() {
+    var pagePost = this;
+
+    pagePost.elements.container.style.left =
+      pagePost.center.x - pagePost.halfWidth - pagePost.paddingX + 'px';
+    pagePost.elements.container.style.top =
+      pagePost.center.y - pagePost.halfHeight - pagePost.paddingY + 'px';
+
+    pagePost.elements.container.style.opacity = pagePost.opacity;
+
+    pagePost.carousel.draw();
+  }
+
+  /**
+   * @this PagePost
+   */
   function destroy() {
     var pagePost = this;
 
-    // TODO:
-    //pagePost.svg.removeChild(pagePost.element);
+    pagePost.carousel.destroy();
+
+    pagePost.tile.grid.parent.removeChild(pagePost.elements.container);
+    pagePost.elements = null;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -3768,16 +4797,33 @@
    * @constructor
    * @global
    * @param {Tile} tile
+   * @param {{x:Number,y:Number}} startCenter
    */
-  function PagePost(tile) {
+  function PagePost(tile, startCenter) {
     var pagePost = this;
 
     pagePost.tile = tile;
     pagePost.elements = null;
+    pagePost.carousel = null;
+    pagePost.opacity = 0;
+    pagePost.paddingX = Number.NaN;
+    pagePost.paddingY = Number.NaN;
+    pagePost.halfWidth = Number.NaN;
+    pagePost.halfHeight = Number.NaN;
+    pagePost.innerWrapperPaddingFromCss = Number.NaN;
+    pagePost.center = {
+      x: startCenter.x,
+      y: startCenter.y
+    };
 
+    pagePost.loadCarouselMedia = loadCarouselMedia;
+    pagePost.draw = draw;
     pagePost.destroy = destroy;
 
     createElements.call(pagePost);
+
+    console.log('PagePost created: postId=' + tile.postData.id +
+        ', tileIndex=' + tile.originalIndex);
   }
 
   PagePost.config = config;
@@ -4000,37 +5046,59 @@
    * @this Sector
    */
   function collectNewTilesInSector() {
-    var sector, isMovingAwayX, isMovingAwayY, expansionOffsetX, expansionOffsetY, boundingBoxHalfX, boundingBoxHalfY, minX, maxX, minY, maxY;
+    var sector, bounds;
 
     sector = this;
 
-    // If the sector is moving "across" the base tile, then an increased region of the sector will
-    // be visible in the expanded grid; if instead the sector is moving "away" from the base tile,
-    // then a decreased region of the sector will be visible in the expanded grid.
-    isMovingAwayX = sector.expandedDisplacement.x > 0 === sector.majorNeighborDelta.x > 0 && sector.majorNeighborDelta.x !== 0;
-    isMovingAwayY = sector.expandedDisplacement.y > 0 === sector.majorNeighborDelta.y > 0 && sector.majorNeighborDelta.y !== 0;
-    expansionOffsetX = isMovingAwayX ?
-        -Math.abs(sector.expandedDisplacement.x) : Math.abs(sector.expandedDisplacement.x);
-    expansionOffsetY = isMovingAwayY ?
-        -Math.abs(sector.expandedDisplacement.y) : Math.abs(sector.expandedDisplacement.y);
-
-    // Calculate the dimensional extremes for this sector
-    boundingBoxHalfX = window.innerWidth / 2 + expansionOffsetX +
-        window.hg.Grid.config.tileShortLengthWithGap;
-    boundingBoxHalfY = window.innerHeight / 2 + expansionOffsetY +
-        window.hg.Grid.config.tileShortLengthWithGap;
-    minX = sector.baseTile.originalAnchor.x - boundingBoxHalfX;
-    maxX = sector.baseTile.originalAnchor.x + boundingBoxHalfX;
-    minY = sector.baseTile.originalAnchor.y - boundingBoxHalfY;
-    maxY = sector.baseTile.originalAnchor.y + boundingBoxHalfY;
+    bounds = computeBounds();
 
     // Collect all of the tiles for this sector into a two-dimensional array
-    iterateOverTilesInSectorInMajorOrder();
-    iterateOverTilesInSectorInMinorOrder();
+    iterateOverTilesInSectorInMajorOrder(bounds);
+    iterateOverTilesInSectorInMinorOrder(bounds);
 
     // ---  --- //
 
-    function iterateOverTilesInSectorInMajorOrder() {
+    /**
+     * This calculates the min and max x and y coordinates for the furthest positions at which we may need to create
+     * new tiles.
+     *
+     * This considers tile positions within the closed grid--i.e., before the sectors have expanded.
+     *
+     * These extremes are found by the following steps:
+     *
+     * 1. Calculate a viewport bounding box around the base tile
+     * 2. Subtract or add an offset to the bounding box according to the displacement that the sector will undergo
+     *
+     * @returns {{minX: Number, maxX: Number, minY: Number, maxY: Number}}
+     */
+    function computeBounds() {
+      var minX, maxX, minY, maxY, viewportHalfWidth, viewportHalfHeight;
+
+      // Calculate the dimensions of the viewport with a little extra padding around the edges
+      viewportHalfWidth = window.innerWidth / 2 + window.hg.Grid.config.tileLongLengthWithGap;
+      viewportHalfHeight = window.innerHeight / 2 + window.hg.Grid.config.tileLongLengthWithGap;
+
+      // Calculate the viewport bounding box around the base tile BEFORE sector expansion has been considered
+      minX = sector.baseTile.originalAnchor.x - viewportHalfWidth;
+      maxX = sector.baseTile.originalAnchor.x + viewportHalfWidth;
+      minY = sector.baseTile.originalAnchor.y - viewportHalfHeight;
+      maxY = sector.baseTile.originalAnchor.y + viewportHalfHeight;
+
+      // Add the offset from sector expansion
+      minX -= sector.expandedDisplacement.x;
+      maxX -= sector.expandedDisplacement.x;
+      minY -= sector.expandedDisplacement.y;
+      maxY -= sector.expandedDisplacement.y;
+
+      return {
+        minX: minX,
+        maxX: maxX,
+        minY: minY,
+        maxY: maxY
+      };
+    }
+
+    function iterateOverTilesInSectorInMajorOrder(bounds) {
       var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
       startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
@@ -4059,7 +5127,7 @@
           anchorX += sector.minorNeighborDelta.x;
           anchorY += sector.minorNeighborDelta.y;
 
-        } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
+        } while (anchorX >= bounds.minX && anchorX <= bounds.maxX && anchorY >= bounds.minY && anchorY <= bounds.maxY);
 
         // Set up the next "row"
         majorIndex++;
@@ -4067,24 +5135,10 @@
         anchorX = startX + majorIndex * sector.majorNeighborDelta.x;
         anchorY = startY + majorIndex * sector.majorNeighborDelta.y;
 
-        if (sector.index === 2 && false) {
-          console.log('minX=' + minX);
-          console.log('maxX=' + maxX);
-          console.log('minY=' + minY);
-          console.log('maxY=' + maxY);
-
-          console.log('minorIndex=' + minorIndex);
-          console.log('majorIndex=' + majorIndex);
-
-          console.log('anchorX=' + anchorX);
-          console.log('anchorY=' + anchorY);
-          debugger;
-        }
-
-      } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
+      } while (anchorX >= bounds.minX && anchorX <= bounds.maxX && anchorY >= bounds.minY && anchorY <= bounds.maxY);
     }
 
-    function iterateOverTilesInSectorInMinorOrder() {
+    function iterateOverTilesInSectorInMinorOrder(bounds) {
       var startX, startY, anchorX, anchorY, majorIndex, minorIndex;
 
       startX = sector.baseTile.originalAnchor.x + sector.majorNeighborDelta.x;
@@ -4113,7 +5167,7 @@
           anchorX += sector.majorNeighborDelta.x;
           anchorY += sector.majorNeighborDelta.y;
 
-        } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
+        } while (anchorX >= bounds.minX && anchorX <= bounds.maxX && anchorY >= bounds.minY && anchorY <= bounds.maxY);
 
         // Set up the next "column"
         majorIndex = 0;
@@ -4121,7 +5175,7 @@
         anchorX = startX + minorIndex * sector.minorNeighborDelta.x;
         anchorY = startY + minorIndex * sector.minorNeighborDelta.y;
 
-      } while (anchorX >= minX && anchorX <= maxX && anchorY >= minY && anchorY <= maxY);
+      } while (anchorX >= bounds.minX && anchorX <= bounds.maxX && anchorY >= bounds.minY && anchorY <= bounds.maxY);
     }
   }
 
@@ -4190,7 +5244,7 @@
 
       // Iterate over the minor indices of the sector (aka, the "columns" of the sector)
       for (minorIndex in sector.tilesByIndex[majorIndex]) {
-        setTileNeighborStates(sector, majorIndex, minorIndex);
+        setTileNeighborStates(sector, majorIndex, parseInt(minorIndex));
       }
     }
 
@@ -4276,7 +5330,6 @@
    * @param {Array.<Sector>} sectors
    */
   function initializeExpandedStateExternalTileNeighbors(sectors) {
-
     var sector, innerEdgeTiles, neighborTileArrays, i, count, lowerNeighborIndex,
         upperNeighborIndex, innerEdgeNeighborSector, neighborMajorIndex;
 
@@ -4335,24 +5388,31 @@
 
     // --- Mark the inner edge tiles as border tiles --- //
 
-    for (i = 0, count = sector.expandedDisplacementTileCount + 1;
-         i < count; i += 1) {
+    // If the dimensions of the expanded post area are larger than that of the viewport, then we cannot simply use the
+    // number of tiles along a side of this area
+    count = sector.expandedDisplacementTileCount + 1;
+    count = innerEdgeTiles.length < count ? innerEdgeTiles.length : count;
+
+    for (i = 0; i < count; i += 1) {
       innerEdgeTiles[i].expandedState.isBorderTile = true;
     }
 
     // --- Mark the outer edge tiles as border tiles --- //
 
-    for (i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount,
-             count = neighborTileArrays.length; i < count; i += 1) {
+    i = innerEdgeTiles.length - 1 - sector.expandedDisplacementTileCount;
+    i = i < 0 ? 0 : i;
+
+    for (count = neighborTileArrays.length; i < count; i += 1) {
       if (neighborTileArrays[i][0]) {
         neighborTileArrays[i][0].expandedState.isBorderTile = true;
       }
     }
 
     // --- Mark the outermost sector tiles as border tiles --- //
-
     for (i = 0, count = sector.tilesByIndex.length; i < count; i += 1) {
-      sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
+      if (sector.tilesByIndex[i].length) {
+        sector.tilesByIndex[i][sector.tilesByIndex[i].length - 1].expandedState.isBorderTile = true;
+      }
     }
   }
 
@@ -4546,7 +5606,8 @@
 
     id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.originalVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.currentVertexDeltas = tile.originalVertexDeltas.slice(0);
     tile.vertices = [];
     updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
 
@@ -4597,8 +5658,8 @@
     tile = this;
 
     for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
-      tile.vertices[coordIndex] = anchorX + tile.vertexDeltas[coordIndex++];
-      tile.vertices[coordIndex] = anchorY + tile.vertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorX + tile.currentVertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorY + tile.currentVertexDeltas[coordIndex++];
     }
   }
 
@@ -4610,6 +5671,8 @@
   function createTilePost() {
     var tile = this;
 
+    tile.element.setAttribute('data-hg-post-tilePost', 'data-hg-post-tilePost');
+
     tile.tilePost = new window.hg.TilePost(tile);
   }
 
@@ -4620,6 +5683,8 @@
    */
   function destroyTilePost() {
     var tile = this;
+
+    tile.element.removeAttribute('data-hg-post-tilePost');
 
     tile.tilePost.destroy();
     tile.tilePost = null;
@@ -4651,35 +5716,6 @@
       config.verticalSines[i] = Math.sin(theta);
       config.verticalCosines[i] = Math.cos(theta);
     }
-  }
-
-  /**
-   * Computes the offsets of the vertices from the center of the hexagon.
-   *
-   * @param {Number} radius
-   * @param {Boolean} isVertical
-   * @returns {Array.<Number>}
-   */
-  function computeVertexDeltas(radius, isVertical) {
-    var trigIndex, coordIndex, sines, cosines, vertexDeltas;
-
-    // Grab the pre-computed sine and cosine values
-    if (isVertical) {
-      sines = config.verticalSines;
-      cosines = config.verticalCosines;
-    } else {
-      sines = config.horizontalSines;
-      cosines = config.horizontalCosines;
-    }
-
-    for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
-        trigIndex < 6;
-        trigIndex += 1) {
-      vertexDeltas[coordIndex++] = radius * cosines[trigIndex];
-      vertexDeltas[coordIndex++] = radius * sines[trigIndex];
-    }
-
-    return vertexDeltas;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -4776,7 +5812,6 @@
         saturation = tile.originalColor.s + window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
         lightness = tile.originalColor.l + window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
       }
-      backgroundImageScreenOpacity = window.hg.TilePost.config.activeScreenOpacity;
     } else {
       if (tile.isHighlighted) {
         // Remove the highlight
@@ -4789,7 +5824,6 @@
         saturation = tile.originalColor.s;
         lightness = tile.originalColor.l;
       }
-      backgroundImageScreenOpacity = window.hg.TilePost.config.inactiveScreenOpacity;
     }
 
     tile.originalColor.h = hue;
@@ -4801,10 +5835,6 @@
     tile.currentColor.l = lightness;
 
     tile.isHighlighted = isHighlighted;
-
-    if (tile.holdsContent) {
-      tile.tilePost.updateScreenOpacity(backgroundImageScreenOpacity);
-    }
   }
 
   /**
@@ -4983,8 +6013,8 @@
       tile.currentColor.l + '%)';
       tile.element.setAttribute('fill', colorString);
     } else {
-      // Set the position of the TilePost
-      tile.tilePost.updatePosition(tile.particle.px, tile.particle.py);
+      // Set the position and opacity of the TilePost
+      tile.tilePost.draw();
     }
   }
 
@@ -5052,6 +6082,35 @@
 
   // ------------------------------------------------------------------------------------------- //
   // Public static functions
+
+  /**
+   * Computes the offsets of the vertices from the center of the hexagon.
+   *
+   * @param {Number} radius
+   * @param {Boolean} isVertical
+   * @returns {Array.<Number>}
+   */
+  function computeVertexDeltas(radius, isVertical) {
+    var trigIndex, coordIndex, sines, cosines, currentVertexDeltas;
+
+    // Grab the pre-computed sine and cosine values
+    if (isVertical) {
+      sines = config.verticalSines;
+      cosines = config.verticalCosines;
+    } else {
+      sines = config.horizontalSines;
+      cosines = config.horizontalCosines;
+    }
+
+    for (trigIndex = 0, coordIndex = 0, currentVertexDeltas = [];
+         trigIndex < 6;
+         trigIndex += 1) {
+      currentVertexDeltas[coordIndex++] = radius * cosines[trigIndex];
+      currentVertexDeltas[coordIndex++] = radius * sines[trigIndex];
+    }
+
+    return currentVertexDeltas;
+  }
 
   /**
    * Creates the neighbor-tile state for the given tile according to the given neighbor tile. Also
@@ -5126,7 +6185,38 @@
   function destroy() {
     var tile = this;
 
+    if (tile.holdsContent) {
+      destroyTilePost.call(tile);
+    }
     tile.svg.removeChild(tile.element);
+  }
+
+  /**
+   * Sets this Tile and its TilePost to have a display of none.
+   *
+   * @this Tile
+   */
+  function hide() {
+    var tile = this;
+
+    tile.element.style.display = 'none';
+    if (tile.holdsContent) {
+      tile.tilePost.elements.title.style.display = 'none';
+    }
+  }
+
+  /**
+   * Sets this Tile and its TilePost to have a display of block.
+   *
+   * @this Tile
+   */
+  function show() {
+    var tile = this;
+
+    tile.element.style.display = 'block';
+    if (tile.holdsContent) {
+      tile.tilePost.elements.title.style.display = 'block';
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -5186,9 +6276,13 @@
 
     tile.isHighlighted = false;
 
+    tile.imageScreenOpacity = Number.NaN;
+
     tile.neighborStates = [];
     tile.vertices = null;
-    tile.vertexDeltas = null;
+    tile.currentVertexDeltas = null;
+    tile.originalVertexDeltas = null;
+    tile.expandedVertexDeltas = null;
     tile.particle = null;
 
     tile.setContent = setContent;
@@ -5203,6 +6297,8 @@
     tile.getIsBorderTile = getIsBorderTile;
     tile.setIsBorderTile = setIsBorderTile;
     tile.destroy = destroy;
+    tile.hide = hide;
+    tile.show = show;
 
     createElement.call(tile);
     createParticle.call(tile, mass);
@@ -5212,6 +6308,7 @@
     }
   }
 
+  Tile.computeVertexDeltas = computeVertexDeltas;
   Tile.setTileNeighborState = setTileNeighborState;
   Tile.initializeTileExpandedState = initializeTileExpandedState;
   Tile.config = config;
@@ -5236,17 +6333,12 @@
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
-// TODO:
-
-// TODO: tilePost.element.setAttribute('hg-post-tilePost', 'hg-post-tilePost'); to any tilePost that contains a TilePost (and remove it when destroying the post)
-// TODO: post.element.style.pointerEvents = 'none';
-
   var config;
 
   config = {};
 
-  config.activeScreenOpacity = '0.0';
-  config.inactiveScreenOpacity = '0.8';
+  config.activeScreenOpacity = 0.0;
+  config.inactiveScreenOpacity = 0.8;
 
   config.fontSize = 18;
 
@@ -5270,7 +6362,24 @@
 
     var outerSideLength = window.hg.Grid.config.tileOuterRadius * 2;
 
-    var textTop = -config.fontSize * (1.5 + 0.65 * (tilePost.tile.postData.titleShort.split('\n').length - 1));
+    var textTop = -config.fontSize * (1.5 + 0.53 * (tilePost.tile.postData.titleShort.split('\n').length - 1));
+
+    var longRadiusRatio = 1;
+    var shortRadiusRatio = window.hg.Grid.config.tileOuterRadius / window.hg.Grid.config.tileInnerRadius;
+    var offsetDistance = (1 - shortRadiusRatio) / 2;
+
+    var imageWidth, imageHeight, imageX, imageY;
+    if (tilePost.tile.grid.isVertical) {
+      imageWidth = shortRadiusRatio;
+      imageHeight = longRadiusRatio;
+      imageX = offsetDistance;
+      imageY = '0';
+    } else {
+      imageWidth = longRadiusRatio;
+      imageHeight = shortRadiusRatio;
+      imageX = '0';
+      imageY = offsetDistance;
+    }
 
     // --- Create the elements, add them to the DOM, save them in this TilePost --- //
 
@@ -5298,9 +6407,15 @@
     backgroundPattern.setAttribute('height', '1');
 
     backgroundImage.setAttributeNS(window.hg.util.xlinkNamespace, 'xlink:href', tilePost.tile.postData.thumbnailSrc);
-    backgroundImage.setAttribute('preserveAspectRatio', 'xMidYMid slice');
-    backgroundImage.setAttribute('width', '1');
-    backgroundImage.setAttribute('height', '1');
+    backgroundImage.setAttribute('preserveAspectRatio', 'none');
+    backgroundImage.setAttribute('x', imageX);
+    backgroundImage.setAttribute('y', imageY);
+    backgroundImage.setAttribute('width', imageWidth);
+    backgroundImage.setAttribute('height', imageHeight);
+    // TODO: this should have worked, but the aspect ratio was NOT being maintained; it may have been a browser bug
+    //backgroundImage.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    //backgroundImage.setAttribute('width', '1');
+    //backgroundImage.setAttribute('height', '1');
 
     backgroundImageScreen.setAttribute('width', '1');
     backgroundImageScreen.setAttribute('height', '1');
@@ -5309,22 +6424,20 @@
     tilePost.tile.element.setAttribute('fill', 'url(#' + patternId + ')');
 
     title.innerHTML = tilePost.tile.postData.titleShort;
-    title.setAttribute('hg-tile-title', 'hg-tile-title');
+    title.setAttribute('data-hg-tile-title', 'data-hg-tile-title');
     title.style.position = 'absolute';
     title.style.left = -outerSideLength / 2 + 'px';
     title.style.top = textTop + 'px';
     title.style.width = outerSideLength + 'px';
     title.style.height = outerSideLength + 'px';
     title.style.fontSize = config.fontSize + 'px';
-    title.style.fontFamily = 'Georgia, sans-serif';
     title.style.textAlign = 'center';
     title.style.whiteSpace = 'pre-wrap';
-    title.style.color = '#F4F4F4';
     title.style.pointerEvents = 'none';
     title.style.zIndex = '2000';
 
-    updatePosition.call(tilePost, tilePost.tile.particle.px, tilePost.tile.particle.py);
-    updateScreenOpacity.call(tilePost, config.inactiveScreenOpacity);
+    tilePost.tile.imageScreenOpacity = config.inactiveScreenOpacity;
+    draw.call(tilePost);
 
     // TODO: for the canvas version: http://stackoverflow.com/a/4961439/489568
   }
@@ -5340,21 +6453,26 @@
 
   /**
    * @this TilePost
-   * @param {Number} x
-   * @param {Number} y
    */
-  function updatePosition(x, y) {
+  function draw() {
     var tilePost = this;
-    window.hg.util.applyTransform(tilePost.elements.title, 'translate(' + x + 'px,' + y + 'px)');
-  }
 
-  /**
-   * @this TilePost
-   * @param {String} opacity
-   */
-  function updateScreenOpacity(opacity) {
-    var tilePost = this;
-    tilePost.elements.backgroundImageScreen.setAttribute('opacity', opacity);
+    // Keep hovered tiles highlighted
+    var backgroundImageScreenOpacity = tilePost.tile.isHighlighted ?
+        window.hg.TilePost.config.activeScreenOpacity : tilePost.tile.imageScreenOpacity;
+
+    // Have the title change across a wider opacity range than the background screen
+    var titleOpacity = 0.5 + (backgroundImageScreenOpacity - 0.5) * 2;
+    titleOpacity = titleOpacity > 1 ? 1 : (titleOpacity < 0 ? 0 : titleOpacity);
+
+    window.hg.util.applyTransform(tilePost.elements.title,
+        'translate(' + tilePost.tile.particle.px + 'px,' + tilePost.tile.particle.py + 'px)');
+    tilePost.elements.backgroundImageScreen.setAttribute('opacity', backgroundImageScreenOpacity);
+
+    // Only set the title opacity for collapsed tiles
+    if (tilePost.tile.grid.expandedTile !== tilePost.tile) {
+      tilePost.elements.title.style.opacity = titleOpacity;
+    }
   }
 
   /**
@@ -5363,8 +6481,8 @@
   function destroy() {
     var tilePost = this;
 
-    tilePost.svg.removeChild(tilePost.elements.container);
-    tilePost.svgDefs.removeChild(tilePost.elements.backgroundPattern);
+    tilePost.tile.grid.parent.removeChild(tilePost.elements.title);
+    tilePost.tile.grid.svgDefs.removeChild(tilePost.elements.backgroundPattern);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -5381,8 +6499,7 @@
     tilePost.tile = tile;
     tilePost.elements = null;
 
-    tilePost.updatePosition = updatePosition;
-    tilePost.updateScreenOpacity = updateScreenOpacity;
+    tilePost.draw = draw;
     tilePost.destroy = destroy;
 
     createElements.call(tilePost);
@@ -5460,6 +6577,7 @@
       job.grid.allTiles[i].currentColor.h = job.grid.allTiles[i].originalColor.h;
       job.grid.allTiles[i].currentColor.s = job.grid.allTiles[i].originalColor.s;
       job.grid.allTiles[i].currentColor.l = job.grid.allTiles[i].originalColor.l;
+      job.grid.allTiles[i].imageScreenOpacity = window.hg.TilePost.config.inactiveScreenOpacity;
     }
   }
 
@@ -5685,6 +6803,8 @@
   config.deltaSaturation = 0;
   config.deltaLightness = 5;
 
+  config.deltaOpacityImageBackgroundScreen = 0.18;
+
   config.opacity = 0.5;
 
   //  --- Dependent parameters --- //
@@ -5709,17 +6829,31 @@
     job = this;
 
     halfWaveProgressWavelength = config.wavelength / 2;
-    job.waveProgressOffsets = [];
+    job.waveProgressOffsetsNonContentTiles = [];
+    job.waveProgressOffsetsContentTiles = [];
 
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      tile = job.grid.allTiles[i];
+    // Calculate offsets for the non-content tiles
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      tile = job.grid.allNonContentTiles[i];
 
       deltaX = tile.originalAnchor.x - config.originX;
       deltaY = tile.originalAnchor.y - config.originY;
       length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
 
-      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
-          / halfWaveProgressWavelength;
+      job.waveProgressOffsetsNonContentTiles[i] =
+          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
+    }
+
+    // Calculate offsets for the content tiles
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      tile = job.grid.contentTiles[i];
+
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsetsContentTiles[i] =
+          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
     }
   }
 
@@ -5727,21 +6861,34 @@
   // Private static functions
 
   /**
-   * Updates the animation progress of the given tile.
+   * Updates the animation progress of the given non-content tile.
    *
-   * @param {Number} progress
+   * @param {Number} progress From -1 to 1
    * @param {Tile} tile
-   * @param {Number} waveProgressOffset
+   * @param {Number} waveProgressOffset From -1 to 1
    */
-  function updateTile(progress, tile, waveProgressOffset) {
+  function updateNonContentTile(progress, tile, waveProgressOffset) {
     var tileProgress =
         Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
 
-    tile.currentColor.h = tile.currentColor.h + config.deltaHue * tileProgress * config.opacity;
-    tile.currentColor.s =
-        tile.currentColor.s + config.deltaSaturation * tileProgress * config.opacity;
-    tile.currentColor.l =
-        tile.currentColor.l + config.deltaLightness * tileProgress * config.opacity;
+    tile.currentColor.h += config.deltaHue * tileProgress * config.opacity;
+    tile.currentColor.s += config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentColor.l += config.deltaLightness * tileProgress * config.opacity;
+  }
+
+  /**
+   * Updates the animation progress of the given content tile.
+   *
+   * @param {Number} progress From -1 to 1
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset From -1 to 1
+   */
+  function updateContentTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI) * 0.5 + 0.5;
+
+    tile.imageScreenOpacity += -tileProgress * config.opacity *
+        config.deltaOpacityImageBackgroundScreen;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -5775,8 +6922,14 @@
 
     progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
 
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.allTiles[i], job.waveProgressOffsets[i]);
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      updateNonContentTile(progress, job.grid.allNonContentTiles[i],
+          job.waveProgressOffsetsNonContentTiles[i]);
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      updateContentTile(progress, job.grid.contentTiles[i],
+          job.waveProgressOffsetsContentTiles[i]);
     }
   }
 
@@ -5824,7 +6977,8 @@
     var job = this;
 
     job.grid = grid;
-    job.waveProgressOffsets = null;
+    job.waveProgressOffsetsNonContentTiles = null;
+    job.waveProgressOffsetsContentTiles = null;
     job.startTime = 0;
     job.isComplete = true;
 
@@ -5907,10 +7061,16 @@
 
     job = this;
 
-    // Update the tiles
+    // Update the Tiles
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
       job.grid.allTiles[i].currentAnchor.x = job.grid.allTiles[i].originalAnchor.x;
       job.grid.allTiles[i].currentAnchor.y = job.grid.allTiles[i].originalAnchor.y;
+    }
+
+    if (job.grid.isPostOpen) {
+      // Update the Carousel
+      job.grid.pagePost.carousel.currentIndexPositionRatio =
+        job.grid.pagePost.carousel.currentIndex;
     }
   }
 
@@ -6167,6 +7327,169 @@
 })();
 
 /**
+ * @typedef {AnimationJob} CarouselImageSlideJob
+ */
+
+/**
+ * This module defines a constructor for CarouselImageSlideJob objects.
+ *
+ * @module CarouselImageSlideJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 300;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * @this CarouselImageSlideJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('CarouselImageSlideJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+    job.onComplete();
+
+    job.carousel.onSlideFinished();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this CarouselImageSlideJob as started.
+   *
+   * @this CarouselImageSlideJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    job.indexInitialDisplacement = job.carousel.previousIndex - job.carousel.currentIndex;
+  }
+
+  /**
+   * Updates the animation progress of this CarouselImageSlideJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this CarouselImageSlideJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, progress;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = 1 - window.hg.util.easingFunctions.easeInOutCubic(progress);
+    progress = progress < 0 ? 0 : progress;
+
+    job.carousel.currentIndexPositionRatio += job.indexInitialDisplacement * progress;
+
+    // Is the job done?
+    if (progress === 0) {
+      handleComplete.call(job, false);
+    }
+  }
+
+  /**
+   * Draws the current state of this CarouselImageSlideJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this CarouselImageSlideJob
+   */
+  function draw() {
+    // This animation job updates the state of the carousel and has nothing of its own to draw
+  }
+
+  /**
+   * Stops this CarouselImageSlideJob, and returns the element its original form.
+   *
+   * @this CarouselImageSlideJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this CarouselImageSlideJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   * @param {Carousel} carousel
+   */
+  function CarouselImageSlideJob(grid, tile, onComplete, carousel) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = grid.expandedTile;
+    job.startTime = 0;
+    job.isComplete = true;
+    job.carousel = carousel;
+
+    job.indexInitialDisplacement = Number.NaN;
+
+    job.duration = config.duration;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+    console.log('CarouselImageSlideJob created: currentIndex=' + job.carousel.currentIndex +
+      ', previousIndex=' + job.carousel.previousIndex);
+  }
+
+  CarouselImageSlideJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.CarouselImageSlideJob = CarouselImageSlideJob;
+
+  console.log('CarouselImageSlideJob module loaded');
+})();
+
+/**
  * @typedef {AnimationJob} ClosePostJob
  */
 
@@ -6209,11 +7532,7 @@
       job.baseTile.expandedState = null;
 
       job.grid.sectors = [];
-      job.grid.lastExpansionJob = null;
       job.grid.updateAllTilesCollection(job.grid.originalTiles);
-
-      // Turn scrolling back on
-      job.grid.parent.style.overflow = 'auto';
 
       job.grid.isTransitioning = false;
       job.grid.expandedTile = null;
@@ -6224,7 +7543,6 @@
     }
 
     job.isComplete = true;
-
     job.onComplete();
   }
 
@@ -6232,38 +7550,18 @@
    * @this ClosePostJob
    */
   function destroySectors() {
-    var job, i, alsoDestroyOriginalTileExpandedState;
+    var job, i, count, alsoDestroyOriginalTileExpandedState;
 
     job = this;
 
     alsoDestroyOriginalTileExpandedState = job.grid.lastExpansionJob === job;
 
     // Destroy the sectors
-    for (i = 0; i < 6; i += 1) {
+    for (i = 0, count = job.sectors.length; i < count; i += 1) {
       job.sectors[i].destroy(alsoDestroyOriginalTileExpandedState);
     }
 
     job.sectors = [];
-  }
-
-  /**
-   * @this ClosePostJob
-   * @param {Number} panDisplacementX
-   * @param {Number} panDisplacementY
-   */
-  function setFinalPositions(panDisplacementX, panDisplacementY) {
-    var job, i;
-
-    job = this;
-
-    // Displace the sectors
-    for (i = 0; i < 6; i += 1) {
-      // Update the Sector's base position to account for the panning
-      job.sectors[i].originalAnchor.x -= panDisplacementX;
-      job.sectors[i].originalAnchor.y -= panDisplacementY;
-
-      job.sectors[i].setOriginalPositionForExpansion(false);
-    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -6278,7 +7576,7 @@
    * @this ClosePostJob
    */
   function start() {
-    var panDisplacementX, panDisplacementY;
+    var panDisplacement;
     var job = this;
 
     job.startTime = Date.now();
@@ -6288,20 +7586,28 @@
     job.grid.isTransitioning = true;
     job.grid.lastExpansionJob = job;
 
-    panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
-    panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
+    panDisplacement = {
+      x: job.grid.originalCenter.x - job.grid.panCenter.x,
+      y: job.grid.originalCenter.y - job.grid.panCenter.y
+    };
 
     // Start the sub-jobs
-    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
+    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.spreadDurationOffset;
     window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile, {
       x: job.grid.panCenter.x,
       y: job.grid.panCenter.y
-    });
-
-    // Set the final positions at the start, and animate everything in "reverse"
-    setFinalPositions.call(job, panDisplacementX, panDisplacementY);
+    })
+        .duration = config.duration + window.hg.OpenPostJob.config.panDurationOffset;
+    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile, panDisplacement)
+        .duration = config.duration + window.hg.OpenPostJob.config.dilateSectorsDurationOffset;
+    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.fadePostDurationOffset;
 
     job.grid.annotations.setExpandedAnnotations(false);
+
+    // Turn scrolling back on
+    job.grid.parent.style.overflowY = 'auto';
   }
 
   /**
@@ -6314,29 +7620,10 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, progress, i, dx, dy;
-
-    job = this;
-
-    // Calculate progress with an easing function
-    // Because the final positions were set at the start, the progress needs to update in "reverse"
-    progress = (currentTime - job.startTime) / config.duration;
-    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
-    progress = progress < 0 ? 0 : progress;
-
-    // Update the offsets for each of the six sectors
-    for (i = 0; i < 6; i += 1) {
-      dx = -job.sectors[i].expandedDisplacement.x * progress;
-      dy = -job.sectors[i].expandedDisplacement.y * progress;
-
-      job.sectors[i].updateCurrentPosition(dx, dy);
-    }
-
-    // Update the opacity of the center tile
-    job.baseTile.element.style.opacity = 1 - progress;
+    var job = this;
 
     // Is the job done?
-    if (progress === 0) {
+    if (currentTime - job.startTime >= config.duration) {
       handleComplete.call(job, false);
     }
   }
@@ -6408,6 +7695,193 @@
   window.hg.ClosePostJob = ClosePostJob;
 
   console.log('ClosePostJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DilateSectorsJob
+ */
+
+/**
+ * This module defines a constructor for DilateSectorsJob objects.
+ *
+ * @module DilateSectorsJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 500;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * @this DilateSectorsJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('DilateSectorsJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+    job.onComplete();
+  }
+
+  /**
+   * @this OpenPostJob
+   */
+  function setFinalPositions() {
+    var i;
+
+    var job = this;
+
+    // Displace the sectors
+    for (i = 0; i < 6; i += 1) {
+      // Update the Sector's base position to account for the panning
+      job.sectors[i].originalAnchor.x += job.panDisplacement.x;
+      job.sectors[i].originalAnchor.y += job.panDisplacement.y;
+
+      job.sectors[i].setOriginalPositionForExpansion(job.isExpanding);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this DilateSectorsJob as started.
+   *
+   * @this DilateSectorsJob
+   */
+  function start() {
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    // Set the final positions at the start, and animate everything in "reverse"
+    setFinalPositions.call(job);
+  }
+
+  /**
+   * Updates the animation progress of this DilateSectorsJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DilateSectorsJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, progress, i, dx, dy;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    // Because the final positions were set at the start, the progress needs to update in "reverse"
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress < 0 ? 0 : (job.isExpanding ? progress : -progress);
+
+    // Update the offsets for each of the six sectors
+    for (i = 0; i < 6; i += 1) {
+      dx = job.sectors[i].expandedDisplacement.x * progress;
+      dy = job.sectors[i].expandedDisplacement.y * progress;
+
+      job.sectors[i].updateCurrentPosition(dx, dy);
+    }
+
+    // Is the job done?
+    if (progress === 0) {
+      handleComplete.call(job, false);
+    }
+  }
+
+  /**
+   * Draws the current state of this DilateSectorsJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DilateSectorsJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this DilateSectorsJob, and returns the element its original form.
+   *
+   * @this DilateSectorsJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this DilateSectorsJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   * @param {{x:Number,y:Number}} panDisplacement
+   */
+  function DilateSectorsJob(grid, tile, onComplete, panDisplacement) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = grid.expandedTile;
+    job.startTime = 0;
+    job.isComplete = true;
+    job.panDisplacement = panDisplacement;
+    job.sectors = grid.sectors;
+    job.parentExpansionJob = job.grid.lastExpansionJob;
+    job.isExpanding = grid.isPostOpen;
+
+    job.duration = config.duration;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+    console.log('DilateSectorsJob created: tileIndex=' + job.baseTile.originalIndex);
+  }
+
+  DilateSectorsJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DilateSectorsJob = DilateSectorsJob;
+
+  console.log('DilateSectorsJob module loaded');
 })();
 
 /**
@@ -6630,6 +8104,303 @@
 })();
 
 /**
+ * @typedef {AnimationJob} FadePostJob
+ */
+
+/**
+ * This module defines a constructor for FadePostJob objects.
+ *
+ * @module FadePostJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 500;
+
+  config.quick1FadeDurationRatio = 0.7;
+  config.quick2FadeDurationRatio = 0.3;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * @this FadePostJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('FadePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+    job.onComplete();
+
+    if (!job.isFadingIn) {
+      // Don't reset some state if another expansion job started after this one did
+      if (job.parentExpansionJob === job.grid.lastExpansionJob) {
+        job.grid.destroyPagePost();
+      } else {
+        job.pagePost.destroy();
+
+        job.baseTile.currentVertexDeltas = job.baseTile.originalVertexDeltas.slice(0);
+      }
+
+      job.baseTile.show();
+    } else {
+      // Don't reset some state if another expansion job started after this one did
+      if (job.parentExpansionJob === job.grid.lastExpansionJob) {
+        job.baseTile.hide();
+      }
+    }
+
+    job.baseTile.element.style.pointerEvents = 'auto';
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * @param {Array.<Number>} currentVertexDeltas
+   * @param {Array.<Number>} oldVertexDeltas
+   * @param {Array.<Number>} newVertexDeltas
+   * @param {Number} progress
+   */
+  function interpolateVertexDeltas(currentVertexDeltas, oldVertexDeltas, newVertexDeltas,
+                                   progress) {
+    var i, count;
+
+    for (i = 0, count = currentVertexDeltas.length; i < count; i += 1) {
+      currentVertexDeltas[i] =
+        oldVertexDeltas[i] + (newVertexDeltas[i] - oldVertexDeltas[i]) * progress;
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this FadePostJob as started.
+   *
+   * @this FadePostJob
+   */
+  function start() {
+    var expandedTileOuterRadius;
+    var job = this;
+
+    job.startTime = Date.now();
+    job.isComplete = false;
+
+    job.pagePostStartPosition = {};
+    job.pagePostDisplacement = {};
+
+    job.baseTile.show();
+
+    if (job.isFadingIn) {
+      job.pagePostStartPosition.x = job.baseTile.particle.px;
+      job.pagePostStartPosition.y = job.baseTile.particle.py;
+      job.pagePostDisplacement.x = job.grid.originalCenter.x - job.pagePostStartPosition.x;
+      job.pagePostDisplacement.y = job.grid.originalCenter.y - job.pagePostStartPosition.y +
+      job.grid.scrollTop;
+
+      job.pagePost = job.grid.createPagePost(job.baseTile, job.pagePostStartPosition);
+
+      expandedTileOuterRadius = window.hg.OpenPostJob.config.expandedDisplacementTileCount *
+      window.hg.Grid.config.tileShortLengthWithGap;
+
+      job.baseTile.expandedVertexDeltas =
+        window.hg.Tile.computeVertexDeltas(expandedTileOuterRadius, job.grid.isVertical);
+    } else {
+      job.pagePostStartPosition.x = job.grid.originalCenter.x;
+      job.pagePostStartPosition.y = job.grid.originalCenter.y + job.grid.scrollTop;
+      job.pagePostDisplacement.x = job.pagePostStartPosition.x - job.grid.currentCenter.x;
+      job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y -
+      job.grid.scrollTop;
+    }
+
+    job.baseTile.element.style.pointerEvents = 'none';
+  }
+
+  /**
+   * Updates the animation progress of this FadePostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePostJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateFadeIn(currentTime, deltaTime) {
+    var job, progress, uneasedProgress, quick1FadeProgress, quick2FadeProgress;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / job.duration;
+    uneasedProgress = progress;
+    progress = window.hg.util.easingFunctions.easeOutCubic(progress);
+    progress = progress > 1 ? 1 : progress;
+
+    // Some parts of the animation should happen at different speeds
+    quick1FadeProgress = progress / config.quick1FadeDurationRatio;
+    quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
+    quick2FadeProgress = progress / config.quick2FadeDurationRatio;
+    quick2FadeProgress = (quick2FadeProgress > 1 ? 1 : quick2FadeProgress);
+
+    // Update the opacity of the center Tile
+    job.baseTile.element.style.opacity = 1 - quick1FadeProgress;
+    job.baseTile.tilePost.elements.title.style.opacity = 1 - quick2FadeProgress;
+
+    // Update the opacity of the PagePost
+    job.pagePost.opacity = uneasedProgress;
+
+    // Update the position of the PagePost
+    job.pagePost.center.x = job.pagePostStartPosition.x +
+    job.pagePostDisplacement.x * progress;
+    job.pagePost.center.y = job.pagePostStartPosition.y +
+    job.pagePostDisplacement.y * progress;
+
+    interpolateVertexDeltas(job.baseTile.currentVertexDeltas, job.baseTile.originalVertexDeltas,
+      job.baseTile.expandedVertexDeltas, quick1FadeProgress);
+
+    // Is the job done?
+    if (progress === 1) {
+      handleComplete.call(job, false);
+    }
+  }
+
+  /**
+   * Updates the animation progress of this FadePostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePostJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateFadeOut(currentTime, deltaTime) {
+    var job, progress, quick1FadeProgress;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress > 1 ? 1 : progress;
+
+    // Some parts of the animation should happen at different speeds
+    quick1FadeProgress = progress / config.quick1FadeDurationRatio;
+    quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
+
+    // Update the opacity of the center Tile
+    job.baseTile.element.style.opacity = progress;
+    job.baseTile.tilePost.elements.title.style.opacity = progress;
+
+    // Update the opacity of the PagePost
+    job.pagePost.opacity = 1 - quick1FadeProgress;
+
+    // Update the position of the PagePost
+    job.pagePost.center.x = job.pagePostStartPosition.x +
+    job.pagePostDisplacement.x * progress;
+    job.pagePost.center.y = job.pagePostStartPosition.y +
+    job.pagePostDisplacement.y * progress;
+
+    interpolateVertexDeltas(job.baseTile.currentVertexDeltas, job.baseTile.expandedVertexDeltas,
+      job.baseTile.originalVertexDeltas, quick1FadeProgress);
+
+    // Is the job done?
+    if (progress === 1) {
+      handleComplete.call(job, false);
+    }
+  }
+
+  /**
+   * Draws the current state of this FadePostJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePostJob
+   */
+  function draw() {
+    var job = this;
+
+    job.pagePost.draw();
+  }
+
+  /**
+   * Stops this FadePostJob, and returns the element its original form.
+   *
+   * @this FadePostJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this FadePostJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function FadePostJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = grid.expandedTile;
+    job.startTime = 0;
+    job.isComplete = true;
+    job.pagePost = grid.pagePost;
+    job.parentExpansionJob = job.grid.lastExpansionJob;
+    job.isFadingIn = grid.isPostOpen;
+    job.pagePostStartPosition = null;
+    job.pagePostDisplacement = null;
+
+    job.duration = config.duration;
+
+    job.start = start;
+    job.update = job.isFadingIn ? updateFadeIn : updateFadeOut;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+    console.log('FadePostJob created: tileIndex=' + job.baseTile.originalIndex +
+    ', isFadingIn=' + job.isFadingIn);
+  }
+
+  FadePostJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.FadePostJob = FadePostJob;
+
+  console.log('FadePostJob module loaded');
+})();
+
+/**
  * @typedef {AnimationJob} HighlightHoverJob
  */
 
@@ -6683,18 +8454,34 @@
   // Private static functions
 
   /**
-   * Updates the color of the given tile according to the given durationRatio.
+   * Updates the background image screen opacity of the given content tile according to the given
+   * durationRatio.
    *
    * @param {Tile} tile
-   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
    * duration.
    */
-  function updateTile(tile, oneMinusDurationRatio) {
-    var opacity = config.opacity * oneMinusDurationRatio;
+  function updateContentTile(tile, durationRatio) {
+    var opacity = window.hg.TilePost.config.activeScreenOpacity +
+        (durationRatio * (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity));
 
-    tile.currentColor.h = tile.currentColor.h + config.deltaHue * opacity;
-    tile.currentColor.s = tile.currentColor.s + config.deltaSaturation * opacity;
-    tile.currentColor.l = tile.currentColor.l + config.deltaLightness * opacity;
+    tile.imageScreenOpacity = opacity;
+  }
+
+  /**
+   * Updates the color of the given non-content tile according to the given durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateNonContentTile(tile, durationRatio) {
+    var opacity = config.opacity * (1 - durationRatio);
+
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -6722,16 +8509,24 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, oneMinusDurationRatio;
+    var job, durationRatio;
 
     job = this;
 
+    // When the tile is re-highlighted after this job has started, then this job should be
+    // cancelled
+    if (job.tile.isHighlighted) {
+      job.cancel();
+      return;
+    }
+
     if (currentTime > job.startTime + config.duration) {
+      job.updateTile(job.tile, 1);
       handleComplete.call(job, false);
     } else {
-      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+      durationRatio = (currentTime - job.startTime) / config.duration;
 
-      updateTile(job.tile, oneMinusDurationRatio);
+      job.updateTile(job.tile, durationRatio);
     }
   }
 
@@ -6780,6 +8575,8 @@
     job.tile = tile;
     job.startTime = 0;
     job.isComplete = true;
+
+    job.updateTile = tile.holdsContent ? updateContentTile : updateNonContentTile;
 
     job.start = start;
     job.update = update;
@@ -6855,10 +8652,17 @@
 
     distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
 
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      deltaX = job.grid.allTiles[i].originalAnchor.x - job.startPoint.x;
-      deltaY = job.grid.allTiles[i].originalAnchor.y - job.startPoint.y;
-      job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      deltaX = job.grid.allNonContentTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.allNonContentTiles[i].originalAnchor.y - job.startPoint.y;
+      job.distancesNonContentTiles[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) +
+          distanceOffset;
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      deltaX = job.grid.contentTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.contentTiles[i].originalAnchor.y - job.startPoint.y;
+      job.distancesContentTiles[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
     }
   }
 
@@ -6879,7 +8683,8 @@
   // Private static functions
 
   /**
-   * Updates the color of the given tile according to the given waveWidthRatio and durationRatio.
+   * Updates the color of the given non-content tile according to the given waveWidthRatio and
+   * durationRatio.
    *
    * @param {Tile} tile
    * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
@@ -6887,14 +8692,28 @@
    * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
    * duration.
    */
-  function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
-    var opacity = config.opacity * oneMinusDurationRatio;
+  function updateNonContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    var opacity = waveWidthRatio * config.opacity * oneMinusDurationRatio;
 
-    tile.currentColor.h = tile.currentColor.h + config.deltaHue * waveWidthRatio * opacity;
-    tile.currentColor.s =
-        tile.currentColor.s + config.deltaSaturation * waveWidthRatio * opacity;
-    tile.currentColor.l =
-        tile.currentColor.l + config.deltaLightness * waveWidthRatio * opacity;
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
+  }
+
+  /**
+   * Updates the color of the given content tile according to the given waveWidthRatio and
+   * durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * shimmer distances.
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    tile.imageScreenOpacity += -waveWidthRatio * config.opacity * oneMinusDurationRatio *
+        (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -6937,13 +8756,26 @@
 
       animatedSomeTile = false;
 
-      for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-        distance = job.tileDistances[i];
+      for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+        distance = job.distancesNonContentTiles[i];
 
         if (distance > currentMinDistance && distance < currentMaxDistance) {
           waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
 
-          updateTile(job.grid.allTiles[i], waveWidthRatio, oneMinusDurationRatio);
+          updateNonContentTile(job.grid.allNonContentTiles[i], waveWidthRatio,
+              oneMinusDurationRatio);
+
+          animatedSomeTile = true;
+        }
+      }
+
+      for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+        distance = job.distancesContentTiles[i];
+
+        if (distance > currentMinDistance && distance < currentMaxDistance) {
+          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+
+          updateContentTile(job.grid.contentTiles[i], waveWidthRatio, oneMinusDurationRatio);
 
           animatedSomeTile = true;
         }
@@ -6998,7 +8830,8 @@
 
     job.grid = grid;
     job.startPoint = {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
-    job.tileDistances = [];
+    job.distancesNonContentTiles = [];
+    job.distancesContentTiles = [];
     job.startTime = 0;
     job.isComplete = true;
 
@@ -8682,6 +10515,11 @@
 
   config.expandedDisplacementTileCount = 3;
 
+  config.spreadDurationOffset = -200;
+  config.panDurationOffset = -100;
+  config.fadePostDurationOffset = 1100;
+  config.dilateSectorsDurationOffset = 0;
+
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -8704,11 +10542,10 @@
 
     // Don't reset some state if another expansion job started after this one did
     if (job.grid.lastExpansionJob === job) {
-      job.grid.lastExpansionJob = null;
+      job.grid.pagePost.loadCarouselMedia();
     }
 
     job.isComplete = true;
-
     job.onComplete();
   }
 
@@ -8773,26 +10610,6 @@
     }
   }
 
-  /**
-   * @this OpenPostJob
-   * @param {Number} panDisplacementX
-   * @param {Number} panDisplacementY
-   */
-  function setFinalPositions(panDisplacementX, panDisplacementY) {
-    var job, i;
-
-    job = this;
-
-    // Displace the sectors
-    for (i = 0; i < 6; i += 1) {
-      // Update the Sector's base position to account for the panning
-      job.sectors[i].originalAnchor.x += panDisplacementX;
-      job.sectors[i].originalAnchor.y += panDisplacementY;
-
-      job.sectors[i].setOriginalPositionForExpansion(true);
-    }
-  }
-
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -8805,11 +10622,15 @@
    * @this OpenPostJob
    */
   function start() {
-    var panDisplacementX, panDisplacementY;
+    var panDisplacement;
     var job = this;
 
     job.startTime = Date.now();
     job.isComplete = false;
+
+    if (job.grid.isTransitioning) {
+      job.previousJob.cancel();
+    }
 
     job.grid.isPostOpen = true;
     job.grid.isTransitioning = true;
@@ -8824,13 +10645,20 @@
     job.grid.annotations.setExpandedAnnotations(true);
 
     // Start the sub-jobs
-    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile);
-    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile);
+    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile)
+        .duration = config.duration + config.spreadDurationOffset;
+    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile)
+        .duration = config.duration + config.panDurationOffset;
 
-    // Set the final positions at the start, and animate everything in "reverse"
-    panDisplacementX = job.grid.panCenter.x - job.grid.originalCenter.x;
-    panDisplacementY = job.grid.panCenter.y - job.grid.originalCenter.y;
-    setFinalPositions.call(job, panDisplacementX, panDisplacementY);
+    panDisplacement = {
+      x: job.grid.panCenter.x - job.grid.originalCenter.x,
+      y: job.grid.panCenter.y - job.grid.originalCenter.y
+    };
+
+    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile, panDisplacement)
+        .duration = config.duration + config.dilateSectorsDurationOffset;
+    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+        .duration = config.duration + config.fadePostDurationOffset;
 
     // TODO: this should instead fade out the old persistent animations and fade in the new ones
     window.hg.controller.resetPersistentJobs(job.grid);
@@ -8846,29 +10674,10 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, progress, i, dx, dy;
-
-    job = this;
-
-    // Calculate progress with an easing function
-    // Because the final positions were set at the start, the progress needs to update in "reverse"
-    progress = (currentTime - job.startTime) / config.duration;
-    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
-    progress = progress < 0 ? 0 : progress;
-
-    // Update the offsets for each of the six sectors
-    for (i = 0; i < 6; i += 1) {
-      dx = job.sectors[i].expandedDisplacement.x * progress;
-      dy = job.sectors[i].expandedDisplacement.y * progress;
-
-      job.sectors[i].updateCurrentPosition(dx, dy);
-    }
-
-    // Update the opacity of the center tile
-    job.baseTile.element.style.opacity = progress;
+    var job = this;
 
     // Is the job done?
-    if (progress === 0) {
+    if (currentTime - job.startTime >= config.duration) {
       handleComplete.call(job, false);
     }
   }
@@ -8922,6 +10731,7 @@
     job.startTime = 0;
     job.isComplete = true;
     job.sectors = [];
+    job.previousJob = grid.lastExpansionJob;
 
     job.start = start;
     job.update = update;
@@ -9047,7 +10857,7 @@
 
     // Calculate progress with an easing function
     // Because the final positions were set at the start, the progress needs to update in "reverse"
-    progress = (currentTime - job.startTime) / config.duration;
+    progress = (currentTime - job.startTime) / job.duration;
     progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
     progress = progress < 0 ? 0 : progress;
 
@@ -9119,11 +10929,18 @@
     job.startTime = 0;
     job.isComplete = true;
 
+    grid.scrollTop = grid.parent.scrollTop;
+
     // The current viewport coordinates of the point that we would like to move to the center of the viewport
-    job.endPoint = destinationPoint || {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
+    job.endPoint = destinationPoint || {
+      x: tile.originalAnchor.x,
+      y: tile.originalAnchor.y - grid.scrollTop
+    };
 
     // The center of the viewport
     job.startPoint = {x: grid.originalCenter.x, y: grid.originalCenter.y};
+
+    job.duration = config.duration;
 
     job.start = start;
     job.update = update;
@@ -9245,11 +11062,11 @@
 
     job = this;
 
-    if (currentTime > job.startTime + config.duration) {
+    if (currentTime > job.startTime + job.duration) {
       handleComplete.call(job, false);
     } else {
       // Ease-out halfway, then ease-in back
-      progress = (currentTime - job.startTime) / config.duration;
+      progress = (currentTime - job.startTime) / job.duration;
       progress = (progress > 0.5 ? 1 - progress : progress) * 2;
       progress = window.hg.util.easingFunctions.easeOutQuint(progress);
 
@@ -9308,6 +11125,8 @@
     job.isComplete = true;
 
     job.displacements = null;
+
+    job.duration = config.duration;
 
     job.start = start;
     job.update = update;

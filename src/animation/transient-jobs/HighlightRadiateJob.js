@@ -53,10 +53,17 @@
 
     distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
 
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      deltaX = job.grid.allTiles[i].originalAnchor.x - job.startPoint.x;
-      deltaY = job.grid.allTiles[i].originalAnchor.y - job.startPoint.y;
-      job.tileDistances[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      deltaX = job.grid.allNonContentTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.allNonContentTiles[i].originalAnchor.y - job.startPoint.y;
+      job.distancesNonContentTiles[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) +
+          distanceOffset;
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      deltaX = job.grid.contentTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.contentTiles[i].originalAnchor.y - job.startPoint.y;
+      job.distancesContentTiles[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
     }
   }
 
@@ -77,7 +84,8 @@
   // Private static functions
 
   /**
-   * Updates the color of the given tile according to the given waveWidthRatio and durationRatio.
+   * Updates the color of the given non-content tile according to the given waveWidthRatio and
+   * durationRatio.
    *
    * @param {Tile} tile
    * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
@@ -85,14 +93,28 @@
    * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
    * duration.
    */
-  function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
-    var opacity = config.opacity * oneMinusDurationRatio;
+  function updateNonContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    var opacity = waveWidthRatio * config.opacity * oneMinusDurationRatio;
 
-    tile.currentColor.h = tile.currentColor.h + config.deltaHue * waveWidthRatio * opacity;
-    tile.currentColor.s =
-        tile.currentColor.s + config.deltaSaturation * waveWidthRatio * opacity;
-    tile.currentColor.l =
-        tile.currentColor.l + config.deltaLightness * waveWidthRatio * opacity;
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
+  }
+
+  /**
+   * Updates the color of the given content tile according to the given waveWidthRatio and
+   * durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * shimmer distances.
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    tile.imageScreenOpacity += -waveWidthRatio * config.opacity * oneMinusDurationRatio *
+        (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -135,13 +157,26 @@
 
       animatedSomeTile = false;
 
-      for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-        distance = job.tileDistances[i];
+      for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+        distance = job.distancesNonContentTiles[i];
 
         if (distance > currentMinDistance && distance < currentMaxDistance) {
           waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
 
-          updateTile(job.grid.allTiles[i], waveWidthRatio, oneMinusDurationRatio);
+          updateNonContentTile(job.grid.allNonContentTiles[i], waveWidthRatio,
+              oneMinusDurationRatio);
+
+          animatedSomeTile = true;
+        }
+      }
+
+      for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+        distance = job.distancesContentTiles[i];
+
+        if (distance > currentMinDistance && distance < currentMaxDistance) {
+          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+
+          updateContentTile(job.grid.contentTiles[i], waveWidthRatio, oneMinusDurationRatio);
 
           animatedSomeTile = true;
         }
@@ -196,7 +231,8 @@
 
     job.grid = grid;
     job.startPoint = {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
-    job.tileDistances = [];
+    job.distancesNonContentTiles = [];
+    job.distancesContentTiles = [];
     job.startTime = 0;
     job.isComplete = true;
 

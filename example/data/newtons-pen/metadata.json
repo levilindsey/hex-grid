@@ -1,0 +1,51 @@
+{
+  "id": "newtons-pen",
+  "titleShort": "Intelligent\nTutoring\nSystem:\nPen",
+  "titleLong": "Newtons Pen",
+  "urls": {
+    "published": "http://escholarship.org/uc/item/40r3k5v2"
+  },
+  "jobTitle": "Graduate Student Researcher (Software Engineer)",
+  "date": {
+    "start": "2012",
+    "end": "2013"
+  },
+  "categories": [
+    "work",
+    "school",
+    "research",
+    "ucr",
+    "c-sharp",
+    "java",
+    "app",
+    "livescribe",
+    "pen",
+    "data-driven"
+  ],
+  "images": [
+    {
+      "fileName": "pen-boundary-stage-work-1.png",
+      "description": "A free-body-diagram worksheet showing a student's completed work."
+    },
+    {
+      "fileName": "pen-fbd-worksheet.png",
+      "description": "A free-body-diagram worksheet showing a student's completed work."
+    },
+    {
+      "fileName": "pen-prob-desc-worksheet.png",
+      "description": "A problem-description worksheet showing problem-specific information in the top region and general buttons for using the system in the bottom region."
+    },
+    {
+      "fileName": "pen-and-paper.png",
+      "description": "A Livescribe smartpen with Anoto dot paper"
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "y8QYhgRrRZk",
+      "description": "A narrated demonstrational video explaining how to use the Newton's Pen application."
+    }
+  ],
+  "content": ""
+}

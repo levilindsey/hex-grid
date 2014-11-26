@@ -274,6 +274,18 @@
   }
 
   /**
+   * Sets the userSelect style of the given element to 'none'.
+   *
+   * @param {HTMLElement} element
+   */
+  function setUserSelectNone(element) {
+    element.style.userSelect = 'none';
+    element.style.webkitUserSelect = 'none';
+    element.style.MozUserSelect = 'none';
+    element.style.msUserSelect = 'none';
+  }
+
+  /**
    * Removes any children elements from the given parent that have the given class.
    *
    * @param {HTMLElement} parent The parent to remove children from.
@@ -578,6 +590,28 @@
     return null;
   }
 
+  var utilStyleSheet;
+
+  /**
+   * Adds the given style rule to a style sheet for the current document.
+   *
+   * @param {String} styleRule
+   */
+  function addRuleToStyleSheet(styleRule) {
+    // Create the custom style sheet if it doesn't already exist
+    if (!utilStyleSheet) {
+      utilStyleSheet = document.createElement('style');
+      document.getElementsByTagName('head')[0].appendChild(utilStyleSheet);
+    }
+
+    // Add the given rule to the custom style sheet
+    if (utilStyleSheet.styleSheet) {
+      utilStyleSheet.styleSheet.cssText = styleRule;
+    } else {
+      utilStyleSheet.appendChild(document.createTextNode(styleRule));
+    }
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -602,6 +636,7 @@
     getQueryStringParameterValue: getQueryStringParameterValue,
     setTransitionDurationSeconds: setTransitionDurationSeconds,
     setTransitionDelaySeconds: setTransitionDelaySeconds,
+    setUserSelectNone: setUserSelectNone,
     removeChildrenWithClass: removeChildrenWithClass,
     setTransitionCubicBezierTimingFunction: setTransitionCubicBezierTimingFunction,
     easingFunctions: easingFunctions,
@@ -615,6 +650,7 @@
     hsvToHsl: hsvToHsl,
     hslToHsv: hslToHsv,
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,
+    addRuleToStyleSheet: addRuleToStyleSheet,
     svgNamespace: 'http://www.w3.org/2000/svg',
     xlinkNamespace: 'http://www.w3.org/1999/xlink'
   };

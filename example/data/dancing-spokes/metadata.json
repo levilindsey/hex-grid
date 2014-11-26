@@ -1,0 +1,33 @@
+{
+  "id": "dancing-spokes",
+  "titleShort": "Web Doodle:\nDancing\nSpokes",
+  "titleLong": "Dancing Spokes",
+  "urls": {
+    "demo": "http://jackieandlevi.com/dancing-spokes",
+    "github": "https://github.com/levisl176/dancing-spokes",
+    "codepen": "http://codepen.io/levisl176/pen/Cktif"
+  },
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "front-end",
+    "svg",
+    "doodle",
+    "tiny",
+    "animation"
+  ],
+  "images": [
+    {
+      "fileName": "screenshot1.png",
+      "description": "The color of each spoke is always shifting to another random value. At any given point, the hue, saturation, and lightness components of the spoke colors are each constrained to a random global range. This creates an interesting effect with independently fluctuating colors that almost always seem cohesive."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "The color of each spoke is always shifting to another random value. At any given point, the hue, saturation, and lightness components of the spoke colors are each constrained to a random global range. This creates an interesting effect with independently fluctuating colors that almost always seem cohesive."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}

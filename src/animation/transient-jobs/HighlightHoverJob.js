@@ -52,18 +52,34 @@
   // Private static functions
 
   /**
-   * Updates the color of the given tile according to the given durationRatio.
+   * Updates the background image screen opacity of the given content tile according to the given
+   * durationRatio.
    *
    * @param {Tile} tile
-   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
    * duration.
    */
-  function updateTile(tile, oneMinusDurationRatio) {
-    var opacity = config.opacity * oneMinusDurationRatio;
+  function updateContentTile(tile, durationRatio) {
+    var opacity = window.hg.TilePost.config.activeScreenOpacity +
+        (durationRatio * (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity));
 
-    tile.currentColor.h = tile.currentColor.h + config.deltaHue * opacity;
-    tile.currentColor.s = tile.currentColor.s + config.deltaSaturation * opacity;
-    tile.currentColor.l = tile.currentColor.l + config.deltaLightness * opacity;
+    tile.imageScreenOpacity = opacity;
+  }
+
+  /**
+   * Updates the color of the given non-content tile according to the given durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateNonContentTile(tile, durationRatio) {
+    var opacity = config.opacity * (1 - durationRatio);
+
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -91,16 +107,24 @@
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
-    var job, oneMinusDurationRatio;
+    var job, durationRatio;
 
     job = this;
 
+    // When the tile is re-highlighted after this job has started, then this job should be
+    // cancelled
+    if (job.tile.isHighlighted) {
+      job.cancel();
+      return;
+    }
+
     if (currentTime > job.startTime + config.duration) {
+      job.updateTile(job.tile, 1);
       handleComplete.call(job, false);
     } else {
-      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+      durationRatio = (currentTime - job.startTime) / config.duration;
 
-      updateTile(job.tile, oneMinusDurationRatio);
+      job.updateTile(job.tile, durationRatio);
     }
   }
 
@@ -149,6 +173,8 @@
     job.tile = tile;
     job.startTime = 0;
     job.isComplete = true;
+
+    job.updateTile = tile.holdsContent ? updateContentTile : updateNonContentTile;
 
     job.start = start;
     job.update = update;

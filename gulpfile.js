@@ -1,44 +1,28 @@
+var gulp = require('gulp');
+var glob = require('glob');
 
-var srcPath = 'src',
-    scriptsSrcPath = srcPath + '/**/*.js',
-    distPath = 'dist',
-    serverPath = 'example/server/main.js',
+var gulpTasksSrc = [
+  './gulp/**/*.js',
+  '!./gulp/**/config.js',
+  './example/gulp/**/*.js',
+  '!./example/gulp/**/config.js'
+];
 
-    gulp = require('gulp'),
-    plugins = require('gulp-load-plugins')();
+loadTasks(gulpTasksSrc);
 
-gulp.task('scripts', function () {
-  return gulp.src(scriptsSrcPath)
-      .pipe(plugins.plumber())
-      .pipe(plugins.concat('hex-grid.js'))
-      .pipe(gulp.dest(distPath))
-      .pipe(plugins.filesize())
-      .pipe(plugins.rename({ suffix: '.min' }))
-      .pipe(plugins.uglify())
-      .pipe(gulp.dest(distPath))
-      .pipe(plugins.filesize());
-//      .pipe(plugins.livereload());
-});
+gulp.task('scripts', ['example-scripts']);
+gulp.task('styles', ['example-styles']);
 
-gulp.task('clean', function () {
-  return gulp.src([distPath], {read: false})
-      .pipe(plugins.clean());
-});
+// ---  --- //
 
-gulp.task('default', ['clean'], function () {
-  gulp.start('server', 'scripts', 'watch');
-});
-
-gulp.task('watch', function () {
-  gulp.watch(scriptsSrcPath, ['scripts']);
-
-  plugins.livereload.listen();
-  gulp.watch(scriptsSrcPath).on('change', plugins.livereload.changed);
-});
-
-gulp.task('server', function () {
-//  var tinyLRServer = require('tiny-lr')();
-//
-//  tinyLRServer.listen(35729);
-  plugins.nodemon({script: serverPath});
-});
+function loadTasks(includes) {
+  includes
+    // Expand the glob to get an array of the actual file paths
+    .reduce(function (paths, include) {
+      return paths.concat(glob.sync(include));
+    }, [])
+    // Register each task with gulp
+    .forEach(function (path) {
+      require(path);
+    });
+}

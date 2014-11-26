@@ -1,0 +1,52 @@
+{
+  "id": "wedding-invite",
+  "titleShort": "Web App:\nWedding\nSite",
+  "titleLong": "Wedding Invite and RSVP System",
+  "urls": {
+    "demo": "http://jackieandlevi.com/wedding/invite",
+    "github": "https://github.com/levisl176/wedding-invite"
+  },
+  "jobTitle": "",
+  "date": "2012",
+  "categories": [
+    "side-project",
+    "web",
+    "web-site",
+    "front-end",
+    "php",
+    "jquery",
+    "animations"
+  ],
+  "images": [
+    {
+      "fileName": "screenshot1.png",
+      "description": "The landing view."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "As the user moves the mouse invard, or touches the envelope, different navigational cards slide outward from under the envelope."
+    },
+    {
+      "fileName": "screenshot4.png",
+      "description": "The RSVP card."
+    },
+    {
+      "fileName": "screenshot5.png",
+      "description": "A card that tells the time of the wedding and shows a countdown."
+    },
+    {
+      "fileName": "screenshot6.png",
+      "description": "A card that names the two people getting married."
+    },
+    {
+      "fileName": "screenshot7.png",
+      "description": "A card that describes the location of the celebration."
+    },
+    {
+      "fileName": "screenshot8.png",
+      "description": "A card that describes the specifics of the celebration."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}

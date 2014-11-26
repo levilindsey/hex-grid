@@ -1,0 +1,49 @@
+{
+  "id": "anvato",
+  "titleShort": "Anvato",
+  "titleLong": "Anvato",
+  "urls": {
+    "homepage": "http://anvato.com"
+  },
+  "jobTitle": "Software Engineer",
+  "date": {
+    "start": "2013",
+    "end": "2014"
+  },
+  "categories": [
+    "work",
+    "web",
+    "front-end",
+    "android",
+    "java",
+    "roku",
+    "windows-phone",
+    "c-sharp",
+    "video",
+    "data-driven"
+  ],
+  "images": [
+    {
+      "fileName": "screenshot1.png",
+      "description": "The Anvato web video player."
+    },
+    {
+      "fileName": "screenshot4.png",
+      "description": "The Anvato web video player with the preview ribbon open while the user scrubs along the seek bar."
+    },
+    {
+      "fileName": "screenshot5.png",
+      "description": "The Anvato web video player with the preview popup open while the user hovers over the seek bar."
+    },
+    {
+      "fileName": "screenshot3.png",
+      "description": "The Anvato web video player with the volume control expanded."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "The splash screen for the Anvato web video player."
+    }
+  ],
+  "videos": [],
+  "content": "_[Anvato][main-url] provides the live and on-demand video management, analytics, syndication, and tracking features\nalong with video player SDKs for iOS, Android, and web._\n\nLevi developed HTTP Live Streaming video-player SDKs for the HTML5, Windows Store, Windows Phone, Roku, and Android\nplatforms to match detailed specifications from clients including Fox, NBC, and Univision.\n\nThe HTML5 player SDK loaded and played four-times faster than that of Anvato’s leading competitor.\n\nThe combined Anvato player SDKs drew more than 528,000 viewers per minute during the 2014 SuperBowl, making it the\nmost-viewed single sports event ever delivered online.\n\n[main-url]: http:\/\/anvato.com"
+}

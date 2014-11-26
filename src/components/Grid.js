@@ -22,8 +22,8 @@
 
   config.targetContentAreaWidth = 800;
   config.backgroundHue = 230;
-  config.backgroundSaturation = 2;
-  config.backgroundLightness = 8;
+  config.backgroundSaturation = 1;
+  config.backgroundLightness = 4;
   config.tileHue = 230;//147;
   config.tileSaturation = 50;
   config.tileLightness = 30;
@@ -42,9 +42,10 @@
 
     config.tileInnerRadius = config.tileOuterRadius * config.sqrtThreeOverTwo;
 
+    config.longGap = config.tileGap * config.twoOverSqrtThree;
+
     config.tileShortLengthWithGap = config.tileInnerRadius * 2 + config.tileGap;
-    config.tileLongLengthWithGap =
-        config.tileOuterRadius * 2 + config.tileGap * config.twoOverSqrtThree;
+    config.tileLongLengthWithGap = config.tileOuterRadius * 2 + config.longGap;
   };
 
   config.computeDependentValues();
@@ -148,7 +149,7 @@
 
     // Make sure the grid element is tall enough to contain the needed number of rows
     if (rowIndex > grid.rowCount) {
-      grid.rowCount = rowIndex;
+      grid.rowCount = rowIndex + (grid.isVertical ? 0 : 1);
       grid.height = (grid.rowCount - 2) * grid.rowDeltaY;
     } else {
       grid.height = parentHeight;
@@ -205,11 +206,11 @@
 
     grid.svg.style.display = 'block';
     grid.svg.style.position = 'relative';
-    grid.svg.style.width = '100%';
+    grid.svg.style.width = '1px';
+    grid.svg.style.height = '1px';
     grid.svg.style.zIndex = '1000';
+    grid.svg.style.overflow = 'visible';
     grid.svg.setAttribute('data-hg-svg', 'data-hg-svg');
-
-    updateBackgroundColor.call(grid);
 
     grid.svgDefs = document.createElementNS(window.hg.util.svgNamespace, 'defs');
     grid.svg.appendChild(grid.svgDefs);
@@ -528,6 +529,16 @@
 
     grid = this;
 
+    if (grid.allTiles) {
+      grid.allTiles.forEach(function (tile) {
+        tile.destroy();
+      });
+    }
+
+    if (grid.isPostOpen) {
+      grid.pagePost.destroy();
+    }
+
     grid.originalCenter = {x: Number.NaN, y: Number.NaN};
     grid.currentCenter = {x: Number.NaN, y: Number.NaN};
     grid.panCenter = {x: Number.NaN, y: Number.NaN};
@@ -536,13 +547,13 @@
     grid.expandedTile = null;
     grid.sectors = [];
     grid.allTiles = null;
+    grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
-    grid.parent.style.overflow = 'auto';
+    grid.parent.style.overflowX = 'hidden';
+    grid.parent.style.overflowY = 'auto';
 
     clearSvg.call(grid);
     computeGridParameters.call(grid);
-
-    grid.svg.style.height = grid.height + 'px';
 
     createTiles.call(grid);
 
@@ -554,12 +565,10 @@
    *
    * @this Grid
    */
-  function updateBackgroundColor() {
-    var grid;
+  function setBackgroundColor() {
+    var grid = this;
 
-    grid = this;
-
-    grid.svg.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
+    grid.parent.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
         config.backgroundSaturation + '%,' + config.backgroundLightness + '%)';
   }
 
@@ -573,8 +582,9 @@
 
     grid = this;
 
-    for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
-      grid.allTiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+    for (i = 0, count = grid.allNonContentTiles.length; i < count; i += 1) {
+      grid.allNonContentTiles[i].setColor(config.tileHue, config.tileSaturation,
+          config.tileLightness);
     }
   }
 
@@ -635,6 +645,10 @@
     for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
       grid.allTiles[i].draw();
     }
+
+    if (grid.isPostOpen) {
+      grid.pagePost.draw();
+    }
   }
 
   /**
@@ -669,6 +683,30 @@
   }
 
   /**
+   * @this Grid
+   * @param {Tile} tile
+   * @param {{x:Number,y:Number}} startPosition
+   * @returns {PagePost}
+   */
+  function createPagePost(tile, startPosition) {
+    var grid = this;
+
+    grid.pagePost = new window.hg.PagePost(tile, startPosition);
+
+    return grid.pagePost;
+  }
+
+  /**
+   * @this Grid
+   */
+  function destroyPagePost() {
+    var grid = this;
+
+    grid.pagePost.destroy();
+    grid.pagePost = null;
+  }
+
+  /**
    * Sets the allTiles property to be the given array.
    *
    * @this Grid
@@ -676,8 +714,17 @@
    */
   function updateAllTilesCollection(newTiles) {
     var grid = this;
+    var i, count, j;
 
     grid.allTiles = newTiles;
+    grid.allNonContentTiles = [];
+
+    // Create a collection of all of the non-content tiles
+    for (j = 0, i = 0, count = newTiles.length; i < count; i += 1) {
+      if (!newTiles[i].holdsContent) {
+        grid.allNonContentTiles[j++] = newTiles[i];
+      }
+    }
 
     // Reset the annotations for the new tile collection
     grid.annotations.destroyAnnotations();
@@ -729,11 +776,14 @@
     grid.currentCenter = null;
     grid.panCenter = null;
     grid.isPostOpen = false;
+    grid.pagePost = null;
     grid.isTransitioning = false;
     grid.expandedTile = null;
     grid.sectors = null;
     grid.allTiles = null;
+    grid.allNonContentTiles = null;
     grid.lastExpansionJob = null;
+    grid.scrollTop = Number.NaN;
 
     grid.annotations = new window.hg.Annotations(grid);
 
@@ -766,14 +816,18 @@
     grid.cancel = cancel;
     grid.init = init;
 
-    grid.updateBackgroundColor = updateBackgroundColor;
+    grid.setBackgroundColor = setBackgroundColor;
     grid.updateTileColor = updateTileColor;
     grid.updateTileMass = updateTileMass;
-    grid.computeContentIndices = computeContentIndices;
     grid.setHoveredTile = setHoveredTile;
+    grid.createPagePost = createPagePost;
+    grid.destroyPagePost = destroyPagePost;
     grid.updateAllTilesCollection = updateAllTilesCollection;
 
+    grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
+
     createSvg.call(grid);
+    setBackgroundColor.call(grid);
     computeContentIndices.call(grid);
     resize.call(grid);
   }

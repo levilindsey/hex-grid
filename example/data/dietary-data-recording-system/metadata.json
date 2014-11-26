@@ -1,0 +1,55 @@
+{
+  "id": "dietary-data-recording-system",
+  "titleShort": "Android App:\nRecording\nSystem",
+  "titleLong": "Dietary Data Recording System",
+  "urls": {
+    "homepage": "http://ee.washington.edu/research/seal",
+    "published": "http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=5766890&isnumber=5766834&url=http%3A%2F%2Fieeexplore.ieee.org%2Fstamp%2Fstamp.jsp%3Ftp%3D%26arnumber%3D5766890%26isnumber%3D5766834"
+  },
+  "jobTitle": "Student Researcher (Software Engineer)",
+  "date": {
+    "start": "2010",
+    "end": "2011"
+  },
+  "categories": [
+    "work",
+    "school",
+    "research",
+    "android",
+    "java",
+    "app",
+    "uw"
+  ],
+  "images": [
+    {
+      "fileName": "ddrs-app-screenshots.png",
+      "description": "A few of the many different screens of the DDRS app."
+    },
+    {
+      "fileName": "meal-review.png",
+      "description": "This screen lets the user review all of the different data they recorded for a given meal."
+    },
+    {
+      "fileName": "photo1.jpg",
+      "description": "This photo shows the complete device in the process of recording a video of a meal. It is important for the device to rotate around the meal, so that video captures multiple perspectives of the food."
+    },
+    {
+      "fileName": "photo2.jpg",
+      "description": "This photo shows the complete device in the process of recording a video of a meal. It is important for the device to rotate around the meal, so that video captures multiple perspectives of the food."
+    },
+    {
+      "fileName": "video-screen.png",
+      "description": "This is the screen that prompts the user to record a video of their food."
+    },
+    {
+      "fileName": "starting-screen.png",
+      "description": "This is the home screen of the DDRS app."
+    },
+    {
+      "fileName": "device2.png",
+      "description": "Levi also created a second app that was used for internal testing of the video-based volume-calculation algorithm."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}

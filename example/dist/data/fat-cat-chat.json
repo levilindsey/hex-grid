@@ -1,0 +1,50 @@
+{
+  "id": "fat-cat-chat",
+  "titleShort": "Web App:\nIRC-Like\nChat",
+  "titleLong": "Fat Cat Chat",
+  "urls": {
+    "demo": "http://jackieandlevi.com/fat-cat-chat",
+    "github": "https://github.com/levisl176/fat-cat-chat"
+  },
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "app",
+    "web-sockets",
+    "socket.io",
+    "node.js",
+    "express",
+    "back-end",
+    "front-end"
+  ],
+  "images": [
+    {
+      "fileName": "screenshot5.png",
+      "description": "All of the users currently in a chat room are shown in the right-side panel. Your user name is shown with an asterisk. Hyperlinks can be included within chat messages either by entering a valid URL&mdash;including the protocol&mdash;or by using the special link command."
+    },
+    {
+      "fileName": "screenshot1.png",
+      "description": "Private chats are shown in a small, collapsible panel at the bottom of the screen. The other sections of the page are included within accordian-style, collapsible panels."
+    },
+    {
+      "fileName": "screenshot4.png",
+      "description": "Each client is kept up-to-date with a manifest of all current rooms and users. Clicking on either a room name or a user name, in any context, will open the corresponding public or private panel, respectively."
+    },
+    {
+      "fileName": "screenshot6.png",
+      "description": "There are three buttons at the top of the screen that let you change your chat name, create new rooms, and add new bots to chat with. The bots will send you emoticons, links to funny cat GIFs, and random cat facts."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "This app includes a collection of cat-themed emoticons!"
+    },
+    {
+      "fileName": "screenshot3.png",
+      "description": "This app includes many standard IRC commands."
+    }
+  ],
+  "videos": [],
+  "content": "#### An IRC-like chat server and web client application\n\nLevi built this app in order to hone his server-side skills and to learn about web sockets.\n\n## Features\n\nSome features of this chat application include:\n\n- Private and room chat areas\n- Bots to chat with in case your feeling lonely\n- Syntax highlighting and link injection for user names, room names, and command names\n- The ability to include links in chat messages\n- Custom cat-themed emoticons\n- Numerous fun facts and [GIFS][cat-gif-url] about cats\n- Many commands including:\n    - `\/help`\n    - `\/rooms`\n    - `\/join`\n    - `\/msg`\n    - `\/nick`\n    - `\/ping`\n    - `\/ignore`\n    - `\/leave`\n    - `\/quit`\n    - `\/link`\n\n## Acknowledgements \/ Technology Stack\n\nThe technology stack for this project includes:\n\n- [Node.js][node-url]\n- [Socket.IO][socket-io-url]\n- HTML5\/CSS3\/JavaScript\n\n\n[main-url]: http:\/\/jackieandlevi.com\/fat-cat-chat\n[cat-gif-url]: http:\/\/25.media.tumblr.com\/0798843644c862737ce1258821b5938a\/tumblr_mnba38vUWI1qzcv7no1_400.gif\n[node-url]: http:\/\/nodejs.org\/\n[socket-io-url]: http:\/\/socket.io\/"
+}

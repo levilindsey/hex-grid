@@ -71,6 +71,33 @@
       toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost'),
       canRunWithOpenGrid: true
     },
+    carouselImageSlide: {
+      constructorName: 'CarouselImageSlideJob',
+      jobs: [],
+      timeouts: [],
+      create: createTransientJob.bind(controller, null, 'carouselImageSlide'),
+      createRandom: null,
+      toggleRecurrence: null,
+      canRunWithOpenGrid: true
+    },
+    dilateSectors: {
+      constructorName: 'DilateSectorsJob',
+      jobs: [],
+      timeouts: [],
+      create: createTransientJob.bind(controller, null, 'dilateSectors'),
+      createRandom: null,
+      toggleRecurrence: null,
+      canRunWithOpenGrid: true
+    },
+    fadePost: {
+      constructorName: 'FadePostJob',
+      jobs: [],
+      timeouts: [],
+      create: createTransientJob.bind(controller, null, 'fadePost'),
+      createRandom: null,
+      toggleRecurrence: null,
+      canRunWithOpenGrid: true
+    },
     displacementRadiate: {
       constructorName: 'DisplacementRadiateJob',
       jobs: [],
@@ -196,6 +223,7 @@
    * @param {Grid} grid
    * @param {?Tile} tile
    * @param {*} [extraArg]
+   * @returns {?AnimationJob}
    */
   function createTransientJob(creator, jobId, grid, tile, extraArg) {
     var job;
@@ -209,9 +237,13 @@
       // Store a reference to this job within the controller
       controller.transientJobs[jobId].jobs[grid.index].push(job);
       window.hg.animator.startJob(job);
+
+      return job;
     } else {
       console.log('Cannot create a ' + controller.transientJobs[jobId].constructorName +
           ' while the Grid is expanded');
+
+      return null;
     }
 
     // ---  --- //
@@ -226,9 +258,10 @@
   /**
    * @param {String} jobId
    * @param {Grid} grid
+   * @returns {?AnimationJob}
    */
   function createTransientJobWithARandomTile(jobId, grid) {
-    controller.transientJobs[jobId].create(grid, getRandomOriginalTile(grid));
+    return controller.transientJobs[jobId].create(grid, getRandomOriginalTile(grid));
   }
 
   /**
@@ -372,23 +405,27 @@
 
   /**
    * @param {Grid} grid
-   * @returns {Window.hg.LinesRadiateJob}
+   * @returns {?Window.hg.OpenPostJob}
    */
   function openRandomPost(grid) {
     // If no post is open, pick a random content tile, and open the post; otherwise, do nothing
     if (!grid.isPostOpen) {
-      controller.transientJobs.openPost.create(grid, getRandomContentTile(grid));
+      return controller.transientJobs.openPost.create(grid, getRandomContentTile(grid));
+    } else {
+      return null;
     }
   }
 
   /**
    * @param {Grid} grid
-   * @returns {Window.hg.LinesRadiateJob}
+   * @returns {?Window.hg.ClosePostJob}
    */
   function closePost(grid) {
     // If a post is open, close it; otherwise, do nothing
     if (grid.isPostOpen) {
-      controller.transientJobs.closePost.create(grid, grid.expandedTile);
+      return controller.transientJobs.closePost.create(grid, grid.expandedTile);
+    } else {
+      return null;
     }
   }
 
@@ -460,8 +497,10 @@
 
     resetPersistentJobs(grid);
 
-    expandedTile = getTileFromPostId(grid, expandedPostId);
-    controller.transientJobs.openPost.create(grid, expandedTile);
+    if (expandedPostId) {
+      expandedTile = getTileFromPostId(grid, expandedPostId);
+      controller.transientJobs.openPost.create(grid, expandedTile);
+    }
 
     // ---  --- //
 

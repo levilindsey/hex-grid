@@ -64,7 +64,8 @@
 
     id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.originalVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.currentVertexDeltas = tile.originalVertexDeltas.slice(0);
     tile.vertices = [];
     updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
 
@@ -115,8 +116,8 @@
     tile = this;
 
     for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
-      tile.vertices[coordIndex] = anchorX + tile.vertexDeltas[coordIndex++];
-      tile.vertices[coordIndex] = anchorY + tile.vertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorX + tile.currentVertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorY + tile.currentVertexDeltas[coordIndex++];
     }
   }
 
@@ -128,6 +129,8 @@
   function createTilePost() {
     var tile = this;
 
+    tile.element.setAttribute('data-hg-post-tilePost', 'data-hg-post-tilePost');
+
     tile.tilePost = new window.hg.TilePost(tile);
   }
 
@@ -138,6 +141,8 @@
    */
   function destroyTilePost() {
     var tile = this;
+
+    tile.element.removeAttribute('data-hg-post-tilePost');
 
     tile.tilePost.destroy();
     tile.tilePost = null;
@@ -169,35 +174,6 @@
       config.verticalSines[i] = Math.sin(theta);
       config.verticalCosines[i] = Math.cos(theta);
     }
-  }
-
-  /**
-   * Computes the offsets of the vertices from the center of the hexagon.
-   *
-   * @param {Number} radius
-   * @param {Boolean} isVertical
-   * @returns {Array.<Number>}
-   */
-  function computeVertexDeltas(radius, isVertical) {
-    var trigIndex, coordIndex, sines, cosines, vertexDeltas;
-
-    // Grab the pre-computed sine and cosine values
-    if (isVertical) {
-      sines = config.verticalSines;
-      cosines = config.verticalCosines;
-    } else {
-      sines = config.horizontalSines;
-      cosines = config.horizontalCosines;
-    }
-
-    for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
-        trigIndex < 6;
-        trigIndex += 1) {
-      vertexDeltas[coordIndex++] = radius * cosines[trigIndex];
-      vertexDeltas[coordIndex++] = radius * sines[trigIndex];
-    }
-
-    return vertexDeltas;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -294,7 +270,6 @@
         saturation = tile.originalColor.s + window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
         lightness = tile.originalColor.l + window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
       }
-      backgroundImageScreenOpacity = window.hg.TilePost.config.activeScreenOpacity;
     } else {
       if (tile.isHighlighted) {
         // Remove the highlight
@@ -307,7 +282,6 @@
         saturation = tile.originalColor.s;
         lightness = tile.originalColor.l;
       }
-      backgroundImageScreenOpacity = window.hg.TilePost.config.inactiveScreenOpacity;
     }
 
     tile.originalColor.h = hue;
@@ -319,10 +293,6 @@
     tile.currentColor.l = lightness;
 
     tile.isHighlighted = isHighlighted;
-
-    if (tile.holdsContent) {
-      tile.tilePost.updateScreenOpacity(backgroundImageScreenOpacity);
-    }
   }
 
   /**
@@ -501,8 +471,8 @@
       tile.currentColor.l + '%)';
       tile.element.setAttribute('fill', colorString);
     } else {
-      // Set the position of the TilePost
-      tile.tilePost.updatePosition(tile.particle.px, tile.particle.py);
+      // Set the position and opacity of the TilePost
+      tile.tilePost.draw();
     }
   }
 
@@ -570,6 +540,35 @@
 
   // ------------------------------------------------------------------------------------------- //
   // Public static functions
+
+  /**
+   * Computes the offsets of the vertices from the center of the hexagon.
+   *
+   * @param {Number} radius
+   * @param {Boolean} isVertical
+   * @returns {Array.<Number>}
+   */
+  function computeVertexDeltas(radius, isVertical) {
+    var trigIndex, coordIndex, sines, cosines, currentVertexDeltas;
+
+    // Grab the pre-computed sine and cosine values
+    if (isVertical) {
+      sines = config.verticalSines;
+      cosines = config.verticalCosines;
+    } else {
+      sines = config.horizontalSines;
+      cosines = config.horizontalCosines;
+    }
+
+    for (trigIndex = 0, coordIndex = 0, currentVertexDeltas = [];
+         trigIndex < 6;
+         trigIndex += 1) {
+      currentVertexDeltas[coordIndex++] = radius * cosines[trigIndex];
+      currentVertexDeltas[coordIndex++] = radius * sines[trigIndex];
+    }
+
+    return currentVertexDeltas;
+  }
 
   /**
    * Creates the neighbor-tile state for the given tile according to the given neighbor tile. Also
@@ -644,7 +643,38 @@
   function destroy() {
     var tile = this;
 
+    if (tile.holdsContent) {
+      destroyTilePost.call(tile);
+    }
     tile.svg.removeChild(tile.element);
+  }
+
+  /**
+   * Sets this Tile and its TilePost to have a display of none.
+   *
+   * @this Tile
+   */
+  function hide() {
+    var tile = this;
+
+    tile.element.style.display = 'none';
+    if (tile.holdsContent) {
+      tile.tilePost.elements.title.style.display = 'none';
+    }
+  }
+
+  /**
+   * Sets this Tile and its TilePost to have a display of block.
+   *
+   * @this Tile
+   */
+  function show() {
+    var tile = this;
+
+    tile.element.style.display = 'block';
+    if (tile.holdsContent) {
+      tile.tilePost.elements.title.style.display = 'block';
+    }
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -704,9 +734,13 @@
 
     tile.isHighlighted = false;
 
+    tile.imageScreenOpacity = Number.NaN;
+
     tile.neighborStates = [];
     tile.vertices = null;
-    tile.vertexDeltas = null;
+    tile.currentVertexDeltas = null;
+    tile.originalVertexDeltas = null;
+    tile.expandedVertexDeltas = null;
     tile.particle = null;
 
     tile.setContent = setContent;
@@ -721,6 +755,8 @@
     tile.getIsBorderTile = getIsBorderTile;
     tile.setIsBorderTile = setIsBorderTile;
     tile.destroy = destroy;
+    tile.hide = hide;
+    tile.show = show;
 
     createElement.call(tile);
     createParticle.call(tile, mass);
@@ -730,6 +766,7 @@
     }
   }
 
+  Tile.computeVertexDeltas = computeVertexDeltas;
   Tile.setTileNeighborState = setTileNeighborState;
   Tile.initializeTileExpandedState = initializeTileExpandedState;
   Tile.config = config;

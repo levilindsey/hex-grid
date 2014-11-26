@@ -1,0 +1,28 @@
+{
+  "id": "hex-grid",
+  "titleShort": "Hex Grid",
+  "titleLong": "Hex Grid",
+  "urls": {
+    "demo": "http://jackieandlevi.com/hex-grid",
+    "github": "https://github.com/levisl176/hex-grid"
+  },
+  "jobTitle": "",
+  "date": "2014",
+  "categories": [
+    "side-project",
+    "web",
+    "front-end",
+    "svg",
+    "canvas",
+    "animation",
+    "library",
+    "app",
+    "data-driven",
+    "dat.gui",
+    "gulp.js"
+  ],
+  "images": [
+  ],
+  "videos": [],
+  "content": ""
+}

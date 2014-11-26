@@ -1,0 +1,9 @@
+{
+  "baseUrl": "https://s3-us-west-2.amazonaws.com/levi-portfolio-media",
+  "thumbnailName": "thumbnail.png",
+  "thumbnailDimensions": {
+    "width": 128,
+    "height": 128
+  },
+  "logoName": "logo.png"
+}
