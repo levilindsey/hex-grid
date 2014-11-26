@@ -17,3 +17,5 @@ node_modules/
 
 npm-debug.log
 aws_config.json
+
+example/dist
