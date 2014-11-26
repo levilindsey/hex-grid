@@ -3,7 +3,7 @@
 /**
  * This module defines a singleton that fetches and parses data for the app.
  *
- * @module main
+ * @module data
  */
 (function () {
 
@@ -122,5 +122,5 @@
     }
   }
 
-  console.log('main module loaded');
+  console.log('data module loaded');
 })();

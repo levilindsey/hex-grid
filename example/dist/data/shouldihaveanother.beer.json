@@ -16,7 +16,8 @@
     "front-end",
     "canvas",
     "animation",
-    "gulp.js"
+    "gulp.js",
+    "tiny"
   ],
   "images": [
     {

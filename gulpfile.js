@@ -1,108 +1,28 @@
-var config = {};
-
-config.srcPath = 'src';
-config.distPath = 'dist';
-config.examplePath = 'example';
-config.nodeModulesPath = 'node_modules';
-config.publicRoot = './';
-
-config.hgScriptsSrc = [config.srcPath + '/**/*.js'];
-config.hgStylesSrc = [config.srcPath + '/**/*.css'];
-config.vendorScriptsSrc = [
-  config.nodeModulesPath + '/showdown/compressed/showdown.js',
-  config.nodeModulesPath + '/showdown/compressed/extensions/twitter.js',
-  config.nodeModulesPath + '/showdown/compressed/extensions/google-prettify.js',
-  config.nodeModulesPath + '/showdown/compressed/extensions/github.js'
-];
-config.allScriptsSrc = config.hgScriptsSrc.concat(config.vendorScriptsSrc);
-
-config.scriptDistFileName = 'hex-grid.js';
-
-config.gulpDataTasksPath = './' + config.examplePath + '/gulp-data-tasks';
-
-config.host = '0.0.0.0';
-config.port = '3000';
-
-config.buildTasks = ['scripts', 'styles', 'data', 'watch'];
-
 var gulp = require('gulp');
-var plugins = require('gulp-load-plugins')();
-var merge = require('merge-stream');
+var glob = require('glob');
 
-require(config.gulpDataTasksPath);
+var gulpTasksSrc = [
+  './gulp/**/*.js',
+  '!./gulp/**/config.js',
+  './example/gulp/**/*.js',
+  '!./example/gulp/**/config.js'
+];
+
+loadTasks(gulpTasksSrc);
+
+gulp.task('scripts', ['example-scripts']);
+gulp.task('styles', ['example-styles']);
 
 // ---  --- //
 
-gulp.task('scripts', function () {
-  // The goal of this function is to generate two versions of the concatenated scripts: one with the minified hex-grid
-  // source, and one with non-minified. However, both need to have the unadulterated version of the vendor code.
-
-  // TODO: do some more research about streams and whether there is a better way to do this
-
-  var hgStreamNonMin = gulp.src(config.hgScriptsSrc)
-      .pipe(plugins.plumber())
-      .pipe(plugins.concat(config.scriptDistFileName))
-      .pipe(plugins.size({title: 'hex-grid scripts before minifying'}));
-  var hgStreamMin = gulp.src(config.hgScriptsSrc)
-      .pipe(plugins.plumber())
-      .pipe(plugins.concat(config.scriptDistFileName))
-      .pipe(plugins.rename({suffix: '.min'}))
-      .pipe(plugins.uglify())
-      .pipe(plugins.size({title: 'hex-grid scripts after minifying'}));
-
-  var vendorStream1 = gulp.src(config.vendorScriptsSrc)
-      .pipe(plugins.plumber())
-      .pipe(plugins.concat(config.scriptDistFileName))
-      .pipe(plugins.size({title: 'Vendor scripts'}));
-  var vendorStream2 = gulp.src(config.vendorScriptsSrc)
-      .pipe(plugins.plumber())
-      .pipe(plugins.concat(config.scriptDistFileName));
-
-  var combinedStreamNonMin = merge(hgStreamNonMin, vendorStream1)
-      .pipe(plugins.concat(config.scriptDistFileName))
-      .pipe(plugins.size({title: 'Combined scripts without minification'}))
-      .pipe(gulp.dest(config.distPath));
-  var combinedStreamMin = merge(hgStreamMin, vendorStream2)
-      .pipe(plugins.concat(config.scriptDistFileName))
-      .pipe(plugins.rename({suffix: '.min'}))
-      .pipe(plugins.size({title: 'Combined scripts with minification'}))
-      .pipe(gulp.dest(config.distPath));
-
-  return merge(combinedStreamNonMin, combinedStreamMin);
-});
-
-gulp.task('styles', function () {
-  return gulp.src(config.hgStylesSrc)
-    .pipe(plugins.plumber())
-    .pipe(plugins.autoprefixer('last 2 version'))
-    .pipe(plugins.rename({basename: 'hex-grid'}))
-    .pipe(gulp.dest(config.distPath))
-    .pipe(plugins.rename({suffix: '.min'}))
-    .pipe(plugins.minifyCss())
-    .pipe(gulp.dest(config.distPath));
-});
-
-gulp.task('server', config.buildTasks, function () {
-  return gulp.src(config.publicRoot)
-      .pipe(plugins.webserver({
-        host: config.host,
-        port: config.port,
-        fallback: config.examplePath + '/index.html',
-        livereload: true,
-        open: true
-      }));
-});
-
-gulp.task('watch', function () {
-  gulp.watch(config.allScriptsSrc, ['scripts']);
-  gulp.watch(config.hgStylesSrc, ['styles']);
-});
-
-gulp.task('clean', function () {
-  return gulp.src([config.distPath], {read: false})
-      .pipe(plugins.clean());
-});
-
-gulp.task('default', ['clean'], function () {
-  gulp.start('server');
-});
+function loadTasks(includes) {
+  includes
+    // Expand the glob to get an array of the actual file paths
+    .reduce(function (paths, include) {
+      return paths.concat(glob.sync(include));
+    }, [])
+    // Register each task with gulp
+    .forEach(function (path) {
+      require(path);
+    });
+}
