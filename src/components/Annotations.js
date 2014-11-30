@@ -88,7 +88,7 @@
       update: fillBorderTiles,
       priority: 200
     },
-    'contentTiles': {
+    'contentTiles': {// TODO: remove this?
       enabled: false,
       create: fillContentTiles,
       destroy: function () {},
@@ -1072,10 +1072,10 @@
     annotations.lineAnimationGapDots = [];
 
     for (k = 0, i = 0,
-             iCount = window.hg.controller.transientJobs.line.jobs[annotations.grid.index].length;
+             iCount = window.hg.controller.transientJobs.LineJob.jobs[annotations.grid.index].length;
          i < iCount;
          i += 1) {
-      line = window.hg.controller.transientJobs.line.jobs[annotations.grid.index][i];
+      line = window.hg.controller.transientJobs.LineJob.jobs[annotations.grid.index][i];
 
       for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
         annotations.lineAnimationGapDots[k] =
@@ -1104,9 +1104,9 @@
     annotations.lineAnimationLowerNeighborCornerDots = [];
     annotations.lineAnimationUpperNeighborCornerDots = [];
 
-    for (i = 0, iCount = window.hg.controller.transientJobs.line.jobs[annotations.grid.index].length;
+    for (i = 0, iCount = window.hg.controller.transientJobs.LineJob.jobs[annotations.grid.index].length;
          i < iCount; i += 1) {
-      line = window.hg.controller.transientJobs.line.jobs[annotations.grid.index][i];
+      line = window.hg.controller.transientJobs.LineJob.jobs[annotations.grid.index][i];
 
       for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
         // Self corner: red dot
@@ -1174,7 +1174,7 @@
       annotations.panCenterDot.setAttribute('cx', annotations.grid.panCenter.x);
       annotations.panCenterDot.setAttribute('cy', annotations.grid.panCenter.y);
 
-      panJob = window.hg.controller.transientJobs.pan.jobs[annotations.grid.index][0];
+      panJob = window.hg.controller.transientJobs.PanJob.jobs[annotations.grid.index][0];
       if (panJob) {
         panJob.baseTile.currentColor.h = 0;
         panJob.baseTile.currentColor.s = 0;
@@ -1344,6 +1344,14 @@
     config.computeDependentValues();
   }
 
+  function refresh() {
+    var job = this;
+
+    init();
+
+    job.annotations = window.hg.util.shallowCopy(config.annotations);
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -1394,6 +1402,7 @@
     annotations.draw = draw;
     annotations.cancel = cancel;
     annotations.init = init;
+    annotations.refresh = refresh;
   }
 
   Annotations.config = config;

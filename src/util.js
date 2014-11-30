@@ -535,13 +535,17 @@
   function shallowCopy(object) {
     var key, cloneObject;
 
-    cloneObject = {};
+    if (typeof object === 'object') {
+      cloneObject = {};
 
-    for (key in object) {
-      cloneObject[key] = object[key];
+      for (key in object) {
+        cloneObject[key] = object[key];
+      }
+
+      return cloneObject;
+    } else {
+      return object;
     }
-
-    return cloneObject;
   }
 
   /**
@@ -555,17 +559,21 @@
   function deepCopy(object) {
     var key, cloneObject;
 
-    cloneObject = {};
+    if (typeof object === 'object') {
+      cloneObject = {};
 
-    for (key in object) {
-      if (typeof object[key] === 'object') {
-        cloneObject[key] = deepCopy(object[key]);
-      } else {
-        cloneObject[key] = object[key];
+      for (key in object) {
+        if (typeof object[key] === 'object') {
+          cloneObject[key] = deepCopy(object[key]);
+        } else {
+          cloneObject[key] = object[key];
+        }
       }
-    }
 
-    return cloneObject;
+      return cloneObject;
+    } else {
+      return object;
+    }
   }
 
   /**

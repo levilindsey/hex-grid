@@ -16,13 +16,143 @@
 
   config.preSetConfigs = {};
 
-  // TODO:
+  // TODO: implement these different presets
   config.preSetConfigs['default'] = {};
   config.preSetConfigs['stormy'] = {
-    **;// TODO: will need to write new logic to copy all of the original config values from each module (and store in here somewhere), so that I can then reset to the defaults after changing things
+    Grid: {
+      tileOuterRadius: 80,
+      tileHue: 230
+    }
   };
-  config.preSetConfigs['honey-comb'] = {};
-  config.preSetConfigs['crazy-flux'] = {};
+  config.preSetConfigs['honey-comb'] = {
+    Grid: {
+      tileOuterRadius: 50,
+      tileHue: 54
+    },
+    LineJob: {
+      isRecurring: false
+    }
+  };
+  config.preSetConfigs['crazy-flux'] = {
+    Grid: {
+      tileOuterRadius: 80,
+      tileHue: 24
+    }
+  };
+
+  config.folders = [
+    {
+      name: 'Main',
+      isOpen: true,
+      creator: createMainFolder
+    },
+    {
+      name: 'Grid',
+      isOpen: false,
+      creator: createGridFolder
+    },
+    {
+      name: 'Annotations',
+      isOpen: false,
+      creator: createAnnotationsFolder
+    },
+    {
+      name: 'Particle System',
+      isOpen: false,
+      creator: createParticleSystemFolder
+    },
+    {
+      name: 'Input',
+      isOpen: false,
+      creator: createInputFolder
+    },
+    {
+      name: 'Animations',
+      isOpen: false,
+      creator: createAnimationsFolder,
+      children: [
+        {
+          name: 'Transient',
+          isOpen: false,
+          creator: createTransientAnimationsFolder,
+          children: [
+            {
+              name: 'Open/Close Post',
+              isOpen: false,
+              creator: createOpenClosePostFolder
+            },
+            {
+              name: 'Displacement Radiate',
+              isOpen: false,
+              creator: createDisplacementRadiateFolder
+            },
+            {
+              name: 'Hover Highlight',
+              isOpen: false,
+              creator: createHoverHighlightFolder
+            },
+            {
+              name: 'Radiating Highlight',
+              isOpen: false,
+              creator: createRadiatingHighlightFolder
+            },
+            {
+              name: 'Intra-Tile Radiate',
+              isOpen: false,
+              creator: createIntraTileRadiateFolder
+            },
+            {
+              name: 'Random Lines',
+              isOpen: false,
+              creator: createRandomLinesFolder
+            },
+            {
+              name: 'Radiating Lines',
+              isOpen: false,
+              creator: createRadiatingLinesFolder
+            },
+            {
+              name: 'Pan',
+              isOpen: false,
+              creator: createPanFolder
+            },
+            {
+              name: 'Spread',
+              isOpen: false,
+              creator: createSpreadFolder
+            },
+            {
+              name: 'Tile Border',
+              isOpen: false,
+              creator: createTileBorderFolder
+            }
+          ]
+        },
+        {
+          name: 'Persistent',
+          isOpen: false,
+          creator: createPersistentAnimationsFolder,
+          children: [
+            {
+              name: 'Color Shift',
+              isOpen: false,
+              creator: createColorShiftFolder
+            },
+            {
+              name: 'Color Wave',
+              isOpen: false,
+              creator: createColorWaveFolder
+            },
+            {
+              name: 'Displacement Wave',
+              isOpen: false,
+              creator: createDisplacementWaveFolder
+            }
+          ]
+        }
+      ]
+    }
+  ];
 
   // ---  --- //
 
@@ -30,6 +160,7 @@
   parameters.initDatGui = initDatGui;
   parameters.updateForNewPostData = updateForNewPostData;
   parameters.grid = null;
+  parameters.gui = null;
   parameters.categoriesFolder = null;
   parameters.allCategories = [];
   parameters.categoryData = {};
@@ -44,26 +175,28 @@
    *
    * @param {Grid} grid
    */
-  function initDatGui(grid) {
-    var gui, mainFolder, miscellaneousFolder, animationsFolder, transientFolder, persistentFolder;
+  function initDatGui(grid) {**;//TODO: refactor this function to make use of the new config.folders object
+    var mainFolder, miscellaneousFolder, animationsFolder, transientFolder, persistentFolder;
 
     parameters.grid = grid;
 
     storeOriginalConfigValues();
 
-    gui = new dat.GUI();
-    gui.width = config.datGuiWidth;
+    parameters.gui = new dat.GUI();
+    parameters.gui.width = config.datGuiWidth;
+
+    window.gui = parameters.gui;
 
     // --- Main properties --- //
 
-    mainFolder = gui.addFolder('Main');
+    mainFolder = parameters.gui.addFolder('Main');
     mainFolder.open();
 
     initMainFolder(mainFolder);
 
     // --- Miscellaneous grid properties --- //
 
-    miscellaneousFolder = gui.addFolder('Misc');
+    miscellaneousFolder = parameters.gui.addFolder('Misc');
 
     initAnnotationsFolder(miscellaneousFolder);
     initGridFolder(miscellaneousFolder);
@@ -72,11 +205,11 @@
 
     // --- Animation properties --- //
 
-    animationsFolder = gui.addFolder('Animations');
+    animationsFolder = parameters.gui.addFolder('Animations');
 
-    // One-time animations
+    // Transient animations
 
-    transientFolder = animationsFolder.addFolder('One Time');
+    transientFolder = animationsFolder.addFolder('Transient');
 
     initOpenClosePostJobFolder(transientFolder);
     initDisplacementRadiateJobFolder(transientFolder);
@@ -112,6 +245,7 @@
       var categoryMap = postData.reduce(function (map, datum) {
         return datum.categories.reduce(function (map, category) {
           map[category] = map[category] ? map[category] + 1 : 1;
+          return map;
         }, map);
       }, {});
 
@@ -130,38 +264,53 @@
 
       // Add an item for showing all categories
       addCategoryItem(parameters.categoryData, 'all', parameters.categoriesFolder);
+      parameters.categoryData['all'] = true;
 
       // Add an item for showing each individual category
       parameters.allCategories.forEach(function (category) {
-        parameters.categoryData[category] = false;
-
         addCategoryItem(parameters.categoryData, category, parameters.categoriesFolder);
       });
 
       // ---  --- //
 
-      function addCategoryItem(categoryData, label, folder) {**;// TODO: make these be radio buttons instead of checkboxes
+      function addCategoryItem(categoryData, label, folder) {
+        parameters.categoryData[label] = false;
         folder.add(categoryData, label)
             .onChange(function () {
-              window.hg.controller.filterGridPostDataByCategory(parameters.grid, label);
+              filterPosts(label);
             });
       }
     }
   }
 
   function storeOriginalConfigValues() {
-    config.originalHgConfigs = window.hg.moduleNames.map(function (moduleName) {
-      return window.hg.util.deepCopy(window.hg[moduleName].config);
+    // Each module/file in the hex-grid project stores a reference to its constructor or singleton in the global hg
+    // namespace
+    config.originalHgConfigs = Object.keys(window.hg).reduce(function (configs, key) {
+      if (window.hg[key].config) {
+        configs[key] = window.hg.util.deepCopy(window.hg[key].config);
+      }
+      return configs;
+    }, {});
+  }
+
+  function filterPosts(category) {
+    // Make sure all other category filters are off (manual radio button logic)
+    Object.keys(parameters.categoryData).forEach(function (key) {
+      parameters.categoryData[key] = false;
     });
+    parameters.categoryData[category] = true;
+
+    window.hg.controller.filterGridPostDataByCategory(parameters.grid, category);
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Miscellaneous
 
-  function initMainFolder(parentFolder) {
+  function createMainFolder(parentFolder) {
     var data = {
-      'goHome': goHome,
-      'hideMenu': hideMenu,
+      'Go Home': goHome,
+      'Hide Menu': hideMenu,
       'default': updateToPreSetConfigs.bind(window.hg.controller, 'default'),
       'stormy': updateToPreSetConfigs.bind(window.hg.controller, 'stormy'),
       'honey-comb': updateToPreSetConfigs.bind(window.hg.controller, 'honey-comb'),
@@ -197,24 +346,62 @@
 
     function hideMenu() {
       console.log('Hide Menu clicked');
-      **;// TODO:
+      // TODO:
     }
 
     function updateToPreSetConfigs(configName) {
-      // TODO:
-      // config.preSetConfigs[configName]
-    }
+      console.log('Updating to pre-set configuration', configName);
 
-    function filterPosts(category) {
-      parameters.categoryData[category] = true;**;// TODO: update for radio buttons...
-      window.hg.controller.filterGridPostDataByCategory(parameters.grid, category);
+      resetAllConfigValues();
+      setPreSetConfigValues();
+
+      window.hg.Grid.config.computeDependentValues();
+      window.hg.controller.resetGrid(parameters.grid);
+      parameters.grid.annotations.refresh();
+
+      updateDatGui();
+
+      // ---  --- //
+
+      function resetAllConfigValues() {
+        // Reset each module's configuration parameters back to their default values
+        Object.keys(window.hg).forEach(function (moduleName) {
+          if (window.hg[moduleName].config) {
+            Object.keys(config.originalHgConfigs[moduleName]).forEach(function (parameterName) {
+              window.hg[moduleName].config[parameterName] =
+                window.hg.util.deepCopy(config.originalHgConfigs[moduleName][parameterName]);
+            });
+          }
+        });
+      }
+
+      function setPreSetConfigValues() {
+        Object.keys(config.preSetConfigs[configName]).forEach(function (moduleName) {
+          // Set all of the special parameters for this new pre-set configuration
+          Object.keys(config.preSetConfigs[configName][moduleName]).forEach(function (key) {
+            window.hg[moduleName].config[key] = config.preSetConfigs[configName][moduleName][key];
+          });
+
+          // Update the recurrence of any transient job
+          if (window.hg.controller.transientJobs[moduleName]) {
+            window.hg.controller.transientJobs[moduleName].toggleRecurrence(
+              parameters.grid,
+              window.hg[moduleName].config.isRecurring,
+              window.hg[moduleName].config.avgDelay,
+              window.hg[moduleName].config.delayDeviationRange);
+          }
+        });
+      }
+
+      function updateDatGui() {// TODO:
+        Object.keys(parameters.gui.__controllers).forEach(function (key) {
+          parameters.gui.__controllers[key].updateDisplay();
+        });
+      }
     }
   }
 
-  /**
-   * Sets up the folder for Grid parameters within the dat.GUI controller.
-   */
-  function initGridFolder(parentFolder) {
+  function createGridFolder(parentFolder) {
     var gridFolder, colors;
 
     gridFolder = parentFolder.addFolder('Grid');
@@ -293,10 +480,7 @@
         });
   }
 
-  /**
-   * Sets up the folder for Annotation parameters within the dat.GUI controller.
-   */
-  function initAnnotationsFolder(parentFolder) {
+  function createAnnotationsFolder(parentFolder) {
     var annotationsFolder, key, data;
 
     annotationsFolder = parentFolder.addFolder('Annotations');
@@ -311,10 +495,7 @@
     }
   }
 
-  /**
-   * Sets up the folder for Input parameters within the dat.GUI controller.
-   */
-  function initInputFolder(parentFolder) {
+  function createInputFolder(parentFolder) {
     var inputFolder;
 
     inputFolder = parentFolder.addFolder('Input');
@@ -325,13 +506,10 @@
         Object.keys(window.hg.Input.config.possibleClickAnimations));
   }
 
-  /**
-   * Sets up the folder for Tile parameters within the dat.GUI controller.
-   */
-  function initTileFolder(parentFolder) {
+  function createParticleSystemFolder(parentFolder) {
     var tileFolder;
 
-    tileFolder = parentFolder.addFolder('Tiles');
+    tileFolder = parentFolder.addFolder('Particle System');
 
     tileFolder.add(window.hg.Tile.config, 'dragCoeff', 0.000001, 0.1);
     tileFolder.add(window.hg.Tile.config, 'neighborSpringCoeff', 0.000001, 0.0001);
@@ -348,22 +526,30 @@
         });
   }
 
-  // ------------------------------------------------------------------------------------------- //
-  // One-time animations
+  function createAnimationsFolder(parentFolder) {
+    **;// TODO: implement and invoke this
+  }
 
-  /**
-   * Sets up the folder for OpenPostJob parameters and the ClosePostJob parameters within the
-   * dat.GUI controller.
-   */
-  function initOpenClosePostJobFolder(parentFolder) {
+  function createTransientAnimationsFolder(parentFolder) {
+  **;// TODO: implement and invoke this
+  }
+
+  function createPersistentAnimationsFolder(parentFolder) {
+  **;// TODO: implement and invoke this
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Transient animations
+
+  function createOpenClosePostFolder(parentFolder) {
     var openClosePostJobFolder, data;
 
     openClosePostJobFolder = parentFolder.addFolder('Open/Close Post');
 
     data = {
-      'triggerOpenPost': window.hg.controller.transientJobs.openPost.createRandom.bind(
+      'triggerOpenPost': window.hg.controller.transientJobs.OpenPostJob.createRandom.bind(
           window.hg.controller, parameters.grid),
-      'triggerClosePost': window.hg.controller.transientJobs.closePost.createRandom.bind(
+      'triggerClosePost': window.hg.controller.transientJobs.ClosePostJob.createRandom.bind(
               window.hg.controller, parameters.grid),
       'triggerTogglePost': function () {
         if (parameters.grid.isPostOpen) {
@@ -384,10 +570,7 @@
         .step(1);
   }
 
-  /**
-   * Sets up the folder for DisplacementRadiateJob parameters within the dat.GUI controller.
-   */
-  function initDisplacementRadiateJobFolder(parentFolder) {
+  function createDisplacementRadiateFolder(parentFolder) {
     var displacementRadiateJobFolder, data;
 
     displacementRadiateJobFolder = parentFolder.addFolder('Displacement Radiate');
@@ -395,7 +578,7 @@
 
     data = {
       'triggerDisplacement':
-          window.hg.controller.transientJobs.displacementRadiate.createRandom.bind(
+          window.hg.controller.transientJobs.DisplacementRadiateJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -415,7 +598,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.transientJobs.displacementRadiate.toggleRecurrence(
+      window.hg.controller.transientJobs.DisplacementRadiateJob.toggleRecurrence(
           parameters.grid,
           window.hg.DisplacementRadiateJob.config.isRecurring,
           window.hg.DisplacementRadiateJob.config.avgDelay,
@@ -423,10 +606,7 @@
     }
   }
 
-  /**
-   * Sets up the folder for HighlightHoverJob parameters within the dat.GUI controller.
-   */
-  function initHighlightHoverJobFolder(parentFolder) {
+  function createHoverHighlightFolder(parentFolder) {
     var highlightHoverJobFolder, data, colors;
 
     colors = [];
@@ -439,7 +619,7 @@
     highlightHoverJobFolder = parentFolder.addFolder('Hover Highlight');
 
     data = {
-      'triggerHighlightHover': window.hg.controller.transientJobs.highlightHover.createRandom.bind(
+      'triggerHighlightHover': window.hg.controller.transientJobs.HighlightHoverJob.createRandom.bind(
           window.hg.controller, parameters.grid)
     };
 
@@ -466,7 +646,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.transientJobs.highlightHover.toggleRecurrence(
+      window.hg.controller.transientJobs.HighlightHoverJob.toggleRecurrence(
           parameters.grid,
           window.hg.HighlightHoverJob.config.isRecurring,
           window.hg.HighlightHoverJob.config.avgDelay,
@@ -474,10 +654,7 @@
     }
   }
 
-  /**
-   * Sets up the folder for HighlightRadiateJob parameters within the dat.GUI controller.
-   */
-  function initHighlightRadiateJobFolder(parentFolder) {
+  function createRadiatingHighlightFolder(parentFolder) {
     var highlightRadiateJobFolder, data, colors;
 
     colors = [];
@@ -491,7 +668,7 @@
 
     data = {
       'triggerHighlightRadiate':
-          window.hg.controller.transientJobs.highlightRadiate.createRandom.bind(
+          window.hg.controller.transientJobs.HighlightRadiateJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -521,7 +698,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.transientJobs.highlightRadiate.toggleRecurrence(
+      window.hg.controller.transientJobs.HighlightRadiateJob.toggleRecurrence(
           parameters.grid,
           window.hg.HighlightRadiateJob.config.isRecurring,
           window.hg.HighlightRadiateJob.config.avgDelay,
@@ -529,10 +706,7 @@
     }
   }
 
-  /**
-   * Sets up the folder for IntraTileRadiateJob parameters within the dat.GUI controller.
-   */
-  function initIntraTileRadiateJobFolder(parentFolder) {
+  function createIntraTileRadiateFolder(parentFolder) {
     var intraTileRadiateJobFolder, data;
 
     intraTileRadiateJobFolder = parentFolder.addFolder('Intra-Tile Radiate');
@@ -540,7 +714,7 @@
 
     data = {
       'triggerIntraTileRadiate':
-          window.hg.controller.transientJobs.intraTileRadiate.createRandom.bind(
+          window.hg.controller.transientJobs.IntraTileRadiateJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -561,7 +735,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.transientJobs.intraTileRadiate.toggleRecurrence(
+      window.hg.controller.transientJobs.IntraTileRadiateJob.toggleRecurrence(
           parameters.grid,
           window.hg.IntraTileRadiateJob.config.isRecurring,
           window.hg.IntraTileRadiateJob.config.avgDelay,
@@ -569,16 +743,13 @@
     }
   }
 
-  /**
-   * Sets up the folder for LineJob parameters within the dat.GUI controller.
-   */
-  function initRandomLineJobFolder(parentFolder) {
+  function createRandomLinesFolder(parentFolder) {
     var randomLineJobFolder, data;
 
     randomLineJobFolder = parentFolder.addFolder('Random Lines');
 
     data = {
-      'triggerLine': window.hg.controller.transientJobs.line.createRandom.bind(
+      'triggerLine': window.hg.controller.transientJobs.LineJob.createRandom.bind(
           window.hg.controller, parameters.grid)
     };
 
@@ -609,7 +780,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.transientJobs.line.toggleRecurrence(
+      window.hg.controller.transientJobs.LineJob.toggleRecurrence(
           parameters.grid,
           window.hg.LineJob.config.isRecurring,
           window.hg.LineJob.config.avgDelay,
@@ -617,16 +788,13 @@
     }
   }
 
-  /**
-   * Sets up the folder for LinesRadiateJob parameters within the dat.GUI controller.
-   */
-  function initLinesRadiateJobFolder(parentFolder) {
+  function createRadiatingLinesFolder(parentFolder) {
     var linesRadiateJobFolder, data;
 
     linesRadiateJobFolder = parentFolder.addFolder('Radiating Lines');
 
     data = {
-      'triggerLinesRadiate': window.hg.controller.transientJobs.linesRadiate.createRandom.bind(
+      'triggerLinesRadiate': window.hg.controller.transientJobs.LinesRadiateJob.createRandom.bind(
           window.hg.controller, parameters.grid)
     };
 
@@ -657,7 +825,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.transientJobs.linesRadiate.toggleRecurrence(
+      window.hg.controller.transientJobs.LinesRadiateJob.toggleRecurrence(
           parameters.grid,
           window.hg.LinesRadiateJob.config.isRecurring,
           window.hg.LinesRadiateJob.config.avgDelay,
@@ -665,17 +833,14 @@
     }
   }
 
-  /**
-   * Sets up the folder for PanJob parameters within the dat.GUI controller.
-   */
-  function initPanJobFolder(parentFolder) {
+  function createPanFolder(parentFolder) {
     var panJobFolder, data;
 
     panJobFolder = parentFolder.addFolder('Pan');
 
     data = {
       'triggerPan':
-          window.hg.controller.transientJobs.pan.createRandom.bind(
+          window.hg.controller.transientJobs.PanJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -693,7 +858,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.transientJobs.pan.toggleRecurrence(
+      window.hg.controller.transientJobs.PanJob.toggleRecurrence(
           parameters.grid,
           window.hg.PanJob.config.isRecurring,
           window.hg.PanJob.config.avgDelay,
@@ -701,17 +866,14 @@
     }
   }
 
-  /**
-   * Sets up the folder for SpreadJob parameters within the dat.GUI controller.
-   */
-  function initSpreadJobFolder(parentFolder) {
+  function createSpreadFolder(parentFolder) {
     var spreadJobFolder, data;
 
     spreadJobFolder = parentFolder.addFolder('Spread');
 
     data = {
       'triggerSpread':
-          window.hg.controller.transientJobs.spread.createRandom.bind(
+          window.hg.controller.transientJobs.SpreadJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -731,7 +893,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.transientJobs.spread.toggleRecurrence(
+      window.hg.controller.transientJobs.SpreadJob.toggleRecurrence(
           parameters.grid,
           window.hg.SpreadJob.config.isRecurring,
           window.hg.SpreadJob.config.avgDelay,
@@ -739,17 +901,14 @@
     }
   }
 
-  /**
-   * Sets up the folder for TileBorderJob parameters within the dat.GUI controller.
-   */
-  function initTileBorderJobFolder(parentFolder) {
+  function createTileBorderFolder(parentFolder) {
     var tileBorderJobFolder, data;
 
     tileBorderJobFolder = parentFolder.addFolder('Tile Border');
 //    tileBorderJobFolder.open();// TODO: remove me
 
     data = {
-      'triggerTileBorder': window.hg.controller.transientJobs.tileBorder.createRandom.bind(
+      'triggerTileBorder': window.hg.controller.transientJobs.TileBorderJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
@@ -769,7 +928,7 @@
     // ---  --- //
 
     function toggleRecurrence() {
-      window.hg.controller.transientJobs.tileBorder.toggleRecurrence(
+      window.hg.controller.transientJobs.TileBorderJob.toggleRecurrence(
           parameters.grid,
           window.hg.TileBorderJob.config.isRecurring,
           window.hg.TileBorderJob.config.avgDelay,
@@ -780,10 +939,7 @@
   // ------------------------------------------------------------------------------------------- //
   // Persistent animations
 
-  /**
-   * Sets up the folder for ColorShiftJob parameters within the dat.GUI controller.
-   */
-  function initColorShiftJobFolder(parentFolder) {
+  function createColorShiftFolder(parentFolder) {
     var colorWaveJobFolder;
 
     colorWaveJobFolder = parentFolder.addFolder('Color Shift');
@@ -792,10 +948,7 @@
     // TODO:
   }
 
-  /**
-   * Sets up the folder for ColorWaveJob parameters within the dat.GUI controller.
-   */
-  function initColorWaveJobFolder(parentFolder) {
+  function createColorWaveFolder(parentFolder) {
     var colorWaveJobFolder = parentFolder.addFolder('Color Wave');
 
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'period', 1, 10000)
@@ -804,15 +957,15 @@
         });
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.colorWave.start(parameters.grid);
+          window.hg.controller.persistentJobs.ColorWaveJob.start(parameters.grid);
         });
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.colorWave.start(parameters.grid);
+          window.hg.controller.persistentJobs.ColorWaveJob.start(parameters.grid);
         });
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.colorWave.start(parameters.grid);
+          window.hg.controller.persistentJobs.ColorWaveJob.start(parameters.grid);
         });
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'deltaHue', 0, 360);
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'deltaSaturation', 0, 100);
@@ -820,10 +973,7 @@
     colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'opacity', 0, 1);
   }
 
-  /**
-   * Sets up the folder for DisplacementWaveJob parameters within the dat.GUI controller.
-   */
-  function initDisplacementWaveJobFolder(parentFolder) {
+  function createDisplacementWaveFolder(parentFolder) {
     var displacementWaveJobFolder;
 
     displacementWaveJobFolder = parentFolder.addFolder('Displacement Wave');
@@ -834,15 +984,15 @@
         });
     displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.displacementWave.start(parameters.grid);
+          window.hg.controller.persistentJobs.DisplacementWaveJob.start(parameters.grid);
         });
     displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.displacementWave.start(parameters.grid);
+          window.hg.controller.persistentJobs.DisplacementWaveJob.start(parameters.grid);
         });
     displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
-          window.hg.controller.persistentJobs.displacementWave.start(parameters.grid);
+          window.hg.controller.persistentJobs.DisplacementWaveJob.start(parameters.grid);
         });
     displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaX', -300, 300);
     displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaY', -300, 300);

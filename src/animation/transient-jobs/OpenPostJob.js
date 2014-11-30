@@ -147,9 +147,9 @@
     job.grid.annotations.setExpandedAnnotations(true);
 
     // Start the sub-jobs
-    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile)
+    window.hg.controller.transientJobs.SpreadJob.create(job.grid, job.baseTile)
         .duration = config.duration + config.spreadDurationOffset;
-    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile)
+    window.hg.controller.transientJobs.PanJob.create(job.grid, job.baseTile)
         .duration = config.duration + config.panDurationOffset;
 
     panDisplacement = {
@@ -157,9 +157,9 @@
       y: job.grid.panCenter.y - job.grid.originalCenter.y
     };
 
-    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile, panDisplacement)
+    window.hg.controller.transientJobs.DilateSectorsJob.create(job.grid, job.baseTile, panDisplacement)
         .duration = config.duration + config.dilateSectorsDurationOffset;
-    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+    window.hg.controller.transientJobs.FadePostJob.create(job.grid, job.baseTile)
         .duration = config.duration + config.fadePostDurationOffset;
 
     // TODO: this should instead fade out the old persistent animations and fade in the new ones
