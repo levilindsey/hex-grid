@@ -126,10 +126,15 @@
     // Is this a restart?
     if (!job.isComplete) {
       console.log('Job restarting: ' + job.constructor.name);
-      job.cancel();
 
-      job.init();// TODO: get rid of this init function
-      job.start();
+      if (job.refresh) {
+        job.refresh();
+      } else {
+        job.cancel();
+
+        job.init();// TODO: get rid of this init function
+        job.start();
+      }
     } else {
       console.log('Job starting: ' + job.constructor.name);
 

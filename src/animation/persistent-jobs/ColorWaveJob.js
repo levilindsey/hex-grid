@@ -180,6 +180,15 @@
   /**
    * @this ColorWaveJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorWaveJob
+   */
   function init() {
     var job = this;
 
@@ -208,6 +217,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();

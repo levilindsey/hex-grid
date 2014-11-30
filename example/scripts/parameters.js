@@ -9,15 +9,30 @@
 (function () {
 
   var parameters = {},
-      config = {};
+      config = {},
+      originalHgConfigs = {};
 
   config.datGuiWidth = 300;
+
+  config.preSetConfigs = {};
+
+  // TODO:
+  config.preSetConfigs['default'] = {};
+  config.preSetConfigs['stormy'] = {
+    **;// TODO: will need to write new logic to copy all of the original config values from each module (and store in here somewhere), so that I can then reset to the defaults after changing things
+  };
+  config.preSetConfigs['honey-comb'] = {};
+  config.preSetConfigs['crazy-flux'] = {};
 
   // ---  --- //
 
   parameters.config = config;
   parameters.initDatGui = initDatGui;
+  parameters.updateForNewPostData = updateForNewPostData;
   parameters.grid = null;
+  parameters.categoriesFolder = null;
+  parameters.allCategories = [];
+  parameters.categoryData = {};
 
   window.app = window.app || {};
   app.parameters = parameters;
@@ -30,17 +45,25 @@
    * @param {Grid} grid
    */
   function initDatGui(grid) {
-    var gui, miscellaneousFolder, animationsFolder, transientFolder, persistentFolder;
+    var gui, mainFolder, miscellaneousFolder, animationsFolder, transientFolder, persistentFolder;
 
     parameters.grid = grid;
+
+    storeOriginalConfigValues();
 
     gui = new dat.GUI();
     gui.width = config.datGuiWidth;
 
+    // --- Main properties --- //
+
+    mainFolder = gui.addFolder('Main');
+    mainFolder.open();
+
+    initMainFolder(mainFolder);
+
     // --- Miscellaneous grid properties --- //
 
     miscellaneousFolder = gui.addFolder('Misc');
-    //miscellaneousFolder.open();// TODO: remove me
 
     initAnnotationsFolder(miscellaneousFolder);
     initGridFolder(miscellaneousFolder);
@@ -50,12 +73,10 @@
     // --- Animation properties --- //
 
     animationsFolder = gui.addFolder('Animations');
-    animationsFolder.open();// TODO: remove me
 
     // One-time animations
 
     transientFolder = animationsFolder.addFolder('One Time');
-    transientFolder.open();// TODO: remove me
 
     initOpenClosePostJobFolder(transientFolder);
     initDisplacementRadiateJobFolder(transientFolder);
@@ -75,12 +96,120 @@
     initColorShiftJobFolder(persistentFolder);
     initColorWaveJobFolder(persistentFolder);
     initDisplacementWaveJobFolder(persistentFolder);
+  }
 
-    // TODO: add an additional control to completely hide the dat.GUI controls?
+  /**
+   * @param {Array.<PostData>} postData
+   */
+  function updateForNewPostData(postData) {
+    parameters.allCategories = getAllCategories(postData);
+    addCategoryMenuItems();
+
+    // ---  --- //
+
+    function getAllCategories(postData) {
+      // Collect a mapping from each category to its number of occurrences
+      var categoryMap = postData.reduce(function (map, datum) {
+        return datum.categories.reduce(function (map, category) {
+          map[category] = map[category] ? map[category] + 1 : 1;
+        }, map);
+      }, {});
+
+      // Collect an array containing each category, sorted by the number of occurrences of each category (in
+      // DESCENDING order)
+      var categoryArray = Object.keys(categoryMap)
+          .sort(function (category1, category2) {
+            return categoryMap[category2] - categoryMap[category1];
+          });
+
+      return categoryArray;
+    }
+
+    function addCategoryMenuItems() {
+      parameters.categoryData = {};
+
+      // Add an item for showing all categories
+      addCategoryItem(parameters.categoryData, 'all', parameters.categoriesFolder);
+
+      // Add an item for showing each individual category
+      parameters.allCategories.forEach(function (category) {
+        parameters.categoryData[category] = false;
+
+        addCategoryItem(parameters.categoryData, category, parameters.categoriesFolder);
+      });
+
+      // ---  --- //
+
+      function addCategoryItem(categoryData, label, folder) {**;// TODO: make these be radio buttons instead of checkboxes
+        folder.add(categoryData, label)
+            .onChange(function () {
+              window.hg.controller.filterGridPostDataByCategory(parameters.grid, label);
+            });
+      }
+    }
+  }
+
+  function storeOriginalConfigValues() {
+    config.originalHgConfigs = window.hg.moduleNames.map(function (moduleName) {
+      return window.hg.util.deepCopy(window.hg[moduleName].config);
+    });
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Miscellaneous
+
+  function initMainFolder(parentFolder) {
+    var data = {
+      'goHome': goHome,
+      'hideMenu': hideMenu,
+      'default': updateToPreSetConfigs.bind(window.hg.controller, 'default'),
+      'stormy': updateToPreSetConfigs.bind(window.hg.controller, 'stormy'),
+      'honey-comb': updateToPreSetConfigs.bind(window.hg.controller, 'honey-comb'),
+      'crazy-flux': updateToPreSetConfigs.bind(window.hg.controller, 'crazy-flux'),
+      'work': filterPosts.bind(window.hg.controller, 'work'),
+      'research': filterPosts.bind(window.hg.controller, 'research'),
+      'side-projects': filterPosts.bind(window.hg.controller, 'side-project')
+    };
+
+    var presetConfigsFolder = parentFolder.addFolder('Pre-Set Configurations');
+    presetConfigsFolder.open();
+    presetConfigsFolder.add(data, 'default');
+    presetConfigsFolder.add(data, 'stormy');
+    presetConfigsFolder.add(data, 'honey-comb');
+    presetConfigsFolder.add(data, 'crazy-flux');
+
+    var filterPostsFolder = parentFolder.addFolder('Filter Posts');
+    filterPostsFolder.open();
+    filterPostsFolder.add(data, 'work');
+    filterPostsFolder.add(data, 'research');
+    filterPostsFolder.add(data, 'side-projects');
+    parameters.categoriesFolder = filterPostsFolder.addFolder('Categories');
+
+    parentFolder.add(data, 'Go Home');
+    parentFolder.add(data, 'Hide Menu');
+
+    // ---  --- //
+
+    function goHome() {
+      console.log('Go Home clicked');
+      // TODO:
+    }
+
+    function hideMenu() {
+      console.log('Hide Menu clicked');
+      **;// TODO:
+    }
+
+    function updateToPreSetConfigs(configName) {
+      // TODO:
+      // config.preSetConfigs[configName]
+    }
+
+    function filterPosts(category) {
+      parameters.categoryData[category] = true;**;// TODO: update for radio buttons...
+      window.hg.controller.filterGridPostDataByCategory(parameters.grid, category);
+    }
+  }
 
   /**
    * Sets up the folder for Grid parameters within the dat.GUI controller.
@@ -189,7 +318,6 @@
     var inputFolder;
 
     inputFolder = parentFolder.addFolder('Input');
-    //inputFolder.open();// TODO: remove me
 
     inputFolder.add(window.hg.Input.config, 'contentTileClickAnimation',
         Object.keys(window.hg.Input.config.possibleClickAnimations));

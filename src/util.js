@@ -527,6 +527,8 @@
   /**
    * Performs a shallow copy of the given object.
    *
+   * This only copies enumerable properties.
+   *
    * @param {Object} object
    * @returns {Object}
    */
@@ -537,6 +539,30 @@
 
     for (key in object) {
       cloneObject[key] = object[key];
+    }
+
+    return cloneObject;
+  }
+
+  /**
+   * Performs a deep copy of the given object.
+   *
+   * This only copies enumerable properties.
+   *
+   * @param {Object} object
+   * @returns {Object}
+   */
+  function deepCopy(object) {
+    var key, cloneObject;
+
+    cloneObject = {};
+
+    for (key in object) {
+      if (typeof object[key] === 'object') {
+        cloneObject[key] = deepCopy(object[key]);
+      } else {
+        cloneObject[key] = object[key];
+      }
     }
 
     return cloneObject;
@@ -647,6 +673,7 @@
     shuffle: shuffle,
     isPointInsidePolyline: isPointInsidePolyline,
     shallowCopy: shallowCopy,
+    deepCopy: deepCopy,
     hsvToHsl: hsvToHsl,
     hslToHsv: hslToHsv,
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,

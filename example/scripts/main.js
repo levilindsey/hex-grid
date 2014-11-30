@@ -27,15 +27,19 @@
 
     window.removeEventListener('load', initHexGrid);
 
-    app.data.fetchData(updateTileData);
-  }
-
-  function updateTileData() {
     var hexGridContainer = document.getElementById('hex-grid-area');
 
     main.grid = window.hg.controller.createNewHexGrid(hexGridContainer, app.data.postData, false);
 
     app.parameters.initDatGui(main.grid);
+
+    app.data.fetchData(updateTileData);
+  }
+
+  function updateTileData() {
+    window.hg.controller.setGridPostData(main.grid, app.data.postData);
+
+    app.parameters.updateForNewPostData(app.data.postData);
   }
 
   console.log('main module loaded');

@@ -95,6 +95,15 @@
   /**
    * @this DisplacementResetJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this DisplacementResetJob
+   */
   function init() {
   }
 
@@ -117,6 +126,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();

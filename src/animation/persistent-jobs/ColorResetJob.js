@@ -90,6 +90,15 @@
   /**
    * @this ColorResetJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorResetJob
+   */
   function init() {
   }
 
@@ -112,6 +121,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();

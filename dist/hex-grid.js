@@ -612,6 +612,38 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     controller.persistentJobs.displacementWave.start(grid);
   }
 
+  /**
+   * @param {Grid} grid
+   * @param {Array.<PostData>} postData
+   */
+  function setGridPostData(grid, postData) {
+    //TODO: check that these resets are correct
+    grid.isPostOpen = false;
+    grid.pagePost = null;
+    grid.isTransitioning = false;
+    grid.expandedTile = null;
+    grid.sectors = null;
+    grid.allNonContentTiles = null;
+
+    grid.postData = postData;
+
+    grid.computeContentIndices();
+
+    resetGrid(grid);
+  }
+
+  /**
+   * @param {Grid} grid
+   * @param {String} category
+   */
+  function filterGridPostDataByCategory(grid, category) {
+    var matches = grid.postData.filter(function (postDatum) {
+      return postDatum.categories.indexOf(category) >= 0;
+    });
+
+    setGridPostData(grid, matches);
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this singleton
 
@@ -620,6 +652,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   controller.createNewHexGrid = createNewHexGrid;
   controller.resetGrid = resetGrid;
   controller.resetPersistentJobs = resetPersistentJobs;
+  controller.setGridPostData = setGridPostData;
+  controller.filterGridPostDataByCategory = filterGridPostDataByCategory;
 
   // Expose this module
   window.hg = window.hg || {};
@@ -1422,10 +1456,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     // Is this a restart?
     if (!job.isComplete) {
       console.log('Job restarting: ' + job.constructor.name);
-      job.cancel();
 
-      job.init();// TODO: get rid of this init function
-      job.start();
+      if (job.refresh) {
+        job.refresh();
+      } else {
+        job.cancel();
+
+        job.init();// TODO: get rid of this init function
+        job.start();
+      }
     } else {
       console.log('Job starting: ' + job.constructor.name);
 
@@ -3406,6 +3445,33 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
  */
 
 /**
+ * @typedef {Object} PostData
+ * @property {String} id
+ * @property {String} titleShort
+ * @property {String} titleLong
+ * @property {Array.<String>} urls
+ * @property {String} jobTitle
+ * @property {String} date
+ * @property {Array.<String>} categories
+ * @property {Array.<ImageData>} images
+ * @property {Array.<VideoData>} videos
+ * @property {String} content An extended description of the post in markdown syntax.
+ */
+
+/**
+ * @typedef {Object} ImageData
+ * @property {String} fileName
+ * @property {String} description
+ */
+
+/**
+ * @typedef {Object} VideoData
+ * @property {'youtube'|'vimeo'} videoHost
+ * @property {String} id
+ * @property {String} description
+ */
+
+/**
  * This module defines a constructor for Grid objects.
  *
  * Grid objects define a collection of hexagonal tiles that animate and display dynamic,
@@ -4153,7 +4219,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @constructor
    * @param {Number} index
    * @param {HTMLElement} parent
-   * @param {Array.<Object>} postData
+   * @param {Array.<PostData>} postData
    * @param {Boolean} [isVertical]
    */
   function Grid(index, parent, postData, isVertical) {
@@ -4226,6 +4292,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid.createPagePost = createPagePost;
     grid.destroyPagePost = destroyPagePost;
     grid.updateAllTilesCollection = updateAllTilesCollection;
+    grid.computeContentIndices = computeContentIndices;
 
     grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
 
@@ -6606,6 +6673,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this ColorResetJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorResetJob
+   */
   function init() {
   }
 
@@ -6628,6 +6704,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();
@@ -6734,6 +6811,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this ColorShiftJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorShiftJob
+   */
   function init() {
     var job = this;
 
@@ -6760,6 +6846,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();
@@ -6958,6 +7045,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this ColorWaveJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorWaveJob
+   */
   function init() {
     var job = this;
 
@@ -6986,6 +7082,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();
@@ -7099,6 +7196,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this DisplacementResetJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this DisplacementResetJob
+   */
   function init() {
   }
 
@@ -7121,6 +7227,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();
@@ -7283,6 +7390,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this DisplacementWaveJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this DisplacementWaveJob
+   */
   function init() {
     var job = this;
 
@@ -7310,6 +7426,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();
