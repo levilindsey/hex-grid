@@ -44,109 +44,109 @@
     {
       name: 'Main',
       isOpen: true,
-      creator: createMainFolder
+      createItems: createMainItems
     },
     {
       name: 'Grid',
       isOpen: false,
-      creator: createGridFolder
+      createItems: createGridItems
     },
     {
       name: 'Annotations',
       isOpen: false,
-      creator: createAnnotationsFolder
+      createItems: createAnnotationsItems
     },
     {
       name: 'Particle System',
       isOpen: false,
-      creator: createParticleSystemFolder
+      createItems: createParticleSystemItems
     },
     {
       name: 'Input',
       isOpen: false,
-      creator: createInputFolder
+      createItems: createInputItems
     },
     {
       name: 'Animations',
       isOpen: false,
-      creator: createAnimationsFolder,
+      createItems: null,
       children: [
         {
           name: 'Transient',
           isOpen: false,
-          creator: createTransientAnimationsFolder,
+          createItems: null,
           children: [
             {
               name: 'Open/Close Post',
               isOpen: false,
-              creator: createOpenClosePostFolder
+              createItems: createOpenClosePostItems
             },
             {
               name: 'Displacement Radiate',
               isOpen: false,
-              creator: createDisplacementRadiateFolder
+              createItems: createDisplacementRadiateItems
             },
             {
               name: 'Hover Highlight',
               isOpen: false,
-              creator: createHoverHighlightFolder
+              createItems: createHoverHighlightItems
             },
             {
               name: 'Radiating Highlight',
               isOpen: false,
-              creator: createRadiatingHighlightFolder
+              createItems: createRadiatingHighlightItems
             },
             {
               name: 'Intra-Tile Radiate',
               isOpen: false,
-              creator: createIntraTileRadiateFolder
+              createItems: createIntraTileRadiateItems
             },
             {
               name: 'Random Lines',
               isOpen: false,
-              creator: createRandomLinesFolder
+              createItems: createRandomLinesItems
             },
             {
               name: 'Radiating Lines',
               isOpen: false,
-              creator: createRadiatingLinesFolder
+              createItems: createRadiatingLinesItems
             },
             {
               name: 'Pan',
               isOpen: false,
-              creator: createPanFolder
+              createItems: createPanItems
             },
             {
               name: 'Spread',
               isOpen: false,
-              creator: createSpreadFolder
+              createItems: createSpreadItems
             },
             {
               name: 'Tile Border',
               isOpen: false,
-              creator: createTileBorderFolder
+              createItems: createTileBorderItems
             }
           ]
         },
         {
           name: 'Persistent',
           isOpen: false,
-          creator: createPersistentAnimationsFolder,
+          createItems: null,
           children: [
             {
               name: 'Color Shift',
               isOpen: false,
-              creator: createColorShiftFolder
+              createItems: createColorShiftItems
             },
             {
               name: 'Color Wave',
               isOpen: false,
-              creator: createColorWaveFolder
+              createItems: createColorWaveItems
             },
             {
               name: 'Displacement Wave',
               isOpen: false,
-              creator: createDisplacementWaveFolder
+              createItems: createDisplacementWaveItems
             }
           ]
         }
@@ -175,9 +175,7 @@
    *
    * @param {Grid} grid
    */
-  function initDatGui(grid) {**;//TODO: refactor this function to make use of the new config.folders object
-    var mainFolder, miscellaneousFolder, animationsFolder, transientFolder, persistentFolder;
-
+  function initDatGui(grid) {
     parameters.grid = grid;
 
     storeOriginalConfigValues();
@@ -187,48 +185,26 @@
 
     window.gui = parameters.gui;
 
-    // --- Main properties --- //
+    createChildFolders(config.folders, parameters.gui);
+  }
 
-    mainFolder = parameters.gui.addFolder('Main');
-    mainFolder.open();
+  function createChildFolders(childFolderConfigs, parentFolder) {
+    childFolderConfigs.forEach(function (folderConfig) {
+      var folder = parentFolder.addFolder(folderConfig.name);
 
-    initMainFolder(mainFolder);
+      if (folderConfig.isOpen) {
+        folder.open();
+      }
 
-    // --- Miscellaneous grid properties --- //
+      if (folderConfig.createItems) {
+        folderConfig.createItems(folder);
+      }
 
-    miscellaneousFolder = parameters.gui.addFolder('Misc');
-
-    initAnnotationsFolder(miscellaneousFolder);
-    initGridFolder(miscellaneousFolder);
-    initInputFolder(miscellaneousFolder);
-    initTileFolder(miscellaneousFolder);
-
-    // --- Animation properties --- //
-
-    animationsFolder = parameters.gui.addFolder('Animations');
-
-    // Transient animations
-
-    transientFolder = animationsFolder.addFolder('Transient');
-
-    initOpenClosePostJobFolder(transientFolder);
-    initDisplacementRadiateJobFolder(transientFolder);
-    initHighlightHoverJobFolder(transientFolder);
-    initHighlightRadiateJobFolder(transientFolder);
-    initIntraTileRadiateJobFolder(transientFolder);
-    initRandomLineJobFolder(transientFolder);
-    initLinesRadiateJobFolder(transientFolder);
-    initPanJobFolder(transientFolder);
-    initSpreadJobFolder(transientFolder);
-    initTileBorderJobFolder(transientFolder);
-
-    // Persistent animations
-
-    persistentFolder = animationsFolder.addFolder('Persistent');
-
-    initColorShiftJobFolder(persistentFolder);
-    initColorWaveJobFolder(persistentFolder);
-    initDisplacementWaveJobFolder(persistentFolder);
+      // Recursively create descendent folders
+      if (folderConfig.children) {
+        createChildFolders(folderConfig.children, folder)
+      }
+    });
   }
 
   /**
@@ -286,7 +262,7 @@
   function storeOriginalConfigValues() {
     // Each module/file in the hex-grid project stores a reference to its constructor or singleton in the global hg
     // namespace
-    config.originalHgConfigs = Object.keys(window.hg).reduce(function (configs, key) {
+    originalHgConfigs = Object.keys(window.hg).reduce(function (configs, key) {
       if (window.hg[key].config) {
         configs[key] = window.hg.util.deepCopy(window.hg[key].config);
       }
@@ -307,7 +283,7 @@
   // ------------------------------------------------------------------------------------------- //
   // Miscellaneous
 
-  function createMainFolder(parentFolder) {
+  function createMainItems(folder) {
     var data = {
       'Go Home': goHome,
       'Hide Menu': hideMenu,
@@ -320,22 +296,22 @@
       'side-projects': filterPosts.bind(window.hg.controller, 'side-project')
     };
 
-    var presetConfigsFolder = parentFolder.addFolder('Pre-Set Configurations');
+    var presetConfigsFolder = folder.addFolder('Pre-Set Configurations');
     presetConfigsFolder.open();
     presetConfigsFolder.add(data, 'default');
     presetConfigsFolder.add(data, 'stormy');
     presetConfigsFolder.add(data, 'honey-comb');
     presetConfigsFolder.add(data, 'crazy-flux');
 
-    var filterPostsFolder = parentFolder.addFolder('Filter Posts');
+    var filterPostsFolder = folder.addFolder('Filter Posts');
     filterPostsFolder.open();
     filterPostsFolder.add(data, 'work');
     filterPostsFolder.add(data, 'research');
     filterPostsFolder.add(data, 'side-projects');
     parameters.categoriesFolder = filterPostsFolder.addFolder('Categories');
 
-    parentFolder.add(data, 'Go Home');
-    parentFolder.add(data, 'Hide Menu');
+    folder.add(data, 'Go Home');
+    folder.add(data, 'Hide Menu');
 
     // ---  --- //
 
@@ -346,7 +322,7 @@
 
     function hideMenu() {
       console.log('Hide Menu clicked');
-      // TODO:
+      document.querySelector('body > .dg').style.display = 'none';
     }
 
     function updateToPreSetConfigs(configName) {
@@ -367,9 +343,9 @@
         // Reset each module's configuration parameters back to their default values
         Object.keys(window.hg).forEach(function (moduleName) {
           if (window.hg[moduleName].config) {
-            Object.keys(config.originalHgConfigs[moduleName]).forEach(function (parameterName) {
+            Object.keys(originalHgConfigs[moduleName]).forEach(function (parameterName) {
               window.hg[moduleName].config[parameterName] =
-                window.hg.util.deepCopy(config.originalHgConfigs[moduleName][parameterName]);
+                window.hg.util.deepCopy(originalHgConfigs[moduleName][parameterName]);
             });
           }
         });
@@ -401,12 +377,8 @@
     }
   }
 
-  function createGridFolder(parentFolder) {
-    var gridFolder, colors;
-
-    gridFolder = parentFolder.addFolder('Grid');
-
-    colors = {};
+  function createGridItems(folder) {
+    var colors = {};
     colors.backgroundColor = window.hg.util.hslToHsv({
       h: window.hg.Grid.config.backgroundHue,
       s: window.hg.Grid.config.backgroundSaturation * 0.01,
@@ -418,21 +390,21 @@
       l: window.hg.Grid.config.tileLightness * 0.01
     });
 
-    gridFolder.add(parameters.grid, 'isVertical')
+    folder.add(parameters.grid, 'isVertical')
         .onChange(function () {
           window.hg.controller.resetGrid(parameters.grid);
         });
-    gridFolder.add(window.hg.Grid.config, 'tileOuterRadius', 10, 400)
-        .onChange(function () {
-          window.hg.Grid.config.computeDependentValues();
-          window.hg.controller.resetGrid(parameters.grid);
-        });
-    gridFolder.add(window.hg.Grid.config, 'tileGap', -50, 100)
+    folder.add(window.hg.Grid.config, 'tileOuterRadius', 10, 400)
         .onChange(function () {
           window.hg.Grid.config.computeDependentValues();
           window.hg.controller.resetGrid(parameters.grid);
         });
-    gridFolder.addColor(colors, 'backgroundColor')
+    folder.add(window.hg.Grid.config, 'tileGap', -50, 100)
+        .onChange(function () {
+          window.hg.Grid.config.computeDependentValues();
+          window.hg.controller.resetGrid(parameters.grid);
+        });
+    folder.addColor(colors, 'backgroundColor')
         .onChange(function () {
           var color = window.hg.util.hsvToHsl(colors.backgroundColor);
 
@@ -442,7 +414,7 @@
 
           parameters.grid.setBackgroundColor();
         });
-    gridFolder.addColor(colors, 'tileColor')
+    folder.addColor(colors, 'tileColor')
         .onChange(function () {
           var color = window.hg.util.hsvToHsl(colors.tileColor);
 
@@ -455,24 +427,24 @@
             parameters.grid.annotations.toggleAnnotationEnabled('contentTiles', true);
           }
         });
-    gridFolder.add(window.hg.Grid.config, 'firstRowYOffset', -100, 100)
+    folder.add(window.hg.Grid.config, 'firstRowYOffset', -100, 100)
         .onChange(function () {
           window.hg.Grid.config.computeDependentValues();
           window.hg.controller.resetGrid(parameters.grid);
         });
-    gridFolder.add(window.hg.Grid.config, 'contentStartingRowIndex', 0, 4).step(1)
-        .onChange(function () {
-          window.hg.Grid.config.computeDependentValues();
-          parameters.grid.computeContentIndices();
-          window.hg.controller.resetGrid(parameters.grid);
-        });
-    gridFolder.add(window.hg.Grid.config, 'targetContentAreaWidth', 500, 1500)
+    folder.add(window.hg.Grid.config, 'contentStartingRowIndex', 0, 4).step(1)
         .onChange(function () {
           window.hg.Grid.config.computeDependentValues();
           parameters.grid.computeContentIndices();
           window.hg.controller.resetGrid(parameters.grid);
         });
-    gridFolder.add(window.hg.Grid.config, 'contentDensity', 0.1, 1.0)
+    folder.add(window.hg.Grid.config, 'targetContentAreaWidth', 500, 1500)
+        .onChange(function () {
+          window.hg.Grid.config.computeDependentValues();
+          parameters.grid.computeContentIndices();
+          window.hg.controller.resetGrid(parameters.grid);
+        });
+    folder.add(window.hg.Grid.config, 'contentDensity', 0.1, 1.0)
         .onChange(function () {
           window.hg.Grid.config.computeDependentValues();
           parameters.grid.computeContentIndices();
@@ -480,73 +452,47 @@
         });
   }
 
-  function createAnnotationsFolder(parentFolder) {
-    var annotationsFolder, key, data;
-
-    annotationsFolder = parentFolder.addFolder('Annotations');
+  function createAnnotationsItems(folder) {
+    var key, data;
 
     for (key in window.hg.Annotations.config.annotations) {
       data = {};
       data[key] = window.hg.Annotations.config.annotations[key].enabled;
 
-      annotationsFolder.add(data, key).onChange(function (value) {
+      folder.add(data, key).onChange(function (value) {
         parameters.grid.annotations.toggleAnnotationEnabled(this.property, value);
       });
     }
   }
 
-  function createInputFolder(parentFolder) {
-    var inputFolder;
-
-    inputFolder = parentFolder.addFolder('Input');
-
-    inputFolder.add(window.hg.Input.config, 'contentTileClickAnimation',
+  function createInputItems(folder) {
+    folder.add(window.hg.Input.config, 'contentTileClickAnimation',
         Object.keys(window.hg.Input.config.possibleClickAnimations));
-    inputFolder.add(window.hg.Input.config, 'emptyTileClickAnimation',
+    folder.add(window.hg.Input.config, 'emptyTileClickAnimation',
         Object.keys(window.hg.Input.config.possibleClickAnimations));
   }
 
-  function createParticleSystemFolder(parentFolder) {
-    var tileFolder;
-
-    tileFolder = parentFolder.addFolder('Particle System');
-
-    tileFolder.add(window.hg.Tile.config, 'dragCoeff', 0.000001, 0.1);
-    tileFolder.add(window.hg.Tile.config, 'neighborSpringCoeff', 0.000001, 0.0001);
-    tileFolder.add(window.hg.Tile.config, 'neighborDampingCoeff', 0.000001, 0.009999);
-    tileFolder.add(window.hg.Tile.config, 'innerAnchorSpringCoeff', 0.000001, 0.0001);
-    tileFolder.add(window.hg.Tile.config, 'innerAnchorDampingCoeff', 0.000001, 0.009999);
-    tileFolder.add(window.hg.Tile.config, 'borderAnchorSpringCoeff', 0.000001, 0.0001);
-    tileFolder.add(window.hg.Tile.config, 'borderAnchorDampingCoeff', 0.000001, 0.009999);
-    tileFolder.add(window.hg.Tile.config, 'forceSuppressionLowerThreshold', 0.000001, 0.009999);
-    tileFolder.add(window.hg.Tile.config, 'velocitySuppressionLowerThreshold', 0.000001, 0.009999);
-    tileFolder.add(window.hg.Grid.config, 'tileMass', 0.1, 10)
+  function createParticleSystemItems(folder) {
+    folder.add(window.hg.Tile.config, 'dragCoeff', 0.000001, 0.1);
+    folder.add(window.hg.Tile.config, 'neighborSpringCoeff', 0.000001, 0.0001);
+    folder.add(window.hg.Tile.config, 'neighborDampingCoeff', 0.000001, 0.009999);
+    folder.add(window.hg.Tile.config, 'innerAnchorSpringCoeff', 0.000001, 0.0001);
+    folder.add(window.hg.Tile.config, 'innerAnchorDampingCoeff', 0.000001, 0.009999);
+    folder.add(window.hg.Tile.config, 'borderAnchorSpringCoeff', 0.000001, 0.0001);
+    folder.add(window.hg.Tile.config, 'borderAnchorDampingCoeff', 0.000001, 0.009999);
+    folder.add(window.hg.Tile.config, 'forceSuppressionLowerThreshold', 0.000001, 0.009999);
+    folder.add(window.hg.Tile.config, 'velocitySuppressionLowerThreshold', 0.000001, 0.009999);
+    folder.add(window.hg.Grid.config, 'tileMass', 0.1, 10)
         .onChange(function (value) {
           parameters.grid.updateTileMass(value);
         });
   }
 
-  function createAnimationsFolder(parentFolder) {
-    **;// TODO: implement and invoke this
-  }
-
-  function createTransientAnimationsFolder(parentFolder) {
-  **;// TODO: implement and invoke this
-  }
-
-  function createPersistentAnimationsFolder(parentFolder) {
-  **;// TODO: implement and invoke this
-  }
-
   // ------------------------------------------------------------------------------------------- //
   // Transient animations
 
-  function createOpenClosePostFolder(parentFolder) {
-    var openClosePostJobFolder, data;
-
-    openClosePostJobFolder = parentFolder.addFolder('Open/Close Post');
-
-    data = {
+  function createOpenClosePostItems(folder) {
+    var data = {
       'triggerOpenPost': window.hg.controller.transientJobs.OpenPostJob.createRandom.bind(
           window.hg.controller, parameters.grid),
       'triggerClosePost': window.hg.controller.transientJobs.ClosePostJob.createRandom.bind(
@@ -560,39 +506,34 @@
       }
     };
 
-    openClosePostJobFolder.add(data, 'triggerTogglePost');
+    folder.add(data, 'triggerTogglePost');
 
-    openClosePostJobFolder.add(window.hg.OpenPostJob.config, 'duration', 10, 10000)
+    folder.add(window.hg.OpenPostJob.config, 'duration', 10, 10000)
         .name('Open Duration');
-    openClosePostJobFolder.add(window.hg.ClosePostJob.config, 'duration', 10, 10000)
+    folder.add(window.hg.ClosePostJob.config, 'duration', 10, 10000)
         .name('Close Duration');
-    openClosePostJobFolder.add(window.hg.OpenPostJob.config, 'expandedDisplacementTileCount', 0, 5)
+    folder.add(window.hg.OpenPostJob.config, 'expandedDisplacementTileCount', 0, 5)
         .step(1);
   }
 
-  function createDisplacementRadiateFolder(parentFolder) {
-    var displacementRadiateJobFolder, data;
-
-    displacementRadiateJobFolder = parentFolder.addFolder('Displacement Radiate');
-//    displacementRadiateJobFolder.open();// TODO: remove me
-
-    data = {
+  function createDisplacementRadiateItems(folder) {
+    var data = {
       'triggerDisplacement':
           window.hg.controller.transientJobs.DisplacementRadiateJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
-    displacementRadiateJobFolder.add(data, 'triggerDisplacement');
+    folder.add(data, 'triggerDisplacement');
 
-    displacementRadiateJobFolder.add(window.hg.DisplacementRadiateJob.config, 'duration', 10, 10000);
+    folder.add(window.hg.DisplacementRadiateJob.config, 'duration', 10, 10000);
 
     // TODO:
 
-    displacementRadiateJobFolder.add(window.hg.DisplacementRadiateJob.config, 'isRecurring')
+    folder.add(window.hg.DisplacementRadiateJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    displacementRadiateJobFolder.add(window.hg.DisplacementRadiateJob.config, 'avgDelay', 10, 10000)
+    folder.add(window.hg.DisplacementRadiateJob.config, 'avgDelay', 10, 10000)
         .onChange(toggleRecurrence);
-    displacementRadiateJobFolder.add(window.hg.DisplacementRadiateJob.config, 'delayDeviationRange', 0, 10000)
+    folder.add(window.hg.DisplacementRadiateJob.config, 'delayDeviationRange', 0, 10000)
         .onChange(toggleRecurrence);
 
     // ---  --- //
@@ -606,8 +547,8 @@
     }
   }
 
-  function createHoverHighlightFolder(parentFolder) {
-    var highlightHoverJobFolder, data, colors;
+  function createHoverHighlightItems(folder) {
+    var data, colors;
 
     colors = [];
     colors.deltaColor = window.hg.util.hslToHsv({
@@ -616,17 +557,15 @@
       l: window.hg.HighlightHoverJob.config.deltaLightness * 0.01
     });
 
-    highlightHoverJobFolder = parentFolder.addFolder('Hover Highlight');
-
     data = {
       'triggerHighlightHover': window.hg.controller.transientJobs.HighlightHoverJob.createRandom.bind(
           window.hg.controller, parameters.grid)
     };
 
-    highlightHoverJobFolder.add(data, 'triggerHighlightHover');
+    folder.add(data, 'triggerHighlightHover');
 
-    highlightHoverJobFolder.add(window.hg.HighlightHoverJob.config, 'duration', 10, 10000);
-    highlightHoverJobFolder.addColor(colors, 'deltaColor')
+    folder.add(window.hg.HighlightHoverJob.config, 'duration', 10, 10000);
+    folder.addColor(colors, 'deltaColor')
         .onChange(function () {
           var color = window.hg.util.hsvToHsl(colors.deltaColor);
 
@@ -634,13 +573,13 @@
           window.hg.HighlightHoverJob.config.deltaSaturation = color.s * 100;
           window.hg.HighlightHoverJob.config.deltaLightness = color.l * 100;
         });
-    highlightHoverJobFolder.add(window.hg.HighlightHoverJob.config, 'opacity', 0, 1);
+    folder.add(window.hg.HighlightHoverJob.config, 'opacity', 0, 1);
 
-    highlightHoverJobFolder.add(window.hg.HighlightHoverJob.config, 'isRecurring')
+    folder.add(window.hg.HighlightHoverJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    highlightHoverJobFolder.add(window.hg.HighlightHoverJob.config, 'avgDelay', 10, 2000)
+    folder.add(window.hg.HighlightHoverJob.config, 'avgDelay', 10, 2000)
         .onChange(toggleRecurrence);
-    highlightHoverJobFolder.add(window.hg.HighlightHoverJob.config, 'delayDeviationRange', 0, 2000)
+    folder.add(window.hg.HighlightHoverJob.config, 'delayDeviationRange', 0, 2000)
         .onChange(toggleRecurrence);
 
     // ---  --- //
@@ -654,8 +593,8 @@
     }
   }
 
-  function createRadiatingHighlightFolder(parentFolder) {
-    var highlightRadiateJobFolder, data, colors;
+  function createRadiatingHighlightItems(folder) {
+    var data, colors;
 
     colors = [];
     colors.deltaColor = window.hg.util.hslToHsv({
@@ -664,20 +603,18 @@
       l: window.hg.HighlightRadiateJob.config.deltaLightness * 0.01
     });
 
-    highlightRadiateJobFolder = parentFolder.addFolder('Radiating Highlight');
-
     data = {
       'triggerHighlightRadiate':
           window.hg.controller.transientJobs.HighlightRadiateJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
-    highlightRadiateJobFolder.add(data, 'triggerHighlightRadiate');
+    folder.add(data, 'triggerHighlightRadiate');
 
-    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'shimmerSpeed', 0.1, 10);
-    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'shimmerWaveWidth', 1, 2000);
-    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'duration', 10, 10000);
-    highlightRadiateJobFolder.addColor(colors, 'deltaColor')
+    folder.add(window.hg.HighlightRadiateJob.config, 'shimmerSpeed', 0.1, 10);
+    folder.add(window.hg.HighlightRadiateJob.config, 'shimmerWaveWidth', 1, 2000);
+    folder.add(window.hg.HighlightRadiateJob.config, 'duration', 10, 10000);
+    folder.addColor(colors, 'deltaColor')
         .onChange(function () {
           var color = window.hg.util.hsvToHsl(colors.deltaColor);
 
@@ -685,13 +622,13 @@
           window.hg.HighlightRadiateJob.config.deltaSaturation = color.s * 100;
           window.hg.HighlightRadiateJob.config.deltaLightness = color.l * 100;
         });
-    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'opacity', 0, 1);
+    folder.add(window.hg.HighlightRadiateJob.config, 'opacity', 0, 1);
 
-    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'isRecurring')
+    folder.add(window.hg.HighlightRadiateJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    highlightRadiateJobFolder.add(window.hg.HighlightRadiateJob.config, 'avgDelay', 10, 10000)
+    folder.add(window.hg.HighlightRadiateJob.config, 'avgDelay', 10, 10000)
         .onChange(toggleRecurrence);
-    highlightRadiateJobFolder
+    folder
         .add(window.hg.HighlightRadiateJob.config, 'delayDeviationRange', 0, 10000)
         .onChange(toggleRecurrence);
 
@@ -706,29 +643,24 @@
     }
   }
 
-  function createIntraTileRadiateFolder(parentFolder) {
-    var intraTileRadiateJobFolder, data;
-
-    intraTileRadiateJobFolder = parentFolder.addFolder('Intra-Tile Radiate');
-//    intraTileRadiateJobFolder.open();// TODO: remove me
-
-    data = {
+  function createIntraTileRadiateItems(folder) {
+    var data = {
       'triggerIntraTileRadiate':
           window.hg.controller.transientJobs.IntraTileRadiateJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
-    intraTileRadiateJobFolder.add(data, 'triggerIntraTileRadiate');
+    folder.add(data, 'triggerIntraTileRadiate');
 
-    intraTileRadiateJobFolder.add(window.hg.IntraTileRadiateJob.config, 'duration', 10, 10000);
+    folder.add(window.hg.IntraTileRadiateJob.config, 'duration', 10, 10000);
 
     // TODO:
 
-    intraTileRadiateJobFolder.add(window.hg.IntraTileRadiateJob.config, 'isRecurring')
+    folder.add(window.hg.IntraTileRadiateJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    intraTileRadiateJobFolder.add(window.hg.IntraTileRadiateJob.config, 'avgDelay', 10, 10000)
+    folder.add(window.hg.IntraTileRadiateJob.config, 'avgDelay', 10, 10000)
         .onChange(toggleRecurrence);
-    intraTileRadiateJobFolder.add(window.hg.IntraTileRadiateJob.config, 'delayDeviationRange',
+    folder.add(window.hg.IntraTileRadiateJob.config, 'delayDeviationRange',
         0, 10000)
         .onChange(toggleRecurrence);
 
@@ -743,38 +675,34 @@
     }
   }
 
-  function createRandomLinesFolder(parentFolder) {
-    var randomLineJobFolder, data;
-
-    randomLineJobFolder = parentFolder.addFolder('Random Lines');
-
-    data = {
+  function createRandomLinesItems(folder) {
+    var data = {
       'triggerLine': window.hg.controller.transientJobs.LineJob.createRandom.bind(
           window.hg.controller, parameters.grid)
     };
 
-    randomLineJobFolder.add(data, 'triggerLine');
+    folder.add(data, 'triggerLine');
 
-    randomLineJobFolder.add(window.hg.LineJob.config, 'duration', 100, 20000);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'lineWidth', 1, 100);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'lineLength', 10, 60000);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'lineSidePeriod', 5, 500);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'startSaturation', 0, 100);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'startLightness', 0, 100);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'startOpacity', 0, 1);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'endSaturation', 0, 100);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'endLightness', 0, 100);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'endOpacity', 0, 1);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'sameDirectionProb', 0, 1);
+    folder.add(window.hg.LineJob.config, 'duration', 100, 20000);
+    folder.add(window.hg.LineJob.config, 'lineWidth', 1, 100);
+    folder.add(window.hg.LineJob.config, 'lineLength', 10, 60000);
+    folder.add(window.hg.LineJob.config, 'lineSidePeriod', 5, 500);
+    folder.add(window.hg.LineJob.config, 'startSaturation', 0, 100);
+    folder.add(window.hg.LineJob.config, 'startLightness', 0, 100);
+    folder.add(window.hg.LineJob.config, 'startOpacity', 0, 1);
+    folder.add(window.hg.LineJob.config, 'endSaturation', 0, 100);
+    folder.add(window.hg.LineJob.config, 'endLightness', 0, 100);
+    folder.add(window.hg.LineJob.config, 'endOpacity', 0, 1);
+    folder.add(window.hg.LineJob.config, 'sameDirectionProb', 0, 1);
 
-    randomLineJobFolder.add(window.hg.LineJob.config, 'isBlurOn');
-    randomLineJobFolder.add(window.hg.LineJob.config, 'blurStdDeviation', 0, 80);
+    folder.add(window.hg.LineJob.config, 'isBlurOn');
+    folder.add(window.hg.LineJob.config, 'blurStdDeviation', 0, 80);
 
-    randomLineJobFolder.add(window.hg.LineJob.config, 'isRecurring')
+    folder.add(window.hg.LineJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'avgDelay', 10, 10000)
+    folder.add(window.hg.LineJob.config, 'avgDelay', 10, 10000)
         .onChange(toggleRecurrence);
-    randomLineJobFolder.add(window.hg.LineJob.config, 'delayDeviationRange', 0, 10000)
+    folder.add(window.hg.LineJob.config, 'delayDeviationRange', 0, 10000)
         .onChange(toggleRecurrence);
 
     // ---  --- //
@@ -788,38 +716,34 @@
     }
   }
 
-  function createRadiatingLinesFolder(parentFolder) {
-    var linesRadiateJobFolder, data;
-
-    linesRadiateJobFolder = parentFolder.addFolder('Radiating Lines');
-
-    data = {
+  function createRadiatingLinesItems(folder) {
+    var data = {
       'triggerLinesRadiate': window.hg.controller.transientJobs.LinesRadiateJob.createRandom.bind(
           window.hg.controller, parameters.grid)
     };
 
-    linesRadiateJobFolder.add(data, 'triggerLinesRadiate');
+    folder.add(data, 'triggerLinesRadiate');
 
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'duration', 100, 20000);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'lineWidth', 1, 100);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'lineLength', 10, 60000);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'lineSidePeriod', 5, 500);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'startSaturation', 0, 100);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'startLightness', 0, 100);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'startOpacity', 0, 1);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'endSaturation', 0, 100);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'endLightness', 0, 100);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'endOpacity', 0, 1);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'sameDirectionProb', 0, 1);
+    folder.add(window.hg.LinesRadiateJob.config, 'duration', 100, 20000);
+    folder.add(window.hg.LinesRadiateJob.config, 'lineWidth', 1, 100);
+    folder.add(window.hg.LinesRadiateJob.config, 'lineLength', 10, 60000);
+    folder.add(window.hg.LinesRadiateJob.config, 'lineSidePeriod', 5, 500);
+    folder.add(window.hg.LinesRadiateJob.config, 'startSaturation', 0, 100);
+    folder.add(window.hg.LinesRadiateJob.config, 'startLightness', 0, 100);
+    folder.add(window.hg.LinesRadiateJob.config, 'startOpacity', 0, 1);
+    folder.add(window.hg.LinesRadiateJob.config, 'endSaturation', 0, 100);
+    folder.add(window.hg.LinesRadiateJob.config, 'endLightness', 0, 100);
+    folder.add(window.hg.LinesRadiateJob.config, 'endOpacity', 0, 1);
+    folder.add(window.hg.LinesRadiateJob.config, 'sameDirectionProb', 0, 1);
 
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'isBlurOn');
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'blurStdDeviation', 0, 80);
+    folder.add(window.hg.LinesRadiateJob.config, 'isBlurOn');
+    folder.add(window.hg.LinesRadiateJob.config, 'blurStdDeviation', 0, 80);
 
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'isRecurring')
+    folder.add(window.hg.LinesRadiateJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'avgDelay', 10, 10000)
+    folder.add(window.hg.LinesRadiateJob.config, 'avgDelay', 10, 10000)
         .onChange(toggleRecurrence);
-    linesRadiateJobFolder.add(window.hg.LinesRadiateJob.config, 'delayDeviationRange', 0, 10000)
+    folder.add(window.hg.LinesRadiateJob.config, 'delayDeviationRange', 0, 10000)
         .onChange(toggleRecurrence);
 
     // ---  --- //
@@ -833,26 +757,22 @@
     }
   }
 
-  function createPanFolder(parentFolder) {
-    var panJobFolder, data;
-
-    panJobFolder = parentFolder.addFolder('Pan');
-
-    data = {
+  function createPanItems(folder) {
+    var data = {
       'triggerPan':
           window.hg.controller.transientJobs.PanJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
-    panJobFolder.add(data, 'triggerPan');
+    folder.add(data, 'triggerPan');
 
-    panJobFolder.add(window.hg.PanJob.config, 'duration', 10, 10000);
+    folder.add(window.hg.PanJob.config, 'duration', 10, 10000);
 
-    panJobFolder.add(window.hg.PanJob.config, 'isRecurring')
+    folder.add(window.hg.PanJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    panJobFolder.add(window.hg.PanJob.config, 'avgDelay', 10, 10000)
+    folder.add(window.hg.PanJob.config, 'avgDelay', 10, 10000)
         .onChange(toggleRecurrence);
-    panJobFolder.add(window.hg.PanJob.config, 'delayDeviationRange', 0, 10000)
+    folder.add(window.hg.PanJob.config, 'delayDeviationRange', 0, 10000)
         .onChange(toggleRecurrence);
 
     // ---  --- //
@@ -866,28 +786,24 @@
     }
   }
 
-  function createSpreadFolder(parentFolder) {
-    var spreadJobFolder, data;
-
-    spreadJobFolder = parentFolder.addFolder('Spread');
-
-    data = {
+  function createSpreadItems(folder) {
+    var data = {
       'triggerSpread':
           window.hg.controller.transientJobs.SpreadJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
-    spreadJobFolder.add(data, 'triggerSpread');
+    folder.add(data, 'triggerSpread');
 
-    spreadJobFolder.add(window.hg.SpreadJob.config, 'duration', 10, 10000);
+    folder.add(window.hg.SpreadJob.config, 'duration', 10, 10000);
 
-    spreadJobFolder.add(window.hg.SpreadJob.config, 'displacementRatio', 0.01, 1);
+    folder.add(window.hg.SpreadJob.config, 'displacementRatio', 0.01, 1);
 
-    spreadJobFolder.add(window.hg.SpreadJob.config, 'isRecurring')
+    folder.add(window.hg.SpreadJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    spreadJobFolder.add(window.hg.SpreadJob.config, 'avgDelay', 10, 10000)
+    folder.add(window.hg.SpreadJob.config, 'avgDelay', 10, 10000)
         .onChange(toggleRecurrence);
-    spreadJobFolder.add(window.hg.SpreadJob.config, 'delayDeviationRange', 0, 10000)
+    folder.add(window.hg.SpreadJob.config, 'delayDeviationRange', 0, 10000)
         .onChange(toggleRecurrence);
 
     // ---  --- //
@@ -901,28 +817,23 @@
     }
   }
 
-  function createTileBorderFolder(parentFolder) {
-    var tileBorderJobFolder, data;
-
-    tileBorderJobFolder = parentFolder.addFolder('Tile Border');
-//    tileBorderJobFolder.open();// TODO: remove me
-
-    data = {
+  function createTileBorderItems(folder) {
+    var data = {
       'triggerTileBorder': window.hg.controller.transientJobs.TileBorderJob.createRandom.bind(
               window.hg.controller, parameters.grid)
     };
 
-    tileBorderJobFolder.add(data, 'triggerTileBorder');
+    folder.add(data, 'triggerTileBorder');
 
-    tileBorderJobFolder.add(window.hg.TileBorderJob.config, 'duration', 10, 10000);
+    folder.add(window.hg.TileBorderJob.config, 'duration', 10, 10000);
 
     // TODO:
 
-    tileBorderJobFolder.add(window.hg.TileBorderJob.config, 'isRecurring')
+    folder.add(window.hg.TileBorderJob.config, 'isRecurring')
         .onChange(toggleRecurrence);
-    tileBorderJobFolder.add(window.hg.TileBorderJob.config, 'avgDelay', 10, 10000)
+    folder.add(window.hg.TileBorderJob.config, 'avgDelay', 10, 10000)
         .onChange(toggleRecurrence);
-    tileBorderJobFolder.add(window.hg.TileBorderJob.config, 'delayDeviationRange', 0, 10000)
+    folder.add(window.hg.TileBorderJob.config, 'delayDeviationRange', 0, 10000)
         .onChange(toggleRecurrence);
 
     // ---  --- //
@@ -939,63 +850,52 @@
   // ------------------------------------------------------------------------------------------- //
   // Persistent animations
 
-  function createColorShiftFolder(parentFolder) {
-    var colorWaveJobFolder;
-
-    colorWaveJobFolder = parentFolder.addFolder('Color Shift');
-//    colorWaveJobFolder.open();// TODO: remove me
-
+  function createColorShiftItems(folder) {
     // TODO:
   }
 
-  function createColorWaveFolder(parentFolder) {
-    var colorWaveJobFolder = parentFolder.addFolder('Color Wave');
-
-    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'period', 1, 10000)
+  function createColorWaveItems(folder) {
+    folder.add(window.hg.ColorWaveJob.config, 'period', 1, 10000)
         .onChange(function (value) {
           window.hg.ColorWaveJob.config.halfPeriod = value / 2;
         });
-    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'wavelength', 1, 4000)
+    folder.add(window.hg.ColorWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
           window.hg.controller.persistentJobs.ColorWaveJob.start(parameters.grid);
         });
-    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'originX', -500, 3000)
+    folder.add(window.hg.ColorWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
           window.hg.controller.persistentJobs.ColorWaveJob.start(parameters.grid);
         });
-    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'originY', -500, 3000)
+    folder.add(window.hg.ColorWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
           window.hg.controller.persistentJobs.ColorWaveJob.start(parameters.grid);
         });
-    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'deltaHue', 0, 360);
-    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'deltaSaturation', 0, 100);
-    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'deltaLightness', 0, 100);
-    colorWaveJobFolder.add(window.hg.ColorWaveJob.config, 'opacity', 0, 1);
+    folder.add(window.hg.ColorWaveJob.config, 'deltaHue', 0, 360);
+    folder.add(window.hg.ColorWaveJob.config, 'deltaSaturation', 0, 100);
+    folder.add(window.hg.ColorWaveJob.config, 'deltaLightness', 0, 100);
+    folder.add(window.hg.ColorWaveJob.config, 'opacity', 0, 1);
   }
 
-  function createDisplacementWaveFolder(parentFolder) {
-    var displacementWaveJobFolder;
-
-    displacementWaveJobFolder = parentFolder.addFolder('Displacement Wave');
-
-    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'period', 1, 10000)
+  function createDisplacementWaveItems(folder) {
+    folder.add(window.hg.DisplacementWaveJob.config, 'period', 1, 10000)
         .onChange(function (value) {
           window.hg.DisplacementWaveJob.config.halfPeriod = value / 2;
         });
-    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'wavelength', 1, 4000)
+    folder.add(window.hg.DisplacementWaveJob.config, 'wavelength', 1, 4000)
         .onChange(function () {
           window.hg.controller.persistentJobs.DisplacementWaveJob.start(parameters.grid);
         });
-    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'originX', -500, 3000)
+    folder.add(window.hg.DisplacementWaveJob.config, 'originX', -500, 3000)
         .onChange(function () {
           window.hg.controller.persistentJobs.DisplacementWaveJob.start(parameters.grid);
         });
-    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'originY', -500, 3000)
+    folder.add(window.hg.DisplacementWaveJob.config, 'originY', -500, 3000)
         .onChange(function () {
           window.hg.controller.persistentJobs.DisplacementWaveJob.start(parameters.grid);
         });
-    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaX', -300, 300);
-    displacementWaveJobFolder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaY', -300, 300);
+    folder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaX', -300, 300);
+    folder.add(window.hg.DisplacementWaveJob.config, 'tileDeltaY', -300, 300);
   }
 
   console.log('parameters module loaded');

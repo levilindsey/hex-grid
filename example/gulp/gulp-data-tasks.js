@@ -19,7 +19,7 @@ var Q = require('q');
 
 // ---  --- //
 
-gulp.task('data', ['merge-data']);// TODO: this should also inject the paths of all of the image and video files into the metadata
+gulp.task('data', ['merge-data']);
 
 gulp.task('merge-data', ['inject-data-descriptions'], function () {
   var metadataPromises = [];

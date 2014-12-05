@@ -20,6 +20,22 @@
 
   config = {};
 
+  config.urlLabels = {
+    'homepage': 'Homepage',
+    'published': 'Published at',
+    'demo': 'Demo Site',
+    'npm': 'NPM Registry',
+    'bower': 'Bower Registry',
+    'codepen': 'CodePen',
+    'github': 'Repository',
+    'googleCode': 'Repository',
+    'githubProfile': 'GitHub',
+    'linkedin': 'LinkedIn',
+    'facebook': 'Facebook',
+    'googlePlus': 'Google+',
+    'reverbNation': 'Reverb Nation'
+  };
+
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -253,36 +269,11 @@
       // Remove the protocol from the URL to make it more human-readable
       cleanedUrl = url.replace(/^.*:\/\//, '');
 
-      // Determine what label to use
-      switch (key) {
-        case 'homepage':
-          label = 'Homepage';
-          break;
-        case 'published':
-          label = 'Published at';
-          break;
-        case 'demo':
-          label = 'Demo Site';
-          break;
-        case 'npm':
-          label = 'NPM Registry';
-          break;
-        case 'bower':
-          label = 'Bower Registry';
-          break;
-        case 'codepen':
-          label = 'CodePen';
-          break;
-        case 'github':
-          label = 'Repository';
-          break;
-        case 'googleCode':
-          label = 'Repository';
-          break;
-        default:
-          console.warn('Unknown URL type: ' + key);
-          label = key;
-          break;
+      label = config.urlLabels[key];
+
+      if (!label) {
+        console.warn('Unknown URL type: ' + key);
+        label = key;
       }
 
       // --- Create the elements --- //

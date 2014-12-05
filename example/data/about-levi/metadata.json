@@ -1,0 +1,28 @@
+{
+  "id": "about-levi",
+  "titleShort": "About\nLevi",
+  "titleLong": "About Levi",
+  "urls": {
+    "githubProfile": "https://github.com/levisl176",
+    "linkedin": "https://linkedin.com/in/levisl176",
+    "codepen": "http://codepen.io/levisl176/",
+    "facebook": "https://facebook.com/levisl176",
+    "googlePlus": "https://plus.google.com/u/0/+LeviLindsey176",
+    "reverbNation": "http://reverbnation.com/levilindsey"
+  },
+  "jobTitle": "",
+  "date": {
+    "start": "1988",
+    "end": "Present"
+  },
+  "categories": [
+  ],
+  "images": [
+    {
+      "fileName": "image1.png",
+      "description": ""
+    }
+  ],
+  "videos": [],
+  "content": ""
+}
