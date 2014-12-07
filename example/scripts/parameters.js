@@ -180,31 +180,60 @@
 
     storeOriginalConfigValues();
 
+    createDatGui();
+  }
+
+  function createDatGui() {
     parameters.gui = new dat.GUI();
     parameters.gui.width = config.datGuiWidth;
 
     window.gui = parameters.gui;
 
-    createChildFolders(config.folders, parameters.gui);
+    createFolders();
   }
 
-  function createChildFolders(childFolderConfigs, parentFolder) {
-    childFolderConfigs.forEach(function (folderConfig) {
-      var folder = parentFolder.addFolder(folderConfig.name);
+  function createFolders() {
+    createChildFolders(config.folders, parameters.gui);
 
-      if (folderConfig.isOpen) {
-        folder.open();
-      }
+    // ---  --- //
 
-      if (folderConfig.createItems) {
-        folderConfig.createItems(folder);
-      }
+    function createChildFolders(childFolderConfigs, parentFolder) {
+      childFolderConfigs.forEach(function (folderConfig) {
+        var folder = parentFolder.addFolder(folderConfig.name);
 
-      // Recursively create descendent folders
-      if (folderConfig.children) {
-        createChildFolders(folderConfig.children, folder)
-      }
-    });
+        folderConfig.folder = folder;
+
+        if (folderConfig.isOpen) {
+          folder.open();
+        }
+
+        if (folderConfig.createItems) {
+          folderConfig.createItems(folder);
+        }
+
+        // Recursively create descendent folders
+        if (folderConfig.children) {
+          createChildFolders(folderConfig.children, folder);
+        }
+      });
+    }
+  }
+
+  function recordOpenFolders() {
+    recordOpenChildFolders(config.folders);
+
+    // ---  --- //
+
+    function recordOpenChildFolders(childFolderConfigs) {
+      childFolderConfigs.forEach(function (folderConfig) {
+        folderConfig.isOpen = !folderConfig.folder.closed;
+
+        // Recurse
+        if (folderConfig.children) {
+          recordOpenChildFolders(folderConfig.children);
+        }
+      });
+    }
   }
 
   /**
@@ -317,7 +346,7 @@
 
     function goHome() {
       console.log('Go Home clicked');
-      // TODO:
+      window.location.href = '/';
     }
 
     function hideMenu() {
@@ -328,6 +357,7 @@
     function updateToPreSetConfigs(configName) {
       console.log('Updating to pre-set configuration', configName);
 
+      recordOpenFolders();
       resetAllConfigValues();
       setPreSetConfigValues();
 
@@ -369,10 +399,9 @@
         });
       }
 
-      function updateDatGui() {// TODO:
-        Object.keys(parameters.gui.__controllers).forEach(function (key) {
-          parameters.gui.__controllers[key].updateDisplay();
-        });
+      function updateDatGui() {
+        parameters.gui.destroy();
+        createDatGui();
       }
     }
   }
