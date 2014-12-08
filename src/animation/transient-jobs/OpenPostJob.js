@@ -122,12 +122,13 @@
    * Sets this OpenPostJob as started.
    *
    * @this OpenPostJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var panDisplacement;
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     if (job.grid.isTransitioning) {

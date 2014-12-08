@@ -83,12 +83,13 @@
    * Sets this ClosePostJob as started.
    *
    * @this ClosePostJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var panDisplacement;
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     job.grid.isPostOpen = false;

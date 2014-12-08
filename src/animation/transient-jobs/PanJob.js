@@ -73,14 +73,15 @@
    * Sets this PanJob as started.
    *
    * @this PanJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
     job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
     job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     // Set the final positions at the start, and animate everything in "reverse"

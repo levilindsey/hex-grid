@@ -148,13 +148,13 @@
         job.cancel();
 
         job.init();// TODO: get rid of this init function
-        job.start();
+        job.start(animator.previousTime);
       }
     } else {
       console.log('Job starting: ' + job.constructor.name);
 
       job.init();// TODO: get rid of this init function
-      job.start();
+      job.start(animator.previousTime);
       animator.jobs.push(job);
     }
 
@@ -186,7 +186,7 @@
   // Expose this singleton
 
   animator.jobs = [];
-  animator.previousTime = performance.now();
+  animator.previousTime = Number.NaN;
   animator.isLooping = false;
   animator.isPaused = true;
   animator.startJob = startJob;

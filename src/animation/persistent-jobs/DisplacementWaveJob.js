@@ -90,11 +90,12 @@
    * Sets this DisplacementWaveJob as started.
    *
    * @this DisplacementWaveJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 

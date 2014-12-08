@@ -35,11 +35,12 @@
    * Sets this DisplacementResetJob as started.
    *
    * @this DisplacementResetJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 

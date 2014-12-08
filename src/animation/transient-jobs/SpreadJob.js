@@ -77,11 +77,12 @@
    * Sets this SpreadJob as started.
    *
    * @this SpreadJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 

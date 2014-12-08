@@ -1531,13 +1531,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
         job.cancel();
 
         job.init();// TODO: get rid of this init function
-        job.start();
+        job.start(animator.previousTime);
       }
     } else {
       console.log('Job starting: ' + job.constructor.name);
 
       job.init();// TODO: get rid of this init function
-      job.start();
+      job.start(animator.previousTime);
       animator.jobs.push(job);
     }
 
@@ -1569,7 +1569,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // Expose this singleton
 
   animator.jobs = [];
-  animator.previousTime = performance.now();
+  animator.previousTime = Number.NaN;
   animator.isLooping = false;
   animator.isPaused = true;
   animator.startJob = startJob;
@@ -6686,11 +6686,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this ColorResetJob as started.
    *
    * @this ColorResetJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -6829,11 +6830,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this ColorShiftJob as started.
    *
    * @this ColorShiftJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -7053,11 +7055,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this ColorWaveJob as started.
    *
    * @this ColorWaveJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -7204,11 +7207,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this DisplacementResetJob as started.
    *
    * @this DisplacementResetJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -7404,11 +7408,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this DisplacementWaveJob as started.
    *
    * @this DisplacementWaveJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -7562,11 +7567,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this CarouselImageSlideJob as started.
    *
    * @this CarouselImageSlideJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     job.indexInitialDisplacement = job.carousel.previousIndex - job.carousel.currentIndex;
@@ -7759,12 +7765,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this ClosePostJob as started.
    *
    * @this ClosePostJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var panDisplacement;
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     job.grid.isPostOpen = false;
@@ -7949,11 +7956,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this DilateSectorsJob as started.
    *
    * @this DilateSectorsJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     // Set the final positions at the start, and animate everything in "reverse"
@@ -8176,11 +8184,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this DisplacementRadiateJob as started.
    *
    * @this DisplacementRadiateJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -8376,12 +8385,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this FadePostJob as started.
    *
    * @this FadePostJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var expandedTileOuterRadius;
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     job.pagePostStartPosition = {};
@@ -8676,11 +8686,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this HighlightHoverJob as started.
    *
    * @this HighlightHoverJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -8908,11 +8919,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this HighlightRadiateJob as started.
    *
    * @this HighlightRadiateJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -9099,11 +9111,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this IntraTileRadiateJob as started.
    *
    * @this IntraTileRadiateJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -9812,11 +9825,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this LineJob as started.
    *
    * @this LineJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -10546,17 +10560,18 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this LinesRadiateJob as started.
    *
    * @this LinesRadiateJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job, i, count;
 
     job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
-      job.lineJobs[i].start();
+      job.lineJobs[i].start(startTime);
     }
   }
 
@@ -10805,12 +10820,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this OpenPostJob as started.
    *
    * @this OpenPostJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var panDisplacement;
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     if (job.grid.isTransitioning) {
@@ -11012,14 +11028,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this PanJob as started.
    *
    * @this PanJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
     job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
     job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     // Set the final positions at the start, and animate everything in "reverse"
@@ -11225,11 +11242,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this SpreadJob as started.
    *
    * @this SpreadJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -11391,11 +11409,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this TileBorderJob as started.
    *
    * @this TileBorderJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 

@@ -166,17 +166,18 @@
    * Sets this LinesRadiateJob as started.
    *
    * @this LinesRadiateJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job, i, count;
 
     job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
-      job.lineJobs[i].start();
+      job.lineJobs[i].start(startTime);
     }
   }
 

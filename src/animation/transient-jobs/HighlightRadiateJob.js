@@ -124,11 +124,12 @@
    * Sets this HighlightRadiateJob as started.
    *
    * @this HighlightRadiateJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 

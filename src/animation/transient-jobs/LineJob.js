@@ -586,11 +586,12 @@
    * Sets this LineJob as started.
    *
    * @this LineJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 

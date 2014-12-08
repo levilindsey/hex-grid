@@ -65,11 +65,12 @@
    * Sets this DilateSectorsJob as started.
    *
    * @this DilateSectorsJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     // Set the final positions at the start, and animate everything in "reverse"

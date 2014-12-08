@@ -86,12 +86,13 @@
    * Sets this FadePostJob as started.
    *
    * @this FadePostJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var expandedTileOuterRadius;
     var job = this;
 
-    job.startTime = performance.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     job.pagePostStartPosition = {};
