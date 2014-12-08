@@ -51,9 +51,9 @@
   config.backgroundHue = 230;
   config.backgroundSaturation = 1;
   config.backgroundLightness = 4;
-  config.tileHue = 147;
-  config.tileSaturation = 50;
-  config.tileLightness = 30;
+  config.tileHue = 230;//147;
+  config.tileSaturation = 67;
+  config.tileLightness = 22;
   config.tileOuterRadius = 80;
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;

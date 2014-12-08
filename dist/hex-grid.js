@@ -3575,9 +3575,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config.backgroundHue = 230;
   config.backgroundSaturation = 1;
   config.backgroundLightness = 4;
-  config.tileHue = 147;
-  config.tileSaturation = 50;
-  config.tileLightness = 30;
+  config.tileHue = 230;//147;
+  config.tileSaturation = 67;
+  config.tileLightness = 22;
   config.tileOuterRadius = 80;
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
@@ -9304,8 +9304,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config.startLightness = 100;
   config.startOpacity = 0.6;
 
-  config.endSaturation = 100;
-  config.endLightness = 60;
+  config.endSaturation = 30;
+  config.endLightness = 80;
   config.endOpacity = 0;
 
   config.sameDirectionProb = 0.8;

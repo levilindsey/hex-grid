@@ -57,22 +57,23 @@
   config.preSetConfigs = {};
 
   // TODO: implement these different presets
-  config.preSetConfigs['default'] = {};
   config.preSetConfigs['stormy'] = {
-    Grid: {
-      tileOuterRadius: 80,
-      tileHue: 230
+    LineJob: {
+      isRecurring: true
     }
   };
-  config.preSetConfigs['honey-comb'] = {
+  config.preSetConfigs['color-worms'] = {
     Grid: {
       tileOuterRadius: 50,
-      tileHue: 54
+      tileHue: 39,
+      tileSaturation: 49,
+      tileLightness: 12
     },
     LineJob: {
       isRecurring: true,
-      lineWidth: 10,
-      duration: 80000,
+      lineWidth: 12,
+      lineLength: 400,
+      duration: 70000,
       lineSidePeriod: 1000,
       startSaturation: 100,
       startLightness: 60,
@@ -80,63 +81,81 @@
       endSaturation: 100,
       endLightness: 60,
       endOpacity: 0,
-      sameDirectionProb: 1.0,
-      avgDelay: 500,
-      delayDeviationRange: 400
-      // TODO: force the hue
+      sameDirectionProb: 0.75,
+      avgDelay: 2000,
+      delayDeviationRange: 200
+    },
+    LinesRadiateJob: {
+      lineWidth: 7,
+      lineLength: 250,
+      duration: 30000,
+      lineSidePeriod: 120,
+      startSaturation: 100,
+      startLightness: 60,
+      startOpacity: 0.8,
+      endSaturation: 100,
+      endLightness: 60,
+      endOpacity: 0,
+      sameDirectionProb: 0.75
     },
     DisplacementWaveJob: {
       period: 1000000,
       tileDeltaX: 0,
       tileDeltaY: 0
-    }
-
-  //config.duration = 2000;
-  //config.lineWidth = 28;
-  //config.lineLength = 60000;
-  //config.lineSidePeriod = 5; // milliseconds per tile side
-  //
-  //config.startSaturation = 100;
-  //config.startLightness = 100;
-  //config.startOpacity = 0.6;
-  //
-  //config.endSaturation = 100;
-  //config.endLightness = 60;
-  //config.endOpacity = 0;
-  //
-  //config.sameDirectionProb = 0.8;
-  //
-  //config.blurStdDeviation = 2;
-  //config.isBlurOn = false;
-  //
-  //config.isRecurring = true;
-  //config.avgDelay = 2200;
-  //config.delayDeviationRange = 2100;
-  };
-  config.preSetConfigs['scales'] = {
-    Grid: {
-      tileOuterRadius: 95,
-      tileGap: -50,
-      tileHue: 147,
-      tileLightness: 13
     },
-    LineJob: {
-      isRecurring: false
+    ColorWaveJob: {
+      period: 1000000,
+      deltaLightness: 0
+    },
+    Input: {
+      contentTileClickAnimation: 'None',
+      emptyTileClickAnimation: 'Radiate Lines'
+    },
+    OpenPostJob: {
+      expandedDisplacementTileCount: 4
     }
   };
+  //config.preSetConfigs['scales'] = {
+  //  Grid: {
+  //    tileOuterRadius: 95,
+  //    tileGap: -50,
+  //    tileHue: 147,
+  //    tileLightness: 13
+  //  },
+  //  LineJob: {
+  //    isRecurring: false
+  //  },
+  //  OpenPostJob: {
+  //    expandedDisplacementTileCount: 5
+  //  }
+  //};
   config.preSetConfigs['crazy-flux'] = {
     Grid: {
       tileOuterRadius: 60,
       tileGap: 40,
-      tileHue: 24
+      tileHue: 24,
+      tileSaturation: 75,
+      tileLightness: 50
+    },
+    LineJob: {
+      isRecurring: true
+    },
+    Input: {
+      contentTileClickAnimation: 'None',
+      emptyTileClickAnimation: 'Radiate Lines'
     },
     DisplacementWaveJob: {
       period: 1400,
       tileDeltaX: 140,
-      tileDeltaY: -120
+      tileDeltaY: -120,
+      originX: 2000,
+      originY: 1800
     }
   };
   config.preSetConfigs['wire-frame'] = {
+    LineJob: {
+      isRecurring: true
+    },
     Annotations: {
       annotations: {
         tileNeighborConnections: {
@@ -158,6 +177,14 @@
           enabled: true
         }
       }
+    },
+    Input: {
+      contentTileClickAnimation: 'None',
+      emptyTileClickAnimation: 'Radiate Lines'
+    },
+    DisplacementWaveJob: {
+      originX: 1600,
+      originY: 1800
     }
   };
 

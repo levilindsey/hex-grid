@@ -22,8 +22,8 @@
   config.startLightness = 100;
   config.startOpacity = 0.6;
 
-  config.endSaturation = 100;
-  config.endLightness = 60;
+  config.endSaturation = 30;
+  config.endLightness = 80;
   config.endOpacity = 0;
 
   config.sameDirectionProb = 0.8;
