@@ -263,6 +263,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   internal.grids = [];
   internal.inputs = [];
   internal.annotations = [];
+  internal.postData = [];
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -617,6 +618,35 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @param {Array.<PostData>} postData
    */
   function setGridPostData(grid, postData) {
+    internal.postData[grid.index] = postData;
+
+    setGridFilteredPostData(grid, postData);
+  }
+
+  /**
+   * @param {Grid} grid
+   * @param {String} category A value of 'all' will match all categories.
+   */
+  function filterGridPostDataByCategory(grid, category) {
+    var matches;
+    var postData = internal.postData[grid.index];
+
+    if (category !== 'all') {
+      matches = postData.filter(function (postDatum) {
+        return postDatum.categories.indexOf(category) >= 0;
+      });
+    } else {
+      matches = postData.slice(0);
+    }
+
+    setGridFilteredPostData(grid, matches);
+  }
+
+  /**
+   * @param {Grid} grid
+   * @param {Array.<PostData>} postData
+   */
+  function setGridFilteredPostData(grid, postData) {
     //TODO: check that these resets are correct
     grid.isPostOpen = false;
     grid.pagePost = null;
@@ -630,24 +660,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid.computeContentIndices();
 
     resetGrid(grid);
-  }
-
-  /**
-   * @param {Grid} grid
-   * @param {String} category A value of 'all' will match all categories.
-   */
-  function filterGridPostDataByCategory(grid, category) {
-    var matches;
-
-    if (category !== 'all') {
-      matches = grid.postData.filter(function (postDatum) {
-        return postDatum.categories.indexOf(category) >= 0;
-      });
-    } else {
-      matches = grid.postData.slice(0);
-    }
-
-    setGridPostData(grid, matches);
   }
 
   // ------------------------------------------------------------------------------------------- //

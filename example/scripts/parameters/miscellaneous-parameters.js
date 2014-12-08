@@ -96,11 +96,13 @@
 
   function createFilterPostsItems(parentFolder) {
     var data = {
+      'all': filterPosts.bind(window.app.parameters, 'all'),
       'work': filterPosts.bind(window.app.parameters, 'work'),
       'research': filterPosts.bind(window.app.parameters, 'research'),
       'side-projects': filterPosts.bind(window.app.parameters, 'side-project')
     };
 
+    parentFolder.add(data, 'all');
     parentFolder.add(data, 'work');
     parentFolder.add(data, 'research');
     parentFolder.add(data, 'side-projects');
