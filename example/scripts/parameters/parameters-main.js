@@ -190,7 +190,7 @@
 
       // Add an item for showing all categories
       addCategoryItem(parameters.categoryData, 'all', parameters.categoriesFolder);
-      parameters.categoryData['all'] = true;
+      parameters.categoryData['all']['all'] = true;
 
       // Add an item for showing each individual category
       parameters.allCategories.forEach(function (category) {
@@ -200,10 +200,13 @@
       // ---  --- //
 
       function addCategoryItem(categoryData, label, folder) {
-        parameters.categoryData[label] = false;
-        folder.add(categoryData, label)
+        categoryData[label] = {};
+        categoryData[label][label] = false;
+        categoryData[label].menuItem = folder.add(categoryData[label], label)
             .onChange(function () {
+              categoryStackSize++;
               filterPosts(label);
+              categoryStackSize--;
             });
       }
     }
@@ -220,14 +223,24 @@
     }, {});
   }
 
-  function filterPosts(category) {
-    // Make sure all other category filters are off (manual radio button logic)
-    Object.keys(parameters.categoryData).forEach(function (key) {
-      parameters.categoryData[key] = false;
-    });
-    parameters.categoryData[category] = true;
+  var categoryStackSize = 0;
 
-    window.hg.controller.filterGridPostDataByCategory(parameters.grid, category);
+  function filterPosts(category) {
+    // Only filter when the checkbox is checked
+    if (parameters.categoryData[category][category]) {
+      // Make sure all other category filters are off (manual radio button logic)
+      Object.keys(parameters.categoryData).forEach(function (key) {
+        // Only turn off the other filters that are turned on
+        if (parameters.categoryData[key][key] && key !== category) {
+          parameters.categoryData[key].menuItem.setValue(false);
+        }
+      });
+
+      window.hg.controller.filterGridPostDataByCategory(parameters.grid, category);
+    } else if (categoryStackSize === 1) {
+      // If unchecking a textbox, turn on the 'all' filter
+      parameters.categoryData['all'].menuItem.setValue(true);
+    }
   }
 
   function goHome() {
