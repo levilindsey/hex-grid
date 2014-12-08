@@ -14,32 +14,6 @@
 
   config.datGuiWidth = 300;
 
-  config.preSetConfigs = {};
-
-  // TODO: implement these different presets
-  config.preSetConfigs['default'] = {};
-  config.preSetConfigs['stormy'] = {
-    Grid: {
-      tileOuterRadius: 80,
-      tileHue: 230
-    }
-  };
-  config.preSetConfigs['honey-comb'] = {
-    Grid: {
-      tileOuterRadius: 50,
-      tileHue: 54
-    },
-    LineJob: {
-      isRecurring: false
-    }
-  };
-  config.preSetConfigs['crazy-flux'] = {
-    Grid: {
-      tileOuterRadius: 80,
-      tileHue: 24
-    }
-  };
-
   config.folders = [
     createMiscellaneousFolders,
     {
@@ -259,16 +233,16 @@
     document.querySelector('body > .dg').style.display = 'none';
   }
 
-  function updateToPreSetConfigs(configName) {
-    console.log('Updating to pre-set configuration', configName);
+  function updateToPreSetConfigs(preSetConfig) {
+    console.log('Updating to pre-set configuration', preSetConfig);
 
     recordOpenFolders();
     resetAllConfigValues();
-    setPreSetConfigValues(configName);
+    setPreSetConfigValues(preSetConfig);
 
+    parameters.grid.annotations.refresh();
     window.hg.Grid.config.computeDependentValues();
     window.hg.controller.resetGrid(parameters.grid);
-    parameters.grid.annotations.refresh();
 
     refreshDatGui();
   }
@@ -285,11 +259,11 @@
     });
   }
 
-  function setPreSetConfigValues(configName) {
-    Object.keys(config.preSetConfigs[configName]).forEach(function (moduleName) {
+  function setPreSetConfigValues(preSetConfig) {
+    Object.keys(preSetConfig).forEach(function (moduleName) {
       // Set all of the special parameters for this new pre-set configuration
-      Object.keys(config.preSetConfigs[configName][moduleName]).forEach(function (key) {
-        window.hg[moduleName].config[key] = config.preSetConfigs[configName][moduleName][key];
+      Object.keys(preSetConfig[moduleName]).forEach(function (key) {
+        setModuleToMatchPreSet(window.hg[moduleName].config, preSetConfig[moduleName], key);
       });
 
       // Update the recurrence of any transient job
@@ -301,6 +275,19 @@
           window.hg[moduleName].config.delayDeviationRange);
       }
     });
+
+    // ---  --- //
+
+    function setModuleToMatchPreSet(moduleConfig, preSetConfig, key) {
+      // Recurse on nested objects in the configuration
+      if (typeof preSetConfig[key] === 'object') {
+        Object.keys(preSetConfig[key]).forEach(function (childKey) {
+          setModuleToMatchPreSet(moduleConfig[key], preSetConfig[key], childKey);
+        });
+      } else {
+        moduleConfig[key] = preSetConfig[key];
+      }
+    }
   }
 
   function refreshDatGui() {

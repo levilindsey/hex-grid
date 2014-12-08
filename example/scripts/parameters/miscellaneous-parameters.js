@@ -54,6 +54,113 @@
     }
   ];
 
+  config.preSetConfigs = {};
+
+  // TODO: implement these different presets
+  config.preSetConfigs['default'] = {};
+  config.preSetConfigs['stormy'] = {
+    Grid: {
+      tileOuterRadius: 80,
+      tileHue: 230
+    }
+  };
+  config.preSetConfigs['honey-comb'] = {
+    Grid: {
+      tileOuterRadius: 50,
+      tileHue: 54
+    },
+    LineJob: {
+      isRecurring: true,
+      lineWidth: 10,
+      duration: 80000,
+      lineSidePeriod: 1000,
+      startSaturation: 100,
+      startLightness: 60,
+      startOpacity: 0.8,
+      endSaturation: 100,
+      endLightness: 60,
+      endOpacity: 0,
+      sameDirectionProb: 1.0,
+      avgDelay: 500,
+      delayDeviationRange: 400
+      // TODO: force the hue
+    },
+    DisplacementWaveJob: {
+      period: 1000000,
+      tileDeltaX: 0,
+      tileDeltaY: 0
+    }
+
+  //config.duration = 2000;
+  //config.lineWidth = 28;
+  //config.lineLength = 60000;
+  //config.lineSidePeriod = 5; // milliseconds per tile side
+  //
+  //config.startSaturation = 100;
+  //config.startLightness = 100;
+  //config.startOpacity = 0.6;
+  //
+  //config.endSaturation = 100;
+  //config.endLightness = 60;
+  //config.endOpacity = 0;
+  //
+  //config.sameDirectionProb = 0.8;
+  //
+  //config.blurStdDeviation = 2;
+  //config.isBlurOn = false;
+  //
+  //config.isRecurring = true;
+  //config.avgDelay = 2200;
+  //config.delayDeviationRange = 2100;
+  };
+  config.preSetConfigs['scales'] = {
+    Grid: {
+      tileOuterRadius: 95,
+      tileGap: -50,
+      tileHue: 147,
+      tileLightness: 13
+    },
+    LineJob: {
+      isRecurring: false
+    }
+  };
+  config.preSetConfigs['crazy-flux'] = {
+    Grid: {
+      tileOuterRadius: 60,
+      tileGap: 40,
+      tileHue: 24
+    },
+    DisplacementWaveJob: {
+      period: 1400,
+      tileDeltaX: 140,
+      tileDeltaY: -120
+    }
+  };
+  config.preSetConfigs['wire-frame'] = {
+    Annotations: {
+      annotations: {
+        tileNeighborConnections: {
+          enabled: true
+        },
+        tileAnchorCenters: {
+          enabled: true
+        },
+        transparentTiles: {
+          enabled: true
+        },
+        lineAnimationGapPoints: {
+          enabled: true
+        },
+        lineAnimationCornerData: {
+          enabled: true
+        },
+        sectorAnchorCenters: {
+          enabled: true
+        }
+      }
+    }
+  };
+
   // ---  --- //
 
   var miscParams = {};
@@ -81,17 +188,17 @@
   }
 
   function createPreSetConfigurationsItems(parentFolder) {
-    var data = {
-      'default': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'default'),
-      'stormy': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'stormy'),
-      'honey-comb': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'honey-comb'),
-      'crazy-flux': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'crazy-flux')
-    };
+    var data = {};
 
-    parentFolder.add(data, 'default');
-    parentFolder.add(data, 'stormy');
-    parentFolder.add(data, 'honey-comb');
-    parentFolder.add(data, 'crazy-flux');
+    Object.keys(config.preSetConfigs).forEach(addPreSetConfig);
+
+    // ---  --- //
+
+    function addPreSetConfig(preSetName) {
+      data[preSetName] = window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters,
+        config.preSetConfigs[preSetName]);
+      parentFolder.add(data, preSetName);
+    }
   }
 
   function createFilterPostsItems(parentFolder) {

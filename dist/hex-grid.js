@@ -1244,7 +1244,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var key, cloneObject;
 
     if (typeof object === 'object') {
-      cloneObject = {};
+      // Hack: Not a good/robust copy policy
+      if (object instanceof Array) {
+        cloneObject = [];
+      } else {
+        cloneObject = {};
+      }
 
       for (key in object) {
         if (typeof object[key] === 'object') {
