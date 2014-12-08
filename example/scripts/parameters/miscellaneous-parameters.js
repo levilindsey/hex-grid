@@ -14,7 +14,23 @@
     {
       name: 'Main',
       isOpen: true,
-      createItems: createMainItems
+      createItems: createMainItems,
+      children: [
+        {
+          name: 'Pre-Set Configurations',
+          isOpen: true,
+          createItems: createPreSetConfigurationsItems,
+          children: [
+          ]
+        },
+        {
+          name: 'Filter Posts',
+          isOpen: true,
+          createItems: createFilterPostsItems,
+          children: [
+          ]
+        }
+      ]
     },
     {
       name: 'Grid',
@@ -57,32 +73,44 @@
   function createMainItems(folder) {
     var data = {
       'Go Home': window.app.parameters.goHome,
-      'Hide Menu': window.app.parameters.hideMenu,
-      'default': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'default'),
-      'stormy': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'stormy'),
-      'honey-comb': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'honey-comb'),
-      'crazy-flux': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'crazy-flux'),
-      'work': window.app.parameters.filterPosts.bind(window.app.parameters, 'work'),
-      'research': window.app.parameters.filterPosts.bind(window.app.parameters, 'research'),
-      'side-projects': window.app.parameters.filterPosts.bind(window.app.parameters, 'side-project')
+      'Hide Menu': window.app.parameters.hideMenu
     };
-
-    var presetConfigsFolder = folder.addFolder('Pre-Set Configurations');
-    presetConfigsFolder.open();
-    presetConfigsFolder.add(data, 'default');
-    presetConfigsFolder.add(data, 'stormy');
-    presetConfigsFolder.add(data, 'honey-comb');
-    presetConfigsFolder.add(data, 'crazy-flux');
-
-    var filterPostsFolder = folder.addFolder('Filter Posts');
-    filterPostsFolder.open();
-    filterPostsFolder.add(data, 'work');
-    filterPostsFolder.add(data, 'research');
-    filterPostsFolder.add(data, 'side-projects');
-    window.app.parameters.categoriesFolder = filterPostsFolder.addFolder('Categories');
 
     folder.add(data, 'Go Home');
     folder.add(data, 'Hide Menu');
+  }
+
+  function createPreSetConfigurationsItems(parentFolder) {
+    var data = {
+      'default': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'default'),
+      'stormy': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'stormy'),
+      'honey-comb': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'honey-comb'),
+      'crazy-flux': window.app.parameters.updateToPreSetConfigs.bind(window.app.parameters, 'crazy-flux')
+    };
+
+    parentFolder.add(data, 'default');
+    parentFolder.add(data, 'stormy');
+    parentFolder.add(data, 'honey-comb');
+    parentFolder.add(data, 'crazy-flux');
+  }
+
+  function createFilterPostsItems(parentFolder) {
+    var data = {
+      'work': filterPosts.bind(window.app.parameters, 'work'),
+      'research': filterPosts.bind(window.app.parameters, 'research'),
+      'side-projects': filterPosts.bind(window.app.parameters, 'side-project')
+    };
+
+    parentFolder.add(data, 'work');
+    parentFolder.add(data, 'research');
+    parentFolder.add(data, 'side-projects');
+    window.app.parameters.categoriesFolder = parentFolder.addFolder('All Categories');
+
+    // ---  --- //
+
+    function filterPosts(category) {
+      window.app.parameters.categoryData[category].menuItem.setValue(true);
+    }
   }
 
   function createGridItems(folder) {

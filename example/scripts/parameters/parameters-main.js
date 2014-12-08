@@ -204,9 +204,7 @@
         categoryData[label][label] = false;
         categoryData[label].menuItem = folder.add(categoryData[label], label)
             .onChange(function () {
-              categoryStackSize++;
               filterPosts(label);
-              categoryStackSize--;
             });
       }
     }
@@ -226,6 +224,8 @@
   var categoryStackSize = 0;
 
   function filterPosts(category) {
+    categoryStackSize++;
+
     // Only filter when the checkbox is checked
     if (parameters.categoryData[category][category]) {
       // Make sure all other category filters are off (manual radio button logic)
@@ -241,6 +241,8 @@
       // If unchecking a textbox, turn on the 'all' filter
       parameters.categoryData['all'].menuItem.setValue(true);
     }
+
+    categoryStackSize--;
   }
 
   function goHome() {
