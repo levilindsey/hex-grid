@@ -6,7 +6,10 @@
     "github": "https://github.com/levisl176/stroke-recognition"
   },
   "jobTitle": "",
-  "date": "2013",
+  "date": {
+    "start": "9/2011",
+    "end": "7/2013"
+  },
   "categories": [
     "school",
     "research",

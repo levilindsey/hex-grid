@@ -32,7 +32,8 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
   readCollectionMetadata(metadataPromises);
 
   return Q.all(metadataPromises)
-      .then(writeMergedMetadata.bind(this, metadataArray));
+    .then(sortMetadata.bind(this, metadataArray))
+    .then(writeMergedMetadata.bind(this, metadataArray));
 
   // ---  --- //
 
@@ -66,6 +67,38 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
     });
 
     metadataPromises.push(deferred.promise);
+  }
+
+  function sortMetadata(metadataArray) {
+    metadataArray.sort(timeStringComparator);
+
+    // ---  --- //
+
+    function timeStringComparator(a, b) {
+      return dateToNumber(b.date) - dateToNumber(a.date);
+    }
+
+    function dateToNumber(d) {
+      var dateParts;
+      var dateString = typeof d === 'object' ? d.end : d;
+
+      if (dateString.toLowerCase() === 'present') {
+        return Number.MAX_VALUE;
+      } else {
+        dateParts = dateString.split('/');
+
+        switch (dateParts.length) {
+          case 1:
+            return parseInt(dateParts[0]);
+          case 2:
+            return parseInt(dateParts[1]) + parseInt(dateParts[0]) * 0.01;
+          case 3:
+            return parseInt(dateParts[2]) + parseInt(dateParts[1]) * 0.01 + parseInt(dateParts[0]) * 0.0001;
+          default:
+            throw new Error('Invalid date string format: ' + dateString);
+        }
+      }
+    }
   }
 
   function writeMergedMetadata(metadataArray) {

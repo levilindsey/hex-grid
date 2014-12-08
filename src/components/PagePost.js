@@ -36,6 +36,21 @@
     'reverbNation': 'Reverb Nation'
   };
 
+  config.monthLabels = {
+    1: 'Jan',
+    2: 'Feb',
+    3: 'Mar',
+    4: 'Apr',
+    5: 'May',
+    6: 'Jun',
+    7: 'Jul',
+    8: 'Aug',
+    9: 'Sep',
+    10: 'Oct',
+    11: 'Nov',
+    12: 'Dec'
+  };
+
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -233,14 +248,37 @@
 
     // Date values can be given as a single string or as an object with a start and end property
     if (typeof dateValue === 'object') {
-      dateElement.innerHTML = dateValue.start + ' &ndash; ' + dateValue.end;
+      dateElement.innerHTML = parseDateString(dateValue.start) + ' &ndash; ' + parseDateString(dateValue.end);
     } else {
-      dateElement.innerHTML = dateValue;
+      dateElement.innerHTML = parseDateString(dateValue);
     }
 
     // Hide the date panel if no date was given
     if (!pagePost.tile.postData.date) {
       dateElement.style.display = 'none';
+    }
+
+    // ---  --- //
+
+    function parseDateString(dateString) {
+      var dateParts;
+
+      if (dateString.toLowerCase() === 'present') {
+        return dateString;
+      } else {
+        dateParts = dateString.split('/');
+
+        switch (dateParts.length) {
+          case 1:
+            return dateParts[0];
+          case 2:
+            return config.monthLabels[dateParts[0]] + ' ' + dateParts[1];
+          case 3:
+            return config.monthLabels[dateParts[0]] + ' ' + config.monthLabels[dateParts[1]] + ', ' + dateParts[2];
+          default:
+            throw new Error('Invalid date string format: ' + dateString);
+        }
+      }
     }
   }
 

@@ -6,7 +6,10 @@
     "homepage": "http://voicebox.com"
   },
   "jobTitle": "Summer Intern (Software Engineer)",
-  "date": "2011",
+  "date": {
+    "start": "6/2011",
+    "end": "9/2011"
+  },
   "categories": [
     "work",
     "intern",

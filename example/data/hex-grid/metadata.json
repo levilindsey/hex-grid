@@ -7,7 +7,10 @@
     "github": "https://github.com/levisl176/hex-grid"
   },
   "jobTitle": "",
-  "date": "2014",
+  "date": {
+    "start": "7/2014",
+    "end": "1/2015"
+  },
   "categories": [
     "side-project",
     "web",

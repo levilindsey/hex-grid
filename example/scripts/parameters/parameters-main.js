@@ -62,6 +62,7 @@
   parameters.hideMenu = hideMenu;
   parameters.updateToPreSetConfigs = updateToPreSetConfigs;
   parameters.filterPosts = filterPosts;
+  parameters.recordOpenChildFolders = recordOpenChildFolders;
   parameters.grid = null;
   parameters.gui = null;
   parameters.categoriesFolder = null;
@@ -142,19 +143,22 @@
 
   function recordOpenFolders() {
     recordOpenChildFolders(config.folders);
+    window.app.parameters.recordOpenChildFolders(window.app.miscParams.config.folders);
+    window.app.parameters.recordOpenChildFolders(window.app.transientParams.config.folders);
+    window.app.parameters.recordOpenChildFolders(window.app.persistentParams.config.folders);
+  }
 
-    // ---  --- //
-
-    function recordOpenChildFolders(childFolderConfigs) {
-      childFolderConfigs.forEach(function (folderConfig) {
+  function recordOpenChildFolders(childFolderConfigs) {
+    childFolderConfigs.forEach(function (folderConfig) {
+      if (typeof folderConfig !== 'function') {
         folderConfig.isOpen = !folderConfig.folder.closed;
 
         // Recurse
         if (folderConfig.children) {
           recordOpenChildFolders(folderConfig.children);
         }
-      });
-    }
+      }
+    });
   }
 
   /**

@@ -6,7 +6,10 @@
     "homepage": "http://idean.com"
   },
   "jobTitle": "UI Developer",
-  "date": "2014",
+  "date": {
+    "start": "3/2014",
+    "end": "Present"
+  },
   "categories": [
     "work",
     "web",
