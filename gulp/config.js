@@ -12,7 +12,7 @@ config.hgScriptsSrc = [config.hgSrcPath + '/**/*.js'];
 config.hgStylesSrc = [config.hgSrcPath + '/**/*.css'];
 
 config.exampleScriptsSrc = [config.examplePath + '/scripts/**/*.js'];
-config.exampleStylesSrc = [config.examplePath + '/**/*.css'];
+config.exampleStylesSrc = [config.examplePath + '/styles/**/*.css'];
 
 config.hgVendorScriptsSrc = [
   config.nodeModulesPath + '/showdown/compressed/showdown.js',
