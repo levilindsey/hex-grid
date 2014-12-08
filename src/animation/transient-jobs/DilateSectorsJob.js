@@ -69,7 +69,7 @@
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
 
     // Set the final positions at the start, and animate everything in "reverse"

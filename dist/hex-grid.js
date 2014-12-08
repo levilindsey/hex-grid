@@ -1407,12 +1407,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   /**
    * This is the animation loop that drives all of the animation.
+   *
+   * @param {Number} currentTime
    */
-  function animationLoop() {
-    var currentTime, deltaTime;
-
-    currentTime = Date.now();
-    deltaTime = currentTime - animator.previousTime;
+  function animationLoop(currentTime) {
+    var deltaTime = currentTime - animator.previousTime;
     deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
         config.deltaTimeUpperThreshold : deltaTime;
     animator.isLooping = true;
@@ -1491,9 +1490,25 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    */
   function startAnimationLoop() {
     animator.isPaused = false;
+
     if (!animator.isLooping) {
-      animator.previousTime = Date.now();
-      animationLoop();
+      animator.isLooping = true;
+      window.hg.util.requestAnimationFrame(firstAnimationLoop);
+    }
+
+    // ---  --- //
+
+    /**
+     * The time value provided by requestAnimationFrame appears to be the number of milliseconds since the page loaded.
+     * However, the rest of the application logic expects time values relative to the Unix epoch. This bootstrapping
+     * function helps in translating from the one time frame to the other.
+     *
+     * @param {Number} currentTime
+     */
+    function firstAnimationLoop(currentTime) {
+      animator.previousTime = currentTime;
+
+      window.hg.util.requestAnimationFrame(animationLoop);
     }
   }
 
@@ -1554,7 +1569,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // Expose this singleton
 
   animator.jobs = [];
-  animator.previousTime = Date.now();
+  animator.previousTime = performance.now();
   animator.isLooping = false;
   animator.isPaused = true;
   animator.startJob = startJob;
@@ -6675,7 +6690,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 
@@ -6818,7 +6833,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 
@@ -7042,7 +7057,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 
@@ -7193,7 +7208,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 
@@ -7393,7 +7408,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 
@@ -7551,7 +7566,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
 
     job.indexInitialDisplacement = job.carousel.previousIndex - job.carousel.currentIndex;
@@ -7749,7 +7764,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var panDisplacement;
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
 
     job.grid.isPostOpen = false;
@@ -7938,7 +7953,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
 
     // Set the final positions at the start, and animate everything in "reverse"
@@ -8165,7 +8180,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 
@@ -8366,7 +8381,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var expandedTileOuterRadius;
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
 
     job.pagePostStartPosition = {};
@@ -8665,7 +8680,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 
@@ -8897,7 +8912,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 
@@ -9088,7 +9103,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 
@@ -9801,7 +9816,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 
@@ -10537,7 +10552,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
 
     for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
@@ -10795,7 +10810,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var panDisplacement;
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
 
     if (job.grid.isTransitioning) {
@@ -11004,7 +11019,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
     job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
 
     // Set the final positions at the start, and animate everything in "reverse"
@@ -11214,7 +11229,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 
@@ -11380,7 +11395,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function start() {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
   }
 

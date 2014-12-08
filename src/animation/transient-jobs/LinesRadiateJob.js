@@ -172,7 +172,7 @@
 
     job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
 
     for (i = 0, count = job.lineJobs.length; i < count; i += 1) {

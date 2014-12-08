@@ -91,7 +91,7 @@
     var expandedTileOuterRadius;
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
 
     job.pagePostStartPosition = {};

@@ -80,7 +80,7 @@
     job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
     job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
 
-    job.startTime = Date.now();
+    job.startTime = performance.now();
     job.isComplete = false;
 
     // Set the final positions at the start, and animate everything in "reverse"
