@@ -120,11 +120,12 @@
    * Sets this ColorWaveJob as started.
    *
    * @this ColorWaveJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -180,6 +181,15 @@
   /**
    * @this ColorWaveJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorWaveJob
+   */
   function init() {
     var job = this;
 
@@ -208,6 +218,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();

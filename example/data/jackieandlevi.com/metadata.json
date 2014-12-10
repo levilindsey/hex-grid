@@ -2,15 +2,15 @@
 {
   "id": "jackieandlevi.com",
   "titleShort": "Levi's\nPortfolio\nWebsite",
-  "titleLong": "My Portfolio Website",
+  "titleLong": "Levi's Portfolio Website",
   "urls": {
     "homepage": "http://jackieandlevi.com",
     "github": "https://github.com/levisl176/jackieandlevi.com"
   },
   "jobTitle": "",
   "date": {
-    "start": "2013",
-    "end": "2015"
+    "start": "9/2012",
+    "end": "Present"
   },
   "categories": [
     "side-project",
@@ -25,7 +25,6 @@
     "angularjs",
     "mongodb",
     "gulp.js",
-    "material-design",
     "animation"
   ],
   "images": [

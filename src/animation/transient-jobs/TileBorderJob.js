@@ -55,11 +55,12 @@
    * Sets this TileBorderJob as started.
    *
    * @this TileBorderJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 

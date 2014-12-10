@@ -20,6 +20,37 @@
 
   config = {};
 
+  config.urlLabels = {
+    'homepage': 'Homepage',
+    'published': 'Published at',
+    'demo': 'Demo Site',
+    'npm': 'NPM Registry',
+    'bower': 'Bower Registry',
+    'codepen': 'CodePen',
+    'github': 'Repository',
+    'googleCode': 'Repository',
+    'githubProfile': 'GitHub',
+    'linkedin': 'LinkedIn',
+    'facebook': 'Facebook',
+    'googlePlus': 'Google+',
+    'reverbNation': 'Reverb Nation'
+  };
+
+  config.monthLabels = {
+    1: 'Jan',
+    2: 'Feb',
+    3: 'Mar',
+    4: 'Apr',
+    5: 'May',
+    6: 'Jun',
+    7: 'Jul',
+    8: 'Aug',
+    9: 'Sep',
+    10: 'Oct',
+    11: 'Nov',
+    12: 'Dec'
+  };
+
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -217,14 +248,37 @@
 
     // Date values can be given as a single string or as an object with a start and end property
     if (typeof dateValue === 'object') {
-      dateElement.innerHTML = dateValue.start + ' &ndash; ' + dateValue.end;
+      dateElement.innerHTML = parseDateString(dateValue.start) + ' &ndash; ' + parseDateString(dateValue.end);
     } else {
-      dateElement.innerHTML = dateValue;
+      dateElement.innerHTML = parseDateString(dateValue);
     }
 
     // Hide the date panel if no date was given
     if (!pagePost.tile.postData.date) {
       dateElement.style.display = 'none';
+    }
+
+    // ---  --- //
+
+    function parseDateString(dateString) {
+      var dateParts;
+
+      if (dateString.toLowerCase() === 'present') {
+        return dateString;
+      } else {
+        dateParts = dateString.split('/');
+
+        switch (dateParts.length) {
+          case 1:
+            return dateParts[0];
+          case 2:
+            return config.monthLabels[dateParts[0]] + ' ' + dateParts[1];
+          case 3:
+            return config.monthLabels[dateParts[0]] + ' ' + config.monthLabels[dateParts[1]] + ', ' + dateParts[2];
+          default:
+            throw new Error('Invalid date string format: ' + dateString);
+        }
+      }
     }
   }
 
@@ -253,36 +307,11 @@
       // Remove the protocol from the URL to make it more human-readable
       cleanedUrl = url.replace(/^.*:\/\//, '');
 
-      // Determine what label to use
-      switch (key) {
-        case 'homepage':
-          label = 'Homepage';
-          break;
-        case 'published':
-          label = 'Published at';
-          break;
-        case 'demo':
-          label = 'Demo Site';
-          break;
-        case 'npm':
-          label = 'NPM Registry';
-          break;
-        case 'bower':
-          label = 'Bower Registry';
-          break;
-        case 'codepen':
-          label = 'CodePen';
-          break;
-        case 'github':
-          label = 'Repository';
-          break;
-        case 'googleCode':
-          label = 'Repository';
-          break;
-        default:
-          console.warn('Unknown URL type: ' + key);
-          label = key;
-          break;
+      label = config.urlLabels[key];
+
+      if (!label) {
+        console.warn('Unknown URL type: ' + key);
+        label = key;
       }
 
       // --- Create the elements --- //

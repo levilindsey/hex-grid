@@ -22,8 +22,8 @@
   config.startLightness = 100;
   config.startOpacity = 0.6;
 
-  config.endSaturation = 100;
-  config.endLightness = 60;
+  config.endSaturation = 30;
+  config.endLightness = 80;
   config.endOpacity = 0;
 
   config.sameDirectionProb = 0.8;
@@ -586,11 +586,12 @@
    * Sets this LineJob as started.
    *
    * @this LineJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -603,7 +604,7 @@
    * @param {Number} currentTime
    * @param {Number} deltaTime
    */
-  function update(currentTime, deltaTime) {
+  function updateWithBlur(currentTime, deltaTime) {
     var job = this;
 
     job.ellapsedTime = currentTime - job.startTime;
@@ -615,6 +616,23 @@
       updateSegments.call(job);
 
       config.feGaussianBlur.setAttribute('stdDeviation', job.blurStdDeviation);
+
+      if (!job.isComplete) {
+        computeCornerGapPoints.call(job);
+        computePolylinePoints.call(job);
+      }
+    }
+  }
+  function updateWithOutBlur(currentTime, deltaTime) {
+    var job = this;
+
+    job.ellapsedTime = currentTime - job.startTime;
+
+    if (job.ellapsedTime >= job.duration) {
+      handleCompletion.call(job);
+    } else {
+      updateColorValues.call(job);
+      updateSegments.call(job);
 
       if (!job.isComplete) {
         computeCornerGapPoints.call(job);
@@ -729,7 +747,7 @@
     job.onComplete = onComplete || function () {};
 
     job.start = start;
-    job.update = update;
+    job.update = job.isBlurOn ? updateWithBlur : updateWithOutBlur;
     job.draw = draw;
     job.cancel = cancel;
     job.init = init;

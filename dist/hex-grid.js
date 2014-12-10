@@ -96,166 +96,166 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       internal = {};
 
   controller.persistentJobs = {
-    colorShift: {
+    ColorShiftJob: {
       constructorName: 'ColorShiftJob',
       jobs: [],
-      create: createPersistentJob.bind(controller, 'colorShift'),
-      start: restartPersistentJob.bind(controller, 'colorShift')
+      create: createPersistentJob.bind(controller, 'ColorShiftJob'),
+      start: restartPersistentJob.bind(controller, 'ColorShiftJob')
     },
-    colorWave: {
+    ColorWaveJob: {
       constructorName: 'ColorWaveJob',
       jobs: [],
-      create: createPersistentJob.bind(controller, 'colorWave'),
-      start: restartPersistentJob.bind(controller, 'colorWave')
+      create: createPersistentJob.bind(controller, 'ColorWaveJob'),
+      start: restartPersistentJob.bind(controller, 'ColorWaveJob')
     },
-    displacementWave: {
+    DisplacementWaveJob: {
       constructorName: 'DisplacementWaveJob',
       jobs: [],
-      create: createPersistentJob.bind(controller, 'displacementWave'),
-      start: restartPersistentJob.bind(controller, 'displacementWave')
+      create: createPersistentJob.bind(controller, 'DisplacementWaveJob'),
+      start: restartPersistentJob.bind(controller, 'DisplacementWaveJob')
     },
 
     // --- For internal use --- //
 
-    colorReset: {
+    ColorResetJob: {
       constructorName: 'ColorResetJob',
       jobs: [],
-      create: createPersistentJob.bind(controller, 'colorReset'),
-      start: restartPersistentJob.bind(controller, 'colorReset')
+      create: createPersistentJob.bind(controller, 'ColorResetJob'),
+      start: restartPersistentJob.bind(controller, 'ColorResetJob')
     },
-    displacementReset: {
+    DisplacementResetJob: {
       constructorName: 'DisplacementResetJob',
       jobs: [],
-      create: createPersistentJob.bind(controller, 'displacementReset'),
-      start: restartPersistentJob.bind(controller, 'displacementReset')
+      create: createPersistentJob.bind(controller, 'DisplacementResetJob'),
+      start: restartPersistentJob.bind(controller, 'DisplacementResetJob')
     }
   };
 
   controller.transientJobs = {
-    openPost: {
+    OpenPostJob: {
       constructorName: 'OpenPostJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'openPost'),
+      create: createTransientJob.bind(controller, null, 'OpenPostJob'),
       createRandom: openRandomPost,
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'openPost'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'OpenPostJob'),
       canRunWithOpenGrid: false
     },
-    closePost: {
+    ClosePostJob: {
       constructorName: 'ClosePostJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'closePost'),
+      create: createTransientJob.bind(controller, null, 'ClosePostJob'),
       createRandom: closePost,
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'closePost'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'ClosePostJob'),
       canRunWithOpenGrid: true
     },
-    carouselImageSlide: {
+    CarouselImageSlideJob: {
       constructorName: 'CarouselImageSlideJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'carouselImageSlide'),
+      create: createTransientJob.bind(controller, null, 'CarouselImageSlideJob'),
       createRandom: null,
       toggleRecurrence: null,
       canRunWithOpenGrid: true
     },
-    dilateSectors: {
+    DilateSectorsJob: {
       constructorName: 'DilateSectorsJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'dilateSectors'),
+      create: createTransientJob.bind(controller, null, 'DilateSectorsJob'),
       createRandom: null,
       toggleRecurrence: null,
       canRunWithOpenGrid: true
     },
-    fadePost: {
+    FadePostJob: {
       constructorName: 'FadePostJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'fadePost'),
+      create: createTransientJob.bind(controller, null, 'FadePostJob'),
       createRandom: null,
       toggleRecurrence: null,
       canRunWithOpenGrid: true
     },
-    displacementRadiate: {
+    DisplacementRadiateJob: {
       constructorName: 'DisplacementRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'displacementRadiate'),
-      createRandom: createTransientJobWithARandomTile.bind(controller, 'displacementRadiate'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'displacementRadiate'),
+      create: createTransientJob.bind(controller, null, 'DisplacementRadiateJob'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'DisplacementRadiateJob'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'DisplacementRadiateJob'),
       canRunWithOpenGrid: true
     },
-    highlightHover: {
+    HighlightHoverJob: {
       constructorName: 'HighlightHoverJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'highlightHover'),
-      createRandom: createTransientJobWithARandomTile.bind(controller, 'highlightHover'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightHover'),
+      create: createTransientJob.bind(controller, null, 'HighlightHoverJob'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'HighlightHoverJob'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'HighlightHoverJob'),
       canRunWithOpenGrid: true
     },
-    highlightRadiate: {
+    HighlightRadiateJob: {
       constructorName: 'HighlightRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'highlightRadiate'),
-      createRandom: createTransientJobWithARandomTile.bind(controller, 'highlightRadiate'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'highlightRadiate'),
+      create: createTransientJob.bind(controller, null, 'HighlightRadiateJob'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'HighlightRadiateJob'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'HighlightRadiateJob'),
       canRunWithOpenGrid: true
     },
-    intraTileRadiate: {
+    IntraTileRadiateJob: {
       constructorName: 'IntraTileRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'intraTileRadiate'),
-      createRandom: createTransientJobWithARandomTile.bind(controller, 'intraTileRadiate'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'intraTileRadiate'),
+      create: createTransientJob.bind(controller, null, 'IntraTileRadiateJob'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'IntraTileRadiateJob'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'IntraTileRadiateJob'),
       canRunWithOpenGrid: true
     },
-    line: {
+    LineJob: {
       constructorName: 'LineJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, randomLineCreator, 'line'),
-      createRandom: createTransientJobWithARandomTile.bind(controller, 'line'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'line'),
+      create: createTransientJob.bind(controller, randomLineCreator, 'LineJob'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'LineJob'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'LineJob'),
       canRunWithOpenGrid: false
     },
-    linesRadiate: {
+    LinesRadiateJob: {
       constructorName: 'LinesRadiateJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, linesRadiateCreator, 'linesRadiate'),
-      createRandom: createTransientJobWithARandomTile.bind(controller, 'linesRadiate'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'linesRadiate'),
+      create: createTransientJob.bind(controller, linesRadiateCreator, 'LinesRadiateJob'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'LinesRadiateJob'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'LinesRadiateJob'),
       canRunWithOpenGrid: false
     },
-    pan: {
+    PanJob: {
       constructorName: 'PanJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'pan'),
-      createRandom: createTransientJobWithARandomTile.bind(controller, 'pan'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'pan'),
+      create: createTransientJob.bind(controller, null, 'PanJob'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'PanJob'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'PanJob'),
       canRunWithOpenGrid: true
     },
-    spread: {
+    SpreadJob: {
       constructorName: 'SpreadJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'spread'),
-      createRandom: createTransientJobWithARandomTile.bind(controller, 'spread'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'spread'),
+      create: createTransientJob.bind(controller, null, 'SpreadJob'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'SpreadJob'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'SpreadJob'),
       canRunWithOpenGrid: true
     },
-    tileBorder: {
+    TileBorderJob: {
       constructorName: 'TileBorderJob',
       jobs: [],
       timeouts: [],
-      create: createTransientJob.bind(controller, null, 'tileBorder'),
-      createRandom: createTransientJobWithARandomTile.bind(controller, 'tileBorder'),
-      toggleRecurrence: toggleJobRecurrence.bind(controller, 'tileBorder'),
+      create: createTransientJob.bind(controller, null, 'TileBorderJob'),
+      createRandom: createTransientJobWithARandomTile.bind(controller, 'TileBorderJob'),
+      toggleRecurrence: toggleJobRecurrence.bind(controller, 'TileBorderJob'),
       canRunWithOpenGrid: true
     }
   };
@@ -263,6 +263,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   internal.grids = [];
   internal.inputs = [];
   internal.annotations = [];
+  internal.postData = [];
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -462,7 +463,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     // Also store references to each of the individual child lines
     job.lineJobs.forEach(function (lineJob) {
-      controller.transientJobs.line.jobs[grid.index].push(lineJob);
+      controller.transientJobs.LineJob.jobs[grid.index].push(lineJob);
     });
 
     return job;
@@ -472,8 +473,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     function onAllLinesComplete() {
       // Destroy the references to the individual child lines
       job.lineJobs.forEach(function (lineJob) {
-        controller.transientJobs.line.jobs[grid.index].splice(
-            controller.transientJobs.line.jobs[grid.index].indexOf(lineJob), 1);
+        controller.transientJobs.LineJob.jobs[grid.index].splice(
+            controller.transientJobs.LineJob.jobs[grid.index].indexOf(lineJob), 1);
       });
 
       onComplete();
@@ -489,7 +490,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function openRandomPost(grid) {
     // If no post is open, pick a random content tile, and open the post; otherwise, do nothing
     if (!grid.isPostOpen) {
-      return controller.transientJobs.openPost.create(grid, getRandomContentTile(grid));
+      return controller.transientJobs.OpenPostJob.create(grid, getRandomContentTile(grid));
     } else {
       return null;
     }
@@ -502,7 +503,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function closePost(grid) {
     // If a post is open, close it; otherwise, do nothing
     if (grid.isPostOpen) {
-      return controller.transientJobs.closePost.create(grid, grid.expandedTile);
+      return controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
     } else {
       return null;
     }
@@ -537,14 +538,14 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     window.hg.animator.startJob(grid);
 
-    controller.persistentJobs.colorReset.create(grid);
-    controller.persistentJobs.displacementReset.create(grid);
+    controller.persistentJobs.ColorResetJob.create(grid);
+    controller.persistentJobs.DisplacementResetJob.create(grid);
 
     window.hg.animator.startJob(annotations);
 
-    controller.persistentJobs.colorShift.create(grid);
-    controller.persistentJobs.colorWave.create(grid);
-    controller.persistentJobs.displacementWave.create(grid);
+    controller.persistentJobs.ColorShiftJob.create(grid);
+    controller.persistentJobs.ColorWaveJob.create(grid);
+    controller.persistentJobs.DisplacementWaveJob.create(grid);
 
     startRecurringAnimations(grid);
 
@@ -578,7 +579,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     if (expandedPostId) {
       expandedTile = getTileFromPostId(grid, expandedPostId);
-      controller.transientJobs.openPost.create(grid, expandedTile);
+      controller.transientJobs.OpenPostJob.create(grid, expandedTile);
     }
 
     // ---  --- //
@@ -602,14 +603,63 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function resetPersistentJobs(grid) {
     window.hg.animator.startJob(grid);
 
-    controller.persistentJobs.colorReset.start(grid);
-    controller.persistentJobs.displacementReset.start(grid);
+    controller.persistentJobs.ColorResetJob.start(grid);
+    controller.persistentJobs.DisplacementResetJob.start(grid);
 
     window.hg.animator.startJob(internal.annotations[grid.index]);
 
-    controller.persistentJobs.colorShift.start(grid);
-    controller.persistentJobs.colorWave.start(grid);
-    controller.persistentJobs.displacementWave.start(grid);
+    controller.persistentJobs.ColorShiftJob.start(grid);
+    controller.persistentJobs.ColorWaveJob.start(grid);
+    controller.persistentJobs.DisplacementWaveJob.start(grid);
+  }
+
+  /**
+   * @param {Grid} grid
+   * @param {Array.<PostData>} postData
+   */
+  function setGridPostData(grid, postData) {
+    internal.postData[grid.index] = postData;
+
+    setGridFilteredPostData(grid, postData);
+  }
+
+  /**
+   * @param {Grid} grid
+   * @param {String} category A value of 'all' will match all categories.
+   */
+  function filterGridPostDataByCategory(grid, category) {
+    var matches;
+    var postData = internal.postData[grid.index];
+
+    if (category !== 'all') {
+      matches = postData.filter(function (postDatum) {
+        return postDatum.categories.indexOf(category) >= 0;
+      });
+    } else {
+      matches = postData.slice(0);
+    }
+
+    setGridFilteredPostData(grid, matches);
+  }
+
+  /**
+   * @param {Grid} grid
+   * @param {Array.<PostData>} postData
+   */
+  function setGridFilteredPostData(grid, postData) {
+    //TODO: check that these resets are correct
+    grid.isPostOpen = false;
+    grid.pagePost = null;
+    grid.isTransitioning = false;
+    grid.expandedTile = null;
+    grid.sectors = null;
+    grid.allNonContentTiles = null;
+
+    grid.postData = postData;
+
+    grid.computeContentIndices();
+
+    resetGrid(grid);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -620,6 +670,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   controller.createNewHexGrid = createNewHexGrid;
   controller.resetGrid = resetGrid;
   controller.resetPersistentJobs = resetPersistentJobs;
+  controller.setGridPostData = setGridPostData;
+  controller.filterGridPostDataByCategory = filterGridPostDataByCategory;
 
   // Expose this module
   window.hg = window.hg || {};
@@ -1159,19 +1211,58 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * Performs a shallow copy of the given object.
    *
+   * This only copies enumerable properties.
+   *
    * @param {Object} object
    * @returns {Object}
    */
   function shallowCopy(object) {
     var key, cloneObject;
 
-    cloneObject = {};
+    if (typeof object === 'object') {
+      cloneObject = {};
 
-    for (key in object) {
-      cloneObject[key] = object[key];
+      for (key in object) {
+        cloneObject[key] = object[key];
+      }
+
+      return cloneObject;
+    } else {
+      return object;
     }
+  }
 
-    return cloneObject;
+  /**
+   * Performs a deep copy of the given object.
+   *
+   * This only copies enumerable properties.
+   *
+   * @param {Object} object
+   * @returns {Object}
+   */
+  function deepCopy(object) {
+    var key, cloneObject;
+
+    if (typeof object === 'object') {
+      // Hack: Not a good/robust copy policy
+      if (object instanceof Array) {
+        cloneObject = [];
+      } else {
+        cloneObject = {};
+      }
+
+      for (key in object) {
+        if (typeof object[key] === 'object') {
+          cloneObject[key] = deepCopy(object[key]);
+        } else {
+          cloneObject[key] = object[key];
+        }
+      }
+
+      return cloneObject;
+    } else {
+      return object;
+    }
   }
 
   /**
@@ -1279,6 +1370,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     shuffle: shuffle,
     isPointInsidePolyline: isPointInsidePolyline,
     shallowCopy: shallowCopy,
+    deepCopy: deepCopy,
     hsvToHsl: hsvToHsl,
     hslToHsv: hslToHsv,
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,
@@ -1320,12 +1412,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   /**
    * This is the animation loop that drives all of the animation.
+   *
+   * @param {Number} currentTime
    */
-  function animationLoop() {
-    var currentTime, deltaTime;
-
-    currentTime = Date.now();
-    deltaTime = currentTime - animator.previousTime;
+  function animationLoop(currentTime) {
+    var deltaTime = currentTime - animator.previousTime;
     deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
         config.deltaTimeUpperThreshold : deltaTime;
     animator.isLooping = true;
@@ -1404,9 +1495,25 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    */
   function startAnimationLoop() {
     animator.isPaused = false;
+
     if (!animator.isLooping) {
-      animator.previousTime = Date.now();
-      animationLoop();
+      animator.isLooping = true;
+      window.hg.util.requestAnimationFrame(firstAnimationLoop);
+    }
+
+    // ---  --- //
+
+    /**
+     * The time value provided by requestAnimationFrame appears to be the number of milliseconds since the page loaded.
+     * However, the rest of the application logic expects time values relative to the Unix epoch. This bootstrapping
+     * function helps in translating from the one time frame to the other.
+     *
+     * @param {Number} currentTime
+     */
+    function firstAnimationLoop(currentTime) {
+      animator.previousTime = currentTime;
+
+      window.hg.util.requestAnimationFrame(animationLoop);
     }
   }
 
@@ -1422,15 +1529,20 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     // Is this a restart?
     if (!job.isComplete) {
       console.log('Job restarting: ' + job.constructor.name);
-      job.cancel();
 
-      job.init();// TODO: get rid of this init function
-      job.start();
+      if (job.refresh) {
+        job.refresh();
+      } else {
+        job.cancel();
+
+        job.init();// TODO: get rid of this init function
+        job.start(animator.previousTime);
+      }
     } else {
       console.log('Job starting: ' + job.constructor.name);
 
       job.init();// TODO: get rid of this init function
-      job.start();
+      job.start(animator.previousTime);
       animator.jobs.push(job);
     }
 
@@ -1462,7 +1574,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // Expose this singleton
 
   animator.jobs = [];
-  animator.previousTime = Date.now();
+  animator.previousTime = performance.now();
   animator.isLooping = false;
   animator.isPaused = true;
   animator.startJob = startJob;
@@ -1568,7 +1680,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       update: fillBorderTiles,
       priority: 200
     },
-    'contentTiles': {
+    'contentTiles': {// TODO: remove this?
       enabled: false,
       create: fillContentTiles,
       destroy: function () {},
@@ -2552,10 +2664,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     annotations.lineAnimationGapDots = [];
 
     for (k = 0, i = 0,
-             iCount = window.hg.controller.transientJobs.line.jobs[annotations.grid.index].length;
+             iCount = window.hg.controller.transientJobs.LineJob.jobs[annotations.grid.index].length;
          i < iCount;
          i += 1) {
-      line = window.hg.controller.transientJobs.line.jobs[annotations.grid.index][i];
+      line = window.hg.controller.transientJobs.LineJob.jobs[annotations.grid.index][i];
 
       for (j = 0, jCount = line.gapPoints.length; j < jCount; j += 1, k += 1) {
         annotations.lineAnimationGapDots[k] =
@@ -2584,9 +2696,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     annotations.lineAnimationLowerNeighborCornerDots = [];
     annotations.lineAnimationUpperNeighborCornerDots = [];
 
-    for (i = 0, iCount = window.hg.controller.transientJobs.line.jobs[annotations.grid.index].length;
+    for (i = 0, iCount = window.hg.controller.transientJobs.LineJob.jobs[annotations.grid.index].length;
          i < iCount; i += 1) {
-      line = window.hg.controller.transientJobs.line.jobs[annotations.grid.index][i];
+      line = window.hg.controller.transientJobs.LineJob.jobs[annotations.grid.index][i];
 
       for (j = 0, jCount = line.corners.length; j < jCount; j += 1) {
         // Self corner: red dot
@@ -2654,7 +2766,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       annotations.panCenterDot.setAttribute('cx', annotations.grid.panCenter.x);
       annotations.panCenterDot.setAttribute('cy', annotations.grid.panCenter.y);
 
-      panJob = window.hg.controller.transientJobs.pan.jobs[annotations.grid.index][0];
+      panJob = window.hg.controller.transientJobs.PanJob.jobs[annotations.grid.index][0];
       if (panJob) {
         panJob.baseTile.currentColor.h = 0;
         panJob.baseTile.currentColor.s = 0;
@@ -2824,6 +2936,14 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     config.computeDependentValues();
   }
 
+  function refresh() {
+    var job = this;
+
+    init();
+
+    job.annotations = window.hg.util.shallowCopy(config.annotations);
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
@@ -2874,6 +2994,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     annotations.draw = draw;
     annotations.cancel = cancel;
     annotations.init = init;
+    annotations.refresh = refresh;
   }
 
   Annotations.config = config;
@@ -3145,7 +3266,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     carousel.previousIndex = carousel.currentIndex;
     carousel.currentIndex = nextIndex;
 
-    window.hg.controller.transientJobs.carouselImageSlide.create(carousel.grid, null, carousel);
+    window.hg.controller.transientJobs.CarouselImageSlideJob.create(carousel.grid, null, carousel);
 
     // Pause any playing video
     if (carousel.mediaMetadata[carousel.previousIndex].isVideo) {
@@ -3406,6 +3527,33 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
  */
 
 /**
+ * @typedef {Object} PostData
+ * @property {String} id
+ * @property {String} titleShort
+ * @property {String} titleLong
+ * @property {Array.<String>} urls
+ * @property {String} jobTitle
+ * @property {String} date
+ * @property {Array.<String>} categories
+ * @property {Array.<ImageData>} images
+ * @property {Array.<VideoData>} videos
+ * @property {String} content An extended description of the post in markdown syntax.
+ */
+
+/**
+ * @typedef {Object} ImageData
+ * @property {String} fileName
+ * @property {String} description
+ */
+
+/**
+ * @typedef {Object} VideoData
+ * @property {'youtube'|'vimeo'} videoHost
+ * @property {String} id
+ * @property {String} description
+ */
+
+/**
  * This module defines a constructor for Grid objects.
  *
  * Grid objects define a collection of hexagonal tiles that animate and display dynamic,
@@ -3428,8 +3576,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config.backgroundSaturation = 1;
   config.backgroundLightness = 4;
   config.tileHue = 230;//147;
-  config.tileSaturation = 50;
-  config.tileLightness = 30;
+  config.tileSaturation = 67;
+  config.tileLightness = 22;
   config.tileOuterRadius = 80;
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
@@ -4153,7 +4301,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @constructor
    * @param {Number} index
    * @param {HTMLElement} parent
-   * @param {Array.<Object>} postData
+   * @param {Array.<PostData>} postData
    * @param {Boolean} [isVertical]
    */
   function Grid(index, parent, postData, isVertical) {
@@ -4226,6 +4374,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid.createPagePost = createPagePost;
     grid.destroyPagePost = destroyPagePost;
     grid.updateAllTilesCollection = updateAllTilesCollection;
+    grid.computeContentIndices = computeContentIndices;
 
     grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
 
@@ -4258,9 +4407,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config.emptyTileClickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
 
   config.possibleClickAnimations = {
-    'Radiate Highlight': window.hg.controller.transientJobs.highlightRadiate.create,
-    'Radiate Lines': window.hg.controller.transientJobs.linesRadiate.create,
-    'Random Line': window.hg.controller.transientJobs.line.create,
+    'Radiate Highlight': window.hg.controller.transientJobs.HighlightRadiateJob.create,
+    'Radiate Lines': window.hg.controller.transientJobs.LinesRadiateJob.create,
+    'Random Line': window.hg.controller.transientJobs.LineJob.create,
     'None': function () {}
   };
 
@@ -4315,7 +4464,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
         input.grid.setHoveredTile(null);
 
-        window.hg.controller.transientJobs.highlightHover.create(input.grid, tile);
+        window.hg.controller.transientJobs.HighlightHoverJob.create(input.grid, tile);
 
         event.stopPropagation();
       }
@@ -4367,7 +4516,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function createClickAnimation(grid, tile) {
     // Close any open post
     if (grid.isPostOpen) {
-      window.hg.controller.transientJobs.closePost.create(grid, grid.expandedTile);
+      window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
     }
 
     if (tile.holdsContent) {
@@ -4375,7 +4524,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       config.possibleClickAnimations[config.contentTileClickAnimation](grid, tile);
 
       // Open the post for the given tile
-      window.hg.controller.transientJobs.openPost.create(grid, tile);
+      window.hg.controller.transientJobs.OpenPostJob.create(grid, tile);
     } else {
       // Trigger an animation for the click
       config.possibleClickAnimations[config.emptyTileClickAnimation](grid, tile);
@@ -4434,6 +4583,37 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   var config;
 
   config = {};
+
+  config.urlLabels = {
+    'homepage': 'Homepage',
+    'published': 'Published at',
+    'demo': 'Demo Site',
+    'npm': 'NPM Registry',
+    'bower': 'Bower Registry',
+    'codepen': 'CodePen',
+    'github': 'Repository',
+    'googleCode': 'Repository',
+    'githubProfile': 'GitHub',
+    'linkedin': 'LinkedIn',
+    'facebook': 'Facebook',
+    'googlePlus': 'Google+',
+    'reverbNation': 'Reverb Nation'
+  };
+
+  config.monthLabels = {
+    1: 'Jan',
+    2: 'Feb',
+    3: 'Mar',
+    4: 'Apr',
+    5: 'May',
+    6: 'Jun',
+    7: 'Jul',
+    8: 'Aug',
+    9: 'Sep',
+    10: 'Oct',
+    11: 'Nov',
+    12: 'Dec'
+  };
 
   //  --- Dependent parameters --- //
 
@@ -4632,14 +4812,37 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     // Date values can be given as a single string or as an object with a start and end property
     if (typeof dateValue === 'object') {
-      dateElement.innerHTML = dateValue.start + ' &ndash; ' + dateValue.end;
+      dateElement.innerHTML = parseDateString(dateValue.start) + ' &ndash; ' + parseDateString(dateValue.end);
     } else {
-      dateElement.innerHTML = dateValue;
+      dateElement.innerHTML = parseDateString(dateValue);
     }
 
     // Hide the date panel if no date was given
     if (!pagePost.tile.postData.date) {
       dateElement.style.display = 'none';
+    }
+
+    // ---  --- //
+
+    function parseDateString(dateString) {
+      var dateParts;
+
+      if (dateString.toLowerCase() === 'present') {
+        return dateString;
+      } else {
+        dateParts = dateString.split('/');
+
+        switch (dateParts.length) {
+          case 1:
+            return dateParts[0];
+          case 2:
+            return config.monthLabels[dateParts[0]] + ' ' + dateParts[1];
+          case 3:
+            return config.monthLabels[dateParts[0]] + ' ' + config.monthLabels[dateParts[1]] + ', ' + dateParts[2];
+          default:
+            throw new Error('Invalid date string format: ' + dateString);
+        }
+      }
     }
   }
 
@@ -4668,36 +4871,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       // Remove the protocol from the URL to make it more human-readable
       cleanedUrl = url.replace(/^.*:\/\//, '');
 
-      // Determine what label to use
-      switch (key) {
-        case 'homepage':
-          label = 'Homepage';
-          break;
-        case 'published':
-          label = 'Published at';
-          break;
-        case 'demo':
-          label = 'Demo Site';
-          break;
-        case 'npm':
-          label = 'NPM Registry';
-          break;
-        case 'bower':
-          label = 'Bower Registry';
-          break;
-        case 'codepen':
-          label = 'CodePen';
-          break;
-        case 'github':
-          label = 'Repository';
-          break;
-        case 'googleCode':
-          label = 'Repository';
-          break;
-        default:
-          console.warn('Unknown URL type: ' + key);
-          label = key;
-          break;
+      label = config.urlLabels[key];
+
+      if (!label) {
+        console.warn('Unknown URL type: ' + key);
+        label = key;
       }
 
       // --- Create the elements --- //
@@ -6551,11 +6729,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this ColorResetJob as started.
    *
    * @this ColorResetJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -6606,6 +6785,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this ColorResetJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorResetJob
+   */
   function init() {
   }
 
@@ -6628,6 +6816,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();
@@ -6684,11 +6873,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this ColorShiftJob as started.
    *
    * @this ColorShiftJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -6734,6 +6924,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this ColorShiftJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorShiftJob
+   */
   function init() {
     var job = this;
 
@@ -6760,6 +6959,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();
@@ -6898,11 +7098,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this ColorWaveJob as started.
    *
    * @this ColorWaveJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -6958,6 +7159,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this ColorWaveJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorWaveJob
+   */
   function init() {
     var job = this;
 
@@ -6986,6 +7196,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();
@@ -7039,11 +7250,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this DisplacementResetJob as started.
    *
    * @this DisplacementResetJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -7099,6 +7311,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this DisplacementResetJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this DisplacementResetJob
+   */
   function init() {
   }
 
@@ -7121,6 +7342,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();
@@ -7229,11 +7451,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this DisplacementWaveJob as started.
    *
    * @this DisplacementWaveJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -7283,6 +7506,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @this DisplacementWaveJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this DisplacementWaveJob
+   */
   function init() {
     var job = this;
 
@@ -7310,6 +7542,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();
@@ -7377,11 +7610,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this CarouselImageSlideJob as started.
    *
    * @this CarouselImageSlideJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     job.indexInitialDisplacement = job.carousel.previousIndex - job.carousel.currentIndex;
@@ -7574,12 +7808,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this ClosePostJob as started.
    *
    * @this ClosePostJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var panDisplacement;
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     job.grid.isPostOpen = false;
@@ -7592,16 +7827,16 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     };
 
     // Start the sub-jobs
-    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile)
+    window.hg.controller.transientJobs.SpreadJob.create(job.grid, job.baseTile)
         .duration = config.duration + window.hg.OpenPostJob.config.spreadDurationOffset;
-    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile, {
+    window.hg.controller.transientJobs.PanJob.create(job.grid, job.baseTile, {
       x: job.grid.panCenter.x,
       y: job.grid.panCenter.y
     })
         .duration = config.duration + window.hg.OpenPostJob.config.panDurationOffset;
-    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile, panDisplacement)
+    window.hg.controller.transientJobs.DilateSectorsJob.create(job.grid, job.baseTile, panDisplacement)
         .duration = config.duration + window.hg.OpenPostJob.config.dilateSectorsDurationOffset;
-    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+    window.hg.controller.transientJobs.FadePostJob.create(job.grid, job.baseTile)
         .duration = config.duration + window.hg.OpenPostJob.config.fadePostDurationOffset;
 
     job.grid.annotations.setExpandedAnnotations(false);
@@ -7764,11 +7999,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this DilateSectorsJob as started.
    *
    * @this DilateSectorsJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     // Set the final positions at the start, and animate everything in "reverse"
@@ -7991,11 +8227,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this DisplacementRadiateJob as started.
    *
    * @this DisplacementRadiateJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -8191,12 +8428,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this FadePostJob as started.
    *
    * @this FadePostJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var expandedTileOuterRadius;
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     job.pagePostStartPosition = {};
@@ -8491,11 +8729,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this HighlightHoverJob as started.
    *
    * @this HighlightHoverJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -8723,11 +8962,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this HighlightRadiateJob as started.
    *
    * @this HighlightRadiateJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -8914,11 +9154,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this IntraTileRadiateJob as started.
    *
    * @this IntraTileRadiateJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -9063,8 +9304,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config.startLightness = 100;
   config.startOpacity = 0.6;
 
-  config.endSaturation = 100;
-  config.endLightness = 60;
+  config.endSaturation = 30;
+  config.endLightness = 80;
   config.endOpacity = 0;
 
   config.sameDirectionProb = 0.8;
@@ -9627,11 +9868,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this LineJob as started.
    *
    * @this LineJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -9644,7 +9886,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @param {Number} currentTime
    * @param {Number} deltaTime
    */
-  function update(currentTime, deltaTime) {
+  function updateWithBlur(currentTime, deltaTime) {
     var job = this;
 
     job.ellapsedTime = currentTime - job.startTime;
@@ -9656,6 +9898,23 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       updateSegments.call(job);
 
       config.feGaussianBlur.setAttribute('stdDeviation', job.blurStdDeviation);
+
+      if (!job.isComplete) {
+        computeCornerGapPoints.call(job);
+        computePolylinePoints.call(job);
+      }
+    }
+  }
+  function updateWithOutBlur(currentTime, deltaTime) {
+    var job = this;
+
+    job.ellapsedTime = currentTime - job.startTime;
+
+    if (job.ellapsedTime >= job.duration) {
+      handleCompletion.call(job);
+    } else {
+      updateColorValues.call(job);
+      updateSegments.call(job);
 
       if (!job.isComplete) {
         computeCornerGapPoints.call(job);
@@ -9770,7 +10029,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.onComplete = onComplete || function () {};
 
     job.start = start;
-    job.update = update;
+    job.update = job.isBlurOn ? updateWithBlur : updateWithOutBlur;
     job.draw = draw;
     job.cancel = cancel;
     job.init = init;
@@ -10361,17 +10620,18 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this LinesRadiateJob as started.
    *
    * @this LinesRadiateJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job, i, count;
 
     job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
-      job.lineJobs[i].start();
+      job.lineJobs[i].start(startTime);
     }
   }
 
@@ -10620,12 +10880,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this OpenPostJob as started.
    *
    * @this OpenPostJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var panDisplacement;
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     if (job.grid.isTransitioning) {
@@ -10645,9 +10906,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.grid.annotations.setExpandedAnnotations(true);
 
     // Start the sub-jobs
-    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile)
+    window.hg.controller.transientJobs.SpreadJob.create(job.grid, job.baseTile)
         .duration = config.duration + config.spreadDurationOffset;
-    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile)
+    window.hg.controller.transientJobs.PanJob.create(job.grid, job.baseTile)
         .duration = config.duration + config.panDurationOffset;
 
     panDisplacement = {
@@ -10655,9 +10916,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       y: job.grid.panCenter.y - job.grid.originalCenter.y
     };
 
-    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile, panDisplacement)
+    window.hg.controller.transientJobs.DilateSectorsJob.create(job.grid, job.baseTile, panDisplacement)
         .duration = config.duration + config.dilateSectorsDurationOffset;
-    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+    window.hg.controller.transientJobs.FadePostJob.create(job.grid, job.baseTile)
         .duration = config.duration + config.fadePostDurationOffset;
 
     // TODO: this should instead fade out the old persistent animations and fade in the new ones
@@ -10827,14 +11088,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this PanJob as started.
    *
    * @this PanJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
     job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
     job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     // Set the final positions at the start, and animate everything in "reverse"
@@ -11040,11 +11302,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this SpreadJob as started.
    *
    * @this SpreadJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -11206,11 +11469,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this TileBorderJob as started.
    *
    * @this TileBorderJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 

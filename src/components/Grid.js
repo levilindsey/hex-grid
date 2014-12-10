@@ -3,6 +3,33 @@
  */
 
 /**
+ * @typedef {Object} PostData
+ * @property {String} id
+ * @property {String} titleShort
+ * @property {String} titleLong
+ * @property {Array.<String>} urls
+ * @property {String} jobTitle
+ * @property {String} date
+ * @property {Array.<String>} categories
+ * @property {Array.<ImageData>} images
+ * @property {Array.<VideoData>} videos
+ * @property {String} content An extended description of the post in markdown syntax.
+ */
+
+/**
+ * @typedef {Object} ImageData
+ * @property {String} fileName
+ * @property {String} description
+ */
+
+/**
+ * @typedef {Object} VideoData
+ * @property {'youtube'|'vimeo'} videoHost
+ * @property {String} id
+ * @property {String} description
+ */
+
+/**
  * This module defines a constructor for Grid objects.
  *
  * Grid objects define a collection of hexagonal tiles that animate and display dynamic,
@@ -25,8 +52,8 @@
   config.backgroundSaturation = 1;
   config.backgroundLightness = 4;
   config.tileHue = 230;//147;
-  config.tileSaturation = 50;
-  config.tileLightness = 30;
+  config.tileSaturation = 67;
+  config.tileLightness = 22;
   config.tileOuterRadius = 80;
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
@@ -750,7 +777,7 @@
    * @constructor
    * @param {Number} index
    * @param {HTMLElement} parent
-   * @param {Array.<Object>} postData
+   * @param {Array.<PostData>} postData
    * @param {Boolean} [isVertical]
    */
   function Grid(index, parent, postData, isVertical) {
@@ -823,6 +850,7 @@
     grid.createPagePost = createPagePost;
     grid.destroyPagePost = destroyPagePost;
     grid.updateAllTilesCollection = updateAllTilesCollection;
+    grid.computeContentIndices = computeContentIndices;
 
     grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
 

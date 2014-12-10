@@ -258,7 +258,7 @@
     carousel.previousIndex = carousel.currentIndex;
     carousel.currentIndex = nextIndex;
 
-    window.hg.controller.transientJobs.carouselImageSlide.create(carousel.grid, null, carousel);
+    window.hg.controller.transientJobs.CarouselImageSlideJob.create(carousel.grid, null, carousel);
 
     // Pause any playing video
     if (carousel.mediaMetadata[carousel.previousIndex].isVideo) {

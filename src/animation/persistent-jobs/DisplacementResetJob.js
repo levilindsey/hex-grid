@@ -35,11 +35,12 @@
    * Sets this DisplacementResetJob as started.
    *
    * @this DisplacementResetJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -95,6 +96,15 @@
   /**
    * @this DisplacementResetJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this DisplacementResetJob
+   */
   function init() {
   }
 
@@ -117,6 +127,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();

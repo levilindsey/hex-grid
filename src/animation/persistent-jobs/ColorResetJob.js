@@ -35,11 +35,12 @@
    * Sets this ColorResetJob as started.
    *
    * @this ColorResetJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
   }
 
@@ -90,6 +91,15 @@
   /**
    * @this ColorResetJob
    */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorResetJob
+   */
   function init() {
   }
 
@@ -112,6 +122,7 @@
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+    job.refresh = refresh;
     job.init = init;
 
     job.init();

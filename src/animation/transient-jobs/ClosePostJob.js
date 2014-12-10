@@ -83,12 +83,13 @@
    * Sets this ClosePostJob as started.
    *
    * @this ClosePostJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var panDisplacement;
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     job.grid.isPostOpen = false;
@@ -101,16 +102,16 @@
     };
 
     // Start the sub-jobs
-    window.hg.controller.transientJobs.spread.create(job.grid, job.baseTile)
+    window.hg.controller.transientJobs.SpreadJob.create(job.grid, job.baseTile)
         .duration = config.duration + window.hg.OpenPostJob.config.spreadDurationOffset;
-    window.hg.controller.transientJobs.pan.create(job.grid, job.baseTile, {
+    window.hg.controller.transientJobs.PanJob.create(job.grid, job.baseTile, {
       x: job.grid.panCenter.x,
       y: job.grid.panCenter.y
     })
         .duration = config.duration + window.hg.OpenPostJob.config.panDurationOffset;
-    window.hg.controller.transientJobs.dilateSectors.create(job.grid, job.baseTile, panDisplacement)
+    window.hg.controller.transientJobs.DilateSectorsJob.create(job.grid, job.baseTile, panDisplacement)
         .duration = config.duration + window.hg.OpenPostJob.config.dilateSectorsDurationOffset;
-    window.hg.controller.transientJobs.fadePost.create(job.grid, job.baseTile)
+    window.hg.controller.transientJobs.FadePostJob.create(job.grid, job.baseTile)
         .duration = config.duration + window.hg.OpenPostJob.config.fadePostDurationOffset;
 
     job.grid.annotations.setExpandedAnnotations(false);

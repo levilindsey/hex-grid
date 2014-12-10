@@ -49,11 +49,12 @@
    * Sets this CarouselImageSlideJob as started.
    *
    * @this CarouselImageSlideJob
+   * @param {Number} startTime
    */
-  function start() {
+  function start(startTime) {
     var job = this;
 
-    job.startTime = Date.now();
+    job.startTime = startTime;
     job.isComplete = false;
 
     job.indexInitialDisplacement = job.carousel.previousIndex - job.carousel.currentIndex;

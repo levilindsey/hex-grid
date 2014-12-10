@@ -12,9 +12,9 @@
   config.emptyTileClickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
 
   config.possibleClickAnimations = {
-    'Radiate Highlight': window.hg.controller.transientJobs.highlightRadiate.create,
-    'Radiate Lines': window.hg.controller.transientJobs.linesRadiate.create,
-    'Random Line': window.hg.controller.transientJobs.line.create,
+    'Radiate Highlight': window.hg.controller.transientJobs.HighlightRadiateJob.create,
+    'Radiate Lines': window.hg.controller.transientJobs.LinesRadiateJob.create,
+    'Random Line': window.hg.controller.transientJobs.LineJob.create,
     'None': function () {}
   };
 
@@ -69,7 +69,7 @@
 
         input.grid.setHoveredTile(null);
 
-        window.hg.controller.transientJobs.highlightHover.create(input.grid, tile);
+        window.hg.controller.transientJobs.HighlightHoverJob.create(input.grid, tile);
 
         event.stopPropagation();
       }
@@ -121,7 +121,7 @@
   function createClickAnimation(grid, tile) {
     // Close any open post
     if (grid.isPostOpen) {
-      window.hg.controller.transientJobs.closePost.create(grid, grid.expandedTile);
+      window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
     }
 
     if (tile.holdsContent) {
@@ -129,7 +129,7 @@
       config.possibleClickAnimations[config.contentTileClickAnimation](grid, tile);
 
       // Open the post for the given tile
-      window.hg.controller.transientJobs.openPost.create(grid, tile);
+      window.hg.controller.transientJobs.OpenPostJob.create(grid, tile);
     } else {
       // Trigger an animation for the click
       config.possibleClickAnimations[config.emptyTileClickAnimation](grid, tile);

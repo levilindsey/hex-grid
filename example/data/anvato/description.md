@@ -1,4 +1,4 @@
-_[Anvato][main-url] provides the live and on-demand video management, analytics, syndication, and tracking features
+_[Anvato][main-url] provides live and on-demand video management, analytics, syndication, and tracking features
 along with video player SDKs for iOS, Android, and web._
 
 Levi developed HTTP Live Streaming video-player SDKs for the HTML5, Windows Store, Windows Phone, Roku, and Android

@@ -6,7 +6,10 @@
     "googleCode": "https://code.google.com/p/mobileaccessibility/source/browse/#svn%2Ftrunk%2FPhoneWand"
   },
   "jobTitle": "",
-  "date": "2011",
+  "date": {
+    "start": "4/2011",
+    "end": "6/2011"
+  },
   "categories": [
     "school",
     "research",

@@ -1,0 +1,52 @@
+{
+  "id": "about-levi",
+  "titleShort": "About\nLevi",
+  "titleLong": "About Levi",
+  "urls": {
+    "githubProfile": "https://github.com/levisl176",
+    "linkedin": "https://linkedin.com/in/levisl176",
+    "codepen": "http://codepen.io/levisl176/",
+    "facebook": "https://facebook.com/levisl176",
+    "googlePlus": "https://plus.google.com/u/0/+LeviLindsey176",
+    "reverbNation": "http://reverbnation.com/levilindsey"
+  },
+  "jobTitle": "",
+  "date": {
+    "start": "4/1988",
+    "end": "Present"
+  },
+  "categories": [
+  ],
+  "images": [
+    {
+      "fileName": "levi-in-savitri.jpg",
+      "description": "Levi playing Satyavan in the opera \"Savitri\" by Gustav Holst. In this scene, Satyavan is warning off whomever is lurking in the forest."
+    },
+    {
+      "fileName": "jackie-and-levi-in-maui.jpg",
+      "description": "Levi with his wife, Jackie, in Maui."
+    },
+    {
+      "fileName": "levi-at-forge.jpg",
+      "description": "Levi designed and built a four-burner, propane-powered forge for his father."
+    },
+    {
+      "fileName": "levi-in-the-bartered-bride.jpg",
+      "description": "Levi playing Va&#353ek in the opera \"The Bartered Bride\" by Bed&#345;ich Smetana. In this scene, Va&#353;ek, a stuttering fool, is musing about about his forthcoming arranged marriage."
+    },
+    {
+      "fileName": "jackie-and-levi-wedding-toast.jpg",
+      "description": "Levi and Jackie at their wedding."
+    },
+    {
+      "fileName": "levi-at-camp-hahobas.jpg",
+      "description": "Levi leading a campfire song about peeling a banana. He was a counselor and Life Guard at Camp Hahobas, a Boy Scout summer camp."
+    },
+    {
+      "fileName": "levi-head-shot.jpg",
+      "description": "Levi at the University of Washington's Friday Harbor Laboratories on San Juan Island."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}

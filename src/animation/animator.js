@@ -24,12 +24,11 @@
 
   /**
    * This is the animation loop that drives all of the animation.
+   *
+   * @param {Number} currentTime
    */
-  function animationLoop() {
-    var currentTime, deltaTime;
-
-    currentTime = Date.now();
-    deltaTime = currentTime - animator.previousTime;
+  function animationLoop(currentTime) {
+    var deltaTime = currentTime - animator.previousTime;
     deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
         config.deltaTimeUpperThreshold : deltaTime;
     animator.isLooping = true;
@@ -108,9 +107,25 @@
    */
   function startAnimationLoop() {
     animator.isPaused = false;
+
     if (!animator.isLooping) {
-      animator.previousTime = Date.now();
-      animationLoop();
+      animator.isLooping = true;
+      window.hg.util.requestAnimationFrame(firstAnimationLoop);
+    }
+
+    // ---  --- //
+
+    /**
+     * The time value provided by requestAnimationFrame appears to be the number of milliseconds since the page loaded.
+     * However, the rest of the application logic expects time values relative to the Unix epoch. This bootstrapping
+     * function helps in translating from the one time frame to the other.
+     *
+     * @param {Number} currentTime
+     */
+    function firstAnimationLoop(currentTime) {
+      animator.previousTime = currentTime;
+
+      window.hg.util.requestAnimationFrame(animationLoop);
     }
   }
 
@@ -126,15 +141,20 @@
     // Is this a restart?
     if (!job.isComplete) {
       console.log('Job restarting: ' + job.constructor.name);
-      job.cancel();
 
-      job.init();// TODO: get rid of this init function
-      job.start();
+      if (job.refresh) {
+        job.refresh();
+      } else {
+        job.cancel();
+
+        job.init();// TODO: get rid of this init function
+        job.start(animator.previousTime);
+      }
     } else {
       console.log('Job starting: ' + job.constructor.name);
 
       job.init();// TODO: get rid of this init function
-      job.start();
+      job.start(animator.previousTime);
       animator.jobs.push(job);
     }
 
@@ -166,7 +186,7 @@
   // Expose this singleton
 
   animator.jobs = [];
-  animator.previousTime = Date.now();
+  animator.previousTime = performance.now();
   animator.isLooping = false;
   animator.isPaused = true;
   animator.startJob = startJob;
