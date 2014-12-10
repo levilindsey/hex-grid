@@ -1574,7 +1574,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // Expose this singleton
 
   animator.jobs = [];
-  animator.previousTime = Number.NaN;
+  animator.previousTime = performance.now();
   animator.isLooping = false;
   animator.isPaused = true;
   animator.startJob = startJob;
