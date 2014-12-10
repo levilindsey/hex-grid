@@ -604,7 +604,7 @@
    * @param {Number} currentTime
    * @param {Number} deltaTime
    */
-  function update(currentTime, deltaTime) {
+  function updateWithBlur(currentTime, deltaTime) {
     var job = this;
 
     job.ellapsedTime = currentTime - job.startTime;
@@ -616,6 +616,23 @@
       updateSegments.call(job);
 
       config.feGaussianBlur.setAttribute('stdDeviation', job.blurStdDeviation);
+
+      if (!job.isComplete) {
+        computeCornerGapPoints.call(job);
+        computePolylinePoints.call(job);
+      }
+    }
+  }
+  function updateWithOutBlur(currentTime, deltaTime) {
+    var job = this;
+
+    job.ellapsedTime = currentTime - job.startTime;
+
+    if (job.ellapsedTime >= job.duration) {
+      handleCompletion.call(job);
+    } else {
+      updateColorValues.call(job);
+      updateSegments.call(job);
 
       if (!job.isComplete) {
         computeCornerGapPoints.call(job);
@@ -730,7 +747,7 @@
     job.onComplete = onComplete || function () {};
 
     job.start = start;
-    job.update = update;
+    job.update = job.isBlurOn ? updateWithBlur : updateWithOutBlur;
     job.draw = draw;
     job.cancel = cancel;
     job.init = init;
