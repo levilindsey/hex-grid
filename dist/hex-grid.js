@@ -3379,7 +3379,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       thumbnailElement.style.backgroundPosition = '50% 50%';
       thumbnailElement.style.width = config.thumbnailWidth + 'px';
       thumbnailElement.style.height = config.thumbnailHeight + 'px';
-      thumbnailElement.style.float = 'left';
+      thumbnailElement.style.styleFloat = 'left';
+      thumbnailElement.style.cssFloat = 'left';
 
       thumbnailScreenElement = document.createElement('div');
       thumbnailScreenElement.setAttribute('data-hg-carousel-thumbnail-screen',
