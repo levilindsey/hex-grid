@@ -651,6 +651,10 @@
     }
   }
 
+  function checkForSafari() {
+    return navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') < 0;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -691,6 +695,7 @@
     hslToHsv: hslToHsv,
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,
     addRuleToStyleSheet: addRuleToStyleSheet,
+    checkForSafari: checkForSafari,
     svgNamespace: 'http://www.w3.org/2000/svg',
     xlinkNamespace: 'http://www.w3.org/1999/xlink'
   };

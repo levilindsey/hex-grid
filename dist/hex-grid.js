@@ -100,19 +100,22 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       constructorName: 'ColorShiftJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorShiftJob'),
-      start: restartPersistentJob.bind(controller, 'ColorShiftJob')
+      start: restartPersistentJob.bind(controller, 'ColorShiftJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorShiftJob')
     },
     ColorWaveJob: {
       constructorName: 'ColorWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorWaveJob'),
-      start: restartPersistentJob.bind(controller, 'ColorWaveJob')
+      start: restartPersistentJob.bind(controller, 'ColorWaveJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorWaveJob')
     },
     DisplacementWaveJob: {
       constructorName: 'DisplacementWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'DisplacementWaveJob'),
-      start: restartPersistentJob.bind(controller, 'DisplacementWaveJob')
+      start: restartPersistentJob.bind(controller, 'DisplacementWaveJob'),
+      cancel: cancelPersistentJob.bind(controller, 'DisplacementWaveJob')
     },
 
     // --- For internal use --- //
@@ -121,13 +124,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       constructorName: 'ColorResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorResetJob'),
-      start: restartPersistentJob.bind(controller, 'ColorResetJob')
+      start: restartPersistentJob.bind(controller, 'ColorResetJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorResetJob')
     },
     DisplacementResetJob: {
       constructorName: 'DisplacementResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'DisplacementResetJob'),
-      start: restartPersistentJob.bind(controller, 'DisplacementResetJob')
+      start: restartPersistentJob.bind(controller, 'DisplacementResetJob'),
+      cancel: cancelPersistentJob.bind(controller, 'DisplacementResetJob')
     }
   };
 
@@ -264,6 +269,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   internal.inputs = [];
   internal.annotations = [];
   internal.postData = [];
+  internal.performanceCheckJob = true;
+
+  config.isLowPerformanceBrowser = false;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -416,6 +424,20 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   }
 
   /**
+   * @param {String} jobId
+   * @param {Grid} grid
+   * @param {Number} [jobIndex] If not given, ALL persistent jobs (of this bound type) will be
+   * cancelled for the given grid.
+   */
+  function cancelPersistentJob(jobId, grid, jobIndex) {
+    if (typeof jobIndex !== 'undefined') {
+      window.hg.animator.cancelJob(controller.persistentJobs[jobId].jobs[grid.index][jobIndex]);
+    } else {
+      controller.persistentJobs[jobId].jobs[grid.index].forEach(window.hg.animator.cancelJob);
+    }
+  }
+
+  /**
    * Resizes all of the hex-grid components.
    */
   function resize() {
@@ -549,6 +571,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     startRecurringAnimations(grid);
 
+    handleSafariBrowser(grid);
+
     return grid;
 
     // ---  --- //
@@ -582,6 +606,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       controller.transientJobs.OpenPostJob.create(grid, expandedTile);
     }
 
+    if (internal.performanceCheckJob) {
+      runPerformanceCheck();
+    }
+
+    handleSafariBrowser(grid);
+
     // ---  --- //
 
     function getTileFromPostId(grid, postId) {
@@ -608,9 +638,21 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     window.hg.animator.startJob(internal.annotations[grid.index]);
 
-    controller.persistentJobs.ColorShiftJob.start(grid);
-    controller.persistentJobs.ColorWaveJob.start(grid);
-    controller.persistentJobs.DisplacementWaveJob.start(grid);
+    // Don't run these persistent animations on low-performance browsers
+    if (!config.isLowPerformanceBrowser) {
+      controller.persistentJobs.ColorShiftJob.start(grid);
+      controller.persistentJobs.ColorWaveJob.start(grid);
+      controller.persistentJobs.DisplacementWaveJob.start(grid);
+    }
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function cancelPersistentJobsForLowPerformanceBrowser(grid) {
+    controller.persistentJobs.ColorShiftJob.cancel(grid);
+    controller.persistentJobs.ColorWaveJob.cancel(grid);
+    controller.persistentJobs.DisplacementWaveJob.cancel(grid);
   }
 
   /**
@@ -660,6 +702,77 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid.computeContentIndices();
 
     resetGrid(grid);
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function handleSafariBrowser(grid) {
+    if (window.hg.util.checkForSafari()) {
+      console.info('Adjusting SVG for the Safari browser');
+
+      grid.svg.style.width = grid.parent.offsetWidth + 'px';
+      grid.svg.style.height = grid.parent.offsetHeight + 'px';
+    }
+  }
+
+  function handleLowPerformanceBrowser() {
+    config.isLowPerformanceBrowser = true;
+
+    internal.grids.forEach(cancelPersistentJobsForLowPerformanceBrowser);
+
+    resize();
+
+    displayLowPerformanceMessage();
+
+    // ---  --- //
+
+    function displayLowPerformanceMessage() {
+      var lowPerformanceMessage = 'This site is running in low-performance mode for your browser.';
+
+      console.warn(lowPerformanceMessage);
+
+      // TODO:
+    }
+  }
+
+  function runPerformanceCheck() {
+    var maxRatioOfMaxDeltaTimeFrames = 0.3;
+    var numberOfFramesToCheck = 20;
+
+    var frameCount, maxDeltaTimeFrameCount;
+
+    internal.performanceCheckJob = {
+      start: function (startTime) {
+        frameCount = 0;
+        maxDeltaTimeFrameCount = 0;
+      },
+      update: function (currentTime, deltaTime) {
+        frameCount++;
+
+        // Does the current frame fail the speed test?
+        if (deltaTime >= window.hg.animator.config.deltaTimeUpperThreshold) {
+          maxDeltaTimeFrameCount++;
+        }
+
+        // Has the performance check finished?
+        if (frameCount >= numberOfFramesToCheck) {
+          window.hg.animator.cancelJob(internal.performanceCheckJob);
+          internal.performanceCheckJob = null;
+
+          // Did the overall performance test fail?
+          if (maxDeltaTimeFrameCount / frameCount > maxRatioOfMaxDeltaTimeFrames) {
+            handleLowPerformanceBrowser();
+          }
+        }
+      },
+      draw: function () {},
+      cancel: function () {},
+      init: function () {},
+      isComplete: false
+    };
+
+    window.hg.animator.startJob(internal.performanceCheckJob);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -1335,6 +1448,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     }
   }
 
+  function checkForSafari() {
+    return navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') < 0;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -1375,6 +1492,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     hslToHsv: hslToHsv,
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,
     addRuleToStyleSheet: addRuleToStyleSheet,
+    checkForSafari: checkForSafari,
     svgNamespace: 'http://www.w3.org/2000/svg',
     xlinkNamespace: 'http://www.w3.org/1999/xlink'
   };
@@ -5745,7 +5863,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   config = {};
 
-  // TODO: play with these
   config.dragCoeff = 0.01;
 
   config.neighborSpringCoeff = 0.00001;
@@ -6110,41 +6227,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       tile.particle.py += tile.particle.vy * deltaTime;
       tile.particle.vx += tile.particle.fx;
       tile.particle.vy += tile.particle.fy;
-
-      ////////////////////////////////////////////////////////////////////////////////////
-      // TODO: remove me!
-      var ap = tile.particle,
-          apx = ap.px,
-          apy = ap.py,
-          avx = ap.vx,
-          avy = ap.vy,
-          afx = ap.fx,
-          afy = ap.fy,
-          afAccx = ap.forceAccumulatorX,
-          afAccy = ap.forceAccumulatorY;
-      if (tile.originalIndex === 0) {
-        //console.log('tile 0!');
-      }
-      if (isNaN(tile.particle.px)) {
-        console.log('tile.particle.px=' + tile.particle.px);
-      }
-      if (isNaN(tile.particle.py)) {
-        console.log('tile.particle.py=' + tile.particle.py);
-      }
-      if (isNaN(tile.particle.vx)) {
-        console.log('tile.particle.vx=' + tile.particle.vx);
-      }
-      if (isNaN(tile.particle.vy)) {
-        console.log('tile.particle.vy=' + tile.particle.vy);
-      }
-      if (isNaN(tile.particle.fx)) {
-        console.log('tile.particle.fx=' + tile.particle.fx);
-      }
-      if (isNaN(tile.particle.fy)) {
-        console.log('tile.particle.fy=' + tile.particle.fy);
-      }
-      // TODO: remove me!
-      ////////////////////////////////////////////////////////////////////////////////////
 
       // Kill all velocities and forces below a threshold
       tile.particle.fx = tile.particle.fx < config.forceSuppressionLowerThreshold &&

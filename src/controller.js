@@ -21,19 +21,22 @@
       constructorName: 'ColorShiftJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorShiftJob'),
-      start: restartPersistentJob.bind(controller, 'ColorShiftJob')
+      start: restartPersistentJob.bind(controller, 'ColorShiftJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorShiftJob')
     },
     ColorWaveJob: {
       constructorName: 'ColorWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorWaveJob'),
-      start: restartPersistentJob.bind(controller, 'ColorWaveJob')
+      start: restartPersistentJob.bind(controller, 'ColorWaveJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorWaveJob')
     },
     DisplacementWaveJob: {
       constructorName: 'DisplacementWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'DisplacementWaveJob'),
-      start: restartPersistentJob.bind(controller, 'DisplacementWaveJob')
+      start: restartPersistentJob.bind(controller, 'DisplacementWaveJob'),
+      cancel: cancelPersistentJob.bind(controller, 'DisplacementWaveJob')
     },
 
     // --- For internal use --- //
@@ -42,13 +45,15 @@
       constructorName: 'ColorResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorResetJob'),
-      start: restartPersistentJob.bind(controller, 'ColorResetJob')
+      start: restartPersistentJob.bind(controller, 'ColorResetJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorResetJob')
     },
     DisplacementResetJob: {
       constructorName: 'DisplacementResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'DisplacementResetJob'),
-      start: restartPersistentJob.bind(controller, 'DisplacementResetJob')
+      start: restartPersistentJob.bind(controller, 'DisplacementResetJob'),
+      cancel: cancelPersistentJob.bind(controller, 'DisplacementResetJob')
     }
   };
 
@@ -185,6 +190,9 @@
   internal.inputs = [];
   internal.annotations = [];
   internal.postData = [];
+  internal.performanceCheckJob = true;
+
+  config.isLowPerformanceBrowser = false;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -337,6 +345,20 @@
   }
 
   /**
+   * @param {String} jobId
+   * @param {Grid} grid
+   * @param {Number} [jobIndex] If not given, ALL persistent jobs (of this bound type) will be
+   * cancelled for the given grid.
+   */
+  function cancelPersistentJob(jobId, grid, jobIndex) {
+    if (typeof jobIndex !== 'undefined') {
+      window.hg.animator.cancelJob(controller.persistentJobs[jobId].jobs[grid.index][jobIndex]);
+    } else {
+      controller.persistentJobs[jobId].jobs[grid.index].forEach(window.hg.animator.cancelJob);
+    }
+  }
+
+  /**
    * Resizes all of the hex-grid components.
    */
   function resize() {
@@ -470,6 +492,8 @@
 
     startRecurringAnimations(grid);
 
+    handleSafariBrowser(grid);
+
     return grid;
 
     // ---  --- //
@@ -503,6 +527,12 @@
       controller.transientJobs.OpenPostJob.create(grid, expandedTile);
     }
 
+    if (internal.performanceCheckJob) {
+      runPerformanceCheck();
+    }
+
+    handleSafariBrowser(grid);
+
     // ---  --- //
 
     function getTileFromPostId(grid, postId) {
@@ -529,9 +559,21 @@
 
     window.hg.animator.startJob(internal.annotations[grid.index]);
 
-    controller.persistentJobs.ColorShiftJob.start(grid);
-    controller.persistentJobs.ColorWaveJob.start(grid);
-    controller.persistentJobs.DisplacementWaveJob.start(grid);
+    // Don't run these persistent animations on low-performance browsers
+    if (!config.isLowPerformanceBrowser) {
+      controller.persistentJobs.ColorShiftJob.start(grid);
+      controller.persistentJobs.ColorWaveJob.start(grid);
+      controller.persistentJobs.DisplacementWaveJob.start(grid);
+    }
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function cancelPersistentJobsForLowPerformanceBrowser(grid) {
+    controller.persistentJobs.ColorShiftJob.cancel(grid);
+    controller.persistentJobs.ColorWaveJob.cancel(grid);
+    controller.persistentJobs.DisplacementWaveJob.cancel(grid);
   }
 
   /**
@@ -581,6 +623,77 @@
     grid.computeContentIndices();
 
     resetGrid(grid);
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function handleSafariBrowser(grid) {
+    if (window.hg.util.checkForSafari()) {
+      console.info('Adjusting SVG for the Safari browser');
+
+      grid.svg.style.width = grid.parent.offsetWidth + 'px';
+      grid.svg.style.height = grid.parent.offsetHeight + 'px';
+    }
+  }
+
+  function handleLowPerformanceBrowser() {
+    config.isLowPerformanceBrowser = true;
+
+    internal.grids.forEach(cancelPersistentJobsForLowPerformanceBrowser);
+
+    resize();
+
+    displayLowPerformanceMessage();
+
+    // ---  --- //
+
+    function displayLowPerformanceMessage() {
+      var lowPerformanceMessage = 'This site is running in low-performance mode for your browser.';
+
+      console.warn(lowPerformanceMessage);
+
+      // TODO:
+    }
+  }
+
+  function runPerformanceCheck() {
+    var maxRatioOfMaxDeltaTimeFrames = 0.3;
+    var numberOfFramesToCheck = 20;
+
+    var frameCount, maxDeltaTimeFrameCount;
+
+    internal.performanceCheckJob = {
+      start: function (startTime) {
+        frameCount = 0;
+        maxDeltaTimeFrameCount = 0;
+      },
+      update: function (currentTime, deltaTime) {
+        frameCount++;
+
+        // Does the current frame fail the speed test?
+        if (deltaTime >= window.hg.animator.config.deltaTimeUpperThreshold) {
+          maxDeltaTimeFrameCount++;
+        }
+
+        // Has the performance check finished?
+        if (frameCount >= numberOfFramesToCheck) {
+          window.hg.animator.cancelJob(internal.performanceCheckJob);
+          internal.performanceCheckJob = null;
+
+          // Did the overall performance test fail?
+          if (maxDeltaTimeFrameCount / frameCount > maxRatioOfMaxDeltaTimeFrames) {
+            handleLowPerformanceBrowser();
+          }
+        }
+      },
+      draw: function () {},
+      cancel: function () {},
+      init: function () {},
+      isComplete: false
+    };
+
+    window.hg.animator.startJob(internal.performanceCheckJob);
   }
 
   // ------------------------------------------------------------------------------------------- //
