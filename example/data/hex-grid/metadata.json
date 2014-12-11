@@ -25,6 +25,22 @@
     "gulp.js"
   ],
   "images": [
+    {
+      "fileName": "screenshot1.png",
+      "description": "This shows the hex-grid layout containing many of Levi's posts at random positions. This also captures a \"lightning\" animation in progress."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "This shows the grid layout in its expanded form. After clicking on a tile with a post, the grid expands around that tile in order to show an enlarged panel with details about the post."
+    },
+    {
+      "fileName": "screenshot3.png",
+      "description": "A dat.GUI menu makes most of the parameters in hex-grid dynamically configurable by the user. This is great for debugging, tuning, and playing around."
+    },
+    {
+      "fileName": "screenshot4.png",
+      "description": "This shows the hex-grid layout containing many of Levi's posts at random positions."
+    }
   ],
   "videos": [],
   "content": ""

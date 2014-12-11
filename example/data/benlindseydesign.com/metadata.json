@@ -21,6 +21,10 @@
     "gulp.js"
   ],
   "images": [
+    {
+      "fileName": "screenshot1.png",
+      "description": "Ben's portfolio website is still a work in progress, but this is what the layout of the homepage looks like at the moment."
+    }
   ],
   "videos": [],
   "content": ""
