@@ -257,7 +257,7 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
-      annotations.grid.allTiles[i].element.setAttribute('opacity', '0');
+      annotations.grid.allTiles[i].div.style.opacity = 0;
     }
   }
 
@@ -604,7 +604,7 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
-      annotations.grid.originalTiles[i].element.setAttribute('opacity', '1');
+      annotations.grid.originalTiles[i].div.style.opacity = 1;
     }
   }
 
@@ -1147,8 +1147,8 @@
 
     function getCornerPosition(tile, corner) {
       return {
-        x: tile.vertices[corner * 2],
-        y: tile.vertices[corner * 2 + 1]
+        x: tile.vertexDeltas[corner * 2] + tile.particle.px,
+        y: tile.vertexDeltas[corner * 2 + 1] + tile.particle.py
       };
     }
   }

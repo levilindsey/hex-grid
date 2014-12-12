@@ -7,9 +7,9 @@ body {
   background-color: #000000/* TODO: remove this after the bottom margin bug is fixed */
 }
 
-[data-hg-grid-parent] {
+[data-hg-grid] {
   position: relative;
-  overflow: auto;
+  overflow: hidden;
   z-index: 0;
 }
 

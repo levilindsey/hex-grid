@@ -17,12 +17,7 @@
    * @property {String} content
    */
 
-  **;// TODO:
-     // - add an svg (with maybe an additional div wrapper)
-     // - calculate the offset of the center of the tile within the svg
-     // - save this offset on the tile object
-     // - subtract this offset when applying the transform style in the update function
-     // - refactor how the svg(s) are cleared from within the Grid reset logic
+  // TODO: fix how the open/close post jobs animate the tile size to use the scale transform
 
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
@@ -64,21 +59,36 @@
    * @this Tile
    */
   function createElement() {
-    var tile, id;
+    var tile, id, width, height;
 
     tile = this;
 
+    width = tile.grid.tileHalfWidth * 2;
+    height = tile.grid.tileHalfHeight * 2;
+
     id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);**;// TODO: this doesn't need to be saved on the tile object
+    tile.div = document.createElement('div');
+    tile.grid.wrapper.appendChild(tile.div);
+    tile.div.style.position = 'absolute';
+    tile.div.style.width = width + 'px';
+    tile.div.style.height = height + 'px';
+
+    tile.svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
+    tile.div.appendChild(tile.svg);
+    tile.svg.style.width = width + 'px';
+    tile.svg.style.height = height + 'px';
+
+    tile.polygon = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
+    tile.svg.appendChild(tile.polygon);
+
+    tile.div.id = 'hg-div-' + id;
+    tile.polygon.id = 'hg-polygon-' + id;
+    tile.polygon.setAttribute('data-hg-tile-polygon', 'data-hg-tile-polygon');
+    tile.div.setAttribute('data-hg-tile-div', 'data-hg-tile-div');
+    tile.polygon.style.cursor = 'pointer';
+
     setPoints.call(tile);
-
-    tile.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
-    tile.svg.appendChild(tile.element);
-
-    tile.element.id = 'hg-' + id;
-    tile.element.setAttribute('data-hg-tile', 'data-hg-tile');
-    tile.element.style.cursor = 'pointer';
 
     // Set the color and vertices
     draw.call(tile);
@@ -115,11 +125,14 @@
 
     tile = this;
 
+    tile.vertexDeltas = computeVertexDeltas(window.hg.Grid.config.tileOuterRadius, tile.grid.isVertical,
+      tile.grid.tileHalfWidth, tile.grid.tileHalfHeight);
+
     for (i = 0, pointsString = ''; i < 12;) {
       pointsString += tile.vertexDeltas[i++] + ',' + tile.vertexDeltas[i++] + ' ';
     }
 
-    tile.element.setAttribute('points', pointsString);
+    tile.polygon.setAttribute('points', pointsString);
   }
 
   /**
@@ -130,7 +143,8 @@
   function createTilePost() {
     var tile = this;
 
-    tile.element.setAttribute('data-hg-post-tilePost', 'data-hg-post-tilePost');
+    tile.polygon.setAttribute('data-hg-post-tile-polygon', 'data-hg-post-tile-polygon');
+    tile.div.setAttribute('data-hg-post-tile-div', 'data-hg-post-tile-div');
 
     tile.tilePost = new window.hg.TilePost(tile);
   }
@@ -143,7 +157,8 @@
   function destroyTilePost() {
     var tile = this;
 
-    tile.element.removeAttribute('data-hg-post-tilePost');
+    tile.polygon.removeAttribute('data-hg-post-tile-polygon');
+    tile.div.removeAttribute('data-hg-post-tile-div');
 
     tile.tilePost.destroy();
     tile.tilePost = null;
@@ -417,18 +432,20 @@
    * @this Tile
    */
   function draw() {
-    var tile, colorString;
+    var tile, colorString, translateString;
 
     tile = this;
 
-    window.hg.util.applyTransform(tile.element, 'translate(' + tile.particle.px + 'px,' + tile.particle.py + 'px)');**;// TODO: apply this to the svg/div wrapper
+    translateString = 'scale(' + tile.scaleFactor + ') ' +
+      'translate3d(' + (tile.particle.px - tile.grid.tileHalfWidth) + 'px,' +
+      (tile.particle.py - tile.grid.tileHalfHeight) + 'px,0px)';
+
+    window.hg.util.applyTransform(tile.div, translateString);
 
     if (!tile.holdsContent) {
       // Set the color
-      colorString = 'hsl(' + tile.currentColor.h + ',' +
-      tile.currentColor.s + '%,' +
-      tile.currentColor.l + '%)';
-      tile.element.setAttribute('fill', colorString);
+      colorString = 'hsl(' + tile.currentColor.h + ',' + tile.currentColor.s + '%,' + tile.currentColor.l + '%)';
+      tile.polygon.setAttribute('fill', colorString);
     } else {
       // Set the position and opacity of the TilePost
       tile.tilePost.draw();
@@ -505,9 +522,11 @@
    *
    * @param {Number} radius
    * @param {Boolean} isVertical
+   * @param {Number} centerX
+   * @param {Number} centerY
    * @returns {Array.<Number>}
    */
-  function computeVertexDeltas(radius, isVertical) {**;// TODO: only compute this once from the computeDependentValues function
+  function computeVertexDeltas(radius, isVertical, centerX, centerY) {
     var trigIndex, coordIndex, sines, cosines, vertexDeltas;
 
     // Grab the pre-computed sine and cosine values
@@ -522,8 +541,8 @@
     for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
          trigIndex < 6;
          trigIndex += 1) {
-      vertexDeltas[coordIndex++] = radius * cosines[trigIndex];
-      vertexDeltas[coordIndex++] = radius * sines[trigIndex];
+      vertexDeltas[coordIndex++] = centerX + radius * cosines[trigIndex];
+      vertexDeltas[coordIndex++] = centerY + radius * sines[trigIndex];
     }
 
     return vertexDeltas;
@@ -605,7 +624,11 @@
     if (tile.holdsContent) {
       destroyTilePost.call(tile);
     }
-    tile.svg.removeChild(tile.element);
+    tile.grid.wrapper.removeChild(tile.div);
+
+    tile.div = null;
+    tile.svg = null;
+    tile.polygon = null;
   }
 
   /**
@@ -616,7 +639,7 @@
   function hide() {
     var tile = this;
 
-    tile.element.style.display = 'none';
+    tile.div.style.display = 'none';
     if (tile.holdsContent) {
       tile.tilePost.elements.title.style.display = 'none';
     }
@@ -630,7 +653,7 @@
   function show() {
     var tile = this;
 
-    tile.element.style.display = 'block';
+    tile.div.style.display = 'block';
     if (tile.holdsContent) {
       tile.tilePost.elements.title.style.display = 'block';
     }
@@ -642,12 +665,9 @@
   /**
    * @constructor
    * @global
-   * @param {HTMLElement} svg
    * @param {Grid} grid
    * @param {Number} anchorX
    * @param {Number} anchorY
-   * @param {Number} outerRadius
-   * @param {Boolean} isVertical
    * @param {Number} hue
    * @param {Number} saturation
    * @param {Number} lightness
@@ -661,23 +681,23 @@
    * @param {Boolean} isInLargerRow
    * @param {Number} mass
    */
-  function Tile(svg, grid, anchorX, anchorY, outerRadius, isVertical, hue, saturation, lightness,
-                   postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
-                   isCornerTile, isInLargerRow, mass) {
+  function Tile(grid, anchorX, anchorY, hue, saturation, lightness, postData, tileIndex, rowIndex, columnIndex,
+                isMarginTile, isBorderTile, isCornerTile, isInLargerRow, mass) {
     var tile = this;
 
-    tile.svg = svg;
     tile.grid = grid;
-    tile.element = null;
+    tile.div = null;
+    tile.svg = null;
+    tile.polygon = null;
     tile.currentAnchor = {x: anchorX, y: anchorY};
     tile.originalAnchor = {x: anchorX, y: anchorY};
     tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
-    tile.outerRadius = outerRadius;
-    tile.isVertical = isVertical;
+    tile.vertexDeltas = null;
 
     tile.originalColor = {h: hue, s: saturation, l: lightness};
     tile.currentColor = {h: hue, s: saturation, l: lightness};
 
+    tile.scaleFactor = 1;
     tile.postData = postData;
     tile.holdsContent = !!postData;
     tile.tilePost = null;
@@ -696,7 +716,6 @@
     tile.imageScreenOpacity = Number.NaN;
 
     tile.neighborStates = [];
-    tile.vertexDeltas = null;
     tile.particle = null;
 
     tile.setContent = setContent;
@@ -714,8 +733,8 @@
     tile.hide = hide;
     tile.show = show;
 
-    createElement.call(tile);
     createParticle.call(tile, mass);
+    createElement.call(tile);
 
     if (tile.holdsContent) {
       createTilePost.call(tile);

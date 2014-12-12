@@ -142,7 +142,7 @@
     var topGradient = document.createElement('div');
     var bottomGradient = document.createElement('div');
 
-    pagePost.tile.grid.parent.appendChild(container);
+    pagePost.tile.grid.wrapper.appendChild(container);
     container.appendChild(outerWrapper);
     outerWrapper.appendChild(innerWrapper);
     innerWrapper.appendChild(logo);
@@ -400,7 +400,7 @@
 
     pagePost.carousel.destroy();
 
-    pagePost.tile.grid.parent.removeChild(pagePost.elements.container);
+    pagePost.tile.grid.wrapper.removeChild(pagePost.elements.container);
     pagePost.elements = null;
   }
 

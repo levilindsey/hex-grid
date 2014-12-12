@@ -67,7 +67,7 @@
     tilePost.tile.grid.svgDefs.appendChild(backgroundPattern);
     backgroundPattern.appendChild(backgroundImage);
     backgroundPattern.appendChild(backgroundImageScreen);
-    tilePost.tile.grid.parent.appendChild(title);
+    tilePost.tile.grid.wrapper.appendChild(title);
 
     tilePost.elements = [];
     tilePost.elements.backgroundPattern = backgroundPattern;
@@ -97,7 +97,7 @@
     backgroundImageScreen.setAttribute('height', '1');
     backgroundImageScreen.setAttribute('fill', screenColorString);
 
-    tilePost.tile.element.setAttribute('fill', 'url(#' + patternId + ')');
+    tilePost.tile.polygon.setAttribute('fill', 'url(#' + patternId + ')');
 
     title.innerHTML = tilePost.tile.postData.titleShort;
     title.setAttribute('data-hg-tile-title', 'data-hg-tile-title');
@@ -157,7 +157,7 @@
   function destroy() {
     var tilePost = this;
 
-    tilePost.tile.grid.parent.removeChild(tilePost.elements.title);
+    tilePost.tile.grid.wrapper.removeChild(tilePost.elements.title);
     tilePost.tile.grid.svgDefs.removeChild(tilePost.elements.backgroundPattern);
   }
 

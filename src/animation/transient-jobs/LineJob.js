@@ -465,20 +465,21 @@
         ySum = tile.particle.py + lowerNeighbor.tile.particle.py + upperNeighbor.tile.particle.py;
       } else {
         count = 2;
-        xSum = tile.vertices[corner * 2] + lowerNeighbor.tile.vertices[lowerNeighborCorner * 2];
-        ySum = tile.vertices[corner * 2 + 1] +
-            lowerNeighbor.tile.vertices[lowerNeighborCorner * 2 + 1];
+        xSum = tile.vertexDeltas[corner * 2] + tile.particle.px + lowerNeighbor.tile.vertexDeltas[lowerNeighborCorner * 2] + lowerNeighbor.tile.particle.px;
+        ySum = tile.vertexDeltas[corner * 2 + 1] + tile.particle.py +
+            lowerNeighbor.tile.vertexDeltas[lowerNeighborCorner * 2 + 1] + lowerNeighbor.tile.particle.py;
       }
     } else {
       if (upperNeighbor) {
         count = 2;
-        xSum = tile.vertices[corner * 2] + upperNeighbor.tile.vertices[upperNeighborCorner * 2];
-        ySum = tile.vertices[corner * 2 + 1] +
-            upperNeighbor.tile.vertices[upperNeighborCorner * 2 + 1];
+        xSum = tile.vertexDeltas[corner * 2] + tile.particle.px +
+          upperNeighbor.tile.vertexDeltas[upperNeighborCorner * 2] + upperNeighbor.tile.particle.px;
+        ySum = tile.vertexDeltas[corner * 2 + 1] + tile.particle.py +
+          upperNeighbor.tile.vertexDeltas[upperNeighborCorner * 2 + 1] + upperNeighbor.tile.particle.py;
       } else {
         count = 1;
-        xSum = tile.vertices[corner * 2];
-        ySum = tile.vertices[corner * 2 + 1];
+        xSum = tile.vertexDeltas[corner * 2] + tile.particle.px;
+        ySum = tile.vertexDeltas[corner * 2 + 1] + tile.particle.py;
       }
     }
 

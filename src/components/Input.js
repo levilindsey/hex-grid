@@ -46,7 +46,7 @@
 
       if (tile = getTileFromEvent(event)) {
 
-        if (tile.element.getAttribute('data-hg-post-tile')) {
+        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
           // TODO: reset the other tile parameters
         }
 
@@ -63,7 +63,7 @@
         input.grid.setHoveredTile(null);
       } else if (tile = getTileFromEvent(event)) {
 
-        if (tile.element.getAttribute('data-hg-post-tile')) {
+        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
           // TODO: reset the other tile parameters
         }
 
@@ -76,15 +76,15 @@
     }
 
     function handlePointerMove(event) {
-      if (event.target.getAttribute('data-hg-post-tile')) {
+      if (event.target.getAttribute('data-hg-post-tile-polygon')) {
         // TODO:
-      } else if (event.target.getAttribute('data-hg-tile')) {
+      } else if (event.target.getAttribute('data-hg-tile-polygon')) {
         // TODO:
       }
     }
 
     function handlePointerDown(event) {
-      if (event.target.getAttribute('data-hg-post-tile')) {
+      if (event.target.getAttribute('data-hg-post-tile-polygon')) {
         // TODO:
       }
     }
@@ -94,7 +94,7 @@
 
       if (event.button === 0 && (tile = getTileFromEvent(event))) {
 
-        if (tile.element.getAttribute('data-hg-post-tile')) {
+        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
           // TODO:
         }
 
@@ -105,7 +105,7 @@
     function getTileFromEvent(event) {
       var tileIndex;
 
-      if (event.target.getAttribute('data-hg-tile')) {
+      if (event.target.getAttribute('data-hg-tile-polygon')) {
         tileIndex = event.target.getAttribute('data-hg-index');
         return input.grid.allTiles[tileIndex];
       } else {
