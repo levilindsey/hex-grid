@@ -465,9 +465,10 @@
         ySum = tile.particle.py + lowerNeighbor.tile.particle.py + upperNeighbor.tile.particle.py;
       } else {
         count = 2;
-        xSum = tile.vertexDeltas[corner * 2] + tile.particle.px + lowerNeighbor.tile.vertexDeltas[lowerNeighborCorner * 2] + lowerNeighbor.tile.particle.px;
+        xSum = tile.vertexDeltas[corner * 2] + tile.particle.px +
+          lowerNeighbor.tile.vertexDeltas[lowerNeighborCorner * 2] + lowerNeighbor.tile.particle.px;
         ySum = tile.vertexDeltas[corner * 2 + 1] + tile.particle.py +
-            lowerNeighbor.tile.vertexDeltas[lowerNeighborCorner * 2 + 1] + lowerNeighbor.tile.particle.py;
+          lowerNeighbor.tile.vertexDeltas[lowerNeighborCorner * 2 + 1] + lowerNeighbor.tile.particle.py;
       }
     } else {
       if (upperNeighbor) {
