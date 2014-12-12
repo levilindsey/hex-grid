@@ -5856,6 +5856,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @property {String} content
    */
 
+  **;// TODO:
+     // - add an svg (with maybe an additional div wrapper)
+     // - calculate the offset of the center of the tile within the svg
+     // - save this offset on the tile object
+     // - subtract this offset when applying the transform style in the update function
+     // - refactor how the svg(s) are cleared from within the Grid reset logic
+
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
@@ -5902,10 +5909,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    tile.originalVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
-    tile.currentVertexDeltas = tile.originalVertexDeltas.slice(0);
-    tile.vertices = [];
-    updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
+    tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);**;// TODO: this doesn't need to be saved on the tile object
+    setPoints.call(tile);
 
     tile.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
@@ -5942,21 +5947,18 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   }
 
   /**
-   * Computes and stores the locations of the vertices of the hexagon for this tile.
-   *
    * @this Tile
-   * @param {Number} anchorX
-   * @param {Number} anchorY
    */
-  function updateVertices(anchorX, anchorY) {
-    var tile, trigIndex, coordIndex;
+  function setPoints() {
+    var tile, i, pointsString;
 
     tile = this;
 
-    for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
-      tile.vertices[coordIndex] = anchorX + tile.currentVertexDeltas[coordIndex++];
-      tile.vertices[coordIndex] = anchorY + tile.currentVertexDeltas[coordIndex++];
+    for (i = 0, pointsString = ''; i < 12;) {
+      pointsString += tile.vertexDeltas[i++] + ',' + tile.vertexDeltas[i++] + ' ';
     }
+
+    tile.element.setAttribute('points', pointsString);
   }
 
   /**
@@ -6245,9 +6247,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       // Reset force accumulator for next time step
       tile.particle.forceAccumulatorX = 0;
       tile.particle.forceAccumulatorY = 0;
-
-      // Compute new vertex locations
-      updateVertices.call(tile, tile.particle.px, tile.particle.py);
     }
   }
 
@@ -6257,15 +6256,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @this Tile
    */
   function draw() {
-    var tile, i, pointsString, colorString;
+    var tile, colorString;
 
     tile = this;
 
-    // Set the vertices
-    for (i = 0, pointsString = ''; i < 12;) {
-      pointsString += tile.vertices[i++] + ',' + tile.vertices[i++] + ' ';
-    }
-    tile.element.setAttribute('points', pointsString);
+    window.hg.util.applyTransform(tile.element, 'translate(' + tile.particle.px + 'px,' + tile.particle.py + 'px)');**;// TODO: apply this to the svg/div wrapper
 
     if (!tile.holdsContent) {
       // Set the color
@@ -6351,8 +6346,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @param {Boolean} isVertical
    * @returns {Array.<Number>}
    */
-  function computeVertexDeltas(radius, isVertical) {
-    var trigIndex, coordIndex, sines, cosines, currentVertexDeltas;
+  function computeVertexDeltas(radius, isVertical) {**;// TODO: only compute this once from the computeDependentValues function
+    var trigIndex, coordIndex, sines, cosines, vertexDeltas;
 
     // Grab the pre-computed sine and cosine values
     if (isVertical) {
@@ -6363,14 +6358,14 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       cosines = config.horizontalCosines;
     }
 
-    for (trigIndex = 0, coordIndex = 0, currentVertexDeltas = [];
+    for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
          trigIndex < 6;
          trigIndex += 1) {
-      currentVertexDeltas[coordIndex++] = radius * cosines[trigIndex];
-      currentVertexDeltas[coordIndex++] = radius * sines[trigIndex];
+      vertexDeltas[coordIndex++] = radius * cosines[trigIndex];
+      vertexDeltas[coordIndex++] = radius * sines[trigIndex];
     }
 
-    return currentVertexDeltas;
+    return vertexDeltas;
   }
 
   /**
@@ -6540,10 +6535,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     tile.imageScreenOpacity = Number.NaN;
 
     tile.neighborStates = [];
-    tile.vertices = null;
-    tile.currentVertexDeltas = null;
-    tile.originalVertexDeltas = null;
-    tile.expandedVertexDeltas = null;
+    tile.vertexDeltas = null;
     tile.particle = null;
 
     tile.setContent = setContent;
