@@ -25,7 +25,7 @@
   config.deltaSaturation = 0;
   config.deltaLightness = 5;
 
-  config.deltaOpacityImageBackgroundScreen = 0.18;
+  config.deltaOpacityImageforegroundScreen = 0.18;
 
   config.opacity = 0.5;
 
@@ -83,34 +83,16 @@
   // Private static functions
 
   /**
-   * Updates the animation progress of the given non-content tile.
-   *
-   * @param {Number} progress From -1 to 1
-   * @param {Tile} tile
-   * @param {Number} waveProgressOffset From -1 to 1
-   */
-  function updateNonContentTile(progress, tile, waveProgressOffset) {
-    var tileProgress =
-        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
-
-    tile.currentColor.h += config.deltaHue * tileProgress * config.opacity;
-    tile.currentColor.s += config.deltaSaturation * tileProgress * config.opacity;
-    tile.currentColor.l += config.deltaLightness * tileProgress * config.opacity;
-  }
-
-  /**
    * Updates the animation progress of the given content tile.
    *
    * @param {Number} progress From -1 to 1
    * @param {Tile} tile
    * @param {Number} waveProgressOffset From -1 to 1
    */
-  function updateContentTile(progress, tile, waveProgressOffset) {
-    var tileProgress =
-        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI) * 0.5 + 0.5;
+  function updateTile(progress, tile, waveProgressOffset) {
+    var tileProgress = Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI) * 0.5 + 0.5;
 
-    tile.imageScreenOpacity += -tileProgress * config.opacity *
-        config.deltaOpacityImageBackgroundScreen;
+    tile.foregroundScreenOpacity += -tileProgress * config.opacity * config.deltaOpacityImageforegroundScreen;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -145,13 +127,14 @@
 
     progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
 
+    // TODO: combine these loops into one
     for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
-      updateNonContentTile(progress, job.grid.allNonContentTiles[i],
+      updateTile(progress, job.grid.allNonContentTiles[i],
           job.waveProgressOffsetsNonContentTiles[i]);
     }
 
     for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
-      updateContentTile(progress, job.grid.contentTiles[i],
+      updateTile(progress, job.grid.contentTiles[i],
           job.waveProgressOffsetsContentTiles[i]);
     }
   }

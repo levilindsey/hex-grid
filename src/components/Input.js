@@ -46,7 +46,7 @@
 
       if (tile = getTileFromEvent(event)) {
 
-        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
+        if (tile.elements.div.getAttribute('data-hg-post-tile-polygon')) {
           // TODO: reset the other tile parameters
         }
 
@@ -63,7 +63,7 @@
         input.grid.setHoveredTile(null);
       } else if (tile = getTileFromEvent(event)) {
 
-        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
+        if (tile.elements.div.getAttribute('data-hg-post-tile-polygon')) {
           // TODO: reset the other tile parameters
         }
 
@@ -94,7 +94,7 @@
 
       if (event.button === 0 && (tile = getTileFromEvent(event))) {
 
-        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
+        if (tile.elements.div.getAttribute('data-hg-post-tile-polygon')) {
           // TODO:
         }
 

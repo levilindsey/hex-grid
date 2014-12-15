@@ -59,10 +59,7 @@
     job = this;
 
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].currentColor.h = job.grid.allTiles[i].originalColor.h;
-      job.grid.allTiles[i].currentColor.s = job.grid.allTiles[i].originalColor.s;
-      job.grid.allTiles[i].currentColor.l = job.grid.allTiles[i].originalColor.l;
-      job.grid.allTiles[i].imageScreenOpacity = window.hg.TilePost.config.inactiveScreenOpacity;
+      job.grid.allTiles[i].foregroundScreenOpacity = window.hg.Tile.config.inactiveScreenOpacity;
     }
   }
 

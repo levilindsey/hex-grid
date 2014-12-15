@@ -57,7 +57,7 @@
       }
     }
 
-    job.baseTile.polygon.style.pointerEvents = 'auto';
+    job.baseTile.elements.polygon.style.pointerEvents = 'auto';
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -122,7 +122,7 @@
       job.grid.scrollTop;
     }
 
-    job.baseTile.polygon.style.pointerEvents = 'none';
+    job.baseTile.elements.polygon.style.pointerEvents = 'none';
   }
 
   /**
@@ -152,7 +152,7 @@
     quick2FadeProgress = (quick2FadeProgress > 1 ? 1 : quick2FadeProgress);
 
     // Update the opacity of the center Tile
-    job.baseTile.div.style.opacity = 1 - quick1FadeProgress;
+    job.baseTile.elements.div.style.opacity = 1 - quick1FadeProgress;
     job.baseTile.tilePost.elements.title.style.opacity = 1 - quick2FadeProgress;
 
     // Update the opacity of the PagePost
@@ -197,7 +197,7 @@
     quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
 
     // Update the opacity of the center Tile
-    job.baseTile.div.style.opacity = progress;
+    job.baseTile.elements.div.style.opacity = progress;
     job.baseTile.tilePost.elements.title.style.opacity = progress;
 
     // Update the opacity of the PagePost
