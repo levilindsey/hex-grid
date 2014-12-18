@@ -125,11 +125,11 @@
 
     tile = this;
 
-    tile.vertexDeltas = computeVertexDeltas(window.hg.Grid.config.tileOuterRadius, tile.grid.isVertical);
+    tile.vertexDeltas = computeVertexDeltas(window.hg.Grid.config.tileOuterRadius, tile.grid.isVertical,
+      tile.grid.tileHalfWidth, tile.grid.tileHalfHeight);
 
     for (i = 0, pointsString = ''; i < 12;) {
-      pointsString += (tile.vertexDeltas[i++] + tile.grid.tileHalfWidth) + ',' +
-        (tile.vertexDeltas[i++] + tile.grid.tileHalfHeight) + ' ';
+      pointsString += tile.vertexDeltas[i++] + ',' + tile.vertexDeltas[i++] + ' ';
     }
 
     tile.polygon.setAttribute('points', pointsString);
@@ -431,7 +431,7 @@
    *
    * @this Tile
    */
-  function draw() {//**;// TODO: the fill updates are too slow; can I just change opacity of a screen instead?
+  function draw() {
     var tile, colorString, translateString;
 
     tile = this;
@@ -522,9 +522,11 @@
    *
    * @param {Number} radius
    * @param {Boolean} isVertical
+   * @param {Number} centerX
+   * @param {Number} centerY
    * @returns {Array.<Number>}
    */
-  function computeVertexDeltas(radius, isVertical) {
+  function computeVertexDeltas(radius, isVertical, centerX, centerY) {
     var trigIndex, coordIndex, sines, cosines, vertexDeltas;
 
     // Grab the pre-computed sine and cosine values
@@ -539,8 +541,8 @@
     for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
          trigIndex < 6;
          trigIndex += 1) {
-      vertexDeltas[coordIndex++] = radius * cosines[trigIndex];
-      vertexDeltas[coordIndex++] = radius * sines[trigIndex];
+      vertexDeltas[coordIndex++] = centerX + radius * cosines[trigIndex];
+      vertexDeltas[coordIndex++] = centerY + radius * sines[trigIndex];
     }
 
     return vertexDeltas;
