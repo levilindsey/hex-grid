@@ -17,7 +17,7 @@
   var animator = {};
   var config = {};
 
-  config.deltaTimeUpperThreshold = 200;
+  config.deltaTimeUpperThreshold = 160;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -186,7 +186,7 @@
   // Expose this singleton
 
   animator.jobs = [];
-  animator.previousTime = performance.now();
+  animator.previousTime = window.performance && window.performance.now() || 0;
   animator.isLooping = false;
   animator.isPaused = true;
   animator.startJob = startJob;

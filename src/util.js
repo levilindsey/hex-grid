@@ -246,6 +246,20 @@
   }
 
   /**
+   * Sets the CSS transition style of the given element.
+   *
+   * @param {HTMLElement} element The element.
+   * @param {Number} value The transition string.
+   */
+  function setTransition(element, value) {
+    element.style.transition = value;
+    element.style.WebkitTransition = value;
+    element.style.MozTransition = value;
+    element.style.msTransition = value;
+    element.style.OTransition = value;
+  }
+
+  /**
    * Sets the CSS transition duration style of the given element.
    *
    * @param {HTMLElement} element The element.
@@ -677,6 +691,7 @@
     getTextWidth: getTextWidth,
     encodeQueryString: encodeQueryString,
     getQueryStringParameterValue: getQueryStringParameterValue,
+    setTransition: setTransition,
     setTransitionDurationSeconds: setTransitionDurationSeconds,
     setTransitionDelaySeconds: setTransitionDelaySeconds,
     setUserSelectNone: setUserSelectNone,

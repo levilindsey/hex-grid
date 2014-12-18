@@ -352,9 +352,11 @@
    */
   function cancelPersistentJob(jobId, grid, jobIndex) {
     if (typeof jobIndex !== 'undefined') {
-      window.hg.animator.cancelJob(controller.persistentJobs[jobId].jobs[grid.index][jobIndex]);
+      controller.persistentJobs[jobId].jobs[grid.index][jobIndex].cancel();
     } else {
-      controller.persistentJobs[jobId].jobs[grid.index].forEach(window.hg.animator.cancelJob);
+      controller.persistentJobs[jobId].jobs[grid.index].forEach(function (job) {
+        job.cancel();
+      });
     }
   }
 
@@ -570,7 +572,7 @@
   /**
    * @param {Grid} grid
    */
-  function cancelPersistentJobsForLowPerformanceBrowser(grid) {
+  function stopPersistentJobsForLowPerformanceBrowser(grid) {
     controller.persistentJobs.ColorShiftJob.cancel(grid);
     controller.persistentJobs.ColorWaveJob.cancel(grid);
     controller.persistentJobs.DisplacementWaveJob.cancel(grid);
@@ -638,27 +640,57 @@
   }
 
   function handleLowPerformanceBrowser() {
-    config.isLowPerformanceBrowser = true;
+    window.hg.util.requestAnimationFrame(function () {
+      config.isLowPerformanceBrowser = true;
 
-    internal.grids.forEach(cancelPersistentJobsForLowPerformanceBrowser);
+      internal.grids.forEach(stopPersistentJobsForLowPerformanceBrowser);
 
-    resize();
+      resize();
 
-    displayLowPerformanceMessage();
+      displayLowPerformanceMessage();
+    });
 
     // ---  --- //
 
     function displayLowPerformanceMessage() {
-      var lowPerformanceMessage = 'This site is running in low-performance mode for your browser.';
+      var lowPerformanceMessage = 'This site is switching to low-performance mode for your browser.';
 
       console.warn(lowPerformanceMessage);
 
-      // TODO:
+      var messagePanel = document.createElement('div');
+      var body = document.getElementsByTagName('body')[0];
+      body.appendChild(messagePanel);
+
+      messagePanel.innerHTML = lowPerformanceMessage;
+      messagePanel.style.zIndex = 2000;
+      messagePanel.style.position = 'absolute';
+      messagePanel.style.top = '0';
+      messagePanel.style.right = '0';
+      messagePanel.style.bottom = '0';
+      messagePanel.style.left = '0';
+      messagePanel.style.width = '70%';
+      messagePanel.style.height = '70%';
+      messagePanel.style.margin = 'auto';
+      messagePanel.style.padding = '5%';
+      messagePanel.style.fontSize = '5em';
+      messagePanel.style.fontWeight = 'bold';
+      messagePanel.style.opacity = '1';
+      messagePanel.style.color = 'white';
+      messagePanel.style.backgroundColor = 'rgba(60,0,0,0.6)';
+      window.hg.util.setTransition(messagePanel, 'opacity 0.5s linear 5s');
+
+      setTimeout(function () {
+        messagePanel.style.opacity = '0';
+
+        setTimeout(function () {
+          body.removeChild(messagePanel);
+        }, 5500);
+      }, 10);
     }
   }
 
   function runPerformanceCheck() {
-    var maxRatioOfMaxDeltaTimeFrames = 0.3;
+    var maxRatioOfMaxDeltaTimeFrames = 0.25;
     var numberOfFramesToCheck = 20;
 
     var frameCount, maxDeltaTimeFrameCount;
@@ -667,6 +699,8 @@
       start: function (startTime) {
         frameCount = 0;
         maxDeltaTimeFrameCount = 0;
+        internal.performanceCheckJob.startTime = startTime;
+        internal.performanceCheckJob.isComplete = false;
       },
       update: function (currentTime, deltaTime) {
         frameCount++;
@@ -678,8 +712,13 @@
 
         // Has the performance check finished?
         if (frameCount >= numberOfFramesToCheck) {
-          window.hg.animator.cancelJob(internal.performanceCheckJob);
+          internal.performanceCheckJob.isComplete = true;
           internal.performanceCheckJob = null;
+
+          console.info('--- PERFORMANCE DIAGNOSTICS ---');
+          console.info('maxDeltaTimeFrameCount',maxDeltaTimeFrameCount);
+          console.info('frameCount',frameCount);
+          console.info('-------------------------------');
 
           // Did the overall performance test fail?
           if (maxDeltaTimeFrameCount / frameCount > maxRatioOfMaxDeltaTimeFrames) {
@@ -690,10 +729,13 @@
       draw: function () {},
       cancel: function () {},
       init: function () {},
-      isComplete: false
+      isComplete: true
     };
 
-    window.hg.animator.startJob(internal.performanceCheckJob);
+    // Run this on the next frame so that some of the setup noise from the current early frame is ignored
+    window.hg.util.requestAnimationFrame(function () {
+      window.hg.animator.startJob(internal.performanceCheckJob);
+    });
   }
 
   // ------------------------------------------------------------------------------------------- //
