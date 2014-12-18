@@ -110,7 +110,7 @@
     title.style.textAlign = 'center';
     title.style.whiteSpace = 'pre-wrap';
     title.style.pointerEvents = 'none';
-    title.style.zIndex = '2000';
+    title.style.zIndex = '1200';
 
     tilePost.tile.imageScreenOpacity = config.inactiveScreenOpacity;
     draw.call(tilePost);

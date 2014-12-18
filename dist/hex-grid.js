@@ -272,6 +272,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   internal.performanceCheckJob = true;
 
   config.isLowPerformanceBrowser = false;
+  config.isSafariBrowser = false;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -713,6 +714,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     if (window.hg.util.checkForSafari()) {
       console.info('Adjusting SVG for the Safari browser');
 
+      config.isSafariBrowser = true;
+
       grid.svg.style.width = grid.parent.offsetWidth + 'px';
       grid.svg.style.height = grid.parent.offsetHeight + 'px';
     }
@@ -741,7 +744,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       body.appendChild(messagePanel);
 
       messagePanel.innerHTML = lowPerformanceMessage;
-      messagePanel.style.zIndex = 2000;
+      messagePanel.style.zIndex = 5000;
       messagePanel.style.position = 'absolute';
       messagePanel.style.top = '0';
       messagePanel.style.right = '0';
@@ -4910,7 +4913,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     container.style.margin = '0';
     container.style.padding = '0';
     container.style.overflow = 'hidden';
-    container.style.zIndex = '500';
+    container.style.zIndex = window.hg.controller.config.isSafariBrowser ? '1500' : '500';
 
     outerWrapper.setAttribute('data-hg-post-outer-wrapper', 'data-hg-post-outer-wrapper');
     outerWrapper.style.width = width + 'px';
@@ -6752,7 +6755,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     title.style.textAlign = 'center';
     title.style.whiteSpace = 'pre-wrap';
     title.style.pointerEvents = 'none';
-    title.style.zIndex = '2000';
+    title.style.zIndex = '1200';
 
     tilePost.tile.imageScreenOpacity = config.inactiveScreenOpacity;
     draw.call(tilePost);

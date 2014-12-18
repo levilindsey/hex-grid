@@ -193,6 +193,7 @@
   internal.performanceCheckJob = true;
 
   config.isLowPerformanceBrowser = false;
+  config.isSafariBrowser = false;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -634,6 +635,8 @@
     if (window.hg.util.checkForSafari()) {
       console.info('Adjusting SVG for the Safari browser');
 
+      config.isSafariBrowser = true;
+
       grid.svg.style.width = grid.parent.offsetWidth + 'px';
       grid.svg.style.height = grid.parent.offsetHeight + 'px';
     }
@@ -662,7 +665,7 @@
       body.appendChild(messagePanel);
 
       messagePanel.innerHTML = lowPerformanceMessage;
-      messagePanel.style.zIndex = 2000;
+      messagePanel.style.zIndex = 5000;
       messagePanel.style.position = 'absolute';
       messagePanel.style.top = '0';
       messagePanel.style.right = '0';
