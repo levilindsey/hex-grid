@@ -168,6 +168,7 @@
           window.hg.HighlightHoverJob.config.deltaSaturation = color.s * 100;
           window.hg.HighlightHoverJob.config.deltaLightness = color.l * 100;
         });
+    folder.add(window.hg.HighlightHoverJob.config, 'opacity', 0, 1);
 
     folder.add(window.hg.HighlightHoverJob.config, 'isRecurring')
         .onChange(toggleRecurrence);

@@ -13,6 +13,9 @@
 
   config = {};
 
+  config.activeScreenOpacity = 0.0;
+  config.inactiveScreenOpacity = 0.8;
+
   config.fontSize = 18;
 
   //  --- Dependent parameters --- //
@@ -27,6 +30,11 @@
    */
   function createElements() {
     var tilePost = this;
+
+    var patternId = 'hg-pattern-' + tilePost.tile.postData.id;
+
+    var screenColorString = 'hsl(' + window.hg.Grid.config.backgroundHue + ',' +
+        window.hg.Grid.config.backgroundSaturation + '%,' + window.hg.Grid.config.backgroundLightness + '%)';
 
     var outerSideLength = window.hg.Grid.config.tileOuterRadius * 2;
 
@@ -51,20 +59,28 @@
 
     // --- Create the elements, add them to the DOM, save them in this TilePost --- //
 
+    var backgroundPattern = document.createElementNS(window.hg.util.svgNamespace, 'pattern');
     var backgroundImage = document.createElementNS(window.hg.util.svgNamespace, 'image');
+    var backgroundImageScreen = document.createElementNS(window.hg.util.svgNamespace, 'rect');
     var title = document.createElement('h2');
 
-    tilePost.tile.elements.backgroundPattern.removeChild(tilePost.tile.elements.backgroundPanel);
-    tilePost.tile.elements.backgroundPanel = null;
-
-    tilePost.tile.elements.backgroundPattern.insertBefore(backgroundImage, tilePost.tile.elements.foregroundScreen);
+    tilePost.tile.grid.svgDefs.appendChild(backgroundPattern);
+    backgroundPattern.appendChild(backgroundImage);
+    backgroundPattern.appendChild(backgroundImageScreen);
     tilePost.tile.grid.wrapper.appendChild(title);
 
-    tilePost.elements = {};
+    tilePost.elements = [];
+    tilePost.elements.backgroundPattern = backgroundPattern;
     tilePost.elements.backgroundImage = backgroundImage;
+    tilePost.elements.backgroundImageScreen = backgroundImageScreen;
     tilePost.elements.title = title;
 
     // --- Set the parameters of the elements --- //
+
+    backgroundPattern.setAttribute('id', patternId);
+    backgroundPattern.setAttribute('patternContentUnits', 'objectBoundingBox');
+    backgroundPattern.setAttribute('width', '1');
+    backgroundPattern.setAttribute('height', '1');
 
     backgroundImage.setAttributeNS(window.hg.util.xlinkNamespace, 'xlink:href', tilePost.tile.postData.thumbnailSrc);
     backgroundImage.setAttribute('preserveAspectRatio', 'none');
@@ -72,11 +88,16 @@
     backgroundImage.setAttribute('y', imageY);
     backgroundImage.setAttribute('width', imageWidth);
     backgroundImage.setAttribute('height', imageHeight);
-    backgroundImage.setAttribute('opacity', '1');
-    // TODO: this should have worked, but the aspect ratio was not being maintained; it may have been a browser bug
+    // TODO: this should have worked, but the aspect ratio was NOT being maintained; it may have been a browser bug
     //backgroundImage.setAttribute('preserveAspectRatio', 'xMidYMid slice');
     //backgroundImage.setAttribute('width', '1');
     //backgroundImage.setAttribute('height', '1');
+
+    backgroundImageScreen.setAttribute('width', '1');
+    backgroundImageScreen.setAttribute('height', '1');
+    backgroundImageScreen.setAttribute('fill', screenColorString);
+
+    tilePost.tile.polygon.setAttribute('fill', 'url(#' + patternId + ')');
 
     title.innerHTML = tilePost.tile.postData.titleShort;
     title.setAttribute('data-hg-tile-title', 'data-hg-tile-title');
@@ -91,6 +112,7 @@
     title.style.pointerEvents = 'none';
     title.style.zIndex = '2000';
 
+    tilePost.tile.imageScreenOpacity = config.inactiveScreenOpacity;
     draw.call(tilePost);
 
     // TODO: for the canvas version: http://stackoverflow.com/a/4961439/489568
@@ -111,12 +133,17 @@
   function draw() {
     var tilePost = this;
 
+    // Keep hovered tiles highlighted
+    var backgroundImageScreenOpacity = tilePost.tile.isHighlighted ?
+        window.hg.TilePost.config.activeScreenOpacity : tilePost.tile.imageScreenOpacity;
+
     // Have the title change across a wider opacity range than the background screen
-    var titleOpacity = 0.5 + (tilePost.tile.foregroundScreenOpacity - 0.5) * 2;
+    var titleOpacity = 0.5 + (backgroundImageScreenOpacity - 0.5) * 2;
     titleOpacity = titleOpacity > 1 ? 1 : (titleOpacity < 0 ? 0 : titleOpacity);
 
     window.hg.util.applyTransform(tilePost.elements.title,
         'translate(' + tilePost.tile.particle.px + 'px,' + tilePost.tile.particle.py + 'px)');
+    tilePost.elements.backgroundImageScreen.setAttribute('opacity', backgroundImageScreenOpacity);
 
     // Only set the title opacity for collapsed tiles
     if (tilePost.tile.grid.expandedTile !== tilePost.tile) {
@@ -131,6 +158,7 @@
     var tilePost = this;
 
     tilePost.tile.grid.wrapper.removeChild(tilePost.elements.title);
+    tilePost.tile.grid.svgDefs.removeChild(tilePost.elements.backgroundPattern);
   }
 
   // ------------------------------------------------------------------------------------------- //

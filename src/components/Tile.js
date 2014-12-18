@@ -41,12 +41,6 @@
   config.velocitySuppressionLowerThreshold = 0.0005;
   // TODO: add similar, upper thresholds
 
-  // TODO: include these in the dat.GUI menu (but probably under the Grid module...)
-  config.activeScreenOpacity = 0.0;
-  config.inactiveScreenOpacity = 0.8;
-
-  **;// TODO: have just one polygon, one background screen pattern, and one rect definition and reference them by each polygon
-
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -64,73 +58,36 @@
    *
    * @this Tile
    */
-  function createElements() {
-    var tile = this;
+  function createElement() {
+    var tile, id, width, height;
 
-    var width = tile.grid.tileHalfWidth * 2;
-    var height = tile.grid.tileHalfHeight * 2;
+    tile = this;
 
-    var id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
+    width = tile.grid.tileHalfWidth * 2;
+    height = tile.grid.tileHalfHeight * 2;
 
-    var patternId = 'hg-pattern-' + id;
+    id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    // --- Create the elements, add them to the DOM, save them in this TilePost --- //
+    tile.div = document.createElement('div');
+    tile.grid.wrapper.appendChild(tile.div);
+    tile.div.style.position = 'absolute';
+    tile.div.style.width = width + 'px';
+    tile.div.style.height = height + 'px';
 
-    var div = document.createElement('div');
-    var svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
-    var polygon = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
-    var backgroundPattern = document.createElementNS(window.hg.util.svgNamespace, 'pattern');
-    var backgroundPanel = document.createElementNS(window.hg.util.svgNamespace, 'rect');
-    var foregroundScreen = document.createElementNS(window.hg.util.svgNamespace, 'rect');
+    tile.svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
+    tile.div.appendChild(tile.svg);
+    tile.svg.style.width = width + 'px';
+    tile.svg.style.height = height + 'px';
 
-    tile.grid.wrapper.appendChild(div);
-    div.appendChild(svg);
-    svg.appendChild(polygon);
-    tile.grid.svgDefs.appendChild(backgroundPattern);
-    backgroundPattern.appendChild(backgroundPanel);
-    backgroundPattern.appendChild(foregroundScreen);
+    tile.polygon = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
+    tile.svg.appendChild(tile.polygon);
 
-    tile.elements = {};
-    tile.elements.div = div;
-    tile.elements.svg = svg;
-    tile.elements.polygon = polygon;
-    tile.elements.backgroundPattern = backgroundPattern;
-    tile.elements.backgroundPanel = backgroundPanel;
-    tile.elements.foregroundScreen = foregroundScreen;
+    tile.div.id = 'hg-div-' + id;
+    tile.polygon.id = 'hg-polygon-' + id;
+    tile.polygon.setAttribute('data-hg-tile-polygon', 'data-hg-tile-polygon');
+    tile.div.setAttribute('data-hg-tile-div', 'data-hg-tile-div');
+    tile.polygon.style.cursor = 'pointer';
 
-    // --- Set the parameters of the elements --- //
-
-    div.style.position = 'absolute';
-    div.style.width = width + 'px';
-    div.style.height = height + 'px';
-
-    svg.style.width = width + 'px';
-    svg.style.height = height + 'px';
-
-    backgroundPattern.setAttribute('id', patternId);
-    backgroundPattern.setAttribute('patternContentUnits', 'objectBoundingBox');
-    backgroundPattern.setAttribute('width', '1');
-    backgroundPattern.setAttribute('height', '1');
-    backgroundPattern.setAttribute('opacity', '1');
-
-    foregroundScreen.setAttribute('width', '1');
-    foregroundScreen.setAttribute('height', '1');
-
-    backgroundPanel.setAttribute('width', '1');
-    backgroundPanel.setAttribute('height', '1');
-    backgroundPanel.setAttribute('opacity', '1');
-
-    tile.elements.polygon.setAttribute('fill', 'url(#' + patternId + ')');
-
-    tile.foregroundScreenOpacity = config.inactiveScreenOpacity;
-
-    div.id = 'hg-div-' + id;
-    polygon.id = 'hg-polygon-' + id;
-    polygon.setAttribute('data-hg-tile-polygon', 'data-hg-tile-polygon');
-    div.setAttribute('data-hg-tile-div', 'data-hg-tile-div');
-    polygon.style.cursor = 'pointer';
-
-    setColor.call(tile);
     setPoints.call(tile);
 
     // Set the color and vertices
@@ -175,7 +132,7 @@
         (tile.vertexDeltas[i++] + tile.grid.tileHalfHeight) + ' ';
     }
 
-    tile.elements.polygon.setAttribute('points', pointsString);
+    tile.polygon.setAttribute('points', pointsString);
   }
 
   /**
@@ -186,8 +143,8 @@
   function createTilePost() {
     var tile = this;
 
-    tile.elements.polygon.setAttribute('data-hg-post-tile-polygon', 'data-hg-post-tile-polygon');
-    tile.elements.div.setAttribute('data-hg-post-tile-div', 'data-hg-post-tile-div');
+    tile.polygon.setAttribute('data-hg-post-tile-polygon', 'data-hg-post-tile-polygon');
+    tile.div.setAttribute('data-hg-post-tile-div', 'data-hg-post-tile-div');
 
     tile.tilePost = new window.hg.TilePost(tile);
   }
@@ -200,8 +157,8 @@
   function destroyTilePost() {
     var tile = this;
 
-    tile.elements.polygon.removeAttribute('data-hg-post-tile-polygon');
-    tile.elements.div.removeAttribute('data-hg-post-tile-div');
+    tile.polygon.removeAttribute('data-hg-post-tile-polygon');
+    tile.div.removeAttribute('data-hg-post-tile-div');
 
     tile.tilePost.destroy();
     tile.tilePost = null;
@@ -284,19 +241,74 @@
    * Sets this tile's color values.
    *
    * @this Tile
+   * @param {Number} hue
+   * @param {Number} saturation
+   * @param {Number} lightness
    */
-  function setColor() {
+  function setColor(hue, saturation, lightness) {
     var tile = this;
 
-    var backgroundPanelColorString = 'hsl(' + tile.hue + ',' + tile.saturation + '%,' + tile.lightness + '%)';
-    var foregroundScreenColorString = 'hsl(' + (tile.hue + window.hg.HighlightHoverJob.config.deltaHue) + ',' +
-      (tile.saturation + window.hg.HighlightHoverJob.config.deltaSaturation) + '%,' +
-      (tile.lightness + window.hg.HighlightHoverJob.config.deltaLightness) + '%)';
-
-    if (tile.elements.backgroundPanel) {
-      tile.elements.backgroundPanel.setAttribute('fill', backgroundPanelColorString);
+    if (tile.isHighlighted) {
+      hue = hue + window.hg.HighlightHoverJob.config.deltaHue;
+      saturation = saturation + window.hg.HighlightHoverJob.config.deltaSaturation;
+      lightness = lightness + window.hg.HighlightHoverJob.config.deltaLightness;
     }
-    tile.elements.foregroundScreen.setAttribute('fill', foregroundScreenColorString);
+
+    tile.originalColor.h = hue;
+    tile.originalColor.s = saturation;
+    tile.originalColor.l = lightness;
+    
+    tile.currentColor.h = hue;
+    tile.currentColor.s = saturation;
+    tile.currentColor.l = lightness;
+  }
+
+  /**
+   * Sets whether this tile is highlighted.
+   *
+   * @this Tile
+   * @param {Boolean} isHighlighted
+   */
+  function setIsHighlighted(isHighlighted) {
+    var tile, hue, saturation, lightness, backgroundImageScreenOpacity;
+
+    tile = this;
+
+    if (isHighlighted) {
+      if (tile.isHighlighted) {
+        // Nothing is changing
+        hue = tile.originalColor.h;
+        saturation = tile.originalColor.s;
+        lightness = tile.originalColor.l;
+      } else {
+        // Add the highlight
+        hue = tile.originalColor.h + window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalColor.s + window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalColor.l + window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
+      }
+    } else {
+      if (tile.isHighlighted) {
+        // Remove the highlight
+        hue = tile.originalColor.h - window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalColor.s - window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalColor.l - window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
+      } else {
+        // Nothing is changing
+        hue = tile.originalColor.h;
+        saturation = tile.originalColor.s;
+        lightness = tile.originalColor.l;
+      }
+    }
+
+    tile.originalColor.h = hue;
+    tile.originalColor.s = saturation;
+    tile.originalColor.l = lightness;
+
+    tile.currentColor.h = hue;
+    tile.currentColor.s = saturation;
+    tile.currentColor.l = lightness;
+
+    tile.isHighlighted = isHighlighted;
   }
 
   /**
@@ -419,17 +431,25 @@
    *
    * @this Tile
    */
-  function draw() {
-    var tile = this;
+  function draw() {//**;// TODO: the fill updates are too slow; can I just change opacity of a screen instead?
+    var tile, colorString, translateString;
 
-    var translateString = 'scale(' + tile.scaleFactor + ') ' +
+    tile = this;
+
+    translateString = 'scale(' + tile.scaleFactor + ') ' +
       'translate3d(' + (tile.particle.px - tile.grid.tileHalfWidth) + 'px,' +
       (tile.particle.py - tile.grid.tileHalfHeight) + 'px,0px)';
 
-    window.hg.util.applyTransform(tile.elements.div, translateString);
+    window.hg.util.applyTransform(tile.div, translateString);
 
-    tile.elements.foregroundScreen.style.opacity =
-      tile.isHighlighted ? config.activeScreenOpacity : tile.foregroundScreenOpacity;
+    if (!tile.holdsContent) {
+      // Set the color
+      colorString = 'hsl(' + tile.currentColor.h + ',' + tile.currentColor.s + '%,' + tile.currentColor.l + '%)';
+      tile.polygon.setAttribute('fill', colorString);
+    } else {
+      // Set the position and opacity of the TilePost
+      tile.tilePost.draw();
+    }
   }
 
   /**
@@ -602,12 +622,11 @@
     if (tile.holdsContent) {
       destroyTilePost.call(tile);
     }
-    tile.grid.wrapper.removeChild(tile.elements.div);
-    tile.grid.svgDefs.removeChild(tile.elements.backgroundPattern);
+    tile.grid.wrapper.removeChild(tile.div);
 
-    tile.elements.div = null;
-    tile.elements.svg = null;
-    tile.elements.polygon = null;
+    tile.div = null;
+    tile.svg = null;
+    tile.polygon = null;
   }
 
   /**
@@ -618,7 +637,7 @@
   function hide() {
     var tile = this;
 
-    tile.elements.div.style.display = 'none';
+    tile.div.style.display = 'none';
     if (tile.holdsContent) {
       tile.tilePost.elements.title.style.display = 'none';
     }
@@ -632,7 +651,7 @@
   function show() {
     var tile = this;
 
-    tile.elements.div.style.display = 'block';
+    tile.div.style.display = 'block';
     if (tile.holdsContent) {
       tile.tilePost.elements.title.style.display = 'block';
     }
@@ -665,14 +684,16 @@
     var tile = this;
 
     tile.grid = grid;
-    tile.elements = null;
-    tile.hue = hue;
-    tile.saturation = saturation;
-    tile.lightness = lightness;
+    tile.div = null;
+    tile.svg = null;
+    tile.polygon = null;
     tile.currentAnchor = {x: anchorX, y: anchorY};
     tile.originalAnchor = {x: anchorX, y: anchorY};
     tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
     tile.vertexDeltas = null;
+
+    tile.originalColor = {h: hue, s: saturation, l: lightness};
+    tile.currentColor = {h: hue, s: saturation, l: lightness};
 
     tile.scaleFactor = 1;
     tile.postData = postData;
@@ -690,7 +711,7 @@
 
     tile.isHighlighted = false;
 
-    tile.foregroundScreenOpacity = Number.NaN;
+    tile.imageScreenOpacity = Number.NaN;
 
     tile.neighborStates = [];
     tile.particle = null;
@@ -698,6 +719,7 @@
     tile.setContent = setContent;
     tile.setNeighborTiles = setNeighborTiles;
     tile.setColor = setColor;
+    tile.setIsHighlighted = setIsHighlighted;
     tile.update = update;
     tile.draw = draw;
     tile.applyExternalForce = applyExternalForce;
@@ -710,7 +732,7 @@
     tile.show = show;
 
     createParticle.call(tile, mass);
-    createElements.call(tile);
+    createElement.call(tile);
 
     if (tile.holdsContent) {
       createTilePost.call(tile);

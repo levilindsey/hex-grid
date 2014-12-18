@@ -15,10 +15,11 @@
 
   config.duration = 500;
 
-  // TODO: refactor these parameters to lie within the tile module
   config.deltaHue = 0;
   config.deltaSaturation = 0;
-  config.deltaLightness = -50;
+  config.deltaLightness = 50;
+
+  config.opacity = 0.5;
 
   config.isRecurring = false;
   config.avgDelay = 30;
@@ -51,14 +52,34 @@
   // Private static functions
 
   /**
-   * Updates the background screen opacity of the given content tile according to the given durationRatio.
+   * Updates the background image screen opacity of the given content tile according to the given
+   * durationRatio.
    *
    * @param {Tile} tile
-   * @param {Number} durationRatio Specifies how far this animation is through its overall duration.
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * duration.
    */
-  function updateTile(tile, durationRatio) {
-    tile.foregroundScreenOpacity = window.hg.Tile.config.activeScreenOpacity + (durationRatio *
-      (window.hg.Tile.config.inactiveScreenOpacity - window.hg.Tile.config.activeScreenOpacity));
+  function updateContentTile(tile, durationRatio) {
+    var opacity = window.hg.TilePost.config.activeScreenOpacity +
+        (durationRatio * (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity));
+
+    tile.imageScreenOpacity = opacity;
+  }
+
+  /**
+   * Updates the color of the given non-content tile according to the given durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateNonContentTile(tile, durationRatio) {
+    var opacity = config.opacity * (1 - durationRatio);
+
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -91,7 +112,8 @@
 
     job = this;
 
-    // When the tile is re-highlighted after this job has started, then this job should be cancelled
+    // When the tile is re-highlighted after this job has started, then this job should be
+    // cancelled
     if (job.tile.isHighlighted) {
       job.cancel();
       return;
@@ -153,7 +175,7 @@
     job.startTime = 0;
     job.isComplete = true;
 
-    job.updateTile = updateTile;
+    job.updateTile = tile.holdsContent ? updateContentTile : updateNonContentTile;
 
     job.start = start;
     job.update = update;

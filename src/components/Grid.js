@@ -53,7 +53,7 @@
   config.backgroundLightness = 4;
   config.tileHue = 230;//147;
   config.tileSaturation = 67;
-  config.tileLightness = 62;
+  config.tileLightness = 22;
   config.tileOuterRadius = 80;
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
@@ -529,7 +529,7 @@
     grid = this;
 
     for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
-      grid.allTiles[i].elements.polygon.setAttribute('data-hg-index', i);
+      grid.allTiles[i].polygon.setAttribute('data-hg-index', i);
     }
   }
 
@@ -622,7 +622,8 @@
     grid = this;
 
     for (i = 0, count = grid.allNonContentTiles.length; i < count; i += 1) {
-      grid.allNonContentTiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+      grid.allNonContentTiles[i].setColor(config.tileHue, config.tileSaturation,
+          config.tileLightness);
     }
   }
 
@@ -710,11 +711,11 @@
     var grid = this;
 
     if (grid.hoveredTile) {
-      grid.hoveredTile.isHighlighted = false;
+      grid.hoveredTile.setIsHighlighted(false);
     }
 
     if (hoveredTile) {
-      hoveredTile.isHighlighted = true;
+      hoveredTile.setIsHighlighted(true);
     }
 
     grid.hoveredTile = hoveredTile;

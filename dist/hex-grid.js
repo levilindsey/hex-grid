@@ -1673,8 +1673,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     }
   };
 
-  // TODO: refactor all references to currentColor and replace with references to foregroundScreenOpacity
-
   config.annotationsArray = [];
 
   //  --- Dependent parameters --- //
@@ -1765,7 +1763,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     annotations = this;
 
     for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
-      annotations.grid.allTiles[i].elements.div.style.opacity = 0;
+      annotations.grid.allTiles[i].div.style.opacity = 0;
     }
   }
 
@@ -2112,7 +2110,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     annotations = this;
 
     for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
-      annotations.grid.originalTiles[i].elements.div.style.opacity = 1;
+      annotations.grid.originalTiles[i].div.style.opacity = 1;
     }
   }
 
@@ -3494,7 +3492,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config.backgroundLightness = 4;
   config.tileHue = 230;//147;
   config.tileSaturation = 67;
-  config.tileLightness = 62;
+  config.tileLightness = 22;
   config.tileOuterRadius = 80;
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
@@ -3970,7 +3968,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid = this;
 
     for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
-      grid.allTiles[i].elements.polygon.setAttribute('data-hg-index', i);
+      grid.allTiles[i].polygon.setAttribute('data-hg-index', i);
     }
   }
 
@@ -4063,7 +4061,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid = this;
 
     for (i = 0, count = grid.allNonContentTiles.length; i < count; i += 1) {
-      grid.allNonContentTiles[i].setColor(config.tileHue, config.tileSaturation, config.tileLightness);
+      grid.allNonContentTiles[i].setColor(config.tileHue, config.tileSaturation,
+          config.tileLightness);
     }
   }
 
@@ -4151,11 +4150,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var grid = this;
 
     if (grid.hoveredTile) {
-      grid.hoveredTile.isHighlighted = false;
+      grid.hoveredTile.setIsHighlighted(false);
     }
 
     if (hoveredTile) {
-      hoveredTile.isHighlighted = true;
+      hoveredTile.setIsHighlighted(true);
     }
 
     grid.hoveredTile = hoveredTile;
@@ -4368,7 +4367,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
       if (tile = getTileFromEvent(event)) {
 
-        if (tile.elements.div.getAttribute('data-hg-post-tile-polygon')) {
+        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
           // TODO: reset the other tile parameters
         }
 
@@ -4385,7 +4384,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
         input.grid.setHoveredTile(null);
       } else if (tile = getTileFromEvent(event)) {
 
-        if (tile.elements.div.getAttribute('data-hg-post-tile-polygon')) {
+        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
           // TODO: reset the other tile parameters
         }
 
@@ -4416,7 +4415,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
       if (event.button === 0 && (tile = getTileFromEvent(event))) {
 
-        if (tile.elements.div.getAttribute('data-hg-post-tile-polygon')) {
+        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
           // TODO:
         }
 
@@ -5688,12 +5687,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config.velocitySuppressionLowerThreshold = 0.0005;
   // TODO: add similar, upper thresholds
 
-  // TODO: include these in the dat.GUI menu (but probably under the Grid module...)
-  config.activeScreenOpacity = 0.0;
-  config.inactiveScreenOpacity = 0.8;
-
-  **;// TODO: have just one polygon, one background screen pattern, and one rect definition and reference them by each polygon
-
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -5711,73 +5704,36 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    *
    * @this Tile
    */
-  function createElements() {
-    var tile = this;
+  function createElement() {
+    var tile, id, width, height;
 
-    var width = tile.grid.tileHalfWidth * 2;
-    var height = tile.grid.tileHalfHeight * 2;
+    tile = this;
 
-    var id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
+    width = tile.grid.tileHalfWidth * 2;
+    height = tile.grid.tileHalfHeight * 2;
 
-    var patternId = 'hg-pattern-' + id;
+    id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    // --- Create the elements, add them to the DOM, save them in this TilePost --- //
+    tile.div = document.createElement('div');
+    tile.grid.wrapper.appendChild(tile.div);
+    tile.div.style.position = 'absolute';
+    tile.div.style.width = width + 'px';
+    tile.div.style.height = height + 'px';
 
-    var div = document.createElement('div');
-    var svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
-    var polygon = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
-    var backgroundPattern = document.createElementNS(window.hg.util.svgNamespace, 'pattern');
-    var backgroundPanel = document.createElementNS(window.hg.util.svgNamespace, 'rect');
-    var foregroundScreen = document.createElementNS(window.hg.util.svgNamespace, 'rect');
+    tile.svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
+    tile.div.appendChild(tile.svg);
+    tile.svg.style.width = width + 'px';
+    tile.svg.style.height = height + 'px';
 
-    tile.grid.wrapper.appendChild(div);
-    div.appendChild(svg);
-    svg.appendChild(polygon);
-    tile.grid.svgDefs.appendChild(backgroundPattern);
-    backgroundPattern.appendChild(backgroundPanel);
-    backgroundPattern.appendChild(foregroundScreen);
+    tile.polygon = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
+    tile.svg.appendChild(tile.polygon);
 
-    tile.elements = {};
-    tile.elements.div = div;
-    tile.elements.svg = svg;
-    tile.elements.polygon = polygon;
-    tile.elements.backgroundPattern = backgroundPattern;
-    tile.elements.backgroundPanel = backgroundPanel;
-    tile.elements.foregroundScreen = foregroundScreen;
+    tile.div.id = 'hg-div-' + id;
+    tile.polygon.id = 'hg-polygon-' + id;
+    tile.polygon.setAttribute('data-hg-tile-polygon', 'data-hg-tile-polygon');
+    tile.div.setAttribute('data-hg-tile-div', 'data-hg-tile-div');
+    tile.polygon.style.cursor = 'pointer';
 
-    // --- Set the parameters of the elements --- //
-
-    div.style.position = 'absolute';
-    div.style.width = width + 'px';
-    div.style.height = height + 'px';
-
-    svg.style.width = width + 'px';
-    svg.style.height = height + 'px';
-
-    backgroundPattern.setAttribute('id', patternId);
-    backgroundPattern.setAttribute('patternContentUnits', 'objectBoundingBox');
-    backgroundPattern.setAttribute('width', '1');
-    backgroundPattern.setAttribute('height', '1');
-    backgroundPattern.setAttribute('opacity', '1');
-
-    foregroundScreen.setAttribute('width', '1');
-    foregroundScreen.setAttribute('height', '1');
-
-    backgroundPanel.setAttribute('width', '1');
-    backgroundPanel.setAttribute('height', '1');
-    backgroundPanel.setAttribute('opacity', '1');
-
-    tile.elements.polygon.setAttribute('fill', 'url(#' + patternId + ')');
-
-    tile.foregroundScreenOpacity = config.inactiveScreenOpacity;
-
-    div.id = 'hg-div-' + id;
-    polygon.id = 'hg-polygon-' + id;
-    polygon.setAttribute('data-hg-tile-polygon', 'data-hg-tile-polygon');
-    div.setAttribute('data-hg-tile-div', 'data-hg-tile-div');
-    polygon.style.cursor = 'pointer';
-
-    setColor.call(tile);
     setPoints.call(tile);
 
     // Set the color and vertices
@@ -5822,7 +5778,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
         (tile.vertexDeltas[i++] + tile.grid.tileHalfHeight) + ' ';
     }
 
-    tile.elements.polygon.setAttribute('points', pointsString);
+    tile.polygon.setAttribute('points', pointsString);
   }
 
   /**
@@ -5833,8 +5789,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function createTilePost() {
     var tile = this;
 
-    tile.elements.polygon.setAttribute('data-hg-post-tile-polygon', 'data-hg-post-tile-polygon');
-    tile.elements.div.setAttribute('data-hg-post-tile-div', 'data-hg-post-tile-div');
+    tile.polygon.setAttribute('data-hg-post-tile-polygon', 'data-hg-post-tile-polygon');
+    tile.div.setAttribute('data-hg-post-tile-div', 'data-hg-post-tile-div');
 
     tile.tilePost = new window.hg.TilePost(tile);
   }
@@ -5847,8 +5803,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function destroyTilePost() {
     var tile = this;
 
-    tile.elements.polygon.removeAttribute('data-hg-post-tile-polygon');
-    tile.elements.div.removeAttribute('data-hg-post-tile-div');
+    tile.polygon.removeAttribute('data-hg-post-tile-polygon');
+    tile.div.removeAttribute('data-hg-post-tile-div');
 
     tile.tilePost.destroy();
     tile.tilePost = null;
@@ -5931,19 +5887,74 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * Sets this tile's color values.
    *
    * @this Tile
+   * @param {Number} hue
+   * @param {Number} saturation
+   * @param {Number} lightness
    */
-  function setColor() {
+  function setColor(hue, saturation, lightness) {
     var tile = this;
 
-    var backgroundPanelColorString = 'hsl(' + tile.hue + ',' + tile.saturation + '%,' + tile.lightness + '%)';
-    var foregroundScreenColorString = 'hsl(' + (tile.hue + window.hg.HighlightHoverJob.config.deltaHue) + ',' +
-      (tile.saturation + window.hg.HighlightHoverJob.config.deltaSaturation) + '%,' +
-      (tile.lightness + window.hg.HighlightHoverJob.config.deltaLightness) + '%)';
-
-    if (tile.elements.backgroundPanel) {
-      tile.elements.backgroundPanel.setAttribute('fill', backgroundPanelColorString);
+    if (tile.isHighlighted) {
+      hue = hue + window.hg.HighlightHoverJob.config.deltaHue;
+      saturation = saturation + window.hg.HighlightHoverJob.config.deltaSaturation;
+      lightness = lightness + window.hg.HighlightHoverJob.config.deltaLightness;
     }
-    tile.elements.foregroundScreen.setAttribute('fill', foregroundScreenColorString);
+
+    tile.originalColor.h = hue;
+    tile.originalColor.s = saturation;
+    tile.originalColor.l = lightness;
+    
+    tile.currentColor.h = hue;
+    tile.currentColor.s = saturation;
+    tile.currentColor.l = lightness;
+  }
+
+  /**
+   * Sets whether this tile is highlighted.
+   *
+   * @this Tile
+   * @param {Boolean} isHighlighted
+   */
+  function setIsHighlighted(isHighlighted) {
+    var tile, hue, saturation, lightness, backgroundImageScreenOpacity;
+
+    tile = this;
+
+    if (isHighlighted) {
+      if (tile.isHighlighted) {
+        // Nothing is changing
+        hue = tile.originalColor.h;
+        saturation = tile.originalColor.s;
+        lightness = tile.originalColor.l;
+      } else {
+        // Add the highlight
+        hue = tile.originalColor.h + window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalColor.s + window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalColor.l + window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
+      }
+    } else {
+      if (tile.isHighlighted) {
+        // Remove the highlight
+        hue = tile.originalColor.h - window.hg.HighlightHoverJob.config.deltaHue * window.hg.HighlightHoverJob.config.opacity;
+        saturation = tile.originalColor.s - window.hg.HighlightHoverJob.config.deltaSaturation * window.hg.HighlightHoverJob.config.opacity;
+        lightness = tile.originalColor.l - window.hg.HighlightHoverJob.config.deltaLightness * window.hg.HighlightHoverJob.config.opacity;
+      } else {
+        // Nothing is changing
+        hue = tile.originalColor.h;
+        saturation = tile.originalColor.s;
+        lightness = tile.originalColor.l;
+      }
+    }
+
+    tile.originalColor.h = hue;
+    tile.originalColor.s = saturation;
+    tile.originalColor.l = lightness;
+
+    tile.currentColor.h = hue;
+    tile.currentColor.s = saturation;
+    tile.currentColor.l = lightness;
+
+    tile.isHighlighted = isHighlighted;
   }
 
   /**
@@ -6066,17 +6077,25 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    *
    * @this Tile
    */
-  function draw() {
-    var tile = this;
+  function draw() {//**;// TODO: the fill updates are too slow; can I just change opacity of a screen instead?
+    var tile, colorString, translateString;
 
-    var translateString = 'scale(' + tile.scaleFactor + ') ' +
+    tile = this;
+
+    translateString = 'scale(' + tile.scaleFactor + ') ' +
       'translate3d(' + (tile.particle.px - tile.grid.tileHalfWidth) + 'px,' +
       (tile.particle.py - tile.grid.tileHalfHeight) + 'px,0px)';
 
-    window.hg.util.applyTransform(tile.elements.div, translateString);
+    window.hg.util.applyTransform(tile.div, translateString);
 
-    tile.elements.foregroundScreen.style.opacity =
-      tile.isHighlighted ? config.activeScreenOpacity : tile.foregroundScreenOpacity;
+    if (!tile.holdsContent) {
+      // Set the color
+      colorString = 'hsl(' + tile.currentColor.h + ',' + tile.currentColor.s + '%,' + tile.currentColor.l + '%)';
+      tile.polygon.setAttribute('fill', colorString);
+    } else {
+      // Set the position and opacity of the TilePost
+      tile.tilePost.draw();
+    }
   }
 
   /**
@@ -6249,12 +6268,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     if (tile.holdsContent) {
       destroyTilePost.call(tile);
     }
-    tile.grid.wrapper.removeChild(tile.elements.div);
-    tile.grid.svgDefs.removeChild(tile.elements.backgroundPattern);
+    tile.grid.wrapper.removeChild(tile.div);
 
-    tile.elements.div = null;
-    tile.elements.svg = null;
-    tile.elements.polygon = null;
+    tile.div = null;
+    tile.svg = null;
+    tile.polygon = null;
   }
 
   /**
@@ -6265,7 +6283,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function hide() {
     var tile = this;
 
-    tile.elements.div.style.display = 'none';
+    tile.div.style.display = 'none';
     if (tile.holdsContent) {
       tile.tilePost.elements.title.style.display = 'none';
     }
@@ -6279,7 +6297,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function show() {
     var tile = this;
 
-    tile.elements.div.style.display = 'block';
+    tile.div.style.display = 'block';
     if (tile.holdsContent) {
       tile.tilePost.elements.title.style.display = 'block';
     }
@@ -6312,14 +6330,16 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var tile = this;
 
     tile.grid = grid;
-    tile.elements = null;
-    tile.hue = hue;
-    tile.saturation = saturation;
-    tile.lightness = lightness;
+    tile.div = null;
+    tile.svg = null;
+    tile.polygon = null;
     tile.currentAnchor = {x: anchorX, y: anchorY};
     tile.originalAnchor = {x: anchorX, y: anchorY};
     tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
     tile.vertexDeltas = null;
+
+    tile.originalColor = {h: hue, s: saturation, l: lightness};
+    tile.currentColor = {h: hue, s: saturation, l: lightness};
 
     tile.scaleFactor = 1;
     tile.postData = postData;
@@ -6337,7 +6357,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     tile.isHighlighted = false;
 
-    tile.foregroundScreenOpacity = Number.NaN;
+    tile.imageScreenOpacity = Number.NaN;
 
     tile.neighborStates = [];
     tile.particle = null;
@@ -6345,6 +6365,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     tile.setContent = setContent;
     tile.setNeighborTiles = setNeighborTiles;
     tile.setColor = setColor;
+    tile.setIsHighlighted = setIsHighlighted;
     tile.update = update;
     tile.draw = draw;
     tile.applyExternalForce = applyExternalForce;
@@ -6357,7 +6378,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     tile.show = show;
 
     createParticle.call(tile, mass);
-    createElements.call(tile);
+    createElement.call(tile);
 
     if (tile.holdsContent) {
       createTilePost.call(tile);
@@ -6393,6 +6414,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   config = {};
 
+  config.activeScreenOpacity = 0.0;
+  config.inactiveScreenOpacity = 0.8;
+
   config.fontSize = 18;
 
   //  --- Dependent parameters --- //
@@ -6407,6 +6431,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    */
   function createElements() {
     var tilePost = this;
+
+    var patternId = 'hg-pattern-' + tilePost.tile.postData.id;
+
+    var screenColorString = 'hsl(' + window.hg.Grid.config.backgroundHue + ',' +
+        window.hg.Grid.config.backgroundSaturation + '%,' + window.hg.Grid.config.backgroundLightness + '%)';
 
     var outerSideLength = window.hg.Grid.config.tileOuterRadius * 2;
 
@@ -6431,20 +6460,28 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     // --- Create the elements, add them to the DOM, save them in this TilePost --- //
 
+    var backgroundPattern = document.createElementNS(window.hg.util.svgNamespace, 'pattern');
     var backgroundImage = document.createElementNS(window.hg.util.svgNamespace, 'image');
+    var backgroundImageScreen = document.createElementNS(window.hg.util.svgNamespace, 'rect');
     var title = document.createElement('h2');
 
-    tilePost.tile.elements.backgroundPattern.removeChild(tilePost.tile.elements.backgroundPanel);
-    tilePost.tile.elements.backgroundPanel = null;
-
-    tilePost.tile.elements.backgroundPattern.insertBefore(backgroundImage, tilePost.tile.elements.foregroundScreen);
+    tilePost.tile.grid.svgDefs.appendChild(backgroundPattern);
+    backgroundPattern.appendChild(backgroundImage);
+    backgroundPattern.appendChild(backgroundImageScreen);
     tilePost.tile.grid.wrapper.appendChild(title);
 
-    tilePost.elements = {};
+    tilePost.elements = [];
+    tilePost.elements.backgroundPattern = backgroundPattern;
     tilePost.elements.backgroundImage = backgroundImage;
+    tilePost.elements.backgroundImageScreen = backgroundImageScreen;
     tilePost.elements.title = title;
 
     // --- Set the parameters of the elements --- //
+
+    backgroundPattern.setAttribute('id', patternId);
+    backgroundPattern.setAttribute('patternContentUnits', 'objectBoundingBox');
+    backgroundPattern.setAttribute('width', '1');
+    backgroundPattern.setAttribute('height', '1');
 
     backgroundImage.setAttributeNS(window.hg.util.xlinkNamespace, 'xlink:href', tilePost.tile.postData.thumbnailSrc);
     backgroundImage.setAttribute('preserveAspectRatio', 'none');
@@ -6452,11 +6489,16 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     backgroundImage.setAttribute('y', imageY);
     backgroundImage.setAttribute('width', imageWidth);
     backgroundImage.setAttribute('height', imageHeight);
-    backgroundImage.setAttribute('opacity', '1');
-    // TODO: this should have worked, but the aspect ratio was not being maintained; it may have been a browser bug
+    // TODO: this should have worked, but the aspect ratio was NOT being maintained; it may have been a browser bug
     //backgroundImage.setAttribute('preserveAspectRatio', 'xMidYMid slice');
     //backgroundImage.setAttribute('width', '1');
     //backgroundImage.setAttribute('height', '1');
+
+    backgroundImageScreen.setAttribute('width', '1');
+    backgroundImageScreen.setAttribute('height', '1');
+    backgroundImageScreen.setAttribute('fill', screenColorString);
+
+    tilePost.tile.polygon.setAttribute('fill', 'url(#' + patternId + ')');
 
     title.innerHTML = tilePost.tile.postData.titleShort;
     title.setAttribute('data-hg-tile-title', 'data-hg-tile-title');
@@ -6471,6 +6513,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     title.style.pointerEvents = 'none';
     title.style.zIndex = '2000';
 
+    tilePost.tile.imageScreenOpacity = config.inactiveScreenOpacity;
     draw.call(tilePost);
 
     // TODO: for the canvas version: http://stackoverflow.com/a/4961439/489568
@@ -6491,12 +6534,17 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function draw() {
     var tilePost = this;
 
+    // Keep hovered tiles highlighted
+    var backgroundImageScreenOpacity = tilePost.tile.isHighlighted ?
+        window.hg.TilePost.config.activeScreenOpacity : tilePost.tile.imageScreenOpacity;
+
     // Have the title change across a wider opacity range than the background screen
-    var titleOpacity = 0.5 + (tilePost.tile.foregroundScreenOpacity - 0.5) * 2;
+    var titleOpacity = 0.5 + (backgroundImageScreenOpacity - 0.5) * 2;
     titleOpacity = titleOpacity > 1 ? 1 : (titleOpacity < 0 ? 0 : titleOpacity);
 
     window.hg.util.applyTransform(tilePost.elements.title,
         'translate(' + tilePost.tile.particle.px + 'px,' + tilePost.tile.particle.py + 'px)');
+    tilePost.elements.backgroundImageScreen.setAttribute('opacity', backgroundImageScreenOpacity);
 
     // Only set the title opacity for collapsed tiles
     if (tilePost.tile.grid.expandedTile !== tilePost.tile) {
@@ -6511,6 +6559,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var tilePost = this;
 
     tilePost.tile.grid.wrapper.removeChild(tilePost.elements.title);
+    tilePost.tile.grid.svgDefs.removeChild(tilePost.elements.backgroundPattern);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -6807,7 +6856,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job = this;
 
     for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].foregroundScreenOpacity = window.hg.Tile.config.inactiveScreenOpacity;
+      job.grid.allTiles[i].currentColor.h = job.grid.allTiles[i].originalColor.h;
+      job.grid.allTiles[i].currentColor.s = job.grid.allTiles[i].originalColor.s;
+      job.grid.allTiles[i].currentColor.l = job.grid.allTiles[i].originalColor.l;
+      job.grid.allTiles[i].imageScreenOpacity = window.hg.TilePost.config.inactiveScreenOpacity;
     }
   }
 
@@ -7054,7 +7106,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   config.deltaSaturation = 0;
   config.deltaLightness = 5;
 
-  config.deltaOpacityImageforegroundScreen = 0.18;
+  config.deltaOpacityImageBackgroundScreen = 0.18;
 
   config.opacity = 0.5;
 
@@ -7112,16 +7164,34 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // Private static functions
 
   /**
+   * Updates the animation progress of the given non-content tile.
+   *
+   * @param {Number} progress From -1 to 1
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset From -1 to 1
+   */
+  function updateNonContentTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+
+    tile.currentColor.h += config.deltaHue * tileProgress * config.opacity;
+    tile.currentColor.s += config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentColor.l += config.deltaLightness * tileProgress * config.opacity;
+  }
+
+  /**
    * Updates the animation progress of the given content tile.
    *
    * @param {Number} progress From -1 to 1
    * @param {Tile} tile
    * @param {Number} waveProgressOffset From -1 to 1
    */
-  function updateTile(progress, tile, waveProgressOffset) {
-    var tileProgress = Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI) * 0.5 + 0.5;
+  function updateContentTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI) * 0.5 + 0.5;
 
-    tile.foregroundScreenOpacity += -tileProgress * config.opacity * config.deltaOpacityImageforegroundScreen;
+    tile.imageScreenOpacity += -tileProgress * config.opacity *
+        config.deltaOpacityImageBackgroundScreen;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -7156,14 +7226,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
 
-    // TODO: combine these loops into one
     for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.allNonContentTiles[i],
+      updateNonContentTile(progress, job.grid.allNonContentTiles[i],
           job.waveProgressOffsetsNonContentTiles[i]);
     }
 
     for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.contentTiles[i],
+      updateContentTile(progress, job.grid.contentTiles[i],
           job.waveProgressOffsetsContentTiles[i]);
     }
   }
@@ -8433,7 +8502,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       }
     }
 
-    job.baseTile.elements.polygon.style.pointerEvents = 'auto';
+    job.baseTile.polygon.style.pointerEvents = 'auto';
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -8498,7 +8567,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       job.grid.scrollTop;
     }
 
-    job.baseTile.elements.polygon.style.pointerEvents = 'none';
+    job.baseTile.polygon.style.pointerEvents = 'none';
   }
 
   /**
@@ -8528,7 +8597,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     quick2FadeProgress = (quick2FadeProgress > 1 ? 1 : quick2FadeProgress);
 
     // Update the opacity of the center Tile
-    job.baseTile.elements.div.style.opacity = 1 - quick1FadeProgress;
+    job.baseTile.div.style.opacity = 1 - quick1FadeProgress;
     job.baseTile.tilePost.elements.title.style.opacity = 1 - quick2FadeProgress;
 
     // Update the opacity of the PagePost
@@ -8573,7 +8642,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
 
     // Update the opacity of the center Tile
-    job.baseTile.elements.div.style.opacity = progress;
+    job.baseTile.div.style.opacity = progress;
     job.baseTile.tilePost.elements.title.style.opacity = progress;
 
     // Update the opacity of the PagePost
@@ -8689,10 +8758,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   config.duration = 500;
 
-  // TODO: refactor these parameters to lie within the tile module
   config.deltaHue = 0;
   config.deltaSaturation = 0;
-  config.deltaLightness = -50;
+  config.deltaLightness = 50;
+
+  config.opacity = 0.5;
 
   config.isRecurring = false;
   config.avgDelay = 30;
@@ -8725,14 +8795,34 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // Private static functions
 
   /**
-   * Updates the background screen opacity of the given content tile according to the given durationRatio.
+   * Updates the background image screen opacity of the given content tile according to the given
+   * durationRatio.
    *
    * @param {Tile} tile
-   * @param {Number} durationRatio Specifies how far this animation is through its overall duration.
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * duration.
    */
-  function updateTile(tile, durationRatio) {
-    tile.foregroundScreenOpacity = window.hg.Tile.config.activeScreenOpacity + (durationRatio *
-      (window.hg.Tile.config.inactiveScreenOpacity - window.hg.Tile.config.activeScreenOpacity));
+  function updateContentTile(tile, durationRatio) {
+    var opacity = window.hg.TilePost.config.activeScreenOpacity +
+        (durationRatio * (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity));
+
+    tile.imageScreenOpacity = opacity;
+  }
+
+  /**
+   * Updates the color of the given non-content tile according to the given durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateNonContentTile(tile, durationRatio) {
+    var opacity = config.opacity * (1 - durationRatio);
+
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -8765,7 +8855,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     job = this;
 
-    // When the tile is re-highlighted after this job has started, then this job should be cancelled
+    // When the tile is re-highlighted after this job has started, then this job should be
+    // cancelled
     if (job.tile.isHighlighted) {
       job.cancel();
       return;
@@ -8827,7 +8918,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     job.startTime = 0;
     job.isComplete = true;
 
-    job.updateTile = updateTile;
+    job.updateTile = tile.holdsContent ? updateContentTile : updateNonContentTile;
 
     job.start = start;
     job.update = update;
@@ -8934,7 +9025,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // Private static functions
 
   /**
-   * Updates the background screen opacity of the given content tile according to the given durationRatio.
+   * Updates the color of the given non-content tile according to the given waveWidthRatio and
+   * durationRatio.
    *
    * @param {Tile} tile
    * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
@@ -8942,9 +9034,28 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
    * duration.
    */
-  function updateTile(tile, waveWidthRatio, oneMinusDurationRatio) {
-    tile.foregroundScreenOpacity += -waveWidthRatio * config.opacity * oneMinusDurationRatio *
-        (window.hg.Tile.config.inactiveScreenOpacity - window.hg.Tile.config.activeScreenOpacity);
+  function updateNonContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    var opacity = waveWidthRatio * config.opacity * oneMinusDurationRatio;
+
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
+  }
+
+  /**
+   * Updates the color of the given content tile according to the given waveWidthRatio and
+   * durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * shimmer distances.
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    tile.imageScreenOpacity += -waveWidthRatio * config.opacity * oneMinusDurationRatio *
+        (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -8988,14 +9099,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
       animatedSomeTile = false;
 
-      // TODO: update these two loops into one
       for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
         distance = job.distancesNonContentTiles[i];
 
         if (distance > currentMinDistance && distance < currentMaxDistance) {
           waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
 
-          updateTile(job.grid.allNonContentTiles[i], waveWidthRatio,
+          updateNonContentTile(job.grid.allNonContentTiles[i], waveWidthRatio,
               oneMinusDurationRatio);
 
           animatedSomeTile = true;
@@ -9008,7 +9118,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
         if (distance > currentMinDistance && distance < currentMaxDistance) {
           waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
 
-          updateTile(job.grid.contentTiles[i], waveWidthRatio, oneMinusDurationRatio);
+          updateContentTile(job.grid.contentTiles[i], waveWidthRatio, oneMinusDurationRatio);
 
           animatedSomeTile = true;
         }

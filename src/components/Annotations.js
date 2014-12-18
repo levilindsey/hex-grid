@@ -167,8 +167,6 @@
     }
   };
 
-  // TODO: refactor all references to currentColor and replace with references to foregroundScreenOpacity
-
   config.annotationsArray = [];
 
   //  --- Dependent parameters --- //
@@ -259,7 +257,7 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
-      annotations.grid.allTiles[i].elements.div.style.opacity = 0;
+      annotations.grid.allTiles[i].div.style.opacity = 0;
     }
   }
 
@@ -606,7 +604,7 @@
     annotations = this;
 
     for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
-      annotations.grid.originalTiles[i].elements.div.style.opacity = 1;
+      annotations.grid.originalTiles[i].div.style.opacity = 1;
     }
   }
 
