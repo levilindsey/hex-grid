@@ -118,8 +118,6 @@
     div.style.position = 'absolute';
     div.style.width = width + 'px';
     div.style.height = height + 'px';
-    div.style.zIndex = '1001';
-    window.hg.util.applyTransform(div, 'translateZ(0)');
 
     svg.style.width = width + 'px';
     svg.style.height = height + 'px';
@@ -128,15 +126,14 @@
     backgroundPattern.setAttribute('patternContentUnits', 'objectBoundingBox');
     backgroundPattern.setAttribute('width', '1');
     backgroundPattern.setAttribute('height', '1');
-    backgroundPattern.setAttribute('opacity', '1');
+    backgroundPattern.setAttribute('opacity', '1');**;// TODO: check this; and other opacity assignments in Tile.js; the LineJobs are showing behind the tiles...
 
     foregroundScreen.setAttribute('width', '1');
     foregroundScreen.setAttribute('height', '1');
-    window.hg.util.applyTransform(foregroundScreen, 'translateZ(0)');
 
     backgroundPanel.setAttribute('width', '1');
     backgroundPanel.setAttribute('height', '1');
-    backgroundPanel.setAttribute('opacity', '1');
+    backgroundPanel.setAttribute('opacity', '1');**;// TODO: check this; and other opacity assignments in Tile.js; the LineJobs are showing behind the tiles...
 
     polygon.setAttribute('fill', 'url(#' + patternId + ')');
 

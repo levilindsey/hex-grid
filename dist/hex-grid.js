@@ -5908,7 +5908,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
-  //**;// TODO: have just one polygon, one background screen pattern, and one rect definition and reference them by each polygon
+  // TODO: have just one polygon, one background screen pattern, and one rect definition and reference them by each polygon
 
   // TODO: move this one-time def creation logic somewhere else
   var svgDefsHaveBeenCreated = false;
@@ -5969,8 +5969,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     div.style.position = 'absolute';
     div.style.width = width + 'px';
     div.style.height = height + 'px';
-    div.style.zIndex = '1001';
-    window.hg.util.applyTransform(div, 'translateZ(0)');
 
     svg.style.width = width + 'px';
     svg.style.height = height + 'px';
@@ -5983,7 +5981,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     foregroundScreen.setAttribute('width', '1');
     foregroundScreen.setAttribute('height', '1');
-    window.hg.util.applyTransform(foregroundScreen, 'translateZ(0)');
 
     backgroundPanel.setAttribute('width', '1');
     backgroundPanel.setAttribute('height', '1');
@@ -7145,7 +7142,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function updateTile(progress, tile, waveProgressOffset) {
     var tileProgress = Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI) * 0.5 + 0.5;
 
-    //tile.foregroundScreenOpacity += -tileProgress * config.opacity * config.deltaOpacityImageforegroundScreen;
+    tile.foregroundScreenOpacity += -tileProgress * config.opacity * config.deltaOpacityImageforegroundScreen;
   }
 
   // ------------------------------------------------------------------------------------------- //
