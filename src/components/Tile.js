@@ -17,13 +17,6 @@
    * @property {String} content
    */
 
-  **;// TODO:
-     // - add an svg (with maybe an additional div wrapper)
-     // - calculate the offset of the center of the tile within the svg
-     // - save this offset on the tile object
-     // - subtract this offset when applying the transform style in the update function
-     // - refactor how the svg(s) are cleared from within the Grid reset logic
-
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
@@ -70,8 +63,10 @@
 
     id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);**;// TODO: this doesn't need to be saved on the tile object
-    setPoints.call(tile);
+    tile.originalVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
+    tile.currentVertexDeltas = tile.originalVertexDeltas.slice(0);
+    tile.vertices = [];
+    updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
 
     tile.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
@@ -108,18 +103,21 @@
   }
 
   /**
+   * Computes and stores the locations of the vertices of the hexagon for this tile.
+   *
    * @this Tile
+   * @param {Number} anchorX
+   * @param {Number} anchorY
    */
-  function setPoints() {
-    var tile, i, pointsString;
+  function updateVertices(anchorX, anchorY) {
+    var tile, trigIndex, coordIndex;
 
     tile = this;
 
-    for (i = 0, pointsString = ''; i < 12;) {
-      pointsString += tile.vertexDeltas[i++] + ',' + tile.vertexDeltas[i++] + ' ';
+    for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
+      tile.vertices[coordIndex] = anchorX + tile.currentVertexDeltas[coordIndex++];
+      tile.vertices[coordIndex] = anchorY + tile.currentVertexDeltas[coordIndex++];
     }
-
-    tile.element.setAttribute('points', pointsString);
   }
 
   /**
@@ -408,6 +406,9 @@
       // Reset force accumulator for next time step
       tile.particle.forceAccumulatorX = 0;
       tile.particle.forceAccumulatorY = 0;
+
+      // Compute new vertex locations
+      updateVertices.call(tile, tile.particle.px, tile.particle.py);
     }
   }
 
@@ -417,11 +418,15 @@
    * @this Tile
    */
   function draw() {
-    var tile, colorString;
+    var tile, i, pointsString, colorString;
 
     tile = this;
 
-    window.hg.util.applyTransform(tile.element, 'translate(' + tile.particle.px + 'px,' + tile.particle.py + 'px)');**;// TODO: apply this to the svg/div wrapper
+    // Set the vertices
+    for (i = 0, pointsString = ''; i < 12;) {
+      pointsString += tile.vertices[i++] + ',' + tile.vertices[i++] + ' ';
+    }
+    tile.element.setAttribute('points', pointsString);
 
     if (!tile.holdsContent) {
       // Set the color
@@ -507,8 +512,8 @@
    * @param {Boolean} isVertical
    * @returns {Array.<Number>}
    */
-  function computeVertexDeltas(radius, isVertical) {**;// TODO: only compute this once from the computeDependentValues function
-    var trigIndex, coordIndex, sines, cosines, vertexDeltas;
+  function computeVertexDeltas(radius, isVertical) {
+    var trigIndex, coordIndex, sines, cosines, currentVertexDeltas;
 
     // Grab the pre-computed sine and cosine values
     if (isVertical) {
@@ -519,14 +524,14 @@
       cosines = config.horizontalCosines;
     }
 
-    for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
+    for (trigIndex = 0, coordIndex = 0, currentVertexDeltas = [];
          trigIndex < 6;
          trigIndex += 1) {
-      vertexDeltas[coordIndex++] = radius * cosines[trigIndex];
-      vertexDeltas[coordIndex++] = radius * sines[trigIndex];
+      currentVertexDeltas[coordIndex++] = radius * cosines[trigIndex];
+      currentVertexDeltas[coordIndex++] = radius * sines[trigIndex];
     }
 
-    return vertexDeltas;
+    return currentVertexDeltas;
   }
 
   /**
@@ -696,7 +701,10 @@
     tile.imageScreenOpacity = Number.NaN;
 
     tile.neighborStates = [];
-    tile.vertexDeltas = null;
+    tile.vertices = null;
+    tile.currentVertexDeltas = null;
+    tile.originalVertexDeltas = null;
+    tile.expandedVertexDeltas = null;
     tile.particle = null;
 
     tile.setContent = setContent;
