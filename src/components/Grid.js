@@ -119,9 +119,6 @@
       grid.oddRowXOffset = parentHalfWidth - config.tileShortLengthWithGap * (grid.oddRowTileCount - 1) / 2;
 
       grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileOuterRadius * 2 + config.tileGap * Math.sqrt(3))) / grid.rowDeltaY) + 2;
-
-      grid.tileHalfWidth = config.tileInnerRadius;
-      grid.tileHalfHeight = config.tileOuterRadius;
     } else {
       grid.rowDeltaY = config.tileInnerRadius + config.tileGap * 0.5;
       grid.tileDeltaX = config.tileOuterRadius * 3 + config.tileGap * Math.sqrt(3);
@@ -132,9 +129,6 @@
       grid.oddRowXOffset = parentHalfWidth - grid.tileDeltaX * (grid.oddRowTileCount - 1) / 2;
 
       grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileInnerRadius * 3 + config.tileGap * 2)) / grid.rowDeltaY) + 4;
-
-      grid.tileHalfWidth = config.tileOuterRadius;
-      grid.tileHalfHeight = config.tileInnerRadius;
     }
 
     grid.evenRowXOffset = grid.oddRowXOffset +
@@ -229,17 +223,13 @@
    *
    * @this Grid
    */
-  function createElements() {
+  function createSvg() {
     var grid;
 
     grid = this;
 
-    grid.wrapper = document.createElement('div');
-    grid.parent.appendChild(grid.wrapper);
-    grid.wrapper.setAttribute('data-hg-grid', 'data-hg-grid');
-
     grid.svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
-    grid.wrapper.appendChild(grid.svg);
+    grid.parent.appendChild(grid.svg);
 
     grid.svg.style.display = 'block';
     grid.svg.style.position = 'relative';
@@ -309,9 +299,10 @@
             ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
                 (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
 
-        grid.originalTiles[tileIndex] = new window.hg.Tile(grid, anchorX, anchorY, config.tileHue,
-          config.tileSaturation, config.tileLightness, null, tileIndex, rowIndex, columnIndex, isMarginTile,
-          isBorderTile, isCornerTile, isLargerRow, config.tileMass);
+        grid.originalTiles[tileIndex] = new window.hg.Tile(grid.svg, grid, anchorX, anchorY,
+            config.tileOuterRadius, grid.isVertical, config.tileHue, config.tileSaturation,
+            config.tileLightness, null, tileIndex, rowIndex, columnIndex, isMarginTile,
+            isBorderTile, isCornerTile, isLargerRow, config.tileMass);
 
         if (isBorderTile) {
           grid.originalBorderTiles.push(grid.originalTiles[tileIndex]);
@@ -529,7 +520,7 @@
     grid = this;
 
     for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
-      grid.allTiles[i].polygon.setAttribute('data-hg-index', i);
+      grid.allTiles[i].element.setAttribute('data-hg-index', i);
     }
   }
 
@@ -565,8 +556,6 @@
 
     grid = this;
 
-    clearSvg.call(grid);
-
     if (grid.allTiles) {
       grid.allTiles.forEach(function (tile) {
         tile.destroy();
@@ -590,9 +579,8 @@
     grid.parent.style.overflowX = 'hidden';
     grid.parent.style.overflowY = 'auto';
 
+    clearSvg.call(grid);
     computeGridParameters.call(grid);
-
-    grid.wrapper.style.height = grid.height + 'px';
 
     createTiles.call(grid);
 
@@ -607,7 +595,7 @@
   function setBackgroundColor() {
     var grid = this;
 
-    grid.wrapper.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
+    grid.parent.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
         config.backgroundSaturation + '%,' + config.backgroundLightness + '%)';
   }
 
@@ -797,7 +785,6 @@
 
     grid.index = index;
     grid.parent = parent;
-    grid.wrapper = null;
     grid.postData = postData;
     grid.isVertical = isVertical;
 
@@ -865,7 +852,9 @@
     grid.updateAllTilesCollection = updateAllTilesCollection;
     grid.computeContentIndices = computeContentIndices;
 
-    createElements.call(grid);
+    grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
+
+    createSvg.call(grid);
     setBackgroundColor.call(grid);
     computeContentIndices.call(grid);
     resize.call(grid);

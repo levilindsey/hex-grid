@@ -1967,7 +1967,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     annotations = this;
 
     for (i = 0, count = annotations.grid.allTiles.length; i < count; i += 1) {
-      annotations.grid.allTiles[i].div.style.opacity = 0;
+      annotations.grid.allTiles[i].element.setAttribute('opacity', '0');
     }
   }
 
@@ -2314,7 +2314,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     annotations = this;
 
     for (i = 0, count = annotations.grid.originalTiles.length; i < count; i += 1) {
-      annotations.grid.originalTiles[i].div.style.opacity = 1;
+      annotations.grid.originalTiles[i].element.setAttribute('opacity', '1');
     }
   }
 
@@ -2857,8 +2857,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     function getCornerPosition(tile, corner) {
       return {
-        x: tile.vertexDeltas[corner * 2] + tile.particle.px,
-        y: tile.vertexDeltas[corner * 2 + 1] + tile.particle.py
+        x: tile.vertices[corner * 2],
+        y: tile.vertices[corner * 2 + 1]
       };
     }
   }
@@ -3762,9 +3762,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       grid.oddRowXOffset = parentHalfWidth - config.tileShortLengthWithGap * (grid.oddRowTileCount - 1) / 2;
 
       grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileOuterRadius * 2 + config.tileGap * Math.sqrt(3))) / grid.rowDeltaY) + 2;
-
-      grid.tileHalfWidth = config.tileInnerRadius;
-      grid.tileHalfHeight = config.tileOuterRadius;
     } else {
       grid.rowDeltaY = config.tileInnerRadius + config.tileGap * 0.5;
       grid.tileDeltaX = config.tileOuterRadius * 3 + config.tileGap * Math.sqrt(3);
@@ -3775,9 +3772,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       grid.oddRowXOffset = parentHalfWidth - grid.tileDeltaX * (grid.oddRowTileCount - 1) / 2;
 
       grid.rowCount = Math.ceil((parentHeight - (config.firstRowYOffset + config.tileInnerRadius * 3 + config.tileGap * 2)) / grid.rowDeltaY) + 4;
-
-      grid.tileHalfWidth = config.tileOuterRadius;
-      grid.tileHalfHeight = config.tileInnerRadius;
     }
 
     grid.evenRowXOffset = grid.oddRowXOffset +
@@ -3872,17 +3866,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    *
    * @this Grid
    */
-  function createElements() {
+  function createSvg() {
     var grid;
 
     grid = this;
 
-    grid.wrapper = document.createElement('div');
-    grid.parent.appendChild(grid.wrapper);
-    grid.wrapper.setAttribute('data-hg-grid', 'data-hg-grid');
-
     grid.svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
-    grid.wrapper.appendChild(grid.svg);
+    grid.parent.appendChild(grid.svg);
 
     grid.svg.style.display = 'block';
     grid.svg.style.position = 'relative';
@@ -3952,9 +3942,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
             ((rowIndex <= 1 || rowIndex >= rowCount - 2) &&
                 (isLargerRow && (columnIndex === 0 || columnIndex === columnCount - 1))));
 
-        grid.originalTiles[tileIndex] = new window.hg.Tile(grid, anchorX, anchorY, config.tileHue,
-          config.tileSaturation, config.tileLightness, null, tileIndex, rowIndex, columnIndex, isMarginTile,
-          isBorderTile, isCornerTile, isLargerRow, config.tileMass);
+        grid.originalTiles[tileIndex] = new window.hg.Tile(grid.svg, grid, anchorX, anchorY,
+            config.tileOuterRadius, grid.isVertical, config.tileHue, config.tileSaturation,
+            config.tileLightness, null, tileIndex, rowIndex, columnIndex, isMarginTile,
+            isBorderTile, isCornerTile, isLargerRow, config.tileMass);
 
         if (isBorderTile) {
           grid.originalBorderTiles.push(grid.originalTiles[tileIndex]);
@@ -4172,7 +4163,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid = this;
 
     for (i = 0, count = grid.allTiles.length; i < count; i += 1) {
-      grid.allTiles[i].polygon.setAttribute('data-hg-index', i);
+      grid.allTiles[i].element.setAttribute('data-hg-index', i);
     }
   }
 
@@ -4208,8 +4199,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     grid = this;
 
-    clearSvg.call(grid);
-
     if (grid.allTiles) {
       grid.allTiles.forEach(function (tile) {
         tile.destroy();
@@ -4233,9 +4222,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid.parent.style.overflowX = 'hidden';
     grid.parent.style.overflowY = 'auto';
 
+    clearSvg.call(grid);
     computeGridParameters.call(grid);
-
-    grid.wrapper.style.height = grid.height + 'px';
 
     createTiles.call(grid);
 
@@ -4250,7 +4238,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function setBackgroundColor() {
     var grid = this;
 
-    grid.wrapper.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
+    grid.parent.style.backgroundColor = 'hsl(' + config.backgroundHue + ',' +
         config.backgroundSaturation + '%,' + config.backgroundLightness + '%)';
   }
 
@@ -4440,7 +4428,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     grid.index = index;
     grid.parent = parent;
-    grid.wrapper = null;
     grid.postData = postData;
     grid.isVertical = isVertical;
 
@@ -4508,7 +4495,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid.updateAllTilesCollection = updateAllTilesCollection;
     grid.computeContentIndices = computeContentIndices;
 
-    createElements.call(grid);
+    grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
+
+    createSvg.call(grid);
     setBackgroundColor.call(grid);
     computeContentIndices.call(grid);
     resize.call(grid);
@@ -4571,7 +4560,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
       if (tile = getTileFromEvent(event)) {
 
-        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
+        if (tile.element.getAttribute('data-hg-post-tile')) {
           // TODO: reset the other tile parameters
         }
 
@@ -4588,7 +4577,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
         input.grid.setHoveredTile(null);
       } else if (tile = getTileFromEvent(event)) {
 
-        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
+        if (tile.element.getAttribute('data-hg-post-tile')) {
           // TODO: reset the other tile parameters
         }
 
@@ -4601,15 +4590,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     }
 
     function handlePointerMove(event) {
-      if (event.target.getAttribute('data-hg-post-tile-polygon')) {
+      if (event.target.getAttribute('data-hg-post-tile')) {
         // TODO:
-      } else if (event.target.getAttribute('data-hg-tile-polygon')) {
+      } else if (event.target.getAttribute('data-hg-tile')) {
         // TODO:
       }
     }
 
     function handlePointerDown(event) {
-      if (event.target.getAttribute('data-hg-post-tile-polygon')) {
+      if (event.target.getAttribute('data-hg-post-tile')) {
         // TODO:
       }
     }
@@ -4619,7 +4608,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
       if (event.button === 0 && (tile = getTileFromEvent(event))) {
 
-        if (tile.div.getAttribute('data-hg-post-tile-polygon')) {
+        if (tile.element.getAttribute('data-hg-post-tile')) {
           // TODO:
         }
 
@@ -4630,7 +4619,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     function getTileFromEvent(event) {
       var tileIndex;
 
-      if (event.target.getAttribute('data-hg-tile-polygon')) {
+      if (event.target.getAttribute('data-hg-tile')) {
         tileIndex = event.target.getAttribute('data-hg-index');
         return input.grid.allTiles[tileIndex];
       } else {
@@ -4836,7 +4825,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var topGradient = document.createElement('div');
     var bottomGradient = document.createElement('div');
 
-    pagePost.tile.grid.wrapper.appendChild(container);
+    pagePost.tile.grid.parent.appendChild(container);
     container.appendChild(outerWrapper);
     outerWrapper.appendChild(innerWrapper);
     innerWrapper.appendChild(logo);
@@ -5094,7 +5083,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     pagePost.carousel.destroy();
 
-    pagePost.tile.grid.wrapper.removeChild(pagePost.elements.container);
+    pagePost.tile.grid.parent.removeChild(pagePost.elements.container);
     pagePost.elements = null;
   }
 
@@ -5522,8 +5511,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function createNewTileInSector(majorIndex, minorIndex, anchorX, anchorY) {
     var sector = this;
 
-    var tile = new window.hg.Tile(sector.grid, anchorX, anchorY,
-        window.hg.Grid.config.tileHue,
+    var tile = new window.hg.Tile(sector.grid.svg, sector.grid, anchorX, anchorY,
+        window.hg.Grid.config.tileOuterRadius, sector.grid.isVertical, window.hg.Grid.config.tileHue,
         window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness, null, Number.NaN, Number.NaN,
         Number.NaN, true, false, false, false, window.hg.Grid.config.tileMass);
 
@@ -5867,7 +5856,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @property {String} content
    */
 
-  // TODO: fix how the open/close post jobs animate the tile size to use the scale transform
+  **;// TODO:
+     // - add an svg (with maybe an additional div wrapper)
+     // - calculate the offset of the center of the tile within the svg
+     // - save this offset on the tile object
+     // - subtract this offset when applying the transform style in the update function
+     // - refactor how the svg(s) are cleared from within the Grid reset logic
 
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
@@ -5909,36 +5903,21 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @this Tile
    */
   function createElement() {
-    var tile, id, width, height;
+    var tile, id;
 
     tile = this;
 
-    width = tile.grid.tileHalfWidth * 2;
-    height = tile.grid.tileHalfHeight * 2;
-
     id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
 
-    tile.div = document.createElement('div');
-    tile.grid.wrapper.appendChild(tile.div);
-    tile.div.style.position = 'absolute';
-    tile.div.style.width = width + 'px';
-    tile.div.style.height = height + 'px';
-
-    tile.svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
-    tile.div.appendChild(tile.svg);
-    tile.svg.style.width = width + 'px';
-    tile.svg.style.height = height + 'px';
-
-    tile.polygon = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
-    tile.svg.appendChild(tile.polygon);
-
-    tile.div.id = 'hg-div-' + id;
-    tile.polygon.id = 'hg-polygon-' + id;
-    tile.polygon.setAttribute('data-hg-tile-polygon', 'data-hg-tile-polygon');
-    tile.div.setAttribute('data-hg-tile-div', 'data-hg-tile-div');
-    tile.polygon.style.cursor = 'pointer';
-
+    tile.vertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);**;// TODO: this doesn't need to be saved on the tile object
     setPoints.call(tile);
+
+    tile.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
+    tile.svg.appendChild(tile.element);
+
+    tile.element.id = 'hg-' + id;
+    tile.element.setAttribute('data-hg-tile', 'data-hg-tile');
+    tile.element.style.cursor = 'pointer';
 
     // Set the color and vertices
     draw.call(tile);
@@ -5975,14 +5954,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     tile = this;
 
-    tile.vertexDeltas = computeVertexDeltas(window.hg.Grid.config.tileOuterRadius, tile.grid.isVertical,
-      tile.grid.tileHalfWidth, tile.grid.tileHalfHeight);
-
     for (i = 0, pointsString = ''; i < 12;) {
       pointsString += tile.vertexDeltas[i++] + ',' + tile.vertexDeltas[i++] + ' ';
     }
 
-    tile.polygon.setAttribute('points', pointsString);
+    tile.element.setAttribute('points', pointsString);
   }
 
   /**
@@ -5993,8 +5969,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function createTilePost() {
     var tile = this;
 
-    tile.polygon.setAttribute('data-hg-post-tile-polygon', 'data-hg-post-tile-polygon');
-    tile.div.setAttribute('data-hg-post-tile-div', 'data-hg-post-tile-div');
+    tile.element.setAttribute('data-hg-post-tilePost', 'data-hg-post-tilePost');
 
     tile.tilePost = new window.hg.TilePost(tile);
   }
@@ -6007,8 +5982,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function destroyTilePost() {
     var tile = this;
 
-    tile.polygon.removeAttribute('data-hg-post-tile-polygon');
-    tile.div.removeAttribute('data-hg-post-tile-div');
+    tile.element.removeAttribute('data-hg-post-tilePost');
 
     tile.tilePost.destroy();
     tile.tilePost = null;
@@ -6282,20 +6256,18 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @this Tile
    */
   function draw() {
-    var tile, colorString, translateString;
+    var tile, colorString;
 
     tile = this;
 
-    translateString = 'scale(' + tile.scaleFactor + ') ' +
-      'translate3d(' + (tile.particle.px - tile.grid.tileHalfWidth) + 'px,' +
-      (tile.particle.py - tile.grid.tileHalfHeight) + 'px,0px)';
-
-    window.hg.util.applyTransform(tile.div, translateString);
+    window.hg.util.applyTransform(tile.element, 'translate(' + tile.particle.px + 'px,' + tile.particle.py + 'px)');**;// TODO: apply this to the svg/div wrapper
 
     if (!tile.holdsContent) {
       // Set the color
-      colorString = 'hsl(' + tile.currentColor.h + ',' + tile.currentColor.s + '%,' + tile.currentColor.l + '%)';
-      tile.polygon.setAttribute('fill', colorString);
+      colorString = 'hsl(' + tile.currentColor.h + ',' +
+      tile.currentColor.s + '%,' +
+      tile.currentColor.l + '%)';
+      tile.element.setAttribute('fill', colorString);
     } else {
       // Set the position and opacity of the TilePost
       tile.tilePost.draw();
@@ -6372,11 +6344,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    *
    * @param {Number} radius
    * @param {Boolean} isVertical
-   * @param {Number} centerX
-   * @param {Number} centerY
    * @returns {Array.<Number>}
    */
-  function computeVertexDeltas(radius, isVertical, centerX, centerY) {
+  function computeVertexDeltas(radius, isVertical) {**;// TODO: only compute this once from the computeDependentValues function
     var trigIndex, coordIndex, sines, cosines, vertexDeltas;
 
     // Grab the pre-computed sine and cosine values
@@ -6391,8 +6361,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     for (trigIndex = 0, coordIndex = 0, vertexDeltas = [];
          trigIndex < 6;
          trigIndex += 1) {
-      vertexDeltas[coordIndex++] = centerX + radius * cosines[trigIndex];
-      vertexDeltas[coordIndex++] = centerY + radius * sines[trigIndex];
+      vertexDeltas[coordIndex++] = radius * cosines[trigIndex];
+      vertexDeltas[coordIndex++] = radius * sines[trigIndex];
     }
 
     return vertexDeltas;
@@ -6474,11 +6444,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     if (tile.holdsContent) {
       destroyTilePost.call(tile);
     }
-    tile.grid.wrapper.removeChild(tile.div);
-
-    tile.div = null;
-    tile.svg = null;
-    tile.polygon = null;
+    tile.svg.removeChild(tile.element);
   }
 
   /**
@@ -6489,7 +6455,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function hide() {
     var tile = this;
 
-    tile.div.style.display = 'none';
+    tile.element.style.display = 'none';
     if (tile.holdsContent) {
       tile.tilePost.elements.title.style.display = 'none';
     }
@@ -6503,7 +6469,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function show() {
     var tile = this;
 
-    tile.div.style.display = 'block';
+    tile.element.style.display = 'block';
     if (tile.holdsContent) {
       tile.tilePost.elements.title.style.display = 'block';
     }
@@ -6515,9 +6481,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   /**
    * @constructor
    * @global
+   * @param {HTMLElement} svg
    * @param {Grid} grid
    * @param {Number} anchorX
    * @param {Number} anchorY
+   * @param {Number} outerRadius
+   * @param {Boolean} isVertical
    * @param {Number} hue
    * @param {Number} saturation
    * @param {Number} lightness
@@ -6531,23 +6500,23 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    * @param {Boolean} isInLargerRow
    * @param {Number} mass
    */
-  function Tile(grid, anchorX, anchorY, hue, saturation, lightness, postData, tileIndex, rowIndex, columnIndex,
-                isMarginTile, isBorderTile, isCornerTile, isInLargerRow, mass) {
+  function Tile(svg, grid, anchorX, anchorY, outerRadius, isVertical, hue, saturation, lightness,
+                   postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
+                   isCornerTile, isInLargerRow, mass) {
     var tile = this;
 
+    tile.svg = svg;
     tile.grid = grid;
-    tile.div = null;
-    tile.svg = null;
-    tile.polygon = null;
+    tile.element = null;
     tile.currentAnchor = {x: anchorX, y: anchorY};
     tile.originalAnchor = {x: anchorX, y: anchorY};
     tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
-    tile.vertexDeltas = null;
+    tile.outerRadius = outerRadius;
+    tile.isVertical = isVertical;
 
     tile.originalColor = {h: hue, s: saturation, l: lightness};
     tile.currentColor = {h: hue, s: saturation, l: lightness};
 
-    tile.scaleFactor = 1;
     tile.postData = postData;
     tile.holdsContent = !!postData;
     tile.tilePost = null;
@@ -6566,6 +6535,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     tile.imageScreenOpacity = Number.NaN;
 
     tile.neighborStates = [];
+    tile.vertexDeltas = null;
     tile.particle = null;
 
     tile.setContent = setContent;
@@ -6583,8 +6553,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     tile.hide = hide;
     tile.show = show;
 
-    createParticle.call(tile, mass);
     createElement.call(tile);
+    createParticle.call(tile, mass);
 
     if (tile.holdsContent) {
       createTilePost.call(tile);
@@ -6674,7 +6644,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     tilePost.tile.grid.svgDefs.appendChild(backgroundPattern);
     backgroundPattern.appendChild(backgroundImage);
     backgroundPattern.appendChild(backgroundImageScreen);
-    tilePost.tile.grid.wrapper.appendChild(title);
+    tilePost.tile.grid.parent.appendChild(title);
 
     tilePost.elements = [];
     tilePost.elements.backgroundPattern = backgroundPattern;
@@ -6704,7 +6674,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     backgroundImageScreen.setAttribute('height', '1');
     backgroundImageScreen.setAttribute('fill', screenColorString);
 
-    tilePost.tile.polygon.setAttribute('fill', 'url(#' + patternId + ')');
+    tilePost.tile.element.setAttribute('fill', 'url(#' + patternId + ')');
 
     title.innerHTML = tilePost.tile.postData.titleShort;
     title.setAttribute('data-hg-tile-title', 'data-hg-tile-title');
@@ -6764,7 +6734,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   function destroy() {
     var tilePost = this;
 
-    tilePost.tile.grid.wrapper.removeChild(tilePost.elements.title);
+    tilePost.tile.grid.parent.removeChild(tilePost.elements.title);
     tilePost.tile.grid.svgDefs.removeChild(tilePost.elements.backgroundPattern);
   }
 
@@ -8504,7 +8474,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       }
     }
 
-    job.baseTile.polygon.style.pointerEvents = 'auto';
+    job.baseTile.element.style.pointerEvents = 'auto';
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -8569,7 +8539,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       job.grid.scrollTop;
     }
 
-    job.baseTile.polygon.style.pointerEvents = 'none';
+    job.baseTile.element.style.pointerEvents = 'none';
   }
 
   /**
@@ -8599,7 +8569,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     quick2FadeProgress = (quick2FadeProgress > 1 ? 1 : quick2FadeProgress);
 
     // Update the opacity of the center Tile
-    job.baseTile.div.style.opacity = 1 - quick1FadeProgress;
+    job.baseTile.element.style.opacity = 1 - quick1FadeProgress;
     job.baseTile.tilePost.elements.title.style.opacity = 1 - quick2FadeProgress;
 
     // Update the opacity of the PagePost
@@ -8644,7 +8614,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
 
     // Update the opacity of the center Tile
-    job.baseTile.div.style.opacity = progress;
+    job.baseTile.element.style.opacity = progress;
     job.baseTile.tilePost.elements.title.style.opacity = progress;
 
     // Update the opacity of the PagePost
@@ -9852,21 +9822,20 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
         ySum = tile.particle.py + lowerNeighbor.tile.particle.py + upperNeighbor.tile.particle.py;
       } else {
         count = 2;
-        xSum = tile.vertexDeltas[corner * 2] + tile.particle.px + lowerNeighbor.tile.vertexDeltas[lowerNeighborCorner * 2] + lowerNeighbor.tile.particle.px;
-        ySum = tile.vertexDeltas[corner * 2 + 1] + tile.particle.py +
-            lowerNeighbor.tile.vertexDeltas[lowerNeighborCorner * 2 + 1] + lowerNeighbor.tile.particle.py;
+        xSum = tile.vertices[corner * 2] + lowerNeighbor.tile.vertices[lowerNeighborCorner * 2];
+        ySum = tile.vertices[corner * 2 + 1] +
+            lowerNeighbor.tile.vertices[lowerNeighborCorner * 2 + 1];
       }
     } else {
       if (upperNeighbor) {
         count = 2;
-        xSum = tile.vertexDeltas[corner * 2] + tile.particle.px +
-          upperNeighbor.tile.vertexDeltas[upperNeighborCorner * 2] + upperNeighbor.tile.particle.px;
-        ySum = tile.vertexDeltas[corner * 2 + 1] + tile.particle.py +
-          upperNeighbor.tile.vertexDeltas[upperNeighborCorner * 2 + 1] + upperNeighbor.tile.particle.py;
+        xSum = tile.vertices[corner * 2] + upperNeighbor.tile.vertices[upperNeighborCorner * 2];
+        ySum = tile.vertices[corner * 2 + 1] +
+            upperNeighbor.tile.vertices[upperNeighborCorner * 2 + 1];
       } else {
         count = 1;
-        xSum = tile.vertexDeltas[corner * 2] + tile.particle.px;
-        ySum = tile.vertexDeltas[corner * 2 + 1] + tile.particle.py;
+        xSum = tile.vertices[corner * 2];
+        ySum = tile.vertices[corner * 2 + 1];
       }
     }
 

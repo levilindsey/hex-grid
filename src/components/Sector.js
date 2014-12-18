@@ -377,8 +377,8 @@
   function createNewTileInSector(majorIndex, minorIndex, anchorX, anchorY) {
     var sector = this;
 
-    var tile = new window.hg.Tile(sector.grid, anchorX, anchorY,
-        window.hg.Grid.config.tileHue,
+    var tile = new window.hg.Tile(sector.grid.svg, sector.grid, anchorX, anchorY,
+        window.hg.Grid.config.tileOuterRadius, sector.grid.isVertical, window.hg.Grid.config.tileHue,
         window.hg.Grid.config.tileSaturation, window.hg.Grid.config.tileLightness, null, Number.NaN, Number.NaN,
         Number.NaN, true, false, false, false, window.hg.Grid.config.tileMass);
 
