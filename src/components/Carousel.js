@@ -142,7 +142,7 @@
     previousButtonText.style.verticalAlign = 'middle';
     previousButtonText.style.textAlign = 'left';
     previousButtonText.style.paddingLeft = config.prevNextButtonPadding + 'px';
-    previousButtonText.innerHTML = '&#10094;';
+    previousButtonText.innerHTML = '&#10094;';// TODO: switch to use an encoded image background
 
     nextButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
     nextButtonPanel.style.position = 'absolute';
@@ -164,7 +164,7 @@
     nextButtonText.style.verticalAlign = 'middle';
     nextButtonText.style.textAlign = 'right';
     nextButtonText.style.paddingRight = config.prevNextButtonPadding + 'px';
-    nextButtonText.innerHTML = '&#10095;';
+    nextButtonText.innerHTML = '&#10095;';// TODO: switch to use an encoded image background
 
     captionsPanel.setAttribute('data-hg-captions-panel', 'data-hg-captions-panel');
 
@@ -371,7 +371,8 @@
       thumbnailElement.style.backgroundPosition = '50% 50%';
       thumbnailElement.style.width = config.thumbnailWidth + 'px';
       thumbnailElement.style.height = config.thumbnailHeight + 'px';
-      thumbnailElement.style.float = 'left';
+      thumbnailElement.style.styleFloat = 'left';
+      thumbnailElement.style.cssFloat = 'left';
 
       thumbnailScreenElement = document.createElement('div');
       thumbnailScreenElement.setAttribute('data-hg-carousel-thumbnail-screen',

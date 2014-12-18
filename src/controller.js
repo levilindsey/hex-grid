@@ -21,19 +21,22 @@
       constructorName: 'ColorShiftJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorShiftJob'),
-      start: restartPersistentJob.bind(controller, 'ColorShiftJob')
+      start: restartPersistentJob.bind(controller, 'ColorShiftJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorShiftJob')
     },
     ColorWaveJob: {
       constructorName: 'ColorWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorWaveJob'),
-      start: restartPersistentJob.bind(controller, 'ColorWaveJob')
+      start: restartPersistentJob.bind(controller, 'ColorWaveJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorWaveJob')
     },
     DisplacementWaveJob: {
       constructorName: 'DisplacementWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'DisplacementWaveJob'),
-      start: restartPersistentJob.bind(controller, 'DisplacementWaveJob')
+      start: restartPersistentJob.bind(controller, 'DisplacementWaveJob'),
+      cancel: cancelPersistentJob.bind(controller, 'DisplacementWaveJob')
     },
 
     // --- For internal use --- //
@@ -42,13 +45,15 @@
       constructorName: 'ColorResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorResetJob'),
-      start: restartPersistentJob.bind(controller, 'ColorResetJob')
+      start: restartPersistentJob.bind(controller, 'ColorResetJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorResetJob')
     },
     DisplacementResetJob: {
       constructorName: 'DisplacementResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'DisplacementResetJob'),
-      start: restartPersistentJob.bind(controller, 'DisplacementResetJob')
+      start: restartPersistentJob.bind(controller, 'DisplacementResetJob'),
+      cancel: cancelPersistentJob.bind(controller, 'DisplacementResetJob')
     }
   };
 
@@ -185,6 +190,9 @@
   internal.inputs = [];
   internal.annotations = [];
   internal.postData = [];
+  internal.performanceCheckJob = true;
+
+  config.isLowPerformanceBrowser = false;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -337,6 +345,22 @@
   }
 
   /**
+   * @param {String} jobId
+   * @param {Grid} grid
+   * @param {Number} [jobIndex] If not given, ALL persistent jobs (of this bound type) will be
+   * cancelled for the given grid.
+   */
+  function cancelPersistentJob(jobId, grid, jobIndex) {
+    if (typeof jobIndex !== 'undefined') {
+      controller.persistentJobs[jobId].jobs[grid.index][jobIndex].cancel();
+    } else {
+      controller.persistentJobs[jobId].jobs[grid.index].forEach(function (job) {
+        job.cancel();
+      });
+    }
+  }
+
+  /**
    * Resizes all of the hex-grid components.
    */
   function resize() {
@@ -470,6 +494,8 @@
 
     startRecurringAnimations(grid);
 
+    handleSafariBrowser(grid);
+
     return grid;
 
     // ---  --- //
@@ -503,6 +529,12 @@
       controller.transientJobs.OpenPostJob.create(grid, expandedTile);
     }
 
+    if (internal.performanceCheckJob) {
+      runPerformanceCheck();
+    }
+
+    handleSafariBrowser(grid);
+
     // ---  --- //
 
     function getTileFromPostId(grid, postId) {
@@ -529,9 +561,21 @@
 
     window.hg.animator.startJob(internal.annotations[grid.index]);
 
-    controller.persistentJobs.ColorShiftJob.start(grid);
-    controller.persistentJobs.ColorWaveJob.start(grid);
-    controller.persistentJobs.DisplacementWaveJob.start(grid);
+    // Don't run these persistent animations on low-performance browsers
+    if (!config.isLowPerformanceBrowser) {
+      controller.persistentJobs.ColorShiftJob.start(grid);
+      controller.persistentJobs.ColorWaveJob.start(grid);
+      controller.persistentJobs.DisplacementWaveJob.start(grid);
+    }
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function stopPersistentJobsForLowPerformanceBrowser(grid) {
+    controller.persistentJobs.ColorShiftJob.cancel(grid);
+    controller.persistentJobs.ColorWaveJob.cancel(grid);
+    controller.persistentJobs.DisplacementWaveJob.cancel(grid);
   }
 
   /**
@@ -581,6 +625,117 @@
     grid.computeContentIndices();
 
     resetGrid(grid);
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function handleSafariBrowser(grid) {
+    if (window.hg.util.checkForSafari()) {
+      console.info('Adjusting SVG for the Safari browser');
+
+      grid.svg.style.width = grid.parent.offsetWidth + 'px';
+      grid.svg.style.height = grid.parent.offsetHeight + 'px';
+    }
+  }
+
+  function handleLowPerformanceBrowser() {
+    window.hg.util.requestAnimationFrame(function () {
+      config.isLowPerformanceBrowser = true;
+
+      internal.grids.forEach(stopPersistentJobsForLowPerformanceBrowser);
+
+      resize();
+
+      displayLowPerformanceMessage();
+    });
+
+    // ---  --- //
+
+    function displayLowPerformanceMessage() {
+      var lowPerformanceMessage = 'Switching to low-performance mode.';
+
+      console.warn(lowPerformanceMessage);
+
+      var messagePanel = document.createElement('div');
+      var body = document.getElementsByTagName('body')[0];
+      body.appendChild(messagePanel);
+
+      messagePanel.innerHTML = lowPerformanceMessage;
+      messagePanel.style.zIndex = 2000;
+      messagePanel.style.position = 'absolute';
+      messagePanel.style.top = '0';
+      messagePanel.style.right = '0';
+      messagePanel.style.bottom = '0';
+      messagePanel.style.left = '0';
+      messagePanel.style.width = '70%';
+      messagePanel.style.height = '70%';
+      messagePanel.style.margin = 'auto';
+      messagePanel.style.padding = '5%';
+      messagePanel.style.fontSize = '5em';
+      messagePanel.style.fontWeight = 'bold';
+      messagePanel.style.opacity = '1';
+      messagePanel.style.color = 'white';
+      messagePanel.style.backgroundColor = 'rgba(60,0,0,0.6)';
+      window.hg.util.setTransition(messagePanel, 'opacity 1s linear 2.5s');
+
+      setTimeout(function () {
+        messagePanel.style.opacity = '0';
+
+        setTimeout(function () {
+          body.removeChild(messagePanel);
+        }, 3500);
+      }, 10);
+    }
+  }
+
+  function runPerformanceCheck() {
+    var maxRatioOfMaxDeltaTimeFrames = 0.25;
+    var numberOfFramesToCheck = 20;
+
+    var frameCount, maxDeltaTimeFrameCount;
+
+    internal.performanceCheckJob = {
+      start: function (startTime) {
+        frameCount = 0;
+        maxDeltaTimeFrameCount = 0;
+        internal.performanceCheckJob.startTime = startTime;
+        internal.performanceCheckJob.isComplete = false;
+      },
+      update: function (currentTime, deltaTime) {
+        frameCount++;
+
+        // Does the current frame fail the speed test?
+        if (deltaTime >= window.hg.animator.config.deltaTimeUpperThreshold) {
+          maxDeltaTimeFrameCount++;
+        }
+
+        // Has the performance check finished?
+        if (frameCount >= numberOfFramesToCheck) {
+          internal.performanceCheckJob.isComplete = true;
+          internal.performanceCheckJob = null;
+
+          console.info('--- PERFORMANCE DIAGNOSTICS ---');
+          console.info('maxDeltaTimeFrameCount',maxDeltaTimeFrameCount);
+          console.info('frameCount',frameCount);
+          console.info('-------------------------------');
+
+          // Did the overall performance test fail?
+          if (maxDeltaTimeFrameCount / frameCount > maxRatioOfMaxDeltaTimeFrames) {
+            handleLowPerformanceBrowser();
+          }
+        }
+      },
+      draw: function () {},
+      cancel: function () {},
+      init: function () {},
+      isComplete: true
+    };
+
+    // Run this on the next frame so that some of the setup noise from the current early frame is ignored
+    window.hg.util.requestAnimationFrame(function () {
+      window.hg.animator.startJob(internal.performanceCheckJob);
+    });
   }
 
   // ------------------------------------------------------------------------------------------- //

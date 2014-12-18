@@ -100,19 +100,22 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       constructorName: 'ColorShiftJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorShiftJob'),
-      start: restartPersistentJob.bind(controller, 'ColorShiftJob')
+      start: restartPersistentJob.bind(controller, 'ColorShiftJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorShiftJob')
     },
     ColorWaveJob: {
       constructorName: 'ColorWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorWaveJob'),
-      start: restartPersistentJob.bind(controller, 'ColorWaveJob')
+      start: restartPersistentJob.bind(controller, 'ColorWaveJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorWaveJob')
     },
     DisplacementWaveJob: {
       constructorName: 'DisplacementWaveJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'DisplacementWaveJob'),
-      start: restartPersistentJob.bind(controller, 'DisplacementWaveJob')
+      start: restartPersistentJob.bind(controller, 'DisplacementWaveJob'),
+      cancel: cancelPersistentJob.bind(controller, 'DisplacementWaveJob')
     },
 
     // --- For internal use --- //
@@ -121,13 +124,15 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       constructorName: 'ColorResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'ColorResetJob'),
-      start: restartPersistentJob.bind(controller, 'ColorResetJob')
+      start: restartPersistentJob.bind(controller, 'ColorResetJob'),
+      cancel: cancelPersistentJob.bind(controller, 'ColorResetJob')
     },
     DisplacementResetJob: {
       constructorName: 'DisplacementResetJob',
       jobs: [],
       create: createPersistentJob.bind(controller, 'DisplacementResetJob'),
-      start: restartPersistentJob.bind(controller, 'DisplacementResetJob')
+      start: restartPersistentJob.bind(controller, 'DisplacementResetJob'),
+      cancel: cancelPersistentJob.bind(controller, 'DisplacementResetJob')
     }
   };
 
@@ -264,6 +269,9 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   internal.inputs = [];
   internal.annotations = [];
   internal.postData = [];
+  internal.performanceCheckJob = true;
+
+  config.isLowPerformanceBrowser = false;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -416,6 +424,22 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   }
 
   /**
+   * @param {String} jobId
+   * @param {Grid} grid
+   * @param {Number} [jobIndex] If not given, ALL persistent jobs (of this bound type) will be
+   * cancelled for the given grid.
+   */
+  function cancelPersistentJob(jobId, grid, jobIndex) {
+    if (typeof jobIndex !== 'undefined') {
+      controller.persistentJobs[jobId].jobs[grid.index][jobIndex].cancel();
+    } else {
+      controller.persistentJobs[jobId].jobs[grid.index].forEach(function (job) {
+        job.cancel();
+      });
+    }
+  }
+
+  /**
    * Resizes all of the hex-grid components.
    */
   function resize() {
@@ -549,6 +573,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     startRecurringAnimations(grid);
 
+    handleSafariBrowser(grid);
+
     return grid;
 
     // ---  --- //
@@ -582,6 +608,12 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       controller.transientJobs.OpenPostJob.create(grid, expandedTile);
     }
 
+    if (internal.performanceCheckJob) {
+      runPerformanceCheck();
+    }
+
+    handleSafariBrowser(grid);
+
     // ---  --- //
 
     function getTileFromPostId(grid, postId) {
@@ -608,9 +640,21 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
     window.hg.animator.startJob(internal.annotations[grid.index]);
 
-    controller.persistentJobs.ColorShiftJob.start(grid);
-    controller.persistentJobs.ColorWaveJob.start(grid);
-    controller.persistentJobs.DisplacementWaveJob.start(grid);
+    // Don't run these persistent animations on low-performance browsers
+    if (!config.isLowPerformanceBrowser) {
+      controller.persistentJobs.ColorShiftJob.start(grid);
+      controller.persistentJobs.ColorWaveJob.start(grid);
+      controller.persistentJobs.DisplacementWaveJob.start(grid);
+    }
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function stopPersistentJobsForLowPerformanceBrowser(grid) {
+    controller.persistentJobs.ColorShiftJob.cancel(grid);
+    controller.persistentJobs.ColorWaveJob.cancel(grid);
+    controller.persistentJobs.DisplacementWaveJob.cancel(grid);
   }
 
   /**
@@ -660,6 +704,117 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     grid.computeContentIndices();
 
     resetGrid(grid);
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function handleSafariBrowser(grid) {
+    if (window.hg.util.checkForSafari()) {
+      console.info('Adjusting SVG for the Safari browser');
+
+      grid.svg.style.width = grid.parent.offsetWidth + 'px';
+      grid.svg.style.height = grid.parent.offsetHeight + 'px';
+    }
+  }
+
+  function handleLowPerformanceBrowser() {
+    window.hg.util.requestAnimationFrame(function () {
+      config.isLowPerformanceBrowser = true;
+
+      internal.grids.forEach(stopPersistentJobsForLowPerformanceBrowser);
+
+      resize();
+
+      displayLowPerformanceMessage();
+    });
+
+    // ---  --- //
+
+    function displayLowPerformanceMessage() {
+      var lowPerformanceMessage = 'Switching to low-performance mode.';
+
+      console.warn(lowPerformanceMessage);
+
+      var messagePanel = document.createElement('div');
+      var body = document.getElementsByTagName('body')[0];
+      body.appendChild(messagePanel);
+
+      messagePanel.innerHTML = lowPerformanceMessage;
+      messagePanel.style.zIndex = 2000;
+      messagePanel.style.position = 'absolute';
+      messagePanel.style.top = '0';
+      messagePanel.style.right = '0';
+      messagePanel.style.bottom = '0';
+      messagePanel.style.left = '0';
+      messagePanel.style.width = '70%';
+      messagePanel.style.height = '70%';
+      messagePanel.style.margin = 'auto';
+      messagePanel.style.padding = '5%';
+      messagePanel.style.fontSize = '5em';
+      messagePanel.style.fontWeight = 'bold';
+      messagePanel.style.opacity = '1';
+      messagePanel.style.color = 'white';
+      messagePanel.style.backgroundColor = 'rgba(60,0,0,0.6)';
+      window.hg.util.setTransition(messagePanel, 'opacity 1s linear 2.5s');
+
+      setTimeout(function () {
+        messagePanel.style.opacity = '0';
+
+        setTimeout(function () {
+          body.removeChild(messagePanel);
+        }, 3500);
+      }, 10);
+    }
+  }
+
+  function runPerformanceCheck() {
+    var maxRatioOfMaxDeltaTimeFrames = 0.25;
+    var numberOfFramesToCheck = 20;
+
+    var frameCount, maxDeltaTimeFrameCount;
+
+    internal.performanceCheckJob = {
+      start: function (startTime) {
+        frameCount = 0;
+        maxDeltaTimeFrameCount = 0;
+        internal.performanceCheckJob.startTime = startTime;
+        internal.performanceCheckJob.isComplete = false;
+      },
+      update: function (currentTime, deltaTime) {
+        frameCount++;
+
+        // Does the current frame fail the speed test?
+        if (deltaTime >= window.hg.animator.config.deltaTimeUpperThreshold) {
+          maxDeltaTimeFrameCount++;
+        }
+
+        // Has the performance check finished?
+        if (frameCount >= numberOfFramesToCheck) {
+          internal.performanceCheckJob.isComplete = true;
+          internal.performanceCheckJob = null;
+
+          console.info('--- PERFORMANCE DIAGNOSTICS ---');
+          console.info('maxDeltaTimeFrameCount',maxDeltaTimeFrameCount);
+          console.info('frameCount',frameCount);
+          console.info('-------------------------------');
+
+          // Did the overall performance test fail?
+          if (maxDeltaTimeFrameCount / frameCount > maxRatioOfMaxDeltaTimeFrames) {
+            handleLowPerformanceBrowser();
+          }
+        }
+      },
+      draw: function () {},
+      cancel: function () {},
+      init: function () {},
+      isComplete: true
+    };
+
+    // Run this on the next frame so that some of the setup noise from the current early frame is ignored
+    window.hg.util.requestAnimationFrame(function () {
+      window.hg.animator.startJob(internal.performanceCheckJob);
+    });
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -927,6 +1082,20 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     regex = new RegExp('[\\?&]' + name + '=([^&#]*)', 'i');
     results = regex.exec(queryString);
     return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  }
+
+  /**
+   * Sets the CSS transition style of the given element.
+   *
+   * @param {HTMLElement} element The element.
+   * @param {Number} value The transition string.
+   */
+  function setTransition(element, value) {
+    element.style.transition = value;
+    element.style.WebkitTransition = value;
+    element.style.MozTransition = value;
+    element.style.msTransition = value;
+    element.style.OTransition = value;
   }
 
   /**
@@ -1335,6 +1504,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     }
   }
 
+  function checkForSafari() {
+    return navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') < 0;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -1357,6 +1530,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     getTextWidth: getTextWidth,
     encodeQueryString: encodeQueryString,
     getQueryStringParameterValue: getQueryStringParameterValue,
+    setTransition: setTransition,
     setTransitionDurationSeconds: setTransitionDurationSeconds,
     setTransitionDelaySeconds: setTransitionDelaySeconds,
     setUserSelectNone: setUserSelectNone,
@@ -1375,6 +1549,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     hslToHsv: hslToHsv,
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,
     addRuleToStyleSheet: addRuleToStyleSheet,
+    checkForSafari: checkForSafari,
     svgNamespace: 'http://www.w3.org/2000/svg',
     xlinkNamespace: 'http://www.w3.org/1999/xlink'
   };
@@ -1405,7 +1580,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   var animator = {};
   var config = {};
 
-  config.deltaTimeUpperThreshold = 200;
+  config.deltaTimeUpperThreshold = 160;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -1574,7 +1749,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // Expose this singleton
 
   animator.jobs = [];
-  animator.previousTime = performance.now();
+  animator.previousTime = window.performance && window.performance.now() || 0;
   animator.isLooping = false;
   animator.isPaused = true;
   animator.startJob = startJob;
@@ -3150,7 +3325,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     previousButtonText.style.verticalAlign = 'middle';
     previousButtonText.style.textAlign = 'left';
     previousButtonText.style.paddingLeft = config.prevNextButtonPadding + 'px';
-    previousButtonText.innerHTML = '&#10094;';
+    previousButtonText.innerHTML = '&#10094;';// TODO: switch to use an encoded image background
 
     nextButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
     nextButtonPanel.style.position = 'absolute';
@@ -3172,7 +3347,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     nextButtonText.style.verticalAlign = 'middle';
     nextButtonText.style.textAlign = 'right';
     nextButtonText.style.paddingRight = config.prevNextButtonPadding + 'px';
-    nextButtonText.innerHTML = '&#10095;';
+    nextButtonText.innerHTML = '&#10095;';// TODO: switch to use an encoded image background
 
     captionsPanel.setAttribute('data-hg-captions-panel', 'data-hg-captions-panel');
 
@@ -3379,7 +3554,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       thumbnailElement.style.backgroundPosition = '50% 50%';
       thumbnailElement.style.width = config.thumbnailWidth + 'px';
       thumbnailElement.style.height = config.thumbnailHeight + 'px';
-      thumbnailElement.style.float = 'left';
+      thumbnailElement.style.styleFloat = 'left';
+      thumbnailElement.style.cssFloat = 'left';
 
       thumbnailScreenElement = document.createElement('div');
       thumbnailScreenElement.setAttribute('data-hg-carousel-thumbnail-screen',
@@ -5744,7 +5920,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   config = {};
 
-  // TODO: play with these
   config.dragCoeff = 0.01;
 
   config.neighborSpringCoeff = 0.00001;
@@ -6109,41 +6284,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       tile.particle.py += tile.particle.vy * deltaTime;
       tile.particle.vx += tile.particle.fx;
       tile.particle.vy += tile.particle.fy;
-
-      ////////////////////////////////////////////////////////////////////////////////////
-      // TODO: remove me!
-      var ap = tile.particle,
-          apx = ap.px,
-          apy = ap.py,
-          avx = ap.vx,
-          avy = ap.vy,
-          afx = ap.fx,
-          afy = ap.fy,
-          afAccx = ap.forceAccumulatorX,
-          afAccy = ap.forceAccumulatorY;
-      if (tile.originalIndex === 0) {
-        //console.log('tile 0!');
-      }
-      if (isNaN(tile.particle.px)) {
-        console.log('tile.particle.px=' + tile.particle.px);
-      }
-      if (isNaN(tile.particle.py)) {
-        console.log('tile.particle.py=' + tile.particle.py);
-      }
-      if (isNaN(tile.particle.vx)) {
-        console.log('tile.particle.vx=' + tile.particle.vx);
-      }
-      if (isNaN(tile.particle.vy)) {
-        console.log('tile.particle.vy=' + tile.particle.vy);
-      }
-      if (isNaN(tile.particle.fx)) {
-        console.log('tile.particle.fx=' + tile.particle.fx);
-      }
-      if (isNaN(tile.particle.fy)) {
-        console.log('tile.particle.fy=' + tile.particle.fy);
-      }
-      // TODO: remove me!
-      ////////////////////////////////////////////////////////////////////////////////////
 
       // Kill all velocities and forces below a threshold
       tile.particle.fx = tile.particle.fx < config.forceSuppressionLowerThreshold &&

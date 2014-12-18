@@ -28,6 +28,18 @@
     "animation"
   ],
   "images": [
+    {
+      "fileName": "v1/screenshot1.png",
+      "description": "This is the original design for jackieandlevi.com. The home page had a Venn diagram containing links to pages about Jackie, Levi, and both of them."
+    },
+    {
+      "fileName": "v1/screenshot2.png",
+      "description": "This was Jackie's about page."
+    },
+    {
+      "fileName": "v1/screenshot4.png",
+      "description": "This was Levi's about page."
+    }
   ],
   "videos": [],
   "content": ""

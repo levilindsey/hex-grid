@@ -24,7 +24,6 @@
 
   config = {};
 
-  // TODO: play with these
   config.dragCoeff = 0.01;
 
   config.neighborSpringCoeff = 0.00001;
@@ -389,41 +388,6 @@
       tile.particle.py += tile.particle.vy * deltaTime;
       tile.particle.vx += tile.particle.fx;
       tile.particle.vy += tile.particle.fy;
-
-      ////////////////////////////////////////////////////////////////////////////////////
-      // TODO: remove me!
-      var ap = tile.particle,
-          apx = ap.px,
-          apy = ap.py,
-          avx = ap.vx,
-          avy = ap.vy,
-          afx = ap.fx,
-          afy = ap.fy,
-          afAccx = ap.forceAccumulatorX,
-          afAccy = ap.forceAccumulatorY;
-      if (tile.originalIndex === 0) {
-        //console.log('tile 0!');
-      }
-      if (isNaN(tile.particle.px)) {
-        console.log('tile.particle.px=' + tile.particle.px);
-      }
-      if (isNaN(tile.particle.py)) {
-        console.log('tile.particle.py=' + tile.particle.py);
-      }
-      if (isNaN(tile.particle.vx)) {
-        console.log('tile.particle.vx=' + tile.particle.vx);
-      }
-      if (isNaN(tile.particle.vy)) {
-        console.log('tile.particle.vy=' + tile.particle.vy);
-      }
-      if (isNaN(tile.particle.fx)) {
-        console.log('tile.particle.fx=' + tile.particle.fx);
-      }
-      if (isNaN(tile.particle.fy)) {
-        console.log('tile.particle.fy=' + tile.particle.fy);
-      }
-      // TODO: remove me!
-      ////////////////////////////////////////////////////////////////////////////////////
 
       // Kill all velocities and forces below a threshold
       tile.particle.fx = tile.particle.fx < config.forceSuppressionLowerThreshold &&
