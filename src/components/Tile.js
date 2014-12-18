@@ -45,6 +45,8 @@
   config.activeScreenOpacity = 0.0;
   config.inactiveScreenOpacity = 0.8;
 
+  **;// TODO: have just one polygon, one background screen pattern, and one rect definition and reference them by each polygon
+
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -56,23 +58,6 @@
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
-
-  //**;// TODO: have just one polygon, one background screen pattern, and one rect definition and reference them by each polygon
-
-  // TODO: move this one-time def creation logic somewhere else
-  var svgDefsHaveBeenCreated = false;
-  //var backgroundPatternId
-  //tile.elements.polygon = polygon;**;
-  //tile.elements.backgroundPattern = backgroundPattern;
-  //tile.elements.backgroundPanel = backgroundPanel;
-  //tile.elements.foregroundScreen = foregroundScreen;
-
-  /**
-   * @this Tile
-   */
-  function createSvgDefs() {
-    var tile = this;
-  }
 
   /**
    * Creates the polygon element for this tile.
@@ -126,16 +111,16 @@
     backgroundPattern.setAttribute('patternContentUnits', 'objectBoundingBox');
     backgroundPattern.setAttribute('width', '1');
     backgroundPattern.setAttribute('height', '1');
-    backgroundPattern.setAttribute('opacity', '1');**;// TODO: check this; and other opacity assignments in Tile.js; the LineJobs are showing behind the tiles...
+    backgroundPattern.setAttribute('opacity', '1');
 
     foregroundScreen.setAttribute('width', '1');
     foregroundScreen.setAttribute('height', '1');
 
     backgroundPanel.setAttribute('width', '1');
     backgroundPanel.setAttribute('height', '1');
-    backgroundPanel.setAttribute('opacity', '1');**;// TODO: check this; and other opacity assignments in Tile.js; the LineJobs are showing behind the tiles...
+    backgroundPanel.setAttribute('opacity', '1');
 
-    polygon.setAttribute('fill', 'url(#' + patternId + ')');
+    tile.elements.polygon.setAttribute('fill', 'url(#' + patternId + ')');
 
     tile.foregroundScreenOpacity = config.inactiveScreenOpacity;
 
@@ -729,12 +714,6 @@
 
     if (tile.holdsContent) {
       createTilePost.call(tile);
-    }
-
-    // TODO: this one-time creation logic should happen somewhere else
-    if (!svgDefsHaveBeenCreated) {
-      createSvgDefs.call(tile);
-      svgDefsHaveBeenCreated = true;
     }
   }
 
