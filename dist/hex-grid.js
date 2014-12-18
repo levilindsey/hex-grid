@@ -732,7 +732,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     // ---  --- //
 
     function displayLowPerformanceMessage() {
-      var lowPerformanceMessage = 'This site is switching to low-performance mode for your browser.';
+      var lowPerformanceMessage = 'Switching to low-performance mode.';
 
       console.warn(lowPerformanceMessage);
 
@@ -756,14 +756,14 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       messagePanel.style.opacity = '1';
       messagePanel.style.color = 'white';
       messagePanel.style.backgroundColor = 'rgba(60,0,0,0.6)';
-      window.hg.util.setTransition(messagePanel, 'opacity 0.5s linear 5s');
+      window.hg.util.setTransition(messagePanel, 'opacity 1s linear 2.5s');
 
       setTimeout(function () {
         messagePanel.style.opacity = '0';
 
         setTimeout(function () {
           body.removeChild(messagePanel);
-        }, 5500);
+        }, 3500);
       }, 10);
     }
   }
@@ -3325,7 +3325,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     previousButtonText.style.verticalAlign = 'middle';
     previousButtonText.style.textAlign = 'left';
     previousButtonText.style.paddingLeft = config.prevNextButtonPadding + 'px';
-    previousButtonText.innerHTML = '&#10094;';
+    previousButtonText.innerHTML = '&#10094;';// TODO: switch to use an encoded image background
 
     nextButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
     nextButtonPanel.style.position = 'absolute';
@@ -3347,7 +3347,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     nextButtonText.style.verticalAlign = 'middle';
     nextButtonText.style.textAlign = 'right';
     nextButtonText.style.paddingRight = config.prevNextButtonPadding + 'px';
-    nextButtonText.innerHTML = '&#10095;';
+    nextButtonText.innerHTML = '&#10095;';// TODO: switch to use an encoded image background
 
     captionsPanel.setAttribute('data-hg-captions-panel', 'data-hg-captions-panel');
 

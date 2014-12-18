@@ -142,7 +142,7 @@
     previousButtonText.style.verticalAlign = 'middle';
     previousButtonText.style.textAlign = 'left';
     previousButtonText.style.paddingLeft = config.prevNextButtonPadding + 'px';
-    previousButtonText.innerHTML = '&#10094;';
+    previousButtonText.innerHTML = '&#10094;';// TODO: switch to use an encoded image background
 
     nextButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
     nextButtonPanel.style.position = 'absolute';
@@ -164,7 +164,7 @@
     nextButtonText.style.verticalAlign = 'middle';
     nextButtonText.style.textAlign = 'right';
     nextButtonText.style.paddingRight = config.prevNextButtonPadding + 'px';
-    nextButtonText.innerHTML = '&#10095;';
+    nextButtonText.innerHTML = '&#10095;';// TODO: switch to use an encoded image background
 
     captionsPanel.setAttribute('data-hg-captions-panel', 'data-hg-captions-panel');
 

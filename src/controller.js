@@ -653,7 +653,7 @@
     // ---  --- //
 
     function displayLowPerformanceMessage() {
-      var lowPerformanceMessage = 'This site is switching to low-performance mode for your browser.';
+      var lowPerformanceMessage = 'Switching to low-performance mode.';
 
       console.warn(lowPerformanceMessage);
 
@@ -677,14 +677,14 @@
       messagePanel.style.opacity = '1';
       messagePanel.style.color = 'white';
       messagePanel.style.backgroundColor = 'rgba(60,0,0,0.6)';
-      window.hg.util.setTransition(messagePanel, 'opacity 0.5s linear 5s');
+      window.hg.util.setTransition(messagePanel, 'opacity 1s linear 2.5s');
 
       setTimeout(function () {
         messagePanel.style.opacity = '0';
 
         setTimeout(function () {
           body.removeChild(messagePanel);
-        }, 5500);
+        }, 3500);
       }, 10);
     }
   }
