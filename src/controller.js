@@ -192,8 +192,10 @@
   internal.postData = [];
   internal.performanceCheckJob = true;
 
-  config.isLowPerformanceBrowser = false;
-  config.isSafariBrowser = false;
+  controller.isLowPerformanceBrowser = false;
+  controller.isSafariBrowser = false;
+  controller.isIosBrowser = false;
+  controller.isSmallScreen = false;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -496,6 +498,8 @@
     startRecurringAnimations(grid);
 
     handleSafariBrowser(grid);
+    handleIosBrowser();
+    handleSmallScreen();
 
     return grid;
 
@@ -535,6 +539,8 @@
     }
 
     handleSafariBrowser(grid);
+    handleIosBrowser();
+    handleSmallScreen();
 
     // ---  --- //
 
@@ -563,7 +569,7 @@
     window.hg.animator.startJob(internal.annotations[grid.index]);
 
     // Don't run these persistent animations on low-performance browsers
-    if (!config.isLowPerformanceBrowser) {
+    if (!controller.isLowPerformanceBrowser) {
       controller.persistentJobs.ColorShiftJob.start(grid);
       controller.persistentJobs.ColorWaveJob.start(grid);
       controller.persistentJobs.DisplacementWaveJob.start(grid);
@@ -633,18 +639,36 @@
    */
   function handleSafariBrowser(grid) {
     if (window.hg.util.checkForSafari()) {
-      console.info('Adjusting SVG for the Safari browser');
+      console.info('Is a Safari browser');
 
-      config.isSafariBrowser = true;
+      controller.isSafariBrowser = true;
 
+      // Safari browsers do not recognize pointer events on SVG children that overflow the SVG container
       grid.svg.style.width = grid.parent.offsetWidth + 'px';
       grid.svg.style.height = grid.parent.offsetHeight + 'px';
     }
   }
 
+  function handleIosBrowser() {
+    if (window.hg.util.checkForIos()) {
+      console.info('Is an iOS browser');
+
+      controller.isIosBrowser = true;
+    }
+  }
+
+  function handleSmallScreen() {
+    if (document.documentElement.clientWidth < 800) {
+      console.info('Is a small-screen browser');
+      controller.isSmallScreen = true;
+    } else {
+      controller.isSmallScreen = false;
+    }
+  }
+
   function handleLowPerformanceBrowser() {
     window.hg.util.requestAnimationFrame(function () {
-      config.isLowPerformanceBrowser = true;
+      controller.isLowPerformanceBrowser = true;
 
       internal.grids.forEach(stopPersistentJobsForLowPerformanceBrowser);
 
@@ -656,15 +680,13 @@
     // ---  --- //
 
     function displayLowPerformanceMessage() {
-      var lowPerformanceMessage = 'Switching to low-performance mode.';
-
-      console.warn(lowPerformanceMessage);
+      console.info('Is a low-performance browser');
 
       var messagePanel = document.createElement('div');
       var body = document.getElementsByTagName('body')[0];
       body.appendChild(messagePanel);
 
-      messagePanel.innerHTML = lowPerformanceMessage;
+      messagePanel.innerHTML = 'Switching to low-performance mode.';
       messagePanel.style.zIndex = 5000;
       messagePanel.style.position = 'absolute';
       messagePanel.style.top = '0';
@@ -680,14 +702,14 @@
       messagePanel.style.opacity = '1';
       messagePanel.style.color = 'white';
       messagePanel.style.backgroundColor = 'rgba(60,0,0,0.6)';
-      window.hg.util.setTransition(messagePanel, 'opacity 1s linear 2.5s');
+      window.hg.util.setTransition(messagePanel, 'opacity 1s linear 1.5s');
 
       setTimeout(function () {
         messagePanel.style.opacity = '0';
 
         setTimeout(function () {
           body.removeChild(messagePanel);
-        }, 3500);
+        }, 2500);
       }, 10);
     }
   }

@@ -666,7 +666,11 @@
   }
 
   function checkForSafari() {
-    return navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') < 0;
+    return /Safari/i.test(window.navigator.userAgent) && !/Chrome/i.test(window.navigator.userAgent);
+  }
+
+  function checkForIos() {
+    return /iPhone|iPod|iPad/i.test(window.navigator.userAgent);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -711,6 +715,7 @@
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,
     addRuleToStyleSheet: addRuleToStyleSheet,
     checkForSafari: checkForSafari,
+    checkForIos: checkForIos,
     svgNamespace: 'http://www.w3.org/2000/svg',
     xlinkNamespace: 'http://www.w3.org/1999/xlink'
   };

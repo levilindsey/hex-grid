@@ -271,8 +271,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   internal.postData = [];
   internal.performanceCheckJob = true;
 
-  config.isLowPerformanceBrowser = false;
-  config.isSafariBrowser = false;
+  controller.isLowPerformanceBrowser = false;
+  controller.isSafariBrowser = false;
+  controller.isIosBrowser = false;
+  controller.isSmallScreen = false;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -575,6 +577,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     startRecurringAnimations(grid);
 
     handleSafariBrowser(grid);
+    handleIosBrowser();
+    handleSmallScreen();
 
     return grid;
 
@@ -614,6 +618,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     }
 
     handleSafariBrowser(grid);
+    handleIosBrowser();
+    handleSmallScreen();
 
     // ---  --- //
 
@@ -642,7 +648,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     window.hg.animator.startJob(internal.annotations[grid.index]);
 
     // Don't run these persistent animations on low-performance browsers
-    if (!config.isLowPerformanceBrowser) {
+    if (!controller.isLowPerformanceBrowser) {
       controller.persistentJobs.ColorShiftJob.start(grid);
       controller.persistentJobs.ColorWaveJob.start(grid);
       controller.persistentJobs.DisplacementWaveJob.start(grid);
@@ -712,18 +718,36 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
    */
   function handleSafariBrowser(grid) {
     if (window.hg.util.checkForSafari()) {
-      console.info('Adjusting SVG for the Safari browser');
+      console.info('Is a Safari browser');
 
-      config.isSafariBrowser = true;
+      controller.isSafariBrowser = true;
 
+      // Safari browsers do not recognize pointer events on SVG children that overflow the SVG container
       grid.svg.style.width = grid.parent.offsetWidth + 'px';
       grid.svg.style.height = grid.parent.offsetHeight + 'px';
     }
   }
 
+  function handleIosBrowser() {
+    if (window.hg.util.checkForIos()) {
+      console.info('Is an iOS browser');
+
+      controller.isIosBrowser = true;
+    }
+  }
+
+  function handleSmallScreen() {
+    if (document.documentElement.clientWidth < 800) {
+      console.info('Is a small-screen browser');
+      controller.isSmallScreen = true;
+    } else {
+      controller.isSmallScreen = false;
+    }
+  }
+
   function handleLowPerformanceBrowser() {
     window.hg.util.requestAnimationFrame(function () {
-      config.isLowPerformanceBrowser = true;
+      controller.isLowPerformanceBrowser = true;
 
       internal.grids.forEach(stopPersistentJobsForLowPerformanceBrowser);
 
@@ -735,15 +759,13 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     // ---  --- //
 
     function displayLowPerformanceMessage() {
-      var lowPerformanceMessage = 'Switching to low-performance mode.';
-
-      console.warn(lowPerformanceMessage);
+      console.info('Is a low-performance browser');
 
       var messagePanel = document.createElement('div');
       var body = document.getElementsByTagName('body')[0];
       body.appendChild(messagePanel);
 
-      messagePanel.innerHTML = lowPerformanceMessage;
+      messagePanel.innerHTML = 'Switching to low-performance mode.';
       messagePanel.style.zIndex = 5000;
       messagePanel.style.position = 'absolute';
       messagePanel.style.top = '0';
@@ -759,14 +781,14 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       messagePanel.style.opacity = '1';
       messagePanel.style.color = 'white';
       messagePanel.style.backgroundColor = 'rgba(60,0,0,0.6)';
-      window.hg.util.setTransition(messagePanel, 'opacity 1s linear 2.5s');
+      window.hg.util.setTransition(messagePanel, 'opacity 1s linear 1.5s');
 
       setTimeout(function () {
         messagePanel.style.opacity = '0';
 
         setTimeout(function () {
           body.removeChild(messagePanel);
-        }, 3500);
+        }, 2500);
       }, 10);
     }
   }
@@ -1508,7 +1530,11 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   }
 
   function checkForSafari() {
-    return navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') < 0;
+    return /Safari/i.test(window.navigator.userAgent) && !/Chrome/i.test(window.navigator.userAgent);
+  }
+
+  function checkForIos() {
+    return /iPhone|iPod|iPad/i.test(window.navigator.userAgent);
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -1553,6 +1579,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,
     addRuleToStyleSheet: addRuleToStyleSheet,
     checkForSafari: checkForSafari,
+    checkForIos: checkForIos,
     svgNamespace: 'http://www.w3.org/2000/svg',
     xlinkNamespace: 'http://www.w3.org/1999/xlink'
   };
@@ -4913,7 +4940,8 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     container.style.margin = '0';
     container.style.padding = '0';
     container.style.overflow = 'hidden';
-    container.style.zIndex = window.hg.controller.config.isSafariBrowser ? '1500' : '500';
+    container.style.zIndex =
+      window.hg.controller.isSafariBrowser && !window.hg.controller.isIosBrowser ? '1500' : '500';
 
     outerWrapper.setAttribute('data-hg-post-outer-wrapper', 'data-hg-post-outer-wrapper');
     outerWrapper.style.width = width + 'px';
@@ -4921,6 +4949,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     outerWrapper.style.margin = '0';
     outerWrapper.style.padding = '0 0 0 ' + paddingX + 'px';
     outerWrapper.style.overflow = 'auto';
+    outerWrapper.style.webkitOverflowScrolling = 'touch';// This is important for scrolling on mobile devices
 
     innerWrapper.setAttribute('data-hg-post-inner-wrapper', 'data-hg-post-inner-wrapper');
     innerWrapperPaddingFromCss =

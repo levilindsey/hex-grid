@@ -170,7 +170,8 @@
     container.style.margin = '0';
     container.style.padding = '0';
     container.style.overflow = 'hidden';
-    container.style.zIndex = window.hg.controller.config.isSafariBrowser ? '1500' : '500';
+    container.style.zIndex =
+      window.hg.controller.isSafariBrowser && !window.hg.controller.isIosBrowser ? '1500' : '500';
 
     outerWrapper.setAttribute('data-hg-post-outer-wrapper', 'data-hg-post-outer-wrapper');
     outerWrapper.style.width = width + 'px';
@@ -178,6 +179,7 @@
     outerWrapper.style.margin = '0';
     outerWrapper.style.padding = '0 0 0 ' + paddingX + 'px';
     outerWrapper.style.overflow = 'auto';
+    outerWrapper.style.webkitOverflowScrolling = 'touch';// This is important for scrolling on mobile devices
 
     innerWrapper.setAttribute('data-hg-post-inner-wrapper', 'data-hg-post-inner-wrapper');
     innerWrapperPaddingFromCss =
