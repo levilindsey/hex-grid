@@ -666,7 +666,47 @@
   }
 
   function checkForSafari() {
-    return navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') < 0;
+    return /Safari/i.test(window.navigator.userAgent) && !/Chrome/i.test(window.navigator.userAgent);
+  }
+
+  function checkForIos() {
+    return /iPhone|iPod|iPad/i.test(window.navigator.userAgent);
+  }
+
+  /**
+   * Taken from Underscore.js.
+   *
+   * Returns a function, that, as long as it continues to be invoked, will not be triggered. The function will be
+   * called after it stops being called for N milliseconds. If immediate is passed, trigger the function on the
+   * leading edge, instead of the trailing.
+   *
+   * @param {Function} fn
+   * @param {Number} delay
+   * @param {Boolean} [immediate]
+   * @returns {Function}
+   */
+  function debounce(fn, delay, immediate) {
+    var timeout;
+
+    return function () {
+      var context = this;
+      var args = arguments;
+      var callNow = immediate && !timeout;
+
+      var later = function () {
+        timeout = null;
+        if (!immediate) {
+          fn.apply(context, args);
+        }
+      };
+
+      clearTimeout(timeout);
+      timeout = setTimeout(later, delay);
+
+      if (callNow) {
+        fn.apply(context, args);
+      }
+    };
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -711,6 +751,8 @@
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,
     addRuleToStyleSheet: addRuleToStyleSheet,
     checkForSafari: checkForSafari,
+    checkForIos: checkForIos,
+    debounce: debounce,
     svgNamespace: 'http://www.w3.org/2000/svg',
     xlinkNamespace: 'http://www.w3.org/1999/xlink'
   };

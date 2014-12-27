@@ -63,6 +63,18 @@
     window.app.transientParams.init(grid);
 
     createDatGui();
+
+    var debouncedResize = window.hg.util.debounce(resize, 300);
+    window.addEventListener('resize', debouncedResize, false);
+  }
+
+  function resize() {
+    // Close the menu automatically on smaller screens
+    setTimeout(function () {
+      if (window.hg.controller.isSmallScreen) {
+        parameters.gui.close();
+      }
+    }, 10);
   }
 
   function createDatGui() {

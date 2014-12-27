@@ -59,6 +59,48 @@
   config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Tile} tile
+   * @param {{x:Number,y:Number}} startCenter
+   */
+  function PagePost(tile, startCenter) {
+    var pagePost = this;
+
+    pagePost.tile = tile;
+    pagePost.elements = null;
+    pagePost.carousel = null;
+    pagePost.opacity = 0;
+    pagePost.paddingX = Number.NaN;
+    pagePost.paddingY = Number.NaN;
+    pagePost.halfWidth = Number.NaN;
+    pagePost.halfHeight = Number.NaN;
+    pagePost.innerWrapperPaddingFromCss = Number.NaN;
+    pagePost.center = {
+      x: startCenter.x,
+      y: startCenter.y
+    };
+
+    pagePost.loadCarouselMedia = loadCarouselMedia;
+    pagePost.draw = draw;
+    pagePost.destroy = destroy;
+
+    createElements.call(pagePost);
+
+    console.log('PagePost created: postId=' + tile.postData.id +
+    ', tileIndex=' + tile.originalIndex);
+  }
+
+  PagePost.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.PagePost = PagePost;
+
+  // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
   /**
@@ -170,7 +212,8 @@
     container.style.margin = '0';
     container.style.padding = '0';
     container.style.overflow = 'hidden';
-    container.style.zIndex = '500';
+    container.style.zIndex =
+      window.hg.controller.isSafariBrowser && !window.hg.controller.isIosBrowser ? '1500' : '500';
 
     outerWrapper.setAttribute('data-hg-post-outer-wrapper', 'data-hg-post-outer-wrapper');
     outerWrapper.style.width = width + 'px';
@@ -178,6 +221,7 @@
     outerWrapper.style.margin = '0';
     outerWrapper.style.padding = '0 0 0 ' + paddingX + 'px';
     outerWrapper.style.overflow = 'auto';
+    outerWrapper.style.webkitOverflowScrolling = 'touch';// This is important for scrolling on mobile devices
 
     innerWrapper.setAttribute('data-hg-post-inner-wrapper', 'data-hg-post-inner-wrapper');
     innerWrapperPaddingFromCss =
@@ -403,48 +447,6 @@
     pagePost.tile.grid.parent.removeChild(pagePost.elements.container);
     pagePost.elements = null;
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Tile} tile
-   * @param {{x:Number,y:Number}} startCenter
-   */
-  function PagePost(tile, startCenter) {
-    var pagePost = this;
-
-    pagePost.tile = tile;
-    pagePost.elements = null;
-    pagePost.carousel = null;
-    pagePost.opacity = 0;
-    pagePost.paddingX = Number.NaN;
-    pagePost.paddingY = Number.NaN;
-    pagePost.halfWidth = Number.NaN;
-    pagePost.halfHeight = Number.NaN;
-    pagePost.innerWrapperPaddingFromCss = Number.NaN;
-    pagePost.center = {
-      x: startCenter.x,
-      y: startCenter.y
-    };
-
-    pagePost.loadCarouselMedia = loadCarouselMedia;
-    pagePost.draw = draw;
-    pagePost.destroy = destroy;
-
-    createElements.call(pagePost);
-
-    console.log('PagePost created: postId=' + tile.postData.id +
-        ', tileIndex=' + tile.originalIndex);
-  }
-
-  PagePost.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.PagePost = PagePost;
 
   console.log('PagePost module loaded');
 })();

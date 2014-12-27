@@ -25,6 +25,35 @@
 
   config.computeDependentValues();
 
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Tile} tile
+   */
+  function TilePost(tile) {
+    var tilePost = this;
+
+    tilePost.tile = tile;
+    tilePost.elements = null;
+
+    tilePost.draw = draw;
+    tilePost.destroy = destroy;
+
+    createElements.call(tilePost);
+  }
+
+  TilePost.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.TilePost = TilePost;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
   /**
    * @this TilePost
    */
@@ -34,7 +63,7 @@
     var patternId = 'hg-pattern-' + tilePost.tile.postData.id;
 
     var screenColorString = 'hsl(' + window.hg.Grid.config.backgroundHue + ',' +
-        window.hg.Grid.config.backgroundSaturation + '%,' + window.hg.Grid.config.backgroundLightness + '%)';
+      window.hg.Grid.config.backgroundSaturation + '%,' + window.hg.Grid.config.backgroundLightness + '%)';
 
     var outerSideLength = window.hg.Grid.config.tileOuterRadius * 2;
 
@@ -110,16 +139,13 @@
     title.style.textAlign = 'center';
     title.style.whiteSpace = 'pre-wrap';
     title.style.pointerEvents = 'none';
-    title.style.zIndex = '2000';
+    title.style.zIndex = '1200';
 
     tilePost.tile.imageScreenOpacity = config.inactiveScreenOpacity;
     draw.call(tilePost);
 
     // TODO: for the canvas version: http://stackoverflow.com/a/4961439/489568
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -160,32 +186,6 @@
     tilePost.tile.grid.parent.removeChild(tilePost.elements.title);
     tilePost.tile.grid.svgDefs.removeChild(tilePost.elements.backgroundPattern);
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Tile} tile
-   */
-  function TilePost(tile) {
-    var tilePost = this;
-
-    tilePost.tile = tile;
-    tilePost.elements = null;
-
-    tilePost.draw = draw;
-    tilePost.destroy = destroy;
-
-    createElements.call(tilePost);
-  }
-
-  TilePost.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.TilePost = TilePost;
 
   console.log('TilePost module loaded');
 })();

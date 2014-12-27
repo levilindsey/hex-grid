@@ -6,6 +6,10 @@
  * @module Input
  */
 (function () {
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
   var config = {};
 
   config.contentTileClickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
@@ -19,7 +23,26 @@
   };
 
   // ------------------------------------------------------------------------------------------- //
-  // Private static variables
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function Input(grid) {
+    var input = this;
+
+    input.grid = grid;
+
+    addPointerEventListeners.call(input);
+  }
+
+  Input.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Input = Input;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -119,20 +142,25 @@
    * @param {Tile} tile
    */
   function createClickAnimation(grid, tile) {
-    // Close any open post
-    if (grid.isPostOpen) {
-      window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
-    }
-
     if (tile.holdsContent) {
       // Trigger an animation for the click
       config.possibleClickAnimations[config.contentTileClickAnimation](grid, tile);
+
+      // Close any open post
+      if (grid.isPostOpen) {
+        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
+      }
 
       // Open the post for the given tile
       window.hg.controller.transientJobs.OpenPostJob.create(grid, tile);
     } else {
       // Trigger an animation for the click
       config.possibleClickAnimations[config.emptyTileClickAnimation](grid, tile);
+
+      // Close any open post
+      if (grid.isPostOpen) {
+        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
+      }
     }
   }
 
@@ -141,28 +169,6 @@
 
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function Input(grid) {
-    var input = this;
-
-    input.grid = grid;
-
-    addPointerEventListeners.call(input);
-  }
-
-  Input.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Input = Input;
 
   console.log('Input module loaded');
 })();

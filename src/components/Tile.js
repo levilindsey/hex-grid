@@ -49,6 +49,106 @@
   config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {HTMLElement} svg
+   * @param {Grid} grid
+   * @param {Number} anchorX
+   * @param {Number} anchorY
+   * @param {Number} outerRadius
+   * @param {Boolean} isVertical
+   * @param {Number} hue
+   * @param {Number} saturation
+   * @param {Number} lightness
+   * @param {?PostData} postData
+   * @param {Number} tileIndex
+   * @param {Number} rowIndex
+   * @param {Number} columnIndex
+   * @param {Boolean} isMarginTile
+   * @param {Boolean} isBorderTile
+   * @param {Boolean} isCornerTile
+   * @param {Boolean} isInLargerRow
+   * @param {Number} mass
+   */
+  function Tile(svg, grid, anchorX, anchorY, outerRadius, isVertical, hue, saturation, lightness,
+                postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
+                isCornerTile, isInLargerRow, mass) {
+    var tile = this;
+
+    tile.svg = svg;
+    tile.grid = grid;
+    tile.element = null;
+    tile.currentAnchor = {x: anchorX, y: anchorY};
+    tile.originalAnchor = {x: anchorX, y: anchorY};
+    tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
+    tile.outerRadius = outerRadius;
+    tile.isVertical = isVertical;
+
+    tile.originalColor = {h: hue, s: saturation, l: lightness};
+    tile.currentColor = {h: hue, s: saturation, l: lightness};
+
+    tile.postData = postData;
+    tile.holdsContent = !!postData;
+    tile.tilePost = null;
+    tile.originalIndex = tileIndex;
+    tile.rowIndex = rowIndex;
+    tile.columnIndex = columnIndex;
+    tile.isMarginTile = isMarginTile;
+    tile.isBorderTile = isBorderTile;
+    tile.isCornerTile = isCornerTile;
+    tile.isInLargerRow = isInLargerRow;
+
+    tile.expandedState = null;
+
+    tile.isHighlighted = false;
+
+    tile.imageScreenOpacity = Number.NaN;
+
+    tile.neighborStates = [];
+    tile.vertices = null;
+    tile.currentVertexDeltas = null;
+    tile.originalVertexDeltas = null;
+    tile.expandedVertexDeltas = null;
+    tile.particle = null;
+
+    tile.setContent = setContent;
+    tile.setNeighborTiles = setNeighborTiles;
+    tile.setColor = setColor;
+    tile.setIsHighlighted = setIsHighlighted;
+    tile.update = update;
+    tile.draw = draw;
+    tile.applyExternalForce = applyExternalForce;
+    tile.fixPosition = fixPosition;
+    tile.getNeighborStates = getNeighborStates;
+    tile.getIsBorderTile = getIsBorderTile;
+    tile.setIsBorderTile = setIsBorderTile;
+    tile.destroy = destroy;
+    tile.hide = hide;
+    tile.show = show;
+
+    createElement.call(tile);
+    createParticle.call(tile, mass);
+
+    if (tile.holdsContent) {
+      createTilePost.call(tile);
+    }
+  }
+
+  Tile.computeVertexDeltas = computeVertexDeltas;
+  Tile.setTileNeighborState = setTileNeighborState;
+  Tile.initializeTileExpandedState = initializeTileExpandedState;
+  Tile.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Tile = Tile;
+
+  initStaticFields();
+
+  // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
   /**
@@ -640,106 +740,6 @@
       tile.tilePost.elements.title.style.display = 'block';
     }
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {HTMLElement} svg
-   * @param {Grid} grid
-   * @param {Number} anchorX
-   * @param {Number} anchorY
-   * @param {Number} outerRadius
-   * @param {Boolean} isVertical
-   * @param {Number} hue
-   * @param {Number} saturation
-   * @param {Number} lightness
-   * @param {?PostData} postData
-   * @param {Number} tileIndex
-   * @param {Number} rowIndex
-   * @param {Number} columnIndex
-   * @param {Boolean} isMarginTile
-   * @param {Boolean} isBorderTile
-   * @param {Boolean} isCornerTile
-   * @param {Boolean} isInLargerRow
-   * @param {Number} mass
-   */
-  function Tile(svg, grid, anchorX, anchorY, outerRadius, isVertical, hue, saturation, lightness,
-                   postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
-                   isCornerTile, isInLargerRow, mass) {
-    var tile = this;
-
-    tile.svg = svg;
-    tile.grid = grid;
-    tile.element = null;
-    tile.currentAnchor = {x: anchorX, y: anchorY};
-    tile.originalAnchor = {x: anchorX, y: anchorY};
-    tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
-    tile.outerRadius = outerRadius;
-    tile.isVertical = isVertical;
-
-    tile.originalColor = {h: hue, s: saturation, l: lightness};
-    tile.currentColor = {h: hue, s: saturation, l: lightness};
-
-    tile.postData = postData;
-    tile.holdsContent = !!postData;
-    tile.tilePost = null;
-    tile.originalIndex = tileIndex;
-    tile.rowIndex = rowIndex;
-    tile.columnIndex = columnIndex;
-    tile.isMarginTile = isMarginTile;
-    tile.isBorderTile = isBorderTile;
-    tile.isCornerTile = isCornerTile;
-    tile.isInLargerRow = isInLargerRow;
-
-    tile.expandedState = null;
-
-    tile.isHighlighted = false;
-
-    tile.imageScreenOpacity = Number.NaN;
-
-    tile.neighborStates = [];
-    tile.vertices = null;
-    tile.currentVertexDeltas = null;
-    tile.originalVertexDeltas = null;
-    tile.expandedVertexDeltas = null;
-    tile.particle = null;
-
-    tile.setContent = setContent;
-    tile.setNeighborTiles = setNeighborTiles;
-    tile.setColor = setColor;
-    tile.setIsHighlighted = setIsHighlighted;
-    tile.update = update;
-    tile.draw = draw;
-    tile.applyExternalForce = applyExternalForce;
-    tile.fixPosition = fixPosition;
-    tile.getNeighborStates = getNeighborStates;
-    tile.getIsBorderTile = getIsBorderTile;
-    tile.setIsBorderTile = setIsBorderTile;
-    tile.destroy = destroy;
-    tile.hide = hide;
-    tile.show = show;
-
-    createElement.call(tile);
-    createParticle.call(tile, mass);
-
-    if (tile.holdsContent) {
-      createTilePost.call(tile);
-    }
-  }
-
-  Tile.computeVertexDeltas = computeVertexDeltas;
-  Tile.setTileNeighborState = setTileNeighborState;
-  Tile.initializeTileExpandedState = initializeTileExpandedState;
-  Tile.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Tile = Tile;
-
-  initStaticFields();
 
   console.log('Tile module loaded');
 })();
