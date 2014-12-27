@@ -25,6 +25,55 @@
   config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @global
+   * @constructor
+   * @param {Grid} grid
+   * @param {Tile} baseTile
+   * @param {Number} sectorIndex
+   * @param {Number} expandedDisplacementTileCount
+   *
+   * PRE-CONDITION: The given baseTile is not a border tile (i.e., it has six neighbors).
+   * PRE-CONDITION: The grid is in a closed state.
+   *
+   * POST-CONDITION: This sector is NOT guaranteed to collect all of the pre-existing tiles in the
+   * sector nor to create all of the needed new tiles in the sector (but it probably will).
+   */
+  function Sector(grid, baseTile, sectorIndex, expandedDisplacementTileCount) {
+    var sector = this;
+
+    sector.grid = grid;
+    sector.baseTile = baseTile;
+    sector.index = sectorIndex;
+    sector.expandedDisplacementTileCount = expandedDisplacementTileCount;
+    sector.originalAnchor = {x: Number.NaN, y: Number.NaN};
+    sector.currentAnchor = {x: Number.NaN, y: Number.NaN};
+    sector.majorNeighborDelta = {x: Number.NaN, y: Number.NaN};
+    sector.minorNeighborDelta = {x: Number.NaN, y: Number.NaN};
+    sector.expandedDisplacement = {x: Number.NaN, y: Number.NaN};
+    sector.tiles = null;
+    sector.tilesByIndex = null;
+    sector.newTiles = null;
+
+    sector.initializeExpandedStateExternalTileNeighbors =
+      initializeExpandedStateExternalTileNeighbors;
+    sector.destroy = destroy;
+    sector.setOriginalPositionForExpansion = setSectorOriginalPositionForExpansion;
+    sector.updateCurrentPosition = updateSectorCurrentPosition;
+
+    setUpExpandedDisplacementValues.call(sector);
+    setUpTiles.call(sector);
+  }
+
+  Sector.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Sector = Sector;
+
+  // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
   /**
@@ -650,55 +699,6 @@
       sector.tiles[i].currentAnchor.y += dy;
     }
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @global
-   * @constructor
-   * @param {Grid} grid
-   * @param {Tile} baseTile
-   * @param {Number} sectorIndex
-   * @param {Number} expandedDisplacementTileCount
-   *
-   * PRE-CONDITION: The given baseTile is not a border tile (i.e., it has six neighbors).
-   * PRE-CONDITION: The grid is in a closed state.
-   *
-   * POST-CONDITION: This sector is NOT guaranteed to collect all of the pre-existing tiles in the
-   * sector nor to create all of the needed new tiles in the sector (but it probably will).
-   */
-  function Sector(grid, baseTile, sectorIndex, expandedDisplacementTileCount) {
-    var sector = this;
-
-    sector.grid = grid;
-    sector.baseTile = baseTile;
-    sector.index = sectorIndex;
-    sector.expandedDisplacementTileCount = expandedDisplacementTileCount;
-    sector.originalAnchor = {x: Number.NaN, y: Number.NaN};
-    sector.currentAnchor = {x: Number.NaN, y: Number.NaN};
-    sector.majorNeighborDelta = {x: Number.NaN, y: Number.NaN};
-    sector.minorNeighborDelta = {x: Number.NaN, y: Number.NaN};
-    sector.expandedDisplacement = {x: Number.NaN, y: Number.NaN};
-    sector.tiles = null;
-    sector.tilesByIndex = null;
-    sector.newTiles = null;
-
-    sector.initializeExpandedStateExternalTileNeighbors =
-        initializeExpandedStateExternalTileNeighbors;
-    sector.destroy = destroy;
-    sector.setOriginalPositionForExpansion = setSectorOriginalPositionForExpansion;
-    sector.updateCurrentPosition = updateSectorCurrentPosition;
-
-    setUpExpandedDisplacementValues.call(sector);
-    setUpTiles.call(sector);
-  }
-
-  Sector.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Sector = Sector;
 
   console.log('Sector module loaded');
 })();

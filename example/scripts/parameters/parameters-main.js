@@ -64,7 +64,8 @@
 
     createDatGui();
 
-    window.addEventListener('resize', resize, false);
+    var debouncedResize = window.hg.util.debounce(resize, 300);
+    window.addEventListener('resize', debouncedResize, false);
   }
 
   function resize() {

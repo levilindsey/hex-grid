@@ -198,6 +198,30 @@
   controller.isSmallScreen = false;
 
   // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  controller.config = config;
+
+  controller.createNewHexGrid = createNewHexGrid;
+  controller.resetGrid = resetGrid;
+  controller.resetPersistentJobs = resetPersistentJobs;
+  controller.setGridPostData = setGridPostData;
+  controller.filterGridPostDataByCategory = filterGridPostDataByCategory;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.controller = controller;
+
+  window.addEventListener('load', initController, false);
+
+  function initController() {
+    window.removeEventListener('load', initController);
+
+    var debouncedResize = window.hg.util.debounce(resize, 300);
+    window.addEventListener('resize', debouncedResize, false);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
   /**
@@ -762,23 +786,6 @@
       window.hg.animator.startJob(internal.performanceCheckJob);
     });
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this singleton
-
-  controller.config = config;
-
-  controller.createNewHexGrid = createNewHexGrid;
-  controller.resetGrid = resetGrid;
-  controller.resetPersistentJobs = resetPersistentJobs;
-  controller.setGridPostData = setGridPostData;
-  controller.filterGridPostDataByCategory = filterGridPostDataByCategory;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.controller = controller;
-
-  window.addEventListener('resize', resize, false);
 
   console.log('controller module loaded');
 })();

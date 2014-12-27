@@ -78,6 +78,103 @@
   config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @global
+   * @constructor
+   * @param {Number} index
+   * @param {HTMLElement} parent
+   * @param {Array.<PostData>} postData
+   * @param {Boolean} [isVertical]
+   */
+  function Grid(index, parent, postData, isVertical) {
+    var grid = this;
+
+    grid.index = index;
+    grid.parent = parent;
+    grid.postData = postData;
+    grid.isVertical = isVertical;
+
+    grid.actualContentAreaWidth = config.targetContentAreaWidth;
+
+    grid.isComplete = true;
+
+    grid.svg = null;
+    grid.svgDefs = null;
+    grid.originalTiles = [];
+    grid.originalBorderTiles = [];
+    grid.contentTiles = [];
+    grid.originalContentInnerIndices = null;
+    grid.innerIndexOfLastContentTile = null;
+    grid.originalCenter = null;
+    grid.currentCenter = null;
+    grid.panCenter = null;
+    grid.isPostOpen = false;
+    grid.pagePost = null;
+    grid.isTransitioning = false;
+    grid.expandedTile = null;
+    grid.sectors = null;
+    grid.allTiles = null;
+    grid.allNonContentTiles = null;
+    grid.lastExpansionJob = null;
+    grid.scrollTop = Number.NaN;
+
+    grid.annotations = new window.hg.Annotations(grid);
+
+    grid.actualContentAreaWidth = Number.NaN;
+    grid.rowDeltaY = Number.NaN;
+    grid.tileDeltaX = Number.NaN;
+    grid.tileNeighborDistance = Number.NaN;
+    grid.oddRowTileCount = Number.NaN;
+    grid.evenRowTileCount = Number.NaN;
+    grid.oddRowXOffset = Number.NaN;
+    grid.rowCount = Number.NaN;
+    grid.evenRowXOffset = Number.NaN;
+    grid.contentAreaLeft = Number.NaN;
+    grid.contentAreaRight = Number.NaN;
+    grid.oddRowContentStartIndex = Number.NaN;
+    grid.evenRowContentStartIndex = Number.NaN;
+    grid.oddRowContentTileCount = Number.NaN;
+    grid.evenRowContentTileCount = Number.NaN;
+    grid.oddRowContentEndIndex = Number.NaN;
+    grid.evenRowContentEndIndex = Number.NaN;
+    grid.actualContentInnerIndices = Number.NaN;
+    grid.innerIndexOfLastContentTile = Number.NaN;
+    grid.rowCount = Number.NaN;
+    grid.height = Number.NaN;
+
+    grid.resize = resize;
+    grid.start = start;
+    grid.update = update;
+    grid.draw = draw;
+    grid.cancel = cancel;
+    grid.init = init;
+
+    grid.setBackgroundColor = setBackgroundColor;
+    grid.updateTileColor = updateTileColor;
+    grid.updateTileMass = updateTileMass;
+    grid.setHoveredTile = setHoveredTile;
+    grid.createPagePost = createPagePost;
+    grid.destroyPagePost = destroyPagePost;
+    grid.updateAllTilesCollection = updateAllTilesCollection;
+    grid.computeContentIndices = computeContentIndices;
+
+    grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
+
+    createSvg.call(grid);
+    setBackgroundColor.call(grid);
+    computeContentIndices.call(grid);
+    resize.call(grid);
+  }
+
+  Grid.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Grid = Grid;
+
+  // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
   /**
@@ -768,103 +865,6 @@
 
     config.computeDependentValues();
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @global
-   * @constructor
-   * @param {Number} index
-   * @param {HTMLElement} parent
-   * @param {Array.<PostData>} postData
-   * @param {Boolean} [isVertical]
-   */
-  function Grid(index, parent, postData, isVertical) {
-    var grid = this;
-
-    grid.index = index;
-    grid.parent = parent;
-    grid.postData = postData;
-    grid.isVertical = isVertical;
-
-    grid.actualContentAreaWidth = config.targetContentAreaWidth;
-
-    grid.isComplete = true;
-
-    grid.svg = null;
-    grid.svgDefs = null;
-    grid.originalTiles = [];
-    grid.originalBorderTiles = [];
-    grid.contentTiles = [];
-    grid.originalContentInnerIndices = null;
-    grid.innerIndexOfLastContentTile = null;
-    grid.originalCenter = null;
-    grid.currentCenter = null;
-    grid.panCenter = null;
-    grid.isPostOpen = false;
-    grid.pagePost = null;
-    grid.isTransitioning = false;
-    grid.expandedTile = null;
-    grid.sectors = null;
-    grid.allTiles = null;
-    grid.allNonContentTiles = null;
-    grid.lastExpansionJob = null;
-    grid.scrollTop = Number.NaN;
-
-    grid.annotations = new window.hg.Annotations(grid);
-
-    grid.actualContentAreaWidth = Number.NaN;
-    grid.rowDeltaY = Number.NaN;
-    grid.tileDeltaX = Number.NaN;
-    grid.tileNeighborDistance = Number.NaN;
-    grid.oddRowTileCount = Number.NaN;
-    grid.evenRowTileCount = Number.NaN;
-    grid.oddRowXOffset = Number.NaN;
-    grid.rowCount = Number.NaN;
-    grid.evenRowXOffset = Number.NaN;
-    grid.contentAreaLeft = Number.NaN;
-    grid.contentAreaRight = Number.NaN;
-    grid.oddRowContentStartIndex = Number.NaN;
-    grid.evenRowContentStartIndex = Number.NaN;
-    grid.oddRowContentTileCount = Number.NaN;
-    grid.evenRowContentTileCount = Number.NaN;
-    grid.oddRowContentEndIndex = Number.NaN;
-    grid.evenRowContentEndIndex = Number.NaN;
-    grid.actualContentInnerIndices = Number.NaN;
-    grid.innerIndexOfLastContentTile = Number.NaN;
-    grid.rowCount = Number.NaN;
-    grid.height = Number.NaN;
-
-    grid.resize = resize;
-    grid.start = start;
-    grid.update = update;
-    grid.draw = draw;
-    grid.cancel = cancel;
-    grid.init = init;
-
-    grid.setBackgroundColor = setBackgroundColor;
-    grid.updateTileColor = updateTileColor;
-    grid.updateTileMass = updateTileMass;
-    grid.setHoveredTile = setHoveredTile;
-    grid.createPagePost = createPagePost;
-    grid.destroyPagePost = destroyPagePost;
-    grid.updateAllTilesCollection = updateAllTilesCollection;
-    grid.computeContentIndices = computeContentIndices;
-
-    grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
-
-    createSvg.call(grid);
-    setBackgroundColor.call(grid);
-    computeContentIndices.call(grid);
-    resize.call(grid);
-  }
-
-  Grid.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Grid = Grid;
 
   console.log('Grid module loaded');
 })();

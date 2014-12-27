@@ -59,6 +59,48 @@
   config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Tile} tile
+   * @param {{x:Number,y:Number}} startCenter
+   */
+  function PagePost(tile, startCenter) {
+    var pagePost = this;
+
+    pagePost.tile = tile;
+    pagePost.elements = null;
+    pagePost.carousel = null;
+    pagePost.opacity = 0;
+    pagePost.paddingX = Number.NaN;
+    pagePost.paddingY = Number.NaN;
+    pagePost.halfWidth = Number.NaN;
+    pagePost.halfHeight = Number.NaN;
+    pagePost.innerWrapperPaddingFromCss = Number.NaN;
+    pagePost.center = {
+      x: startCenter.x,
+      y: startCenter.y
+    };
+
+    pagePost.loadCarouselMedia = loadCarouselMedia;
+    pagePost.draw = draw;
+    pagePost.destroy = destroy;
+
+    createElements.call(pagePost);
+
+    console.log('PagePost created: postId=' + tile.postData.id +
+    ', tileIndex=' + tile.originalIndex);
+  }
+
+  PagePost.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.PagePost = PagePost;
+
+  // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
   /**
@@ -405,48 +447,6 @@
     pagePost.tile.grid.parent.removeChild(pagePost.elements.container);
     pagePost.elements = null;
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Tile} tile
-   * @param {{x:Number,y:Number}} startCenter
-   */
-  function PagePost(tile, startCenter) {
-    var pagePost = this;
-
-    pagePost.tile = tile;
-    pagePost.elements = null;
-    pagePost.carousel = null;
-    pagePost.opacity = 0;
-    pagePost.paddingX = Number.NaN;
-    pagePost.paddingY = Number.NaN;
-    pagePost.halfWidth = Number.NaN;
-    pagePost.halfHeight = Number.NaN;
-    pagePost.innerWrapperPaddingFromCss = Number.NaN;
-    pagePost.center = {
-      x: startCenter.x,
-      y: startCenter.y
-    };
-
-    pagePost.loadCarouselMedia = loadCarouselMedia;
-    pagePost.draw = draw;
-    pagePost.destroy = destroy;
-
-    createElements.call(pagePost);
-
-    console.log('PagePost created: postId=' + tile.postData.id +
-        ', tileIndex=' + tile.originalIndex);
-  }
-
-  PagePost.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.PagePost = PagePost;
 
   console.log('PagePost module loaded');
 })();

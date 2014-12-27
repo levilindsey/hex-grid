@@ -277,6 +277,30 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   controller.isSmallScreen = false;
 
   // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  controller.config = config;
+
+  controller.createNewHexGrid = createNewHexGrid;
+  controller.resetGrid = resetGrid;
+  controller.resetPersistentJobs = resetPersistentJobs;
+  controller.setGridPostData = setGridPostData;
+  controller.filterGridPostDataByCategory = filterGridPostDataByCategory;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.controller = controller;
+
+  window.addEventListener('load', initController, false);
+
+  function initController() {
+    window.removeEventListener('load', initController);
+
+    var debouncedResize = window.hg.util.debounce(resize, 300);
+    window.addEventListener('resize', debouncedResize, false);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
   /**
@@ -841,23 +865,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       window.hg.animator.startJob(internal.performanceCheckJob);
     });
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this singleton
-
-  controller.config = config;
-
-  controller.createNewHexGrid = createNewHexGrid;
-  controller.resetGrid = resetGrid;
-  controller.resetPersistentJobs = resetPersistentJobs;
-  controller.setGridPostData = setGridPostData;
-  controller.filterGridPostDataByCategory = filterGridPostDataByCategory;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.controller = controller;
-
-  window.addEventListener('resize', resize, false);
 
   console.log('controller module loaded');
 })();
@@ -1537,6 +1544,42 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     return /iPhone|iPod|iPad/i.test(window.navigator.userAgent);
   }
 
+  /**
+   * Taken from Underscore.js.
+   *
+   * Returns a function, that, as long as it continues to be invoked, will not be triggered. The function will be
+   * called after it stops being called for N milliseconds. If immediate is passed, trigger the function on the
+   * leading edge, instead of the trailing.
+   *
+   * @param {Function} fn
+   * @param {Number} delay
+   * @param {Boolean} [immediate]
+   * @returns {Function}
+   */
+  function debounce(fn, delay, immediate) {
+    var timeout;
+
+    return function () {
+      var context = this;
+      var args = arguments;
+      var callNow = immediate && !timeout;
+
+      var later = function () {
+        timeout = null;
+        if (!immediate) {
+          fn.apply(context, args);
+        }
+      };
+
+      clearTimeout(timeout);
+      timeout = setTimeout(later, delay);
+
+      if (callNow) {
+        fn.apply(context, args);
+      }
+    };
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -1580,6 +1623,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     addRuleToStyleSheet: addRuleToStyleSheet,
     checkForSafari: checkForSafari,
     checkForIos: checkForIos,
+    debounce: debounce,
     svgNamespace: 'http://www.w3.org/2000/svg',
     xlinkNamespace: 'http://www.w3.org/1999/xlink'
   };
@@ -1611,6 +1655,23 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   var config = {};
 
   config.deltaTimeUpperThreshold = 160;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  animator.jobs = [];
+  animator.previousTime = window.performance && window.performance.now() || 0;
+  animator.isLooping = false;
+  animator.isPaused = true;
+  animator.startJob = startJob;
+  animator.cancelJob = cancelJob;
+  animator.cancelAll = cancelAll;
+
+  animator.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.animator = animator;
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
@@ -1774,23 +1835,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
       cancelJob(animator.jobs[0]);
     }
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this singleton
-
-  animator.jobs = [];
-  animator.previousTime = window.performance && window.performance.now() || 0;
-  animator.isLooping = false;
-  animator.isPaused = true;
-  animator.startJob = startJob;
-  animator.cancelJob = cancelJob;
-  animator.cancelAll = cancelAll;
-
-  animator.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.animator = animator;
 
   console.log('animator module loaded');
 })();
@@ -1979,6 +2023,62 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   };
 
   config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @param {Grid} grid
+   */
+  function Annotations(grid) {
+    var annotations = this;
+
+    annotations.grid = grid;
+    annotations.startTime = 0;
+    annotations.isComplete = true;
+    annotations.annotations = window.hg.util.shallowCopy(config.annotations);
+
+    annotations.contentAreaGuideLines = [];
+    annotations.tileParticleCenters = [];
+    annotations.tileAnchorLines = [];
+    annotations.tileAnchorCenters = [];
+    annotations.tileDisplacementCircles = [];
+    annotations.tileInnerRadii = [];
+    annotations.tileOuterRadii = [];
+    annotations.neighborLines = [];
+    annotations.forceLines = [];
+    annotations.velocityLines = [];
+    annotations.indexTexts = [];
+    annotations.lineAnimationGapDots = [];
+    annotations.lineAnimationSelfCornerDots = [];
+    annotations.lineAnimationLowerNeighborCornerDots = [];
+    annotations.lineAnimationUpperNeighborCornerDots = [];
+    annotations.sectorAnchorLines = [];
+    annotations.sectorAnchorCenters = [];
+
+    annotations.originalGridCenterDot = null;
+    annotations.currentGridCenterDot = null;
+    annotations.panCenterDot = null;
+
+    annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
+    annotations.createAnnotations = createAnnotations;
+    annotations.destroyAnnotations = destroyAnnotations;
+    annotations.setExpandedAnnotations = setExpandedAnnotations;
+
+    annotations.start = start;
+    annotations.update = update;
+    annotations.draw = draw;
+    annotations.cancel = cancel;
+    annotations.init = init;
+    annotations.refresh = refresh;
+  }
+
+  Annotations.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Annotations = Annotations;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -3152,62 +3252,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @param {Grid} grid
-   */
-  function Annotations(grid) {
-    var annotations = this;
-
-    annotations.grid = grid;
-    annotations.startTime = 0;
-    annotations.isComplete = true;
-    annotations.annotations = window.hg.util.shallowCopy(config.annotations);
-
-    annotations.contentAreaGuideLines = [];
-    annotations.tileParticleCenters = [];
-    annotations.tileAnchorLines = [];
-    annotations.tileAnchorCenters = [];
-    annotations.tileDisplacementCircles = [];
-    annotations.tileInnerRadii = [];
-    annotations.tileOuterRadii = [];
-    annotations.neighborLines = [];
-    annotations.forceLines = [];
-    annotations.velocityLines = [];
-    annotations.indexTexts = [];
-    annotations.lineAnimationGapDots = [];
-    annotations.lineAnimationSelfCornerDots = [];
-    annotations.lineAnimationLowerNeighborCornerDots = [];
-    annotations.lineAnimationUpperNeighborCornerDots = [];
-    annotations.sectorAnchorLines = [];
-    annotations.sectorAnchorCenters = [];
-
-    annotations.originalGridCenterDot = null;
-    annotations.currentGridCenterDot = null;
-    annotations.panCenterDot = null;
-
-    annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
-    annotations.createAnnotations = createAnnotations;
-    annotations.destroyAnnotations = destroyAnnotations;
-    annotations.setExpandedAnnotations = setExpandedAnnotations;
-
-    annotations.start = start;
-    annotations.update = update;
-    annotations.draw = draw;
-    annotations.cancel = cancel;
-    annotations.init = init;
-    annotations.refresh = refresh;
-  }
-
-  Annotations.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Annotations = Annotations;
-
   console.log('Annotations module loaded');
 })();
 
@@ -3244,6 +3288,48 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   };
 
   config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {PagePost} pagePost
+   * @param {HTMLElement} parent
+   * @param {Array.<String>} images
+   * @param {Array.<String>} videos
+   * @param {Boolean} [waitToLoadMedia=false]
+   */
+  function Carousel(grid, pagePost, parent, images, videos, waitToLoadMedia) {
+    var carousel = this;
+
+    carousel.grid = grid;
+    carousel.pagePost = pagePost;
+    carousel.parent = parent;
+    carousel.elements = null;
+    carousel.currentIndex = 0;
+    carousel.previousIndex = 0;
+    carousel.mediaMetadata = null;
+    carousel.currentIndexPositionRatio = 0;
+
+    carousel.loadMedia = loadMedia;
+    carousel.onSlideFinished = onSlideFinished;
+    carousel.draw = draw;
+    carousel.destroy = destroy;
+
+    createMediaMetadataArray.call(carousel, images, videos);
+    createElements.call(carousel, waitToLoadMedia);
+
+    console.log('Carousel created');
+  }
+
+  Carousel.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Carousel = Carousel;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -3683,48 +3769,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     carousel.elements.container = null;
   }
 
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   * @param {PagePost} pagePost
-   * @param {HTMLElement} parent
-   * @param {Array.<String>} images
-   * @param {Array.<String>} videos
-   * @param {Boolean} [waitToLoadMedia=false]
-   */
-  function Carousel(grid, pagePost, parent, images, videos, waitToLoadMedia) {
-    var carousel = this;
-
-    carousel.grid = grid;
-    carousel.pagePost = pagePost;
-    carousel.parent = parent;
-    carousel.elements = null;
-    carousel.currentIndex = 0;
-    carousel.previousIndex = 0;
-    carousel.mediaMetadata = null;
-    carousel.currentIndexPositionRatio = 0;
-
-    carousel.loadMedia = loadMedia;
-    carousel.onSlideFinished = onSlideFinished;
-    carousel.draw = draw;
-    carousel.destroy = destroy;
-
-    createMediaMetadataArray.call(carousel, images, videos);
-    createElements.call(carousel, waitToLoadMedia);
-
-    console.log('Carousel created');
-  }
-
-  Carousel.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Carousel = Carousel;
-
   console.log('Carousel module loaded');
 })();
 
@@ -3806,6 +3850,103 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   };
 
   config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @global
+   * @constructor
+   * @param {Number} index
+   * @param {HTMLElement} parent
+   * @param {Array.<PostData>} postData
+   * @param {Boolean} [isVertical]
+   */
+  function Grid(index, parent, postData, isVertical) {
+    var grid = this;
+
+    grid.index = index;
+    grid.parent = parent;
+    grid.postData = postData;
+    grid.isVertical = isVertical;
+
+    grid.actualContentAreaWidth = config.targetContentAreaWidth;
+
+    grid.isComplete = true;
+
+    grid.svg = null;
+    grid.svgDefs = null;
+    grid.originalTiles = [];
+    grid.originalBorderTiles = [];
+    grid.contentTiles = [];
+    grid.originalContentInnerIndices = null;
+    grid.innerIndexOfLastContentTile = null;
+    grid.originalCenter = null;
+    grid.currentCenter = null;
+    grid.panCenter = null;
+    grid.isPostOpen = false;
+    grid.pagePost = null;
+    grid.isTransitioning = false;
+    grid.expandedTile = null;
+    grid.sectors = null;
+    grid.allTiles = null;
+    grid.allNonContentTiles = null;
+    grid.lastExpansionJob = null;
+    grid.scrollTop = Number.NaN;
+
+    grid.annotations = new window.hg.Annotations(grid);
+
+    grid.actualContentAreaWidth = Number.NaN;
+    grid.rowDeltaY = Number.NaN;
+    grid.tileDeltaX = Number.NaN;
+    grid.tileNeighborDistance = Number.NaN;
+    grid.oddRowTileCount = Number.NaN;
+    grid.evenRowTileCount = Number.NaN;
+    grid.oddRowXOffset = Number.NaN;
+    grid.rowCount = Number.NaN;
+    grid.evenRowXOffset = Number.NaN;
+    grid.contentAreaLeft = Number.NaN;
+    grid.contentAreaRight = Number.NaN;
+    grid.oddRowContentStartIndex = Number.NaN;
+    grid.evenRowContentStartIndex = Number.NaN;
+    grid.oddRowContentTileCount = Number.NaN;
+    grid.evenRowContentTileCount = Number.NaN;
+    grid.oddRowContentEndIndex = Number.NaN;
+    grid.evenRowContentEndIndex = Number.NaN;
+    grid.actualContentInnerIndices = Number.NaN;
+    grid.innerIndexOfLastContentTile = Number.NaN;
+    grid.rowCount = Number.NaN;
+    grid.height = Number.NaN;
+
+    grid.resize = resize;
+    grid.start = start;
+    grid.update = update;
+    grid.draw = draw;
+    grid.cancel = cancel;
+    grid.init = init;
+
+    grid.setBackgroundColor = setBackgroundColor;
+    grid.updateTileColor = updateTileColor;
+    grid.updateTileMass = updateTileMass;
+    grid.setHoveredTile = setHoveredTile;
+    grid.createPagePost = createPagePost;
+    grid.destroyPagePost = destroyPagePost;
+    grid.updateAllTilesCollection = updateAllTilesCollection;
+    grid.computeContentIndices = computeContentIndices;
+
+    grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
+
+    createSvg.call(grid);
+    setBackgroundColor.call(grid);
+    computeContentIndices.call(grid);
+    resize.call(grid);
+  }
+
+  Grid.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Grid = Grid;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -4499,103 +4640,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     config.computeDependentValues();
   }
 
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @global
-   * @constructor
-   * @param {Number} index
-   * @param {HTMLElement} parent
-   * @param {Array.<PostData>} postData
-   * @param {Boolean} [isVertical]
-   */
-  function Grid(index, parent, postData, isVertical) {
-    var grid = this;
-
-    grid.index = index;
-    grid.parent = parent;
-    grid.postData = postData;
-    grid.isVertical = isVertical;
-
-    grid.actualContentAreaWidth = config.targetContentAreaWidth;
-
-    grid.isComplete = true;
-
-    grid.svg = null;
-    grid.svgDefs = null;
-    grid.originalTiles = [];
-    grid.originalBorderTiles = [];
-    grid.contentTiles = [];
-    grid.originalContentInnerIndices = null;
-    grid.innerIndexOfLastContentTile = null;
-    grid.originalCenter = null;
-    grid.currentCenter = null;
-    grid.panCenter = null;
-    grid.isPostOpen = false;
-    grid.pagePost = null;
-    grid.isTransitioning = false;
-    grid.expandedTile = null;
-    grid.sectors = null;
-    grid.allTiles = null;
-    grid.allNonContentTiles = null;
-    grid.lastExpansionJob = null;
-    grid.scrollTop = Number.NaN;
-
-    grid.annotations = new window.hg.Annotations(grid);
-
-    grid.actualContentAreaWidth = Number.NaN;
-    grid.rowDeltaY = Number.NaN;
-    grid.tileDeltaX = Number.NaN;
-    grid.tileNeighborDistance = Number.NaN;
-    grid.oddRowTileCount = Number.NaN;
-    grid.evenRowTileCount = Number.NaN;
-    grid.oddRowXOffset = Number.NaN;
-    grid.rowCount = Number.NaN;
-    grid.evenRowXOffset = Number.NaN;
-    grid.contentAreaLeft = Number.NaN;
-    grid.contentAreaRight = Number.NaN;
-    grid.oddRowContentStartIndex = Number.NaN;
-    grid.evenRowContentStartIndex = Number.NaN;
-    grid.oddRowContentTileCount = Number.NaN;
-    grid.evenRowContentTileCount = Number.NaN;
-    grid.oddRowContentEndIndex = Number.NaN;
-    grid.evenRowContentEndIndex = Number.NaN;
-    grid.actualContentInnerIndices = Number.NaN;
-    grid.innerIndexOfLastContentTile = Number.NaN;
-    grid.rowCount = Number.NaN;
-    grid.height = Number.NaN;
-
-    grid.resize = resize;
-    grid.start = start;
-    grid.update = update;
-    grid.draw = draw;
-    grid.cancel = cancel;
-    grid.init = init;
-
-    grid.setBackgroundColor = setBackgroundColor;
-    grid.updateTileColor = updateTileColor;
-    grid.updateTileMass = updateTileMass;
-    grid.setHoveredTile = setHoveredTile;
-    grid.createPagePost = createPagePost;
-    grid.destroyPagePost = destroyPagePost;
-    grid.updateAllTilesCollection = updateAllTilesCollection;
-    grid.computeContentIndices = computeContentIndices;
-
-    grid.parent.setAttribute('data-hg-grid-parent', 'data-hg-grid-parent');
-
-    createSvg.call(grid);
-    setBackgroundColor.call(grid);
-    computeContentIndices.call(grid);
-    resize.call(grid);
-  }
-
-  Grid.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Grid = Grid;
-
   console.log('Grid module loaded');
 })();
 
@@ -4607,6 +4651,10 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
  * @module Input
  */
 (function () {
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
   var config = {};
 
   config.contentTileClickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
@@ -4620,7 +4668,26 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   };
 
   // ------------------------------------------------------------------------------------------- //
-  // Private static variables
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function Input(grid) {
+    var input = this;
+
+    input.grid = grid;
+
+    addPointerEventListeners.call(input);
+  }
+
+  Input.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Input = Input;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -4743,28 +4810,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function Input(grid) {
-    var input = this;
-
-    input.grid = grid;
-
-    addPointerEventListeners.call(input);
-  }
-
-  Input.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Input = Input;
-
   console.log('Input module loaded');
 })();
 
@@ -4827,6 +4872,48 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   };
 
   config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Tile} tile
+   * @param {{x:Number,y:Number}} startCenter
+   */
+  function PagePost(tile, startCenter) {
+    var pagePost = this;
+
+    pagePost.tile = tile;
+    pagePost.elements = null;
+    pagePost.carousel = null;
+    pagePost.opacity = 0;
+    pagePost.paddingX = Number.NaN;
+    pagePost.paddingY = Number.NaN;
+    pagePost.halfWidth = Number.NaN;
+    pagePost.halfHeight = Number.NaN;
+    pagePost.innerWrapperPaddingFromCss = Number.NaN;
+    pagePost.center = {
+      x: startCenter.x,
+      y: startCenter.y
+    };
+
+    pagePost.loadCarouselMedia = loadCarouselMedia;
+    pagePost.draw = draw;
+    pagePost.destroy = destroy;
+
+    createElements.call(pagePost);
+
+    console.log('PagePost created: postId=' + tile.postData.id +
+    ', tileIndex=' + tile.originalIndex);
+  }
+
+  PagePost.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.PagePost = PagePost;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -5176,48 +5263,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     pagePost.elements = null;
   }
 
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Tile} tile
-   * @param {{x:Number,y:Number}} startCenter
-   */
-  function PagePost(tile, startCenter) {
-    var pagePost = this;
-
-    pagePost.tile = tile;
-    pagePost.elements = null;
-    pagePost.carousel = null;
-    pagePost.opacity = 0;
-    pagePost.paddingX = Number.NaN;
-    pagePost.paddingY = Number.NaN;
-    pagePost.halfWidth = Number.NaN;
-    pagePost.halfHeight = Number.NaN;
-    pagePost.innerWrapperPaddingFromCss = Number.NaN;
-    pagePost.center = {
-      x: startCenter.x,
-      y: startCenter.y
-    };
-
-    pagePost.loadCarouselMedia = loadCarouselMedia;
-    pagePost.draw = draw;
-    pagePost.destroy = destroy;
-
-    createElements.call(pagePost);
-
-    console.log('PagePost created: postId=' + tile.postData.id +
-        ', tileIndex=' + tile.originalIndex);
-  }
-
-  PagePost.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.PagePost = PagePost;
-
   console.log('PagePost module loaded');
 })();
 
@@ -5246,6 +5291,55 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   };
 
   config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @global
+   * @constructor
+   * @param {Grid} grid
+   * @param {Tile} baseTile
+   * @param {Number} sectorIndex
+   * @param {Number} expandedDisplacementTileCount
+   *
+   * PRE-CONDITION: The given baseTile is not a border tile (i.e., it has six neighbors).
+   * PRE-CONDITION: The grid is in a closed state.
+   *
+   * POST-CONDITION: This sector is NOT guaranteed to collect all of the pre-existing tiles in the
+   * sector nor to create all of the needed new tiles in the sector (but it probably will).
+   */
+  function Sector(grid, baseTile, sectorIndex, expandedDisplacementTileCount) {
+    var sector = this;
+
+    sector.grid = grid;
+    sector.baseTile = baseTile;
+    sector.index = sectorIndex;
+    sector.expandedDisplacementTileCount = expandedDisplacementTileCount;
+    sector.originalAnchor = {x: Number.NaN, y: Number.NaN};
+    sector.currentAnchor = {x: Number.NaN, y: Number.NaN};
+    sector.majorNeighborDelta = {x: Number.NaN, y: Number.NaN};
+    sector.minorNeighborDelta = {x: Number.NaN, y: Number.NaN};
+    sector.expandedDisplacement = {x: Number.NaN, y: Number.NaN};
+    sector.tiles = null;
+    sector.tilesByIndex = null;
+    sector.newTiles = null;
+
+    sector.initializeExpandedStateExternalTileNeighbors =
+      initializeExpandedStateExternalTileNeighbors;
+    sector.destroy = destroy;
+    sector.setOriginalPositionForExpansion = setSectorOriginalPositionForExpansion;
+    sector.updateCurrentPosition = updateSectorCurrentPosition;
+
+    setUpExpandedDisplacementValues.call(sector);
+    setUpTiles.call(sector);
+  }
+
+  Sector.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Sector = Sector;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -5874,55 +5968,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     }
   }
 
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @global
-   * @constructor
-   * @param {Grid} grid
-   * @param {Tile} baseTile
-   * @param {Number} sectorIndex
-   * @param {Number} expandedDisplacementTileCount
-   *
-   * PRE-CONDITION: The given baseTile is not a border tile (i.e., it has six neighbors).
-   * PRE-CONDITION: The grid is in a closed state.
-   *
-   * POST-CONDITION: This sector is NOT guaranteed to collect all of the pre-existing tiles in the
-   * sector nor to create all of the needed new tiles in the sector (but it probably will).
-   */
-  function Sector(grid, baseTile, sectorIndex, expandedDisplacementTileCount) {
-    var sector = this;
-
-    sector.grid = grid;
-    sector.baseTile = baseTile;
-    sector.index = sectorIndex;
-    sector.expandedDisplacementTileCount = expandedDisplacementTileCount;
-    sector.originalAnchor = {x: Number.NaN, y: Number.NaN};
-    sector.currentAnchor = {x: Number.NaN, y: Number.NaN};
-    sector.majorNeighborDelta = {x: Number.NaN, y: Number.NaN};
-    sector.minorNeighborDelta = {x: Number.NaN, y: Number.NaN};
-    sector.expandedDisplacement = {x: Number.NaN, y: Number.NaN};
-    sector.tiles = null;
-    sector.tilesByIndex = null;
-    sector.newTiles = null;
-
-    sector.initializeExpandedStateExternalTileNeighbors =
-        initializeExpandedStateExternalTileNeighbors;
-    sector.destroy = destroy;
-    sector.setOriginalPositionForExpansion = setSectorOriginalPositionForExpansion;
-    sector.updateCurrentPosition = updateSectorCurrentPosition;
-
-    setUpExpandedDisplacementValues.call(sector);
-    setUpTiles.call(sector);
-  }
-
-  Sector.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Sector = Sector;
-
   console.log('Sector module loaded');
 })();
 
@@ -5975,6 +6020,106 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   };
 
   config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {HTMLElement} svg
+   * @param {Grid} grid
+   * @param {Number} anchorX
+   * @param {Number} anchorY
+   * @param {Number} outerRadius
+   * @param {Boolean} isVertical
+   * @param {Number} hue
+   * @param {Number} saturation
+   * @param {Number} lightness
+   * @param {?PostData} postData
+   * @param {Number} tileIndex
+   * @param {Number} rowIndex
+   * @param {Number} columnIndex
+   * @param {Boolean} isMarginTile
+   * @param {Boolean} isBorderTile
+   * @param {Boolean} isCornerTile
+   * @param {Boolean} isInLargerRow
+   * @param {Number} mass
+   */
+  function Tile(svg, grid, anchorX, anchorY, outerRadius, isVertical, hue, saturation, lightness,
+                postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
+                isCornerTile, isInLargerRow, mass) {
+    var tile = this;
+
+    tile.svg = svg;
+    tile.grid = grid;
+    tile.element = null;
+    tile.currentAnchor = {x: anchorX, y: anchorY};
+    tile.originalAnchor = {x: anchorX, y: anchorY};
+    tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
+    tile.outerRadius = outerRadius;
+    tile.isVertical = isVertical;
+
+    tile.originalColor = {h: hue, s: saturation, l: lightness};
+    tile.currentColor = {h: hue, s: saturation, l: lightness};
+
+    tile.postData = postData;
+    tile.holdsContent = !!postData;
+    tile.tilePost = null;
+    tile.originalIndex = tileIndex;
+    tile.rowIndex = rowIndex;
+    tile.columnIndex = columnIndex;
+    tile.isMarginTile = isMarginTile;
+    tile.isBorderTile = isBorderTile;
+    tile.isCornerTile = isCornerTile;
+    tile.isInLargerRow = isInLargerRow;
+
+    tile.expandedState = null;
+
+    tile.isHighlighted = false;
+
+    tile.imageScreenOpacity = Number.NaN;
+
+    tile.neighborStates = [];
+    tile.vertices = null;
+    tile.currentVertexDeltas = null;
+    tile.originalVertexDeltas = null;
+    tile.expandedVertexDeltas = null;
+    tile.particle = null;
+
+    tile.setContent = setContent;
+    tile.setNeighborTiles = setNeighborTiles;
+    tile.setColor = setColor;
+    tile.setIsHighlighted = setIsHighlighted;
+    tile.update = update;
+    tile.draw = draw;
+    tile.applyExternalForce = applyExternalForce;
+    tile.fixPosition = fixPosition;
+    tile.getNeighborStates = getNeighborStates;
+    tile.getIsBorderTile = getIsBorderTile;
+    tile.setIsBorderTile = setIsBorderTile;
+    tile.destroy = destroy;
+    tile.hide = hide;
+    tile.show = show;
+
+    createElement.call(tile);
+    createParticle.call(tile, mass);
+
+    if (tile.holdsContent) {
+      createTilePost.call(tile);
+    }
+  }
+
+  Tile.computeVertexDeltas = computeVertexDeltas;
+  Tile.setTileNeighborState = setTileNeighborState;
+  Tile.initializeTileExpandedState = initializeTileExpandedState;
+  Tile.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Tile = Tile;
+
+  initStaticFields();
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -6569,106 +6714,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     }
   }
 
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {HTMLElement} svg
-   * @param {Grid} grid
-   * @param {Number} anchorX
-   * @param {Number} anchorY
-   * @param {Number} outerRadius
-   * @param {Boolean} isVertical
-   * @param {Number} hue
-   * @param {Number} saturation
-   * @param {Number} lightness
-   * @param {?PostData} postData
-   * @param {Number} tileIndex
-   * @param {Number} rowIndex
-   * @param {Number} columnIndex
-   * @param {Boolean} isMarginTile
-   * @param {Boolean} isBorderTile
-   * @param {Boolean} isCornerTile
-   * @param {Boolean} isInLargerRow
-   * @param {Number} mass
-   */
-  function Tile(svg, grid, anchorX, anchorY, outerRadius, isVertical, hue, saturation, lightness,
-                   postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
-                   isCornerTile, isInLargerRow, mass) {
-    var tile = this;
-
-    tile.svg = svg;
-    tile.grid = grid;
-    tile.element = null;
-    tile.currentAnchor = {x: anchorX, y: anchorY};
-    tile.originalAnchor = {x: anchorX, y: anchorY};
-    tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
-    tile.outerRadius = outerRadius;
-    tile.isVertical = isVertical;
-
-    tile.originalColor = {h: hue, s: saturation, l: lightness};
-    tile.currentColor = {h: hue, s: saturation, l: lightness};
-
-    tile.postData = postData;
-    tile.holdsContent = !!postData;
-    tile.tilePost = null;
-    tile.originalIndex = tileIndex;
-    tile.rowIndex = rowIndex;
-    tile.columnIndex = columnIndex;
-    tile.isMarginTile = isMarginTile;
-    tile.isBorderTile = isBorderTile;
-    tile.isCornerTile = isCornerTile;
-    tile.isInLargerRow = isInLargerRow;
-
-    tile.expandedState = null;
-
-    tile.isHighlighted = false;
-
-    tile.imageScreenOpacity = Number.NaN;
-
-    tile.neighborStates = [];
-    tile.vertices = null;
-    tile.currentVertexDeltas = null;
-    tile.originalVertexDeltas = null;
-    tile.expandedVertexDeltas = null;
-    tile.particle = null;
-
-    tile.setContent = setContent;
-    tile.setNeighborTiles = setNeighborTiles;
-    tile.setColor = setColor;
-    tile.setIsHighlighted = setIsHighlighted;
-    tile.update = update;
-    tile.draw = draw;
-    tile.applyExternalForce = applyExternalForce;
-    tile.fixPosition = fixPosition;
-    tile.getNeighborStates = getNeighborStates;
-    tile.getIsBorderTile = getIsBorderTile;
-    tile.setIsBorderTile = setIsBorderTile;
-    tile.destroy = destroy;
-    tile.hide = hide;
-    tile.show = show;
-
-    createElement.call(tile);
-    createParticle.call(tile, mass);
-
-    if (tile.holdsContent) {
-      createTilePost.call(tile);
-    }
-  }
-
-  Tile.computeVertexDeltas = computeVertexDeltas;
-  Tile.setTileNeighborState = setTileNeighborState;
-  Tile.initializeTileExpandedState = initializeTileExpandedState;
-  Tile.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Tile = Tile;
-
-  initStaticFields();
-
   console.log('Tile module loaded');
 })();
 
@@ -6699,6 +6744,35 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
 
   config.computeDependentValues();
 
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Tile} tile
+   */
+  function TilePost(tile) {
+    var tilePost = this;
+
+    tilePost.tile = tile;
+    tilePost.elements = null;
+
+    tilePost.draw = draw;
+    tilePost.destroy = destroy;
+
+    createElements.call(tilePost);
+  }
+
+  TilePost.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.TilePost = TilePost;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
   /**
    * @this TilePost
    */
@@ -6708,7 +6782,7 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     var patternId = 'hg-pattern-' + tilePost.tile.postData.id;
 
     var screenColorString = 'hsl(' + window.hg.Grid.config.backgroundHue + ',' +
-        window.hg.Grid.config.backgroundSaturation + '%,' + window.hg.Grid.config.backgroundLightness + '%)';
+      window.hg.Grid.config.backgroundSaturation + '%,' + window.hg.Grid.config.backgroundLightness + '%)';
 
     var outerSideLength = window.hg.Grid.config.tileOuterRadius * 2;
 
@@ -6793,9 +6867,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
   }
 
   // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
   // ------------------------------------------------------------------------------------------- //
@@ -6834,32 +6905,6 @@ var Showdown={extensions:{}},forEach=Showdown.forEach=function(a,b){if(typeof a.
     tilePost.tile.grid.parent.removeChild(tilePost.elements.title);
     tilePost.tile.grid.svgDefs.removeChild(tilePost.elements.backgroundPattern);
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Tile} tile
-   */
-  function TilePost(tile) {
-    var tilePost = this;
-
-    tilePost.tile = tile;
-    tilePost.elements = null;
-
-    tilePost.draw = draw;
-    tilePost.destroy = destroy;
-
-    createElements.call(tilePost);
-  }
-
-  TilePost.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.TilePost = TilePost;
 
   console.log('TilePost module loaded');
 })();

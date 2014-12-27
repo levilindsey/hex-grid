@@ -33,6 +33,48 @@
   config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {PagePost} pagePost
+   * @param {HTMLElement} parent
+   * @param {Array.<String>} images
+   * @param {Array.<String>} videos
+   * @param {Boolean} [waitToLoadMedia=false]
+   */
+  function Carousel(grid, pagePost, parent, images, videos, waitToLoadMedia) {
+    var carousel = this;
+
+    carousel.grid = grid;
+    carousel.pagePost = pagePost;
+    carousel.parent = parent;
+    carousel.elements = null;
+    carousel.currentIndex = 0;
+    carousel.previousIndex = 0;
+    carousel.mediaMetadata = null;
+    carousel.currentIndexPositionRatio = 0;
+
+    carousel.loadMedia = loadMedia;
+    carousel.onSlideFinished = onSlideFinished;
+    carousel.draw = draw;
+    carousel.destroy = destroy;
+
+    createMediaMetadataArray.call(carousel, images, videos);
+    createElements.call(carousel, waitToLoadMedia);
+
+    console.log('Carousel created');
+  }
+
+  Carousel.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Carousel = Carousel;
+
+  // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
   /**
@@ -469,48 +511,6 @@
     carousel.parent.removeChild(carousel.elements.container);
     carousel.elements.container = null;
   }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   * @param {PagePost} pagePost
-   * @param {HTMLElement} parent
-   * @param {Array.<String>} images
-   * @param {Array.<String>} videos
-   * @param {Boolean} [waitToLoadMedia=false]
-   */
-  function Carousel(grid, pagePost, parent, images, videos, waitToLoadMedia) {
-    var carousel = this;
-
-    carousel.grid = grid;
-    carousel.pagePost = pagePost;
-    carousel.parent = parent;
-    carousel.elements = null;
-    carousel.currentIndex = 0;
-    carousel.previousIndex = 0;
-    carousel.mediaMetadata = null;
-    carousel.currentIndexPositionRatio = 0;
-
-    carousel.loadMedia = loadMedia;
-    carousel.onSlideFinished = onSlideFinished;
-    carousel.draw = draw;
-    carousel.destroy = destroy;
-
-    createMediaMetadataArray.call(carousel, images, videos);
-    createElements.call(carousel, waitToLoadMedia);
-
-    console.log('Carousel created');
-  }
-
-  Carousel.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Carousel = Carousel;
 
   console.log('Carousel module loaded');
 })();

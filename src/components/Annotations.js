@@ -184,6 +184,62 @@
   config.computeDependentValues();
 
   // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @param {Grid} grid
+   */
+  function Annotations(grid) {
+    var annotations = this;
+
+    annotations.grid = grid;
+    annotations.startTime = 0;
+    annotations.isComplete = true;
+    annotations.annotations = window.hg.util.shallowCopy(config.annotations);
+
+    annotations.contentAreaGuideLines = [];
+    annotations.tileParticleCenters = [];
+    annotations.tileAnchorLines = [];
+    annotations.tileAnchorCenters = [];
+    annotations.tileDisplacementCircles = [];
+    annotations.tileInnerRadii = [];
+    annotations.tileOuterRadii = [];
+    annotations.neighborLines = [];
+    annotations.forceLines = [];
+    annotations.velocityLines = [];
+    annotations.indexTexts = [];
+    annotations.lineAnimationGapDots = [];
+    annotations.lineAnimationSelfCornerDots = [];
+    annotations.lineAnimationLowerNeighborCornerDots = [];
+    annotations.lineAnimationUpperNeighborCornerDots = [];
+    annotations.sectorAnchorLines = [];
+    annotations.sectorAnchorCenters = [];
+
+    annotations.originalGridCenterDot = null;
+    annotations.currentGridCenterDot = null;
+    annotations.panCenterDot = null;
+
+    annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
+    annotations.createAnnotations = createAnnotations;
+    annotations.destroyAnnotations = destroyAnnotations;
+    annotations.setExpandedAnnotations = setExpandedAnnotations;
+
+    annotations.start = start;
+    annotations.update = update;
+    annotations.draw = draw;
+    annotations.cancel = cancel;
+    annotations.init = init;
+    annotations.refresh = refresh;
+  }
+
+  Annotations.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Annotations = Annotations;
+
+  // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
   // --------------------------------------------------- //
@@ -1354,62 +1410,6 @@
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @param {Grid} grid
-   */
-  function Annotations(grid) {
-    var annotations = this;
-
-    annotations.grid = grid;
-    annotations.startTime = 0;
-    annotations.isComplete = true;
-    annotations.annotations = window.hg.util.shallowCopy(config.annotations);
-
-    annotations.contentAreaGuideLines = [];
-    annotations.tileParticleCenters = [];
-    annotations.tileAnchorLines = [];
-    annotations.tileAnchorCenters = [];
-    annotations.tileDisplacementCircles = [];
-    annotations.tileInnerRadii = [];
-    annotations.tileOuterRadii = [];
-    annotations.neighborLines = [];
-    annotations.forceLines = [];
-    annotations.velocityLines = [];
-    annotations.indexTexts = [];
-    annotations.lineAnimationGapDots = [];
-    annotations.lineAnimationSelfCornerDots = [];
-    annotations.lineAnimationLowerNeighborCornerDots = [];
-    annotations.lineAnimationUpperNeighborCornerDots = [];
-    annotations.sectorAnchorLines = [];
-    annotations.sectorAnchorCenters = [];
-
-    annotations.originalGridCenterDot = null;
-    annotations.currentGridCenterDot = null;
-    annotations.panCenterDot = null;
-
-    annotations.toggleAnnotationEnabled = toggleAnnotationEnabled;
-    annotations.createAnnotations = createAnnotations;
-    annotations.destroyAnnotations = destroyAnnotations;
-    annotations.setExpandedAnnotations = setExpandedAnnotations;
-
-    annotations.start = start;
-    annotations.update = update;
-    annotations.draw = draw;
-    annotations.cancel = cancel;
-    annotations.init = init;
-    annotations.refresh = refresh;
-  }
-
-  Annotations.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Annotations = Annotations;
 
   console.log('Annotations module loaded');
 })();

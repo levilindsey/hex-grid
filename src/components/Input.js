@@ -6,6 +6,10 @@
  * @module Input
  */
 (function () {
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
   var config = {};
 
   config.contentTileClickAnimation = 'Radiate Highlight'; // 'Radiate Highlight'|'Radiate Lines'|'Random Line'|'None'
@@ -19,7 +23,26 @@
   };
 
   // ------------------------------------------------------------------------------------------- //
-  // Private static variables
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function Input(grid) {
+    var input = this;
+
+    input.grid = grid;
+
+    addPointerEventListeners.call(input);
+  }
+
+  Input.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.Input = Input;
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
@@ -141,28 +164,6 @@
 
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function Input(grid) {
-    var input = this;
-
-    input.grid = grid;
-
-    addPointerEventListeners.call(input);
-  }
-
-  Input.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.Input = Input;
 
   console.log('Input module loaded');
 })();
