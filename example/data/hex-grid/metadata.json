@@ -40,6 +40,18 @@
     {
       "fileName": "screenshot4.png",
       "description": "This shows the hex-grid layout containing many of Levi's posts at random positions."
+    },
+    {
+      "fileName": "hg-sector-expansion-1.png",
+      "description": "This illustrates how the grid is expanded in order to show an enlarged area with details for a given tile. The grid is divided into six sectors around the given tile. These are then each translated in a different direction."
+    },
+    {
+      "fileName": "hg-sector-expansion-2.png",
+      "description": "This illustrates which tile positions lie within the viewport after both the grid has been expanded and panning has occurred in order to center the viewport on the expanded tile. This also illustrates where new tiles will need to be created in order to not show gaps within the expanded grid."
+    },
+    {
+      "fileName": "hg-indices.png",
+      "description": "This illustrates how the hex-grid system stores data for three different types of tile relationships. For each of these relationships, both the vertical and horizontal grid configurations are illustrated."
     }
   ],
   "videos": [],
