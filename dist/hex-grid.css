@@ -4,7 +4,7 @@
 /* --- Overall area styles --- */
 
 body {
-  background-color: #000000/* TODO: remove this after the bottom margin bug is fixed */
+  background-color: #000000;/* TODO: remove this after the bottom margin bug is fixed */
 }
 
 [data-hg-grid-parent] {
@@ -181,18 +181,18 @@ div[data-hg-post-logo] {
   opacity: 0;
 }
 
-[data-hg-carousel-button] {
-  color: #000000;
-  -webkit-transition: color 0.2s;
-          transition: color 0.2s;
+[data-hg-carousel-button] use {
+  fill: #888888;
+  -webkit-transition: fill 0.2s;
+          transition: fill 0.2s;
 }
 
-[data-hg-carousel-button]:hover {
-  color: #999999;
+[data-hg-carousel-button]:hover use {
+  fill: #dddddd;
 }
 
-[data-hg-carousel-button]:active {
-  color: #FFFFFF;
+[data-hg-carousel-button]:active use {
+  fill: #333333;
 }
 
 [data-hg-captions-panel] {
