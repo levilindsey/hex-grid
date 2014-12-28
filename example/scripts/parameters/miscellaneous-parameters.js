@@ -57,7 +57,7 @@
   config.preSetConfigs = {};
 
   // TODO: implement these different presets
-  config.preSetConfigs['stormy'] = {
+  config.preSetConfigs['stormy-sea'] = {
     LineJob: {
       isRecurring: true
     }

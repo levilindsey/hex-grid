@@ -444,7 +444,7 @@
    * @param {HTMLElement} element
    * @param {String} transform
    */
-  function applyTransform(element, transform) {
+  function setTransform(element, transform) {
     element.style.webkitTransform = transform;
     element.style.MozTransform = transform;
     element.style.msTransform = transform;
@@ -741,7 +741,7 @@
     inverseEasingFunctions: inverseEasingFunctions,
     requestAnimationFrame: requestAnimationFrame,
     getXYFromPercentWithBezier: getXYFromPercentWithBezier,
-    applyTransform: applyTransform,
+    setTransform: setTransform,
     shuffle: shuffle,
     isPointInsidePolyline: isPointInsidePolyline,
     shallowCopy: shallowCopy,

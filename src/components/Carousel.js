@@ -17,6 +17,8 @@
   config.thumbnailHeight = 80;
   config.thumbnailRibbonPadding = 3;
   config.prevNextButtonPadding = 10;
+  config.prevNextButtonHeight = 41;
+  config.prevNextButtonWidth = 24;
 
   // ---  --- //
 
@@ -31,6 +33,24 @@
   };
 
   config.computeDependentValues();
+
+  function addChevronDefinition() {
+    var body = document.querySelector('body');
+    var svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
+    var symbol = document.createElementNS(window.hg.util.svgNamespace, 'symbol');
+    var chevron = document.createElementNS(window.hg.util.svgNamespace, 'path');
+
+    body.appendChild(svg);
+    svg.appendChild(symbol);
+    symbol.appendChild(chevron);
+
+    svg.style.display = 'none';
+    symbol.setAttribute('id', 'chevron-left');
+    symbol.setAttribute('viewBox', '0 0 247.88 428.75');
+    chevron.setAttribute('d', 'M149.03125,428.29625,0.54125,214.36625,149.03125,0.44725l97.959,0.000001-148.49,213.92,148.49,213.92z');
+  }
+
+  addChevronDefinition();
 
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
@@ -106,9 +126,11 @@
     var captionsPanel = document.createElement('div');
     var captionsText = document.createElement('p');
     var previousButtonPanel = document.createElement('div');
-    var previousButtonText = document.createElement('div');
+    var previousButtonSvg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
+    var previousButtonUse = document.createElementNS(window.hg.util.svgNamespace, 'use');
     var nextButtonPanel = document.createElement('div');
-    var nextButtonText = document.createElement('div');
+    var nextButtonSvg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
+    var nextButtonUse = document.createElementNS(window.hg.util.svgNamespace, 'use');
 
     carousel.parent.appendChild(container);
     container.appendChild(slidersContainer);
@@ -116,9 +138,11 @@
     slidersContainer.appendChild(thumbnailsRibbon);
     slidersContainer.appendChild(buttonsContainer);
     buttonsContainer.appendChild(previousButtonPanel);
-    previousButtonPanel.appendChild(previousButtonText);
+    previousButtonPanel.appendChild(previousButtonSvg);
+    previousButtonSvg.appendChild(previousButtonUse);
     buttonsContainer.appendChild(nextButtonPanel);
-    nextButtonPanel.appendChild(nextButtonText);
+    nextButtonPanel.appendChild(nextButtonSvg);
+    nextButtonSvg.appendChild(nextButtonUse);
     container.appendChild(captionsPanel);
     captionsPanel.appendChild(captionsText);
 
@@ -131,9 +155,11 @@
     carousel.elements.captionsPanel = captionsPanel;
     carousel.elements.captionsText = captionsText;
     carousel.elements.previousButtonPanel = previousButtonPanel;
-    carousel.elements.previousButtonText = previousButtonText;
+    carousel.elements.previousButtonSvg = previousButtonSvg;
+    carousel.elements.previousButtonUse = previousButtonUse;
     carousel.elements.nextButtonPanel = nextButtonPanel;
-    carousel.elements.nextButtonText = nextButtonText;
+    carousel.elements.nextButtonSvg = nextButtonSvg;
+    carousel.elements.nextButtonUse = nextButtonUse;
     carousel.elements.mainMedia = [];
     carousel.elements.thumbnails = [];
     carousel.elements.thumbnailScreens = [];
@@ -173,18 +199,16 @@
     previousButtonPanel.style.cursor = 'pointer';
     previousButtonPanel.addEventListener('click', goToPrevious.bind(carousel), false);
 
-    previousButtonText.style.position = 'absolute';
-    previousButtonText.style.top = '0';
-    previousButtonText.style.bottom = '0';
-    previousButtonText.style.left = '0';
-    previousButtonText.style.margin = 'auto';
-    previousButtonText.style.height = '100px';
-    previousButtonText.style.lineHeight = '100px';
-    previousButtonText.style.fontSize = '40px';
-    previousButtonText.style.verticalAlign = 'middle';
-    previousButtonText.style.textAlign = 'left';
-    previousButtonText.style.paddingLeft = config.prevNextButtonPadding + 'px';
-    previousButtonText.innerHTML = '&#10094;';// TODO: switch to use an encoded image background
+    previousButtonSvg.style.position = 'absolute';
+    previousButtonSvg.style.top = '0';
+    previousButtonSvg.style.bottom = '0';
+    previousButtonSvg.style.left = '0';
+    previousButtonSvg.style.margin = 'auto';
+    previousButtonSvg.style.height = config.prevNextButtonHeight + 'px';
+    previousButtonSvg.style.width = config.prevNextButtonWidth + 'px';
+    previousButtonSvg.style.paddingLeft = config.prevNextButtonPadding + 'px';
+
+    previousButtonUse.setAttributeNS(window.hg.util.xlinkNamespace, 'xlink:href', '#chevron-left');
 
     nextButtonPanel.setAttribute('data-hg-carousel-button', 'data-hg-carousel-button');
     nextButtonPanel.style.position = 'absolute';
@@ -195,18 +219,17 @@
     nextButtonPanel.style.cursor = 'pointer';
     nextButtonPanel.addEventListener('click', goToNext.bind(carousel), false);
 
-    nextButtonText.style.position = 'absolute';
-    nextButtonText.style.top = '0';
-    nextButtonText.style.bottom = '0';
-    nextButtonText.style.right = '0';
-    nextButtonText.style.margin = 'auto';
-    nextButtonText.style.height = '100px';
-    nextButtonText.style.lineHeight = '100px';
-    nextButtonText.style.fontSize = '40px';
-    nextButtonText.style.verticalAlign = 'middle';
-    nextButtonText.style.textAlign = 'right';
-    nextButtonText.style.paddingRight = config.prevNextButtonPadding + 'px';
-    nextButtonText.innerHTML = '&#10095;';// TODO: switch to use an encoded image background
+    window.hg.util.setTransform(nextButtonSvg, 'scaleX(-1)');
+    nextButtonSvg.style.position = 'absolute';
+    nextButtonSvg.style.top = '0';
+    nextButtonSvg.style.bottom = '0';
+    nextButtonSvg.style.right = '0';
+    nextButtonSvg.style.margin = 'auto';
+    nextButtonSvg.style.height = config.prevNextButtonHeight + 'px';
+    nextButtonSvg.style.width = config.prevNextButtonWidth + 'px';
+    nextButtonSvg.style.paddingLeft = config.prevNextButtonPadding + 'px';
+
+    nextButtonUse.setAttributeNS(window.hg.util.xlinkNamespace, 'xlink:href', '#chevron-left');
 
     captionsPanel.setAttribute('data-hg-captions-panel', 'data-hg-captions-panel');
 
