@@ -72,6 +72,6 @@ how this algorithm flattens and stores the DOM representation.
     ]
 
 
-[main-url]: http://jackieandlevi.com/text-animation
+[main-url]: http://levi.sl/text-animation
 [codepen-url]: http://codepen.io/levisl176/full/HGJdF
 [bower-url]: http://bower.io/search/?q=text-animation

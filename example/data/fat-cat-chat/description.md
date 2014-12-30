@@ -33,7 +33,7 @@ The technology stack for this project includes:
 - HTML5/CSS3/JavaScript
 
 
-[main-url]: http://jackieandlevi.com/fat-cat-chat
+[main-url]: http://levi.sl/fat-cat-chat
 [cat-gif-url]: http://25.media.tumblr.com/0798843644c862737ce1258821b5938a/tumblr_mnba38vUWI1qzcv7no1_400.gif
 [node-url]: http://nodejs.org/
 [socket-io-url]: http://socket.io/

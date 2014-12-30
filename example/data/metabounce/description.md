@@ -7,5 +7,5 @@ lightness components of the ball colors are each constrained to a random global 
 effect with independently fluctuating colors that almost always seem cohesive.
 
 
-[main-url]: http://jackieandlevi.com/metabounce
+[main-url]: http://levi.sl/metabounce
 [codepen-url]: http://codepen.io/levisl176/pen/lqmAE
