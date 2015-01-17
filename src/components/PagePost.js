@@ -212,8 +212,7 @@
     container.style.margin = '0';
     container.style.padding = '0';
     container.style.overflow = 'hidden';
-    container.style.zIndex =
-      window.hg.controller.isSafariBrowser && !window.hg.controller.isIosBrowser ? '1500' : '500';
+    container.style.zIndex = window.hg.controller.isSafariBrowser ? '1500' : '500';
 
     outerWrapper.setAttribute('data-hg-post-outer-wrapper', 'data-hg-post-outer-wrapper');
     outerWrapper.style.width = width + 'px';
