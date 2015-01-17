@@ -11,5 +11,5 @@ This fancy web app is loaded with bells and whistles. A smattering of them inclu
 This app was originally built to show off the photos from Levi and [Jackie's][jackie-url] wedding.
 
 
-[main-url]: http://levi.sl/wedding/photos
+[main-url]: http://levi.codes/wedding/photos
 [jackie-url]: http://jackieandlevi.com/jackie

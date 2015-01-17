@@ -8,5 +8,5 @@ the colors appear to transition in a counter-clockwise direction.
 This project uses a separate custom animation package Levi developed.
 
 
-[main-url]: http://levi.sl/progress-circle
+[main-url]: http://levi.codes/progress-circle
 [codepen-url]: http://codepen.io/levisl176/pen/ndklu

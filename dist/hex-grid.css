@@ -4,7 +4,7 @@
 /* --- Overall area styles --- */
 
 body {
-  background-color: #000000/* TODO: remove this after the bottom margin bug is fixed */
+  background-color: #000000;/* TODO: remove this after the bottom margin bug is fixed */
 }
 
 [data-hg-grid-parent] {

@@ -5,4 +5,4 @@ lightness components of the spoke colors are each constrained to a random global
 effect with independently fluctuating colors that almost always seem cohesive.
 
 
-[main-url]: http://levi.sl/dancing-spokes
+[main-url]: http://levi.codes/dancing-spokes
