@@ -14,7 +14,7 @@
 
   config.vimeoVideoBaseUrl = '//player.vimeo.com/video';
 
-  config.appRootPath = '/example';
+  config.appRootPath = window.appRootPath || 'example';
   config.metadataUrl = config.appRootPath + '/dist/data.min.json';
 
   var data = {};
