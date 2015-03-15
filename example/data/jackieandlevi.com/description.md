@@ -1,5 +1,16 @@
 #### The personal web site of Jackie and Levi Lindsey
 
-This site is where Levi tinkers with many different projects. It's basically his playground. And his portfolio.
+The site hosted at this domain has gone through many iterations.
 
-[main-url]: http://jackieandlevi.com
+- It was originally used as an [invite and RSVP system][wedding-url] for [Jackie][jackie-url] and [Levi's][levi-url]
+  [wedding][wedding-photos-url].
+- Later, it was used as a [simple portfolio site][v2-url] for both Levi and Jackie.
+- Levi is currently developing a newer version of the site that will involve better designs and delightful interactions.
+
+
+[wedding-url]: http://jackieandlevi.com/wedding/invite
+[jackie-url]: http://jackieandlevi.com/jackie
+[levi-url]: http://levi.codes
+[wedding-photos-url]: http://jackieandlevi.com/wedding/photos
+[v2-url]: http://jackieandlevi.com
+[v3-url]: http://jackieandlevi.com
