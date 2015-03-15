@@ -317,7 +317,7 @@
           case 2:
             return config.monthLabels[dateParts[0]] + ' ' + dateParts[1];
           case 3:
-            return config.monthLabels[dateParts[0]] + ' ' + config.monthLabels[dateParts[1]] + ', ' + dateParts[2];
+            return config.monthLabels[dateParts[0]] + ' ' + dateParts[1] + ', ' + dateParts[2];
           default:
             throw new Error('Invalid date string format: ' + dateString);
         }
