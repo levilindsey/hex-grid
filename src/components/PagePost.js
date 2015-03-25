@@ -212,8 +212,7 @@
     container.style.margin = '0';
     container.style.padding = '0';
     container.style.overflow = 'hidden';
-    container.style.zIndex =
-      window.hg.controller.isSafariBrowser && !window.hg.controller.isIosBrowser ? '1500' : '500';
+    container.style.zIndex = window.hg.controller.isSafariBrowser ? '1500' : '500';
 
     outerWrapper.setAttribute('data-hg-post-outer-wrapper', 'data-hg-post-outer-wrapper');
     outerWrapper.style.width = width + 'px';
@@ -318,7 +317,7 @@
           case 2:
             return config.monthLabels[dateParts[0]] + ' ' + dateParts[1];
           case 3:
-            return config.monthLabels[dateParts[0]] + ' ' + config.monthLabels[dateParts[1]] + ', ' + dateParts[2];
+            return config.monthLabels[dateParts[0]] + ' ' + dateParts[1] + ', ' + dateParts[2];
           default:
             throw new Error('Invalid date string format: ' + dateString);
         }

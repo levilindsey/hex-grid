@@ -69,6 +69,12 @@
       tileSaturation: 49,
       tileLightness: 12
     },
+    Tile: {
+      dragCoeff: 0.02,
+      neighborSpringCoeff: 0.000004,
+      innerAnchorSpringCoeff: 0.00002,
+      borderAnchorSpringCoeff: 0.00002
+    },
     LineJob: {
       isRecurring: true,
       lineWidth: 12,
@@ -185,6 +191,12 @@
     DisplacementWaveJob: {
       originX: 1600,
       originY: 1800
+    },
+    Tile: {
+      dragCoeff: 0.013,
+      neighborSpringCoeff: 0.000002,
+      innerAnchorSpringCoeff: 0.00001,
+      borderAnchorSpringCoeff: 0.00002
     }
   };
 
