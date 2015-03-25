@@ -16,7 +16,7 @@ Levi is a huge advocate of open-source technology. You can fork all of his side-
 
 ## The Bio
 
-Levi currently works at [Idean][idean-url], where he creates awesome user experiences as a full-stack web developer.
+Levi currently works at [Google][google-url] as a Front End Software Engineer.
 
 Levi is originally from from Olympia, WA. He now lives in Sunnyvale, CA with his wife. She is [a beautiful marine
 mammal ecologist][jackie-url] whom he met at the University of Washington in Seattle.
@@ -35,7 +35,7 @@ Hahobas][camp-hahobas-url], a boy scout camp in Washington state.
 
 
 [github-url]: https://github.com/levisl176
-[idean-url]: http://www.idean.com/careers/
+[google-url]: https://google.com
 [jackie-url]: http://www.jackieandlevi.com/jackie
 [reverb-nation-url]: http://www.reverbnation.com/levilindsey
 [camp-hahobas-url]: http://hahobas.org/
