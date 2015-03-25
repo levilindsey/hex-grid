@@ -4,7 +4,7 @@
 
 #### A dynamic, expandable, animated grid of hexagonal tiles for displaying posts
 
-_See this running at [www.jackieandlevi.com/hex-grid][demo-url]!_
+_See this running at [levi.sl/hex-grid][demo-url]!_
 
 Levi was bored with the standard grid layout and wanted to play with particle systems and crazy animations. So he made
 hex-grid.
@@ -92,7 +92,7 @@ MIT
 [flattr-url]: https://flattr.com/submit/auto?user_id=levisl176&url=github.com/levisl176/hex-grid&title=hex-grid&language=javascript&tags=github&category=software
 [flattr-image]: http://api.flattr.com/button/flattr-badge-large.png
 
-[demo-url]: http://www.jackieandlevi.com/hex-grid
+[demo-url]: http://levi.sl/hex-grid
 [markdown-url]: http://daringfireball.net/projects/markdown/
 [aws-s3-url]: http://aws.amazon.com/s3/
 [mongolab-url]: https://mongolab.com
