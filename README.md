@@ -89,7 +89,7 @@ MIT
 [sector-expansion-2-image]: ./docs/design/hg-sector-expansion-2.png
 [indices-image]: ./docs/design/hg-indices.png
 
-[flattr-url]: https://flattr.com/submit/auto?user_id=levisl176&url=github.com/levisl176/hex-grid&title=hex-grid&language=javascript&tags=github&category=software
+[flattr-url]: https://flattr.com/submit/auto?user_id=levisl176&url=github.com/levilindsey/hex-grid&title=hex-grid&language=javascript&tags=github&category=software
 [flattr-image]: http://api.flattr.com/button/flattr-badge-large.png
 
 [demo-url]: http://www.jackieandlevi.com/hex-grid

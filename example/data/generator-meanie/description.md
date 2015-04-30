@@ -73,7 +73,7 @@ Feedback, bug reports, feature requests, and pull requests are very welcome!
 See the [project roadmap][roadmap-url] for Levi's future plans for this generator.
 
 
-[flattr-url]: https://flattr.com/submit/auto?user_id=levisl176&url=github.com/levisl176/generator-meanie&title=generator-meanie&language=javascript&tags=github&category=software
+[flattr-url]: https://flattr.com/submit/auto?user_id=levisl176&url=github.com/levilindsey/generator-meanie&title=generator-meanie&language=javascript&tags=github&category=software
 [flattr-image]: http://api.flattr.com/button/flattr-badge-large.png
 
 [npm-url]: https://npmjs.org/package/generator-meanie
@@ -92,16 +92,16 @@ See the [project roadmap][roadmap-url] for Levi's future plans for this generato
 [depstat-image]: http://img.shields.io/david/levisl176/generator-meanie.svg?style=flat-square
 [depstat-image-old]: https://david-dm.org/levisl176/generator-meanie.svg
 
-[license-url]: https://github.com/levisl176/generator-meanie/blob/master/LICENSE
+[license-url]: https://github.com/levilindsey/generator-meanie/blob/master/LICENSE
 [license-image]: http://img.shields.io/npm/l/generator-meanie.svg?style=flat-square
 
 [downloads-url]: https://npmjs.org/package/generator-meanie
 [downloads-image]: http://img.shields.io/npm/dm/generator-meanie.svg?style=flat-square
 
-[getting-set-up-url]: https://github.com/levisl176/generator-meanie/blob/master/docs/getting-set-up.md
-[roadmap-url]: https://github.com/levisl176/generator-meanie/blob/master/docs/roadmap.md
-[package.json-url]: https://github.com/levisl176/generator-meanie/blob/master/package.json
-[bower.json-url]: https://github.com/levisl176/generator-meanie/blob/master/bower.json
+[getting-set-up-url]: https://github.com/levilindsey/generator-meanie/blob/master/docs/getting-set-up.md
+[roadmap-url]: https://github.com/levilindsey/generator-meanie/blob/master/docs/roadmap.md
+[package.json-url]: https://github.com/levilindsey/generator-meanie/blob/master/package.json
+[bower.json-url]: https://github.com/levilindsey/generator-meanie/blob/master/bower.json
 
 [angular-best-practices-url]: https://docs.google.com/document/d/1XXMvReO8-Awi1EZXAXS4PzDzdNvV6pGcuaF4Q9821Es/pub
 [mean-url]: http://en.wikipedia.org/wiki/MEAN
