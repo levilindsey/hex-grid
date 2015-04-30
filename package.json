@@ -1,19 +1,19 @@
 {
   "name": "hex-grid",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "A dynamic, expandable, animated grid of hexagonal tiles",
   "repository": {
     "type": "git",
-    "url": "https://github.com/levisl176/hex-grid"
+    "url": "https://github.com/levilindsey/hex-grid"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/levisl176/hex-grid/blob/master/LICENSE"
+      "url": "https://github.com/levilindsey/hex-grid/blob/master/LICENSE"
     }
   ],
   "bugs": {
-    "url": "https://github.com/levisl176/hex-grid/issues",
+    "url": "https://github.com/levilindsey/hex-grid/issues",
     "email": "levisl176@gmail.com"
   },
   "author": {

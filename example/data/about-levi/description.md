@@ -12,7 +12,7 @@ Levi constantly pushes the envelope with new and exciting ideas for web applicat
 technologies and methodologies with each new project he undertakes.
 
 Levi is a huge advocate of open-source technology. You can fork all of his side-projects at
-[github.com/levisl176][github-url]!
+[github.com/levilindsey][github-url]!
 
 ## The Bio
 
@@ -34,7 +34,7 @@ Levi was also an Eagle Scout, and spent his highschool summers as a camp counsel
 Hahobas][camp-hahobas-url], a boy scout camp in Washington state.
 
 
-[github-url]: https://github.com/levisl176
+[github-url]: https://github.com/levilindsey
 [google-url]: https://google.com
 [jackie-url]: http://www.jackieandlevi.com/jackie
 [reverb-nation-url]: http://www.reverbnation.com/levilindsey
