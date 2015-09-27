@@ -3,9 +3,9 @@
   "titleShort": "Google",
   "titleLong": "Google",
   "urls": {
-    "homepage": "http://google.com"
+    "homepage": "https://google.com"
   },
-  "jobTitle": "Front End Software Engineer",
+  "jobTitle": "Software Engineer",
   "date": {
     "start": "4/2015",
     "end": "Present"
@@ -14,7 +14,6 @@
     "work",
     "web",
     "front-end",
-    "back-end",
     "data-driven",
     "angularjs",
     "dart"
