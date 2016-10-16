@@ -1,0 +1,33 @@
+{
+  "id": "aldenwitt.com",
+  "titleShort": "Portfolio\nWebsite:\nSongwriter",
+  "titleLong": "Portfolio for a songwriter",
+  "urls": {
+    "homepage": "http://aldenwitt.com",
+    "github": "https://github.com/levilindsey/aldenwitt.com"
+  },
+  "jobTitle": "",
+  "date": {
+    "start": "7/2016",
+    "end": "10/2016"
+  },
+  "categories": [
+    "side-project",
+    "web",
+    "website",
+    "frontend",
+    "data-driven",
+    "angular",
+    "gulp.js",
+    "typescript",
+    "animation"
+  ],
+  "images": [
+    {
+      "fileName": "screenshot1.png",
+      "description": "TODO"
+    }
+  ],
+  "videos": [],
+  "content": ""
+}

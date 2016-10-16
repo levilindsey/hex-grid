@@ -15,11 +15,11 @@
     "side-project",
     "web",
     "mean-stack",
-    "front-end",
+    "frontend",
     "back-end",
     "mongodb",
     "express",
-    "angularjs",
+    "angular",
     "node.js",
     "gulp.js",
     "yeoman",
@@ -37,7 +37,7 @@
     },
     {
       "fileName": "screenshot3.png",
-      "description": "The generated project includes a front-end file structure that closely follows the Best Practice Recommendations for Angular App Structure, but with a few additional logical sub-divisions."
+      "description": "The generated project includes a frontend file structure that closely follows the Best Practice Recommendations for Angular App Structure, but with a few additional logical sub-divisions."
     },
     {
       "fileName": "screenshot2.png",

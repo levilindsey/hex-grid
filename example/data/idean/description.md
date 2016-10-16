@@ -7,13 +7,13 @@ them.
 ### Project A: Enterprise Security-Management Application
 
 Levi developed a high-fidelity prototype for the client’s enterprise security-management application. This included an
-AngularJS framework with an intricate front-end routing mechanism.
+AngularJS framework with an intricate frontend routing mechanism.
 
 _Front and back end: Node.js, AngularJS, MongoDB, Gulp, SASS_
 
 ### Project B: Enterprise Storage-Management Application
 
-Levi developed a first-iteration of the front-end for the client's enterprise storage-management application. This
+Levi developed a first-iteration of the frontend for the client's enterprise storage-management application. This
 included a complex SVG-based workspace in which resources were graphically configured within tree structures.
 
 _Front end: AngularJS, Gulp, SVG, SASS_
