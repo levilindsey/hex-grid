@@ -25,7 +25,19 @@
   "images": [
     {
       "fileName": "screenshot1.png",
-      "description": "TODO"
+      "description": "Alden Witt's homepage is a polaroid. His website aims for realism and shows an envelope, polaroid, and napkin animating over a notepad on a rough wooden desk."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "Alden Witt's Contact page is a napkin."
+    },
+    {
+      "fileName": "screenshot3.png",
+      "description": "Alden Witt's Bio page is an envelope."
+    },
+    {
+      "fileName": "screenshot4.png",
+      "description": "aldenwitt.com is also responsive for mobile screens."
     }
   ],
   "videos": [],

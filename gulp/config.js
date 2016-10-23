@@ -41,7 +41,8 @@ config.hgScriptsDistMinFilePath = config.hgDistPath + '/hex-grid.min.js';
 config.exampleDataTasksPath = './' + config.examplePath + '/gulp-data-tasks';
 config.exampleScriptsTasksPath = './' + config.examplePath + '/gulp-scripts';
 
-config.host = '0.0.0.0';
+// config.host = '0.0.0.0';
+config.host = 'localhost';
 config.port = '3000';
 
 config.buildTasks = ['scripts', 'styles', 'data', 'watch'];

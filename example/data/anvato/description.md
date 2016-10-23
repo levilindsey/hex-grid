@@ -9,4 +9,6 @@ The HTML5 player SDK loaded and played four-times faster than that of Anvato’s
 The combined Anvato player SDKs drew more than 528,000 viewers per minute during the 2014 SuperBowl, making it the
 most-viewed single sports event ever delivered online.
 
+Anvato was acquired by Google in 2016.
+
 [main-url]: http://anvato.com
