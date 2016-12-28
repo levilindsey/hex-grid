@@ -15,10 +15,9 @@ config.exampleScriptsSrc = [config.examplePath + '/scripts/**/*.js'];
 config.exampleStylesSrc = [config.examplePath + '/styles/**/*.css'];
 
 config.hgVendorScriptsSrc = [
-  config.nodeModulesPath + '/showdown/compressed/showdown.js',
-  config.nodeModulesPath + '/showdown/compressed/extensions/twitter.js',
-  config.nodeModulesPath + '/showdown/compressed/extensions/google-prettify.js',
-  config.nodeModulesPath + '/showdown/compressed/extensions/github.js'
+  config.nodeModulesPath + '/showdown/dist/showdown.js',
+  config.nodeModulesPath + '/showdown-twitter/dist/showdown-twitter.js',
+  config.nodeModulesPath + '/showdown-prettify/dist/showdown-prettify.js'
 ];
 
 config.exampleVendorScriptsSrc = [

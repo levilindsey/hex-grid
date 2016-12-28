@@ -11,6 +11,6 @@ gulp.task('example-styles', ['hg-styles'], function () {
     .pipe(plugins.rename({basename: 'hex-grid-example'}))
     .pipe(gulp.dest(config.exampleDistPath))
     .pipe(plugins.rename({suffix: '.min'}))
-    .pipe(plugins.minifyCss())
+    .pipe(plugins.cleanCss())
     .pipe(gulp.dest(config.exampleDistPath));
 });

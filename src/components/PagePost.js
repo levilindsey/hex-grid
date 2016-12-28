@@ -109,7 +109,8 @@
   function createElements() {
     var pagePost = this;
 
-    var converter = new Showdown.converter({extensions: ['github']});
+    var converter = new showdown.Converter();
+    converter.setFlavor('github');
 
     var horizontalSideLength = window.hg.Grid.config.tileShortLengthWithGap *
         (window.hg.OpenPostJob.config.expandedDisplacementTileCount + 4.25);

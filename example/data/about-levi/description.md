@@ -18,7 +18,7 @@ Levi is a huge advocate of open-source technology. You can fork all of his side-
 
 Levi currently works at [Google][google-url] as a Front End Software Engineer.
 
-Levi is originally from from Olympia, WA. He now lives in Sunnyvale, CA with his wife. She is [a beautiful marine
+Levi is originally from from Olympia, WA. He now lives in Seattle, WA with his wife. She is [a beautiful marine
 mammal ecologist][jackie-url] whom he met at the University of Washington in Seattle.
 
 Outside the realm of computer science, Levi has many hobbies/interests. First and foremost, he is a musician. In
