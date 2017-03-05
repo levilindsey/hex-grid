@@ -7,11 +7,12 @@
     "github": "https://github.com/levilindsey/photo-viewer"
   },
   "jobTitle": "",
+  "location": "",
   "date": "2/2014",
   "categories": [
     "side-project",
     "web",
-    "front-end",
+    "frontend",
     "app",
     "xhr2",
     "animation",

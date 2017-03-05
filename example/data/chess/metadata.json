@@ -7,12 +7,13 @@
     "github": "https://github.com/levilindsey/chess"
   },
   "jobTitle": "",
+  "location": "",
   "date": "10/2013",
   "categories": [
     "side-project",
     "web",
     "app",
-    "front-end",
+    "frontend",
     "game"
   ],
   "images": [

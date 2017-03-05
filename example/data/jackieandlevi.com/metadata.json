@@ -8,13 +8,14 @@
     "github": "https://github.com/levilindsey/jackieandlevi.com"
   },
   "jobTitle": "",
+  "location": "",
   "date": "2013",
   "categories": [
     "side-project",
     "web",
     "website",
     "app",
-    "front-end",
+    "frontend",
     "back-end",
     "mean-stack",
     "node.js",

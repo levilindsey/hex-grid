@@ -1,7 +1,7 @@
 ## The Cover-Letter Schpiel
 
 With a background as a lead applications engineer across a wide array of platforms, Levi currently specializes in
-front-end engineering.
+frontend engineering.
 
 Levi is a seasoned technical leader with experience guiding many projects through all stages of development. He
 develops with an emphasis on modular, maintainable, and self-documented code. He takes pride in his work and strives

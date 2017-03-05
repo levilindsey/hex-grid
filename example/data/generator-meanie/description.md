@@ -12,9 +12,9 @@ follow best practices throughout._
 ## What this is
 
 - **Modular**: The main goal of this generator is to create a highly componentized file structure for both 
-  [front-end][angular-best-practices-url] and server-side code. This helps to keep your code modular, scalable, and 
+  [frontend][angular-best-practices-url] and server-side code. This helps to keep your code modular, scalable, and 
   easier to understand.
-- **Gulp tasks**: This includes a wide array of gulp tasks for optimizing front-end performance and streamlining your 
+- **Gulp tasks**: This includes a wide array of gulp tasks for optimizing frontend performance and streamlining your 
   development process.
 - **App infrastructure**: This creates a comprehensive boilerplate infrastructure for a end-to-end web application 
   using the MEAN stack. This likely includes some extra bells and whistles that you may not want to include in your 
@@ -22,9 +22,9 @@ follow best practices throughout._
   is that, hopefully, this generator creates infrastructure that will handle most of the high-level problems in your 
   web app, in addition to providing some other common features that you will likely remove.
 - **Tests**: This includes a testing infrastructure using the [Karma][karma-url] test runner and the 
-  [Jasmine][jasmine-url] test framework for testing the front-end code.
+  [Jasmine][jasmine-url] test framework for testing the frontend code.
 - **SASS**: This uses the [SASS][sass-url] stylesheet language.
-- **UI-Router**: This uses the [UI-Router][ui-router-url] library for more powerful front-end routing and state 
+- **UI-Router**: This uses the [UI-Router][ui-router-url] library for more powerful frontend routing and state 
   management in Angular.
 
 ## Why use this generator instead of one of the many other options?

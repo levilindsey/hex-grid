@@ -7,13 +7,14 @@
     "github": "https://github.com/levilindsey/shouldihaveanother.beer"
   },
   "jobTitle": "",
+  "location": "",
   "date": "10/2014",
   "categories": [
     "side-project",
     "web",
     "website",
     "doodle",
-    "front-end",
+    "frontend",
     "canvas",
     "animation",
     "gulp.js",

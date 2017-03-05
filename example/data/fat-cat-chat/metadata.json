@@ -7,6 +7,7 @@
     "github": "https://github.com/levilindsey/fat-cat-chat"
   },
   "jobTitle": "",
+  "location": "",
   "date": "2/2014",
   "categories": [
     "side-project",
@@ -17,7 +18,7 @@
     "node.js",
     "express",
     "back-end",
-    "front-end"
+    "frontend"
   ],
   "images": [
     {

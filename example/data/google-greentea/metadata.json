@@ -1,0 +1,28 @@
+{
+  "id": "google-greentea",
+  "titleShort": "Google:\nGreentea",
+  "titleLong": "Google (Greentea)",
+  "urls": {
+    "homepage": "https://google.com/about"
+  },
+  "jobTitle": "Software Engineer",
+  "location": "Mountain View, CA",
+  "date": {
+    "start": "4/2015",
+    "end": "12/2016"
+  },
+  "categories": [
+    "work",
+    "web",
+    "frontend",
+    "data-driven",
+    "angularjs",
+    "typescript",
+    "angular-2"
+  ],
+  "images": [
+  ],
+  "videos": [
+  ],
+  "content": ""
+}
