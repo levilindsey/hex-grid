@@ -9,6 +9,7 @@
  * @property {String} titleLong
  * @property {Array.<String>} urls
  * @property {String} jobTitle
+ * @property {String} location
  * @property {String} date
  * @property {Array.<String>} categories
  * @property {Array.<ImageData>} images

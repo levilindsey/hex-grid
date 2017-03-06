@@ -180,6 +180,8 @@
     var content = document.createElement('div');
     var logo = document.createElement('div');
     var date = document.createElement('div');
+    var location = document.createElement('div');
+    var jobTitle = document.createElement('div');
     var urls = document.createElement('div');
     var categories = document.createElement('div');
     var topGradient = document.createElement('div');
@@ -190,6 +192,8 @@
     outerWrapper.appendChild(innerWrapper);
     innerWrapper.appendChild(logo);
     innerWrapper.appendChild(date);
+    innerWrapper.appendChild(location);
+    innerWrapper.appendChild(jobTitle);
     innerWrapper.appendChild(title);
     innerWrapper.appendChild(urls);
     innerWrapper.appendChild(content);
@@ -266,6 +270,12 @@
 
     date.setAttribute('data-hg-post-date', 'data-hg-post-date');
     addDate.call(pagePost);
+
+    location.setAttribute('data-hg-post-location', 'data-hg-post-location');
+    location.innerHTML = pagePost.tile.postData.location;
+
+    jobTitle.setAttribute('data-hg-post-job-title', 'data-hg-post-job-title');
+    jobTitle.innerHTML = pagePost.tile.postData.jobTitle;
 
     urls.setAttribute('data-hg-post-urls', 'data-hg-post-urls');
     addUrls.call(pagePost);
