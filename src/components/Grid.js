@@ -56,7 +56,7 @@
   config.tileSaturation = 67;
   config.tileLightness = 22;
   config.tileOuterRadius = 80;
-  config.tileGap = 24;//12;
+  config.tileGap = 12;
   config.contentStartingRowIndex = 2;
   config.firstRowYOffset = config.tileOuterRadius * -0.8;
   config.contentDensity = 1.0;//0.6;
