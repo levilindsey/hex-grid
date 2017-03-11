@@ -4,13 +4,14 @@
   "titleLong": "About Levi",
   "urls": {
     "githubProfile": "https://github.com/levilindsey",
-    "linkedin": "https://linkedin.com/in/levisl176",
+    "linkedin": "https://linkedin.com/in/levi-lindsey",
     "codepen": "http://codepen.io/levisl176/",
-    "facebook": "https://facebook.com/levisl176",
+    "facebook": "https://facebook.com/levislindsey",
     "googlePlus": "https://plus.google.com/u/0/+LeviLindsey176",
     "reverbNation": "http://reverbnation.com/levilindsey"
   },
   "jobTitle": "Frontend Software Engineer",
+  "location": "Seattle, WA",
   "date": {
     "start": "4/27/1988",
     "end": "Present"

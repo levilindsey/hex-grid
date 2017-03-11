@@ -1,0 +1,30 @@
+{
+  "id": "space-debris",
+  "titleShort": "Space\nFlight\nGame",
+  "titleLong": "Space Debris",
+  "urls": {
+    "demo": "http://levi.codes/space-debris",
+    "github": "https://github.com/levilindsey/space-debris"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": {
+    "start": "6/2015",
+    "end": "5/2017"
+  },
+  "categories": [
+    "side-project",
+    "web",
+    "frontend",
+    "animation",
+    "app",
+    "dat.gui",
+    "gulp.js",
+    "webgl",
+    "es2015",
+    "game"
+  ],
+  "images": [],
+  "videos": [],
+  "content": ""
+}

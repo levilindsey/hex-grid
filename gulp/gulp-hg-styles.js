@@ -9,6 +9,6 @@ gulp.task('hg-styles', function () {
     .pipe(plugins.rename({basename: 'hex-grid'}))
     .pipe(gulp.dest(config.hgDistPath))
     .pipe(plugins.rename({suffix: '.min'}))
-    .pipe(plugins.minifyCss())
+    .pipe(plugins.cleanCss())
     .pipe(gulp.dest(config.hgDistPath));
 });

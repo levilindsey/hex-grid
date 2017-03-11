@@ -1,0 +1,28 @@
+{
+  "id": "google-cloud-console",
+  "titleShort": "Google:\nCloud\nConsole",
+  "titleLong": "Google (Cloud Console)",
+  "urls": {
+    "homepage": "https://cloud.google.com/"
+  },
+  "jobTitle": "Software Engineer",
+  "location": "Seattle, WA",
+  "date": {
+    "start": "1/2017",
+    "end": "Present"
+  },
+  "categories": [
+    "work",
+    "web",
+    "frontend",
+    "data-driven",
+    "angularjs",
+    "dart",
+    "angular-2"
+  ],
+  "images": [
+  ],
+  "videos": [
+  ],
+  "content": ""
+}

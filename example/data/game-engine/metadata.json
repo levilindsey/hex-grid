@@ -1,0 +1,31 @@
+{
+  "id": "game-engine",
+  "titleShort": "WebGL\nGraphics &\nPhysics\nEngine",
+  "titleLong": "A WebGL Graphics Framework, Physics Engine, and Game Engine",
+  "urls": {
+    "demo": "http://levi.codes/dynamics-example",
+    "github": "https://github.com/levilindsey/game-engine"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": {
+    "start": "6/2015",
+    "end": "5/2017"
+  },
+  "categories": [
+    "side-project",
+    "web",
+    "frontend",
+    "animation",
+    "library",
+    "app",
+    "dat.gui",
+    "gulp.js",
+    "webgl",
+    "es2015",
+    "game"
+  ],
+  "images": [],
+  "videos": [],
+  "content": ""
+}
