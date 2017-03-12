@@ -16,7 +16,7 @@ body {
 /* --- Tile styles --- */
 
 [data-hg-tile-title] {
-  font-family: Georgia, serif;
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, sans-serif;
   font-style: italic;
   color: #FAFAFA;
 }
