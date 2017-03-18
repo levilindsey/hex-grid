@@ -35,7 +35,7 @@ Hahobas][camp-hahobas-url], a boy scout camp in Washington state.
 
 
 [github-url]: https://github.com/levilindsey
-[google-url]: https://google.com
+[google-url]: https://google.com/about
 [jackie-url]: http://www.jackieandlevi.com/jackie
 [reverb-nation-url]: http://www.reverbnation.com/levilindsey
-[camp-hahobas-url]: http://hahobas.org/
+[camp-hahobas-url]: https://web.archive.org/web/20160807121041/http://www.hahobas.org/
