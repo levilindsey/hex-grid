@@ -1,4 +1,4 @@
-;/*! showdown 06-02-2017 */
+;/*! showdown 02-06-2017 */
 (function(){
 /**
  * Created by Tivie on 13-07-2015.
@@ -51,6 +51,11 @@ function getDefaultOpts (simple) {
     literalMidWordUnderscores: {
       defaultValue: false,
       describe: 'Parse midword underscores as literal underscores',
+      type: 'boolean'
+    },
+    literalMidWordAsterisks: {
+      defaultValue: false,
+      describe: 'Parse midword asterisks as literal asterisks',
       type: 'boolean'
     },
     strikethrough: {
@@ -116,6 +121,11 @@ function getDefaultOpts (simple) {
     encodeEmails: {
       defaultValue: true,
       description: 'Encode e-mail addresses through the use of Character Entities, transforming ASCII e-mail addresses into its equivalent decimal entities',
+      type: 'boolean'
+    },
+    openLinksInNewWindow: {
+      defaultValue: false,
+      description: 'Open all links in new windows',
       type: 'boolean'
     }
   };
@@ -259,6 +269,7 @@ showdown.setFlavor = function (name) {
   if (!flavor.hasOwnProperty(name)) {
     throw Error(name + ' flavor was not found');
   }
+  showdown.resetOptions();
   var preset = flavor[name];
   setFlavor = name;
   for (var option in preset) {
@@ -796,6 +807,43 @@ showdown.helper.replaceRecursiveRegExp = function (str, replacement, left, right
 };
 
 /**
+ * Returns the index within the passed String object of the first occurrence of the specified regex,
+ * starting the search at fromIndex. Returns -1 if the value is not found.
+ *
+ * @param {string} str string to search
+ * @param {RegExp} regex Regular expression to search
+ * @param {int} [fromIndex = 0] Index to start the search
+ * @returns {Number}
+ * @throws InvalidArgumentError
+ */
+showdown.helper.regexIndexOf = function (str, regex, fromIndex) {
+  'use strict';
+  if (!showdown.helper.isString(str)) {
+    throw 'InvalidArgumentError: first parameter of showdown.helper.regexIndexOf function must be a string';
+  }
+  if (regex instanceof RegExp === false) {
+    throw 'InvalidArgumentError: second parameter of showdown.helper.regexIndexOf function must be an instance of RegExp';
+  }
+  var indexOf = str.substring(fromIndex || 0).search(regex);
+  return (indexOf >= 0) ? (indexOf + (fromIndex || 0)) : indexOf;
+};
+
+/**
+ * Splits the passed string object at the defined index, and returns an array composed of the two substrings
+ * @param {string} str string to split
+ * @param {int} index index to split string at
+ * @returns {[string,string]}
+ * @throws InvalidArgumentError
+ */
+showdown.helper.splitAtIndex = function (str, index) {
+  'use strict';
+  if (!showdown.helper.isString(str)) {
+    throw 'InvalidArgumentError: first parameter of showdown.helper.regexIndexOf function must be a string';
+  }
+  return [str.substring(0, index), str.substring(index)];
+};
+
+/**
  * Obfuscate an e-mail address through the use of Character Entities,
  * transforming ASCII characters into their equivalent decimal or hex entities.
  *
@@ -1302,17 +1350,16 @@ showdown.subParser('anchors', function (text, options, globals) {
 
   text = globals.converter._dispatch('anchors.before', text, options, globals);
 
-  var writeAnchorTag = function (wholeMatch, m1, m2, m3, m4, m5, m6, m7) {
-    if (showdown.helper.isUndefined(m7)) {
-      m7 = '';
+  var writeAnchorTag = function (wholeMatch, linkText, linkId, url, m5, m6, title) {
+    if (showdown.helper.isUndefined(title)) {
+      title = '';
     }
-    wholeMatch = m1;
-    var linkText = m2,
-        linkId = m3.toLowerCase(),
-        url = m4,
-        title = m7;
+    linkId = linkId.toLowerCase();
 
-    if (!url) {
+    // Special case for explicit empty url
+    if (wholeMatch.search(/\(<?\s*>? ?(['"].*['"])?\)$/m) > -1) {
+      url = '';
+    } else if (!url) {
       if (!linkId) {
         // lower-case and turn embedded newlines into spaces
         linkId = linkText.toLowerCase().replace(/ ?\n/g, ' ');
@@ -1325,12 +1372,7 @@ showdown.subParser('anchors', function (text, options, globals) {
           title = globals.gTitles[linkId];
         }
       } else {
-        if (wholeMatch.search(/\(\s*\)$/m) > -1) {
-          // Special case for explicit empty url
-          url = '';
-        } else {
-          return wholeMatch;
-        }
+        return wholeMatch;
       }
     }
 
@@ -1346,22 +1388,32 @@ showdown.subParser('anchors', function (text, options, globals) {
       result += ' title="' + title + '"';
     }
 
+    if (options.openLinksInNewWindow) {
+      // escaped _
+      result += ' target="¨E95Eblank"';
+    }
+
     result += '>' + linkText + '</a>';
 
     return result;
   };
 
   // First, handle reference-style links: [link text] [id]
-  text = text.replace(/(\[((?:\[[^\]]*]|[^\[\]])*)][ ]?(?:\n[ ]*)?\[(.*?)])()()()()/g, writeAnchorTag);
+  text = text.replace(/\[((?:\[[^\]]*]|[^\[\]])*)] ?(?:\n *)?\[(.*?)]()()()()/g, writeAnchorTag);
 
   // Next, inline-style links: [link text](url "optional title")
-  text = text.replace(/(\[((?:\[[^\]]*]|[^\[\]])*)]\([ \t]*()<?(.*?(?:\(.*?\).*?)?)>?[ \t]*((['"])(.*?)\6[ \t]*)?\))/g,
+  // cases with crazy urls like ./image/cat1).png
+  text = text.replace(/\[((?:\[[^\]]*]|[^\[\]])*)]()[ \t]*\([ \t]?<([^>]*)>(?:[ \t]*((["'])([^"]*?)\5))?[ \t]?\)/g,
+    writeAnchorTag);
+
+  // normal cases
+  text = text.replace(/\[((?:\[[^\]]*]|[^\[\]])*)]()[ \t]*\([ \t]?<?([\S]+?(?:\([\S]*?\)[\S]*?)?)>?(?:[ \t]*((["'])([^"]*?)\5))?[ \t]?\)/g,
                       writeAnchorTag);
 
   // handle reference-style shortcuts: [link text]
   // These must come last in case you've also got [link test][1]
   // or [link test](/foo)
-  text = text.replace(/(\[([^\[\]]+)])()()()()()/g, writeAnchorTag);
+  text = text.replace(/\[([^\[\]]+)]()()()()()/g, writeAnchorTag);
 
   // Lastly handle GithubMentions if option is enabled
   if (options.ghMentions) {
@@ -1383,57 +1435,81 @@ showdown.subParser('anchors', function (text, options, globals) {
   return text;
 });
 
+// url allowed chars [a-z\d_.~:/?#[]@!$&'()*+,;=-]
+
+var simpleURLRegex  = /\b(((https?|ftp|dict):\/\/|www\.)[^'">\s]+\.[^'">\s]+)()(?=\s|$)(?!["<>])/gi,
+    simpleURLRegex2 = /\b(((https?|ftp|dict):\/\/|www\.)[^'">\s]+\.[^'">\s]+?)([.!?,()\[\]]?)(?=\s|$)(?!["<>])/gi,
+    //simpleURLRegex3 = /\b(((https?|ftp):\/\/|www\.)[a-z\d.-]+\.[a-z\d_.~:/?#\[\]@!$&'()*+,;=-]+?)([.!?()]?)(?=\s|$)(?!["<>])/gi,
+    delimUrlRegex   = /<(((https?|ftp|dict):\/\/|www\.)[^'">\s]+)()>/gi,
+    simpleMailRegex = /(^|\s)(?:mailto:)?([A-Za-z0-9!#$%&'*+-/=?^_`{|}~.]+@[-a-z0-9]+(\.[-a-z0-9]+)*\.[a-z]+)(?=$|\s)/gmi,
+    delimMailRegex  = /<()(?:mailto:)?([-.\w]+@[-a-z0-9]+(\.[-a-z0-9]+)*\.[a-z]+)>/gi,
+
+    replaceLink = function (options) {
+      'use strict';
+
+      return function (wm, link, m2, m3, trailingPunctuation) {
+        var lnkTxt = link,
+            append = '',
+            target = '';
+        if (/^www\./i.test(link)) {
+          link = link.replace(/^www\./i, 'http://www.');
+        }
+        if (options.excludeTrailingPunctuationFromURLs && trailingPunctuation) {
+          append = trailingPunctuation;
+        }
+        if (options.openLinksInNewWindow) {
+          target = ' target="¨E95Eblank"';
+        }
+        return '<a href="' + link + '"' + target + '>' + lnkTxt + '</a>' + append;
+      };
+    },
+
+    replaceMail = function (options, globals) {
+      'use strict';
+      return function (wholeMatch, b, mail) {
+        var href = 'mailto:';
+        b = b || '';
+        mail = showdown.subParser('unescapeSpecialChars')(mail, options, globals);
+        if (options.encodeEmails) {
+          href = showdown.helper.encodeEmailAddress(href + mail);
+          mail = showdown.helper.encodeEmailAddress(mail);
+        } else {
+          href = href + mail;
+        }
+        return b + '<a href="' + href + '">' + mail + '</a>';
+      };
+    };
+
 showdown.subParser('autoLinks', function (text, options, globals) {
   'use strict';
 
   text = globals.converter._dispatch('autoLinks.before', text, options, globals);
 
-  var simpleURLRegex  = /\b(((https?|ftp|dict):\/\/|www\.)[^'">\s]+\.[^'">\s]+)()(?=\s|$)(?!["<>])/gi,
-      simpleURLRegex2 = /\b(((https?|ftp|dict):\/\/|www\.)[^'">\s]+\.[^'">\s]+?)([.!?()]?)(?=\s|$)(?!["<>])/gi,
-      delimUrlRegex   = /<(((https?|ftp|dict):\/\/|www\.)[^'">\s]+)>/gi,
-      simpleMailRegex = /(^|\s)(?:mailto:)?([A-Za-z0-9!#$%&'*+-/=?^_`{|}~.]+@[-a-z0-9]+(\.[-a-z0-9]+)*\.[a-z]+)(?=$|\s)/gmi,
-      delimMailRegex  = /<()(?:mailto:)?([-.\w]+@[-a-z0-9]+(\.[-a-z0-9]+)*\.[a-z]+)>/gi;
-
-  text = text.replace(delimUrlRegex, replaceLink);
-  text = text.replace(delimMailRegex, replaceMail);
-  // simpleURLRegex  = /\b(((https?|ftp|dict):\/\/|www\.)[-.+~:?#@!$&'()*,;=[\]\w]+)\b/gi,
-  // Email addresses: <address@domain.foo>
-
-  if (options.simplifiedAutoLink) {
-    if (options.excludeTrailingPunctuationFromURLs) {
-      text = text.replace(simpleURLRegex2, replaceLink);
-    } else {
-      text = text.replace(simpleURLRegex, replaceLink);
-    }
-    text = text.replace(simpleMailRegex, replaceMail);
-  }
-
-  function replaceLink (wm, link, m2, m3, trailingPunctuation) {
-    var lnkTxt = link,
-        append = '';
-    if (/^www\./i.test(link)) {
-      link = link.replace(/^www\./i, 'http://www.');
-    }
-    if (options.excludeTrailingPunctuationFromURLs && trailingPunctuation) {
-      append = trailingPunctuation;
-    }
-    return '<a href="' + link + '">' + lnkTxt + '</a>' + append;
-  }
-
-  function replaceMail (wholeMatch, b, mail) {
-    var href = 'mailto:';
-    b = b || '';
-    mail = showdown.subParser('unescapeSpecialChars')(mail, options, globals);
-    if (options.encodeEmails) {
-      href = showdown.helper.encodeEmailAddress(href + mail);
-      mail = showdown.helper.encodeEmailAddress(mail);
-    } else {
-      href = href + mail;
-    }
-    return b + '<a href="' + href + '">' + mail + '</a>';
-  }
+  text = text.replace(delimUrlRegex, replaceLink(options));
+  text = text.replace(delimMailRegex, replaceMail(options, globals));
 
   text = globals.converter._dispatch('autoLinks.after', text, options, globals);
+
+  return text;
+});
+
+showdown.subParser('simplifiedAutoLinks', function (text, options, globals) {
+  'use strict';
+
+  if (!options.simplifiedAutoLink) {
+    return text;
+  }
+
+  text = globals.converter._dispatch('simplifiedAutoLinks.before', text, options, globals);
+
+  if (options.excludeTrailingPunctuationFromURLs) {
+    text = text.replace(simpleURLRegex2, replaceLink(options));
+  } else {
+    text = text.replace(simpleURLRegex, replaceLink(options));
+  }
+  text = text.replace(simpleMailRegex, replaceMail(options, globals));
+
+  text = globals.converter._dispatch('simplifiedAutoLinks.after', text, options, globals);
 
   return text;
 });
@@ -1667,7 +1743,7 @@ showdown.subParser('encodeBackslashEscapes', function (text, options, globals) {
   text = globals.converter._dispatch('encodeBackslashEscapes.before', text, options, globals);
 
   text = text.replace(/\\(\\)/g, showdown.helper.escapeCharactersCallback);
-  text = text.replace(/\\([`*_{}\[\]()>#+.!~=-])/g, showdown.helper.escapeCharactersCallback);
+  text = text.replace(/\\([`*_{}\[\]()>#+.!~=|-])/g, showdown.helper.escapeCharactersCallback);
 
   text = globals.converter._dispatch('encodeBackslashEscapes.after', text, options, globals);
   return text;
@@ -1712,7 +1788,7 @@ showdown.subParser('escapeSpecialCharsWithinTagAttributes', function (text, opti
   text = text.replace(regex, function (wholeMatch) {
     return wholeMatch
       .replace(/(.)<\/?code>(?=.)/g, '$1`')
-      .replace(/([\\`*_~=])/g, showdown.helper.escapeCharactersCallback);
+      .replace(/([\\`*_~=|])/g, showdown.helper.escapeCharactersCallback);
   });
 
   text = globals.converter._dispatch('escapeSpecialCharsWithinTagAttributes.after', text, options, globals);
@@ -1865,9 +1941,25 @@ showdown.subParser('hashHTMLBlocks', function (text, options, globals) {
       };
 
   for (var i = 0; i < blockTags.length; ++i) {
-    text = showdown.helper.replaceRecursiveRegExp(text, repFunc, '^ {0,3}<' + blockTags[i] + '\\b[^>]*>', '</' + blockTags[i] + '>', 'gim');
-  }
 
+    var opTagPos,
+        rgx1     = new RegExp('^ {0,3}<' + blockTags[i] + '\\b[^>]*>', 'im'),
+        patLeft  = '<' + blockTags[i] + '\\b[^>]*>',
+        patRight = '</' + blockTags[i] + '>';
+    // 1. Look for the first position of the first opening HTML tag in the text
+    while ((opTagPos = showdown.helper.regexIndexOf(text, rgx1)) !== -1) {
+      //2. Split the text in that position
+      var subTexts = showdown.helper.splitAtIndex(text, opTagPos),
+      //3. Match recursively
+          newSubText1 = showdown.helper.replaceRecursiveRegExp(subTexts[1], repFunc, patLeft, patRight, 'im');
+
+      // prevent an infinite loop
+      if (newSubText1 === subTexts[1]) {
+        break;
+      }
+      text = subTexts[0].concat(newSubText1);
+    }
+  }
   // HR SPECIAL CASE
   text = text.replace(/(\n {0,3}(<(hr)\b([^<>])*?\/?>)[ \t]*(?=\n{2,}))/g,
     showdown.subParser('hashElement')(text, options, globals));
@@ -2014,7 +2106,12 @@ showdown.subParser('headers', function (text, options, globals) {
   var atxStyle = (options.requireSpaceBeforeHeadingText) ? /^(#{1,6})[ \t]+(.+?)[ \t]*#*\n+/gm : /^(#{1,6})[ \t]*(.+?)[ \t]*#*\n+/gm;
 
   text = text.replace(atxStyle, function (wholeMatch, m1, m2) {
-    var span = showdown.subParser('spanGamut')(m2, options, globals),
+    var hText = m2;
+    if (options.customizedHeaderId) {
+      hText = m2.replace(/\s?\{([^{]+?)}\s*$/, '');
+    }
+
+    var span = showdown.subParser('spanGamut')(hText, options, globals),
         hID = (options.noHeaderId) ? '' : ' id="' + headerId(m2) + '"',
         hLevel = headerLevelStart - 1 + m1.length,
         header = '<h' + hLevel + hID + '>' + span + '</h' + hLevel + '>';
@@ -2024,6 +2121,15 @@ showdown.subParser('headers', function (text, options, globals) {
 
   function headerId (m) {
     var title;
+
+    // It is separate from other options to allow combining prefix and customized
+    if (options.customizedHeaderId) {
+      var match = m.match(/\{([^{]+?)}\s*$/);
+      if (match && match[1]) {
+        m = match[1];
+      }
+    }
+
     // Prefix id to prevent causing inadvertent pre-existing style matches.
     if (showdown.helper.isString(options.prefixHeaderId)) {
       title = options.prefixHeaderId + m;
@@ -2086,8 +2192,10 @@ showdown.subParser('images', function (text, options, globals) {
 
   text = globals.converter._dispatch('images.before', text, options, globals);
 
-  var inlineRegExp    = /!\[(.*?)]\s?\([ \t]*()<?(\S+?)>?(?: =([*\d]+[A-Za-z%]{0,4})x([*\d]+[A-Za-z%]{0,4}))?[ \t]*(?:(['"])(.*?)\6[ \t]*)?\)/g,
-      referenceRegExp = /!\[([^\]]*?)] ?(?:\n *)?\[(.*?)]()()()()()/g;
+  var inlineRegExp      = /!\[([^\]]*?)][ \t]*()\([ \t]?<?([\S]+?(?:\([\S]*?\)[\S]*?)?)>?(?: =([*\d]+[A-Za-z%]{0,4})x([*\d]+[A-Za-z%]{0,4}))?[ \t]*(?:(["'])([^"]*?)\6)?[ \t]?\)/g,
+      crazyRegExp       = /!\[([^\]]*?)][ \t]*()\([ \t]?<([^>]*)>(?: =([*\d]+[A-Za-z%]{0,4})x([*\d]+[A-Za-z%]{0,4}))?[ \t]*(?:(?:(["'])([^"]*?)\6))?[ \t]?\)/g,
+      referenceRegExp   = /!\[([^\]]*?)] ?(?:\n *)?\[(.*?)]()()()()()/g,
+      refShortcutRegExp = /!\[([^\[\]]+)]()()()()()/g;
 
   function writeImageTag (wholeMatch, altText, linkId, url, width, height, m5, title) {
 
@@ -2100,8 +2208,11 @@ showdown.subParser('images', function (text, options, globals) {
     if (!title) {
       title = '';
     }
+    // Special case for explicit empty url
+    if (wholeMatch.search(/\(<?\s*>? ?(['"].*['"])?\)$/m) > -1) {
+      url = '';
 
-    if (url === '' || url === null) {
+    } else if (url === '' || url === null) {
       if (linkId === '' || linkId === null) {
         // lower-case and turn embedded newlines into spaces
         linkId = altText.toLowerCase().replace(/ ?\n/g, ' ');
@@ -2155,7 +2266,14 @@ showdown.subParser('images', function (text, options, globals) {
   text = text.replace(referenceRegExp, writeImageTag);
 
   // Next, handle inline images:  ![alt text](url =<width>x<height> "optional title")
+  // cases with crazy urls like ./image/cat1).png
+  text = text.replace(crazyRegExp, writeImageTag);
+
+  // normal cases
   text = text.replace(inlineRegExp, writeImageTag);
+
+  // handle reference-style shortcuts: |[img text]
+  text = text.replace(refShortcutRegExp, writeImageTag);
 
   text = globals.converter._dispatch('images.after', text, options, globals);
   return text;
@@ -2170,35 +2288,61 @@ showdown.subParser('italicsAndBold', function (text, options, globals) {
   // because of backtracing, in some cases, it could lead to an exponential effect
   // called "catastrophic backtrace". Ominous!
 
+  function parseInside (txt, left, right) {
+    if (options.simplifiedAutoLink) {
+      txt = showdown.subParser('simplifiedAutoLinks')(txt, options, globals);
+    }
+    return left + txt + right;
+  }
+
   // Parse underscores
   if (options.literalMidWordUnderscores) {
-    text = text.replace(/\b___(\S[\s\S]*)___\b/g, '<strong><em>$1</em></strong>');
-    text = text.replace(/\b__(\S[\s\S]*)__\b/g, '<strong>$1</strong>');
-    text = text.replace(/\b_(\S[\s\S]*?)_\b/g, '<em>$1</em>');
+    text = text.replace(/\b___(\S[\s\S]*)___\b/g, function (wm, txt) {
+      return parseInside (txt, '<strong><em>', '</em></strong>');
+    });
+    text = text.replace(/\b__(\S[\s\S]*)__\b/g, function (wm, txt) {
+      return parseInside (txt, '<strong>', '</strong>');
+    });
+    text = text.replace(/\b_(\S[\s\S]*?)_\b/g, function (wm, txt) {
+      return parseInside (txt, '<em>', '</em>');
+    });
   } else {
     text = text.replace(/___(\S[\s\S]*?)___/g, function (wm, m) {
-      return (/\S$/.test(m)) ? '<strong><em>' + m + '</em></strong>' : wm;
+      return (/\S$/.test(m)) ? parseInside (m, '<strong><em>', '</em></strong>') : wm;
     });
     text = text.replace(/__(\S[\s\S]*?)__/g, function (wm, m) {
-      return (/\S$/.test(m)) ? '<strong>' + m + '</strong>' : wm;
+      return (/\S$/.test(m)) ? parseInside (m, '<strong>', '</strong>') : wm;
     });
     text = text.replace(/_([^\s_][\s\S]*?)_/g, function (wm, m) {
       // !/^_[^_]/.test(m) - test if it doesn't start with __ (since it seems redundant, we removed it)
-      return (/\S$/.test(m)) ? '<em>' + m + '</em>' : wm;
+      return (/\S$/.test(m)) ? parseInside (m, '<em>', '</em>') : wm;
     });
   }
 
   // Now parse asterisks
-  text = text.replace(/\*\*\*(\S[\s\S]*?)\*\*\*/g, function (wm, m) {
-    return (/\S$/.test(m)) ? '<strong><em>' + m + '</em></strong>' : wm;
-  });
-  text = text.replace(/\*\*(\S[\s\S]*?)\*\*/g, function (wm, m) {
-    return (/\S$/.test(m)) ? '<strong>' + m + '</strong>' : wm;
-  });
-  text = text.replace(/\*([^\s*][\s\S]*?)\*/g, function (wm, m) {
-    // !/^\*[^*]/.test(m) - test if it doesn't start with ** (since it seems redundant, we removed it)
-    return (/\S$/.test(m)) ? '<em>' + m + '</em>' : wm;
-  });
+  if (options.literalMidWordAsterisks) {
+    text = text.trim().replace(/(?:^| +)\*{3}(\S[\s\S]*?)\*{3}(?: +|$)/g, function (wm, txt) {
+      return parseInside (txt, ' <strong><em>', '</em></strong> ');
+    });
+    text = text.trim().replace(/(?:^| +)\*{2}(\S[\s\S]*?)\*{2}(?: +|$)/g, function (wm, txt) {
+      return parseInside (txt, ' <strong>', '</strong> ');
+    });
+    text = text.trim().replace(/(?:^| +)\*{1}(\S[\s\S]*?)\*{1}(?: +|$)/g, function (wm, txt) {
+      return parseInside (txt, ' <em>', '</em>' + (wm.slice(-1) === ' ' ? ' ' : ''));
+    });
+  } else {
+    text = text.replace(/\*\*\*(\S[\s\S]*?)\*\*\*/g, function (wm, m) {
+      return (/\S$/.test(m)) ? parseInside (m, '<strong><em>', '</em></strong>') : wm;
+    });
+    text = text.replace(/\*\*(\S[\s\S]*?)\*\*/g, function (wm, m) {
+      return (/\S$/.test(m)) ? parseInside (m, '<strong>', '</strong>') : wm;
+    });
+    text = text.replace(/\*([^\s*][\s\S]*?)\*/g, function (wm, m) {
+      // !/^\*[^*]/.test(m) - test if it doesn't start with ** (since it seems redundant, we removed it)
+      return (/\S$/.test(m)) ? parseInside (m, '<em>', '</em>') : wm;
+    });
+  }
+
 
   text = globals.converter._dispatch('italicsAndBold.after', text, options, globals);
   return text;
@@ -2524,11 +2668,12 @@ showdown.subParser('spanGamut', function (text, options, globals) {
   text = showdown.subParser('anchors')(text, options, globals);
 
   // Make links out of things like `<http://example.com/>`
-  // Must come after _DoAnchors(), because you can use < and >
+  // Must come after anchors, because you can use < and >
   // delimiters in inline links like [this](<url>).
   text = showdown.subParser('autoLinks')(text, options, globals);
   text = showdown.subParser('italicsAndBold')(text, options, globals);
   text = showdown.subParser('strikethrough')(text, options, globals);
+  text = showdown.subParser('simplifiedAutoLinks')(text, options, globals);
 
   // we need to hash HTML tags inside spans
   text = showdown.subParser('hashHTMLSpans')(text, options, globals);
@@ -2552,9 +2697,16 @@ showdown.subParser('spanGamut', function (text, options, globals) {
 showdown.subParser('strikethrough', function (text, options, globals) {
   'use strict';
 
+  function parseInside (txt) {
+    if (options.simplifiedAutoLink) {
+      txt = showdown.subParser('simplifiedAutoLinks')(txt, options, globals);
+    }
+    return '<del>' + txt + '</del>';
+  }
+
   if (options.strikethrough) {
     text = globals.converter._dispatch('strikethrough.before', text, options, globals);
-    text = text.replace(/(?:~){2}([\s\S]+?)(?:~){2}/g, '<del>$1</del>');
+    text = text.replace(/(?:~){2}([\s\S]+?)(?:~){2}/g, function (wm, txt) { return parseInside(txt); });
     text = globals.converter._dispatch('strikethrough.after', text, options, globals);
   }
 
@@ -2569,7 +2721,7 @@ showdown.subParser('strikethrough', function (text, options, globals) {
 showdown.subParser('stripLinkDefinitions', function (text, options, globals) {
   'use strict';
 
-  var regex = /^ {0,3}\[(.+)]:[ \t]*\n?[ \t]*<?(\S+?)>?(?: =([*\d]+[A-Za-z%]{0,4})x([*\d]+[A-Za-z%]{0,4}))?[ \t]*\n?[ \t]*(?:(\n*)["|'(](.+?)["|')][ \t]*)?(?:\n+|(?=¨0))/gm;
+  var regex = /^ {0,3}\[(.+)]:[ \t]*\n?[ \t]*<?([^>\s]+)>?(?: =([*\d]+[A-Za-z%]{0,4})x([*\d]+[A-Za-z%]{0,4}))?[ \t]*\n?[ \t]*(?:(\n*)["|'(](.+?)["|')][ \t]*)?(?:\n+|(?=¨0))/gm;
 
   // attacklab: sentinel workarounds for lack of \A and \Z, safari\khtml bug
   text += '¨0';
@@ -2663,6 +2815,10 @@ showdown.subParser('tables', function (text, options, globals) {
 
   text = globals.converter._dispatch('tables.before', text, options, globals);
 
+  // find escaped pipe characters
+  text = text.replace(/\\(\|)/g, showdown.helper.escapeCharactersCallback);
+
+  // parse tables
   text = text.replace(tableRgx, function (rawTable) {
 
     var i, tableLines = rawTable.split('\n');

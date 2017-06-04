@@ -106,7 +106,7 @@ div[data-hg-post-logo] {
   color: #1E90FF;
   text-decoration: none;
   -webkit-transition: color 0.2s;
-          transition: color 0.2s;
+  transition: color 0.2s;
 }
 
 [data-hg-post-container] a:visited {
@@ -188,7 +188,7 @@ div[data-hg-post-logo] {
 [data-hg-carousel-thumbnail-screen] {
   opacity: 0.7;
   -webkit-transition: opacity 0.8s;
-          transition: opacity 0.8s;
+  transition: opacity 0.8s;
 }
 
 [data-hg-carousel-thumbnail][data-hg-selected] > [data-hg-carousel-thumbnail-screen] {
@@ -198,7 +198,7 @@ div[data-hg-post-logo] {
 [data-hg-carousel-button] use {
   fill: #888888;
   -webkit-transition: fill 0.2s;
-          transition: fill 0.2s;
+  transition: fill 0.2s;
 }
 
 [data-hg-carousel-button]:hover use {
@@ -221,7 +221,7 @@ div[data-hg-post-logo] {
 [data-hg-captions-panel] > p {
   opacity: 0;
   -webkit-transition: opacity 0.8s;
-          transition: opacity 0.8s;
+  transition: opacity 0.8s;
 }
 
 [data-hg-captions-panel][data-hg-selected] > p {
