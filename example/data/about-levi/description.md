@@ -1,12 +1,12 @@
 ## The Cover-Letter Schpiel
 
-With a background as a lead applications engineer across a wide array of platforms, Levi currently 
+With a background as a lead applications engineer across a wide array of platforms, Levi currently
 specializes in frontend engineering.
 
-Levi is a seasoned technical leader with experience guiding many projects through all stages of 
-development. He develops with an emphasis on modular, maintainable, and self-documented code. He 
-takes pride in his work and strives to design all of his projects to be intuitive and "easy on the 
-eyes"&mdash;both from an outward-facing user perspective and from an internal code-level 
+Levi is a seasoned technical leader with experience guiding projects through all stages of
+development. He develops with an emphasis on modular, maintainable, and self-documented code. He
+takes pride in his work and strives to design all of his projects to be intuitive and "easy on the
+eyes"&mdash;both from an outward-facing user perspective and from an internal code-level
 perspective. He has a passion for design patterns and best practices.
 
 Levi constantly pushes the envelope with new and exciting ideas for web applications. He thrives on
