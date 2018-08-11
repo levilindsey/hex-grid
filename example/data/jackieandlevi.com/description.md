@@ -2,8 +2,7 @@
 
 The site hosted at this domain has gone through many iterations.
 
-- It was originally used as an [invite and RSVP system][wedding-url] for [Jackie][jackie-url] and [Levi's][levi-url]
-  [wedding][wedding-photos-url].
+- It was originally used as an [invite and RSVP system][wedding-url] for [Jackie][jackie-url] and [Levi's][levi-url] [wedding][wedding-photos-url].
 - Later, it was used as a [simple portfolio site][v2-url] for both Levi and Jackie.
 - Levi is currently developing a newer version of the site that will involve better designs and delightful interactions.
 

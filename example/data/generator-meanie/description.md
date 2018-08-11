@@ -5,35 +5,20 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![Flattr this git repo][flattr-image]][flattr-url]
 
-_[MEAN stack][mean-url] generator for [Yeoman][yeoman-url] with [gulp][gulp-url]. Follows the 
-[Best Practice Recommendations for Angular App Structure][angular-best-practices-url], and, in general, attempts to 
-follow best practices throughout._
+_[MEAN stack][mean-url] generator for [Yeoman][yeoman-url] with [gulp][gulp-url]. Follows the [Best Practice Recommendations for Angular App Structure][angular-best-practices-url], and, in general, attempts to  follow best practices throughout._
 
 ## What this is
 
-- **Modular**: The main goal of this generator is to create a highly componentized file structure for both 
-  [frontend][angular-best-practices-url] and server-side code. This helps to keep your code modular, scalable, and 
-  easier to understand.
-- **Gulp tasks**: This includes a wide array of gulp tasks for optimizing frontend performance and streamlining your 
-  development process.
-- **App infrastructure**: This creates a comprehensive boilerplate infrastructure for a end-to-end web application 
-  using the MEAN stack. This likely includes some extra bells and whistles that you may not want to include in your 
-  particular app. The goal of this project is to promote development through _subtractive_ synthesis. What this means 
-  is that, hopefully, this generator creates infrastructure that will handle most of the high-level problems in your 
-  web app, in addition to providing some other common features that you will likely remove.
-- **Tests**: This includes a testing infrastructure using the [Karma][karma-url] test runner and the 
-  [Jasmine][jasmine-url] test framework for testing the frontend code.
+- **Modular**: The main goal of this generator is to create a highly componentized file structure for both  [frontend][angular-best-practices-url] and server-side code. This helps to keep your code modular, scalable, and  easier to understand.
+- **Gulp tasks**: This includes a wide array of gulp tasks for optimizing frontend performance and streamlining your  development process.
+- **App infrastructure**: This creates a comprehensive boilerplate infrastructure for a end-to-end web application  using the MEAN stack. This likely includes some extra bells and whistles that you may not want to include in your  particular app. The goal of this project is to promote development through _subtractive_ synthesis. What this means  is that, hopefully, this generator creates infrastructure that will handle most of the high-level problems in your  web app, in addition to providing some other common features that you will likely remove.
+- **Tests**: This includes a testing infrastructure using the [Karma][karma-url] test runner and the  [Jasmine][jasmine-url] test framework for testing the frontend code.
 - **SASS**: This uses the [SASS][sass-url] stylesheet language.
-- **UI-Router**: This uses the [UI-Router][ui-router-url] library for more powerful frontend routing and state 
-  management in Angular.
+- **UI-Router**: This uses the [UI-Router][ui-router-url] library for more powerful frontend routing and state  management in Angular.
 
 ## Why use this generator instead of one of the many other options?
 
-Maybe you shouldn't! Check out the file structure, the gulp tasks, and the various libraries and tools that are used 
-in this project. If these are all aspects that you agree with, then please try this generator out! Otherwise, there 
-are many other great generators out there for you to use. Addy Osmani has an [excellent article][addy-osmani-url] 
-describing MEAN-stack development and a quick survey of some of the more popular generators and boilerplate options 
-for it. Each of these options have different benefits and each option uses a different set of tools.
+Maybe you shouldn't! Check out the file structure, the gulp tasks, and the various libraries and tools that are used   in this project. If these are all aspects that you agree with, then please try this generator out! Otherwise, there  are many other great generators out there for you to use. Addy Osmani has an [excellent article][addy-osmani-url]  describing MEAN-stack development and a quick survey of some of the more popular generators and boilerplate options  for it. Each of these options have different benefits and each option uses a different set of tools.
 
 ## How to use it
 
@@ -60,11 +45,9 @@ This project uses technology from a number of third-parties. These technologies 
 
 ## Background
 
-This project is an on-going effort to collect common patterns and processes for developing web apps using the MEAN 
-stack and gulp. It is constantly evolving and gaining new features.
+This project is an on-going effort to collect common patterns and processes for developing web apps using the MEAN  stack and gulp. It is constantly evolving and gaining new features.
 
-The contents of this project is strongly opinionated. This is all code that was originally developed and tested by 
-Levi for his own personal use. That being said, it works great for him, so it will probably work great for you too!
+The contents of this project is strongly opinionated. This is all code that was originally developed and tested by  Levi for his own personal use. That being said, it works great for him, so it will probably work great for you too!
 
 Feedback, bug reports, feature requests, and pull requests are very welcome!
 

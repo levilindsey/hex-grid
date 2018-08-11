@@ -513,7 +513,7 @@
       stopIndex = 0;
     }
 
-    // Add the front-end segment point
+    // Add the frontend segment point
     if (!job.hasReachedEdge) {
       job.polylinePoints[polylinePointsIndex] = {
         x: job.gapPoints[gapPointsIndex].x * job.frontSegmentEndRatio +

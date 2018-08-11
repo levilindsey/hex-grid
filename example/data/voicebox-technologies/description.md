@@ -1,8 +1,6 @@
-_[VoiceBox Technologies][main-url] is a company focused on conversational speech recognition, search, and information
-management._
+_[VoiceBox Technologies][main-url] is a company focused on conversational speech recognition, search, and information management._
 
-Levi integrated noise-suppression functionality from an ETSI standard into VBT’s pre-existing
-[Voice Activity Detection][vad-url] software and tuned it for optimal performance.
+Levi integrated noise-suppression functionality from an ETSI standard into VBT’s pre-existing [Voice Activity Detection][vad-url] software and tuned it for optimal performance.
 
 _C with C++ wrappers_
 

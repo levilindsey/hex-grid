@@ -1,11 +1,11 @@
 {
-  "id": "google-cloud-console",
-  "titleShort": "Google:\nCloud\nConsole",
-  "titleLong": "Google: Cloud Console",
+  "id": "google-cloud-platform",
+  "titleShort": "Google:\nCloud\nPlatform",
+  "titleLong": "Google: Cloud Platform",
   "urls": {
     "homepage": "https://cloud.google.com/"
   },
-  "jobTitle": "Software Engineer",
+  "jobTitle": "Senior software Engineer",
   "location": "Seattle, WA",
   "date": {
     "start": "1/2017",
@@ -17,7 +17,7 @@
     "frontend",
     "data-driven",
     "angularjs",
-    "dart",
+    "typescript",
     "angular-2"
   ],
   "images": [

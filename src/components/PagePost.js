@@ -33,7 +33,8 @@
     'linkedin': 'LinkedIn',
     'facebook': 'Facebook',
     'googlePlus': 'Google+',
-    'reverbNation': 'Reverb Nation'
+    'reverbNation': 'Reverb Nation',
+    'youtube': 'YouTube',
   };
 
   config.monthLabels = {

@@ -1,10 +1,8 @@
 #### A tile-matching puzzle game
 
-This web app gave Levi the opportunity to hone his web development skills and to learn the latest features of
-HTML5 and CSS3.
+This web app gave Levi the opportunity to hone his web development skills and to learn the latest features of HTML5 and CSS3.
 
-On the front end, Levi used pure JavaScript without external libraries like jQuery&mdash;with the notable exception of
-SoundJS for cross-browser support for layering audio. On the server side, Levi used Node.js with ExpressJS.
+On the front end, Levi used pure JavaScript without external libraries like jQuery&mdash;with the notable exception of SoundJS for cross-browser support for layering audio. On the server side, Levi used Node.js with ExpressJS.
 
 ## Gameplay
 
@@ -15,10 +13,8 @@ Core gameplay features:
 - Upcoming blocks are shown for each side with a cooldown progress indicator
 - Falling blocks can be manipulated with either the mouse or the keyboard if keyboard mode is enabled
 - Falling blocks can be slid downward, slid from side to side, rotated, and moved to the next quadrant
-- As a falling block is being manipulated, phantom lines are shown, which help to indicate where a block can be moved
-  in either the downward or lateral directions.
-- As more layers of blocks are collapsed, the player advances through levels and gameplay becomes more difficult
-  with faster falling blocks and shorter cooldown times.
+- As a falling block is being manipulated, phantom lines are shown, which help to indicate where a block can be moved in either the downward or lateral directions.
+- As more layers of blocks are collapsed, the player advances through levels and gameplay becomes more difficult with faster falling blocks and shorter cooldown times.
 - Awesome sound effects and background music.
 
 Additional optional gameplay features include:
