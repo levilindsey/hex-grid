@@ -27,8 +27,12 @@
   ],
   "images": [
     {
-      "fileName": "FIXME.png",
-      "description": "FIXME"
+      "fileName": "screenshot1.png",
+      "description": "This shows a dynamics simulation of objects colliding into each other."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "This shows a dynamics simulation of objects falling onto a flat surface as well as into each other."
     }
   ],
   "videos": [],

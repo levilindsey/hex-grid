@@ -26,8 +26,12 @@
   ],
   "images": [
     {
-      "fileName": "FIXME.png",
-      "description": "FIXME"
+      "fileName": "screenshot1.png",
+      "description": "This shows the starting screen for the space-debris game. You pilot a ship that is constantly surrounded by oncoming asteroids. You can either try to escape them or destroy them with your torpedoes."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "This shows the ship flying and shooting torpedoes."
     }
   ],
   "videos": [],
