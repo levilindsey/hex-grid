@@ -23,7 +23,7 @@ _A 3D WebGL-based game engine. Includes a 3D WebGL-based [graphics framework][gr
 
 ### Notable features
 
-- Includes [collision detection][collision-detection] with [impulse-based resolution][collision-resolution].
+- Includes continuous [collision detection][collision-detection] with [impulse-based resolution][collision-resolution].
 - [Decouples the physics simulation and animation rendering time steps][stable-time-steps], and uses a fixed timestep for the physics loop. This provides numerical stability and precise reproducibility.
 - Suppresses linear and angular momenta below a certain threshold.
 

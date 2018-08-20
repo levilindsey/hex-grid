@@ -7,6 +7,9 @@ This WebGL-based space-flight simulation video game is built on a collection of 
 
 ## Notable Features
 
+- A ton of cool features in supporting libraries&mdash;notably:
+  - [grafx][grafx]: A 3D graphics framework for WebGL.
+  - [physx][physx]: A physics engine with 3D rigid-body dynamics and collision detection (with impulse-based resolution).
 - An algorithm for calculating intercept velocity of B given the position and velocity of A and the position and speed of B.
 - Coordination between multiple [WebGL programs][webgl-program].
 - Procedurally generated asteroid shapes.
@@ -14,9 +17,6 @@ This WebGL-based space-flight simulation video game is built on a collection of 
 - A user-controllable ship flying through space and shooting asteroids!
 - Rendering lat-long spherical textures over [tessellated][tesselation] icosahera.
 - A post-processing [bloom][bloom] shader.
-- A ton of cool features in supporting libraries--notably:
-  - [grafx][grafx]: A 3D graphics framework for WebGL.
-  - [physx][physx]: A physics engine with 3D rigid-body dynamics and collision detection (with impulse-based resolution).
 
 
 [gamex]: https://github.com/levilindsey/gamex
