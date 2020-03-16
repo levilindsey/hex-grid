@@ -9387,6 +9387,7 @@ if (typeof define === 'function' && define.amd) {
     'facebook': 'Facebook',
     'googlePlus': 'Google+',
     'reverbNation': 'Reverb Nation',
+    'resume': 'Resume',
     'youtube': 'YouTube',
   };
 
