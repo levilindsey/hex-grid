@@ -3,7 +3,7 @@
   "titleShort": "Web App:\nPhoto Viewer",
   "titleLong": "Photo Viewer",
   "urls": {
-    "demo": "http://levi.dev/photo-viewer",
+    "demo": "https://levi.dev/photo-viewer",
     "github": "https://github.com/levilindsey/photo-viewer"
   },
   "jobTitle": "",

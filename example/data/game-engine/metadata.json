@@ -3,7 +3,7 @@
   "titleShort": "WebGL\nGraphics &\nPhysics\nEngine",
   "titleLong": "A WebGL Graphics Framework, Physics Engine, and Game Engine",
   "urls": {
-    "demo": "http://levi.dev/dynamics",
+    "demo": "https://levi.dev/dynamics",
     "github": "https://github.com/levilindsey/gamex"
   },
   "jobTitle": "",

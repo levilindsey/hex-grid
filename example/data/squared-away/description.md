@@ -25,4 +25,4 @@ Additional optional gameplay features include:
 - A special block type that destroys any nearby block that has landed.
 
 
-[main-url]: http://levi.dev/squared-away
+[main-url]: https://levi.dev/squared-away

@@ -92,7 +92,7 @@ MIT
 [flattr-url]: https://flattr.com/submit/auto?user_id=levisl176&url=github.com/levilindsey/hex-grid&title=hex-grid&language=javascript&tags=github&category=software
 [flattr-image]: http://api.flattr.com/button/flattr-badge-large.png
 
-[demo-url]: http://levi.dev/hex-grid
+[demo-url]: https://levi.dev/hex-grid
 [markdown-url]: http://daringfireball.net/projects/markdown/
 [aws-s3-url]: http://aws.amazon.com/s3/
 [mongolab-url]: https://mongolab.com

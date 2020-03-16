@@ -7,5 +7,5 @@ Specifically, the dots revolve in a clockwise direction while the colors of the 
 This project uses a separate custom animation package Levi developed.
 
 
-[main-url]: http://levi.dev/progress-circle
+[main-url]: https://levi.dev/progress-circle
 [codepen-url]: http://codepen.io/levisl176/pen/ndklu
