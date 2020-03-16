@@ -11284,6 +11284,9 @@ if (typeof define === 'function' && define.amd) {
 
   config.activeScreenOpacity = 0.0;
   config.inactiveScreenOpacity = 0.8;
+  config.inactiveScreenHue = 230;
+  config.inactiveScreenSaturation = 1;
+  config.inactiveScreenLightness = 4;
 
   config.fontSize = 18;
 
@@ -11331,8 +11334,9 @@ if (typeof define === 'function' && define.amd) {
 
     var patternId = 'hg-pattern-' + tilePost.tile.postData.id;
 
-    var screenColorString = 'hsl(' + window.hg.Grid.config.backgroundHue + ',' +
-      window.hg.Grid.config.backgroundSaturation + '%,' + window.hg.Grid.config.backgroundLightness + '%)';
+    var screenColorString = 'hsl(' + window.hg.TilePost.config.inactiveScreenHue + ',' +
+      window.hg.TilePost.config.inactiveScreenSaturation + '%,' +
+      window.hg.TilePost.config.inactiveScreenLightness + '%)';
 
     var outerSideLength = window.hg.Grid.config.tileOuterRadius * 2;
 
