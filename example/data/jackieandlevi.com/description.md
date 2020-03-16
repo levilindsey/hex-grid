@@ -9,7 +9,7 @@ The site hosted at this domain has gone through many iterations.
 
 [wedding-url]: http://jackieandlevi.com/wedding/invite
 [jackie-url]: http://jackieandlevi.com/jackie
-[levi-url]: http://levi.codes
+[levi-url]: http://levi.dev
 [wedding-photos-url]: http://jackieandlevi.com/wedding/photos
 [v2-url]: http://jackieandlevi.com
 [v3-url]: http://jackieandlevi.com

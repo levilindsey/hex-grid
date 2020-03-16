@@ -1,0 +1,28 @@
+{
+  "id": "surfacer",
+  "titleShort": "Surfacer",
+  "titleLong": "Surface: A procedural pathfinding 2D-platformer framework for Godot.",
+  "urls": {
+    "demo": "http://levi.dev/surfacer",
+    "github": "https://github.com/levilindsey/surfacer"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": {
+    "start": "2/2019",
+    "end": "2020"
+  },
+  "categories": [
+    "side-project",
+    "frontend",
+    "animation",
+    "app",
+    "godot",
+    "gdscript",
+    "game",
+    "library"
+  ],
+  "images": [],
+  "videos": [],
+  "content": ""
+}

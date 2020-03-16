@@ -68,6 +68,6 @@ The following three representations of the same DOM structure may help to unders
     ]
 
 
-[main-url]: http://levi.codes/text-animation
+[main-url]: http://levi.dev/text-animation
 [codepen-url]: http://codepen.io/levisl176/full/HGJdF
 [bower-url]: http://bower.io/search/?q=text-animation
