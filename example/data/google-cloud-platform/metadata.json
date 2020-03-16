@@ -18,7 +18,10 @@
     "data-driven",
     "angularjs",
     "typescript",
-    "angular-2"
+    "angular-2",
+    "google-closure-tools",
+    "rxjs",
+    "sql"
   ],
   "images": [
   ],
