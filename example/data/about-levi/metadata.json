@@ -14,7 +14,8 @@
   "location": "Seattle, WA",
   "date": {
     "start": "4/27/1988",
-    "end": "Present"
+    "end": "Present",
+    "tieBreaker": 1
   },
   "categories": [
   ],
