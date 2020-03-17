@@ -284,7 +284,8 @@
       });
 
       // Update the recurrence of any transient job
-      if (window.hg.controller.transientJobs[moduleName]) {
+      if (window.hg.controller.transientJobs[moduleName] &&
+          window.hg.controller.transientJobs[moduleName].toggleRecurrence) {
         window.hg.controller.transientJobs[moduleName].toggleRecurrence(
           parameters.grid,
           window.hg[moduleName].config.isRecurring,

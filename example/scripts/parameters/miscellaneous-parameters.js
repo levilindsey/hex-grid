@@ -54,11 +54,11 @@
     }
   ];
 
-  config.defaultPreSet = 'black-tie';
+  config.defaultPreSet = 'raven-scale';
 
   config.preSetConfigs = {};
 
-  config.preSetConfigs['black-tie'] = {
+  config.preSetConfigs['raven-scale'] = {
     Grid: {
       tileOuterRadius: 80,
       tileGap: 4,
@@ -95,6 +95,9 @@
     },
     ColorWaveJob: {
       deltaSaturation: 30,
+      wavelength: 2000,
+      period: 1500,
+      originY: 2000
     },
     DisplacementWaveJob: {
       period: 1000000,
@@ -103,13 +106,10 @@
     },
     OpenPostJob: {
       expandedDisplacementTileCount: 3,
-      duration: 300
+      fadePostDurationOffset: 300
     },
     ClosePostJob: {
       duration: 200
-    },
-    PanJob: {
-      duration: 300// FIXME:
     }
   };
   config.preSetConfigs['stormy-sea'] = {

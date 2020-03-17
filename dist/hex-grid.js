@@ -8637,8 +8637,8 @@ if (typeof define === 'function' && define.amd) {
 
     grid.svg.style.display = 'block';
     grid.svg.style.position = 'relative';
-    grid.svg.style.width = '1px';
-    grid.svg.style.height = '1px';
+    grid.svg.style.width = '100%';
+    grid.svg.style.height = '100%';
     grid.svg.style.zIndex = '1000';
     grid.svg.style.overflow = 'visible';
     grid.svg.setAttribute('data-hg-svg', 'data-hg-svg');
