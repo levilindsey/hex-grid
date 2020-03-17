@@ -7,7 +7,7 @@ gulp.task('server', config.buildTasks, function () {
     .pipe(plugins.webserver({
       host: config.host,
       port: config.port,
-      fallback: config.examplePath + '/index.html',
+      fallback: config.exampleDistPath + '/index.html',
       livereload: true,
       open: true
     }));

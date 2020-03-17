@@ -11,6 +11,10 @@ html, body, #hex-grid-area {
 #hex-grid-area {
 }
 
+#combined-metadata-dump-for-all-posts {
+  display: none;
+}
+
 /* Make the dat.GUI controller visible */
 div.dg.ac {
   z-index: 1;

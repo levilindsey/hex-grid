@@ -25,6 +25,7 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
   var metadataPromises = [];
   var metadataArray = [];
   var collectionMetadata;
+  var combinedMetadata;
 
   glob.sync(config.injectedMetadataSrc)
       .forEach(readInjectedDescription.bind(this, metadataPromises, metadataArray));
@@ -33,7 +34,9 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
 
   return Q.all(metadataPromises)
     .then(sortMetadata.bind(this, metadataArray))
-    .then(writeMergedMetadata.bind(this, metadataArray));
+    .then(combineMetadata.bind(this, metadataArray))
+    .then(writeMetadata.bind(this, metadataArray))
+    .then(injectMetadata.bind(this, metadataArray));
 
   // ---  --- //
 
@@ -101,18 +104,20 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
     }
   }
 
-  function writeMergedMetadata(metadataArray) {
-    var deferred = Q.defer();
-
+  function combineMetadata(metadataArray) {
     var combinedMetadataObject = {
       collectionMetadata: collectionMetadata,
       posts: metadataArray
     };
 
-    var combinedMetadataString = JSON.stringify(combinedMetadataObject);
+    combinedMetadata = JSON.stringify(combinedMetadataObject);
+  }
+
+  function writeMetadata(metadataArray) {
+    var deferred = Q.defer();
 
     // Write out the combined data
-    fs.writeFile(config.combinedDataFilePath, combinedMetadataString, function (err) {
+    fs.writeFile(config.combinedDataFilePath, combinedMetadata, function (err) {
       if (err) {
         deferred.reject(err);
       } else {
@@ -121,6 +126,17 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
     });
 
     return deferred.promise;
+  }
+
+  function injectMetadata(metadataArray) {
+    return gulp.src(config.examplePath + '/index.html')
+        .pipe(plugins.inject(gulp.src(config.combinedDataFilePath), {
+          starttag: '<!-- inject:combinedMetadata -->',
+          transform: function (filepath, file) {
+            return file.contents.toString();
+          }
+        }))
+        .pipe(gulp.dest(config.exampleDistPath));
   }
 });
 
