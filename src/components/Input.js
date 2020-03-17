@@ -62,6 +62,7 @@
     document.addEventListener('mousemove', handlePointerMove, false);
     document.addEventListener('mousedown', handlePointerDown, false);
     document.addEventListener('mouseup', handlePointerUp, false);
+    document.addEventListener('keydown', handleKeyDown, false);
     // TODO: add touch support
 
     function handlePointerOver(event) {
@@ -122,6 +123,15 @@
         }
 
         createClickAnimation(input.grid, tile);
+      }
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape' || event.key === 'Esc') {
+        // Close any open post
+        if (input.grid.isPostOpen) {
+          window.hg.controller.transientJobs.ClosePostJob.create(input.grid, input.grid.expandedTile);
+        }
       }
     }
 

@@ -335,6 +335,7 @@
     grid.svg.style.height = '100%';
     grid.svg.style.zIndex = '1000';
     grid.svg.style.overflow = 'visible';
+    grid.svg.style.pointerEvents = 'none';
     grid.svg.setAttribute('data-hg-svg', 'data-hg-svg');
 
     grid.svgDefs = document.createElementNS(window.hg.util.svgNamespace, 'defs');
