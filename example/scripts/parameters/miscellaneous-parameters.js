@@ -63,10 +63,10 @@
       tileOuterRadius: 80,
       tileGap: 4,
       backgroundHue: 265,
-      backgroundSaturation: 24,
-      backgroundLightness: 5,
+      backgroundSaturation: 15,
+      backgroundLightness: 3,
       tileHue: 270,
-      tileSaturation: 0,
+      tileSaturation: 10,
       tileLightness: 7
     },
     TilePost: {
@@ -77,26 +77,27 @@
     },
     LineJob: {
       lineWidth: 4,
-      startSaturation: 0,
-      startLightness: 100,
+      startSaturation: 100,
+      startLightness: 80,
       startOpacity: 0.3,
-      endSaturation: 0,
-      endLightness: 80,
+      endSaturation: 100,
+      endLightness: 60,
       endOpacity: 0,
       sameDirectionProb: 0.6
     },
     HighlightRadiateJob: {
-      deltaSaturation: 30,
+      deltaSaturation: 50,
       deltaLightness: 20,
     },
     HighlightHoverJob: {
-      // deltaSaturation: 30,
+      deltaSaturation: 10,
       deltaLightness: 20,
     },
     ColorWaveJob: {
-      deltaSaturation: 30,
+      deltaSaturation: 20,
+      deltaLightness: 14,
       wavelength: 2000,
-      period: 1500,
+      period: 2000,
       originY: 2000
     },
     DisplacementWaveJob: {
