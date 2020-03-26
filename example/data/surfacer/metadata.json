@@ -1,7 +1,7 @@
 {
   "id": "surfacer",
   "titleShort": "Surfacer",
-  "titleLong": "Surface: A procedural pathfinding 2D-platformer framework for Godot.",
+  "titleLong": "Surfacer: A procedural pathfinding 2D-platformer framework for Godot.",
   "urls": {
     "demo": "https://levi.dev/surfacer",
     "github": "https://github.com/levilindsey/surfacer"
