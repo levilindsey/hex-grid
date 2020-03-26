@@ -23,7 +23,8 @@
     "gulp.js",
     "webgl",
     "es2015",
-    "game"
+    "game",
+    "3D"
   ],
   "images": [
     {

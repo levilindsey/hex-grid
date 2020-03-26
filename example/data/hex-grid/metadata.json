@@ -23,7 +23,8 @@
     "app",
     "data-driven",
     "dat.gui",
-    "gulp.js"
+    "gulp.js",
+    "2D"
   ],
   "images": [
     {

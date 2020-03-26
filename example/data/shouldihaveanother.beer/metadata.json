@@ -18,7 +18,8 @@
     "canvas",
     "animation",
     "gulp.js",
-    "tiny"
+    "tiny",
+    "2D"
   ],
   "images": [
     {

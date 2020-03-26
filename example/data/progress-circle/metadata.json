@@ -17,7 +17,8 @@
     "frontend",
     "svg",
     "tiny",
-    "animation"
+    "animation",
+    "2D"
   ],
   "images": [
     {
