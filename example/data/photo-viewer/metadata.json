@@ -1,7 +1,7 @@
 {
   "id": "photo-viewer",
-  "titleShort": "Web App:\nPhoto Viewer",
-  "titleLong": "Photo Viewer",
+  "titleShort": "Photo viewer",
+  "titleLong": "Photo viewer",
   "urls": {
     "demo": "https://levi.dev/photo-viewer",
     "github": "https://github.com/levilindsey/photo-viewer"

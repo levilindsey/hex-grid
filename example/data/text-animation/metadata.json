@@ -1,7 +1,7 @@
 {
   "id": "text-animation",
-  "titleShort": "Bower\nPackage:\nText\nAnimation",
-  "titleLong": "Text Animation",
+  "titleShort": "Text\nanimation",
+  "titleLong": "Text animation",
   "urls": {
     "bower": "http://bower.io/search/?q=text-animation",
     "demo": "https://levi.dev/text-animation",

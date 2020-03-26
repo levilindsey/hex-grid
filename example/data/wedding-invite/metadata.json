@@ -1,7 +1,7 @@
 {
   "id": "wedding-invite",
-  "titleShort": "Web App:\nWedding\nSite",
-  "titleLong": "Wedding Invite and RSVP System",
+  "titleShort": "Wedding\nsite",
+  "titleLong": "Wedding invite and RSVP system",
   "urls": {
     "demo": "https://levi.dev/wedding/invite",
     "github": "https://github.com/levilindsey/wedding-invite"

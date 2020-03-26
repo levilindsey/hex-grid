@@ -1,7 +1,7 @@
 {
   "id": "phone-wand",
-  "titleShort": "Blind-\nAccessible\nNavigation",
-  "titleLong": "Phone Wand",
+  "titleShort": "Blind-\naccessible\nnavigation",
+  "titleLong": "Phone Wand: A blind-accessible navigation application",
   "urls": {
     "googleCode": "https://code.google.com/p/mobileaccessibility/source/browse/#svn%2Ftrunk%2FPhoneWand"
   },

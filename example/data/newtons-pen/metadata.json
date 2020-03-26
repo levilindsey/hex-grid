@@ -1,7 +1,7 @@
 {
   "id": "newtons-pen",
-  "titleShort": "Intelligent\nTutoring\nSystem:\nPen",
-  "titleLong": "Newtons Pen",
+  "titleShort": "Intelligent\ntutoring\nsystem:\nPen",
+  "titleLong": "Newtons Pen: An intelligent tutoring system",
   "urls": {
     "published": "http://escholarship.org/uc/item/40r3k5v2"
   },
@@ -9,7 +9,8 @@
   "location": "",
   "date": {
     "start": "9/2011",
-    "end": "7/2013"
+    "end": "7/2013",
+    "tieBreaker": 2
   },
   "categories": [
     "work",

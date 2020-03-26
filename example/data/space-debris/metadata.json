@@ -1,6 +1,6 @@
 {
   "id": "space-debris",
-  "titleShort": "Space\nFlight\nGame",
+  "titleShort": "Space\nflight\ngame",
   "titleLong": "Space Debris: A space-flight simulation game",
   "urls": {
     "demo": "https://levi.dev/space-debris",
@@ -10,7 +10,8 @@
   "location": "",
   "date": {
     "start": "6/2015",
-    "end": "9/2018"
+    "end": "9/2018",
+    "tieBreaker": 1
   },
   "categories": [
     "side-project",

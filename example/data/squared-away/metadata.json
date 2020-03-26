@@ -1,7 +1,7 @@
 {
   "id": "squared-away",
-  "titleShort": "Tile-Matching\nPuzzle\nGame",
-  "titleLong": "Squared Away",
+  "titleShort": "Tile-matching\npuzzle\ngame",
+  "titleLong": "Squared Away: A tile-matching puzzle game",
   "urls": {
     "demo": "https://levi.dev/squared-away",
     "github": "https://github.com/levilindsey/squared-away"

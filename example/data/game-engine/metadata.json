@@ -1,7 +1,7 @@
 {
   "id": "game-engine",
-  "titleShort": "WebGL\nGraphics &\nPhysics\nEngine",
-  "titleLong": "A WebGL Graphics Framework, Physics Engine, and Game Engine",
+  "titleShort": "WebGL\ngraphics &\nphysics\nengine",
+  "titleLong": "A WebGL graphics framework, physics engine, and game engine",
   "urls": {
     "demo": "https://levi.dev/dynamics",
     "github": "https://github.com/levilindsey/gamex"
