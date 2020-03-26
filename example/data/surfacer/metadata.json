@@ -22,7 +22,12 @@
     "game",
     "library"
   ],
-  "images": [],
+  "images": [
+    {
+      "fileName": "squirrel-running.gif",
+      "description": "A squirrel running animation that Levi created. This is the loading progress indicator."
+    }
+  ],
   "videos": [],
   "content": ""
 }
