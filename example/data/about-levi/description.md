@@ -2,7 +2,7 @@
 
 Levi currently works at [Google][google-url] on their [Cloud Platform][gcp-url] as a Senior Frontend Software Engineer. He's also constantly tinkering on some coding side project&mdash;most of which are highlighted in this portfolio.
 
-Levi is originally from from Olympia, WA. He now lives in Seattle, WA with his daughter and wife Jackie. Jackie is [a beautiful marine ecologist][jackie-url] whom he met at the University of Washington.
+Levi is originally from from Olympia, WA. He now lives in Seattle, WA with his wife Jackie and their daughter. Jackie is [a beautiful marine ecologist][jackie-url] whom he met at the University of Washington.
 
 Outside the realm of computer science, Levi has many hobbies/interests. First and foremost, he is a musician. Levi is a classically trained singer and has led in many operas and musicals; some of his more notable performances include: [Dido and Aeneas][dido-and-aeneas-url] (Aeneas), [Savitri][savitri-url] (Satyavan), and [My Fair Lady][my-fair-lady-url] (Henry Higgins). Nowadays, Levi sings with a capella groups and [plays a lot of ukulele][down-today-url]. Check out some of his [recordings on YouTube][youtube-url]!
 
@@ -12,13 +12,13 @@ Levi was also an Eagle Scout, and spent his highschool summers as a camp counsel
 
 ## The Cover-Letter Schpiel
 
-With a background as a lead applications engineer across a wide array of platforms, Levi currently specializes in frontend engineering.
+Levi is a seasoned technical leader with experience guiding projects through all stages of development and across a wide array of platforms.
 
-Levi is a seasoned technical leader with experience guiding projects through all stages of development. He develops with an emphasis on modular, maintainable, and self-documented code. He takes pride in his work and strives to design all of his projects to be intuitive and "easy on the eyes"&mdash;both from an outward-facing user perspective and from an internal code-level perspective. He has a passion for design patterns and best practices.
-
-Levi constantly pushes the envelope with new and exciting ideas for web applications and for novel interactive experiences. He thrives on learning new technologies and methodologies with each new project he undertakes.
-
-Levi is a huge advocate of open-source technology. You can fork all of his side-projects at [github.com/levilindsey][github-url]!
+-   He invents novel interactive experiences.
+-   He develops with an emphasis on maintainable and self-documented code.
+-   He designs maintainable solutions to high-level problems, in ambiguous problem spaces, with complicated dependencies.
+-   He leads teams, designs technical roadmaps, and coordinates timelines and dependencies.
+-   He advocates open-source technology. You can fork all of his many side-projects at [github.com/levilindsey](https://github.com/levilindsey)! 
 
 
 [github-url]: https://github.com/levilindsey

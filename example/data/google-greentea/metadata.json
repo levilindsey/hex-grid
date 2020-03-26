@@ -21,6 +21,10 @@
     "angular-2"
   ],
   "images": [
+    {
+      "fileName": "greentea-public-flutter-demo-screenshot.png",
+      "description": "This is a public demo screenshot of the Flutter (mobile) version of the Greentea app."
+    }
   ],
   "videos": [
   ],

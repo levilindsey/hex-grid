@@ -24,6 +24,14 @@
     "sql"
   ],
   "images": [
+    {
+      "fileName": "cloud-console-console-nav-panel.png",
+      "description": "This screenshot shows the console homepage and main navigation panel. As you can see, there is a lot of content in this app! Making navigation and discoverability work well are constant struggles with any app this large."
+    },
+    {
+      "fileName": "cloud-console-panels.png",
+      "description": "This screenshot shows some of the other top-level panels in the app. Essentially every panel and every page are maintained by a different team within Google's massive Cloud organization, and getting them all to work together seamlessly is non-trivial!"
+    }
   ],
   "videos": [
   ],
