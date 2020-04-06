@@ -69,6 +69,7 @@
 
     var debouncedResize = window.hg.util.debounce(resize, 300);
     window.addEventListener('resize', debouncedResize, false);
+    debouncedResize();
   }
 
   function resize() {

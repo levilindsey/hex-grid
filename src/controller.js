@@ -682,7 +682,7 @@
   }
 
   function handleSmallScreen() {
-    if (document.documentElement.clientWidth < 800) {
+    if (document.documentElement.clientWidth < 1250) {
       console.info('Is a small-screen browser');
       controller.isSmallScreen = true;
     } else {

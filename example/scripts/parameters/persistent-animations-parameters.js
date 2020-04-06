@@ -52,7 +52,76 @@
   }
 
   function createColorShiftItems(folder) {
-    // TODO:
+    folder.add(window.hg.ColorShiftJob.config, 'transitionDurationMin', 1, 10000)
+        .onChange(function (value) {
+          window.hg.ColorShiftJob.config.transitionDurationMax = Math.max(
+              window.hg.ColorShiftJob.config.transitionDurationMin,
+              window.hg.ColorShiftJob.config.transitionDurationMax
+          );
+        });
+    folder.add(window.hg.ColorShiftJob.config, 'transitionDurationMax', 1, 10000)
+        .onChange(function (value) {
+          window.hg.ColorShiftJob.config.transitionDurationMin = Math.min(
+              window.hg.ColorShiftJob.config.transitionDurationMin,
+              window.hg.ColorShiftJob.config.transitionDurationMax
+          );
+        });
+    folder.add(window.hg.ColorShiftJob.config, 'hueDeltaMin', -360, 360)
+        .onChange(function (value) {
+          window.hg.ColorShiftJob.config.hueDeltaMax = Math.max(
+              window.hg.ColorShiftJob.config.hueDeltaMin,
+              window.hg.ColorShiftJob.config.hueDeltaMax
+          );
+        });
+    folder.add(window.hg.ColorShiftJob.config, 'hueDeltaMax', -360, 360)
+        .onChange(function (value) {
+          window.hg.ColorShiftJob.config.hueDeltaMin = Math.min(
+              window.hg.ColorShiftJob.config.hueDeltaMin,
+              window.hg.ColorShiftJob.config.hueDeltaMax
+          );
+        });
+    folder.add(window.hg.ColorShiftJob.config, 'saturationDeltaMin', -100, 100)
+        .onChange(function (value) {
+          window.hg.ColorShiftJob.config.saturationDeltaMax = Math.max(
+              window.hg.ColorShiftJob.config.saturationDeltaMin,
+              window.hg.ColorShiftJob.config.saturationDeltaMax
+          );
+        });
+    folder.add(window.hg.ColorShiftJob.config, 'saturationDeltaMax', -100, 100)
+        .onChange(function (value) {
+          window.hg.ColorShiftJob.config.saturationDeltaMin = Math.min(
+              window.hg.ColorShiftJob.config.saturationDeltaMin,
+              window.hg.ColorShiftJob.config.saturationDeltaMax
+          );
+        });
+    folder.add(window.hg.ColorShiftJob.config, 'lightnessDeltaMin', -100, 100)
+        .onChange(function (value) {
+          window.hg.ColorShiftJob.config.lightnessDeltaMax = Math.max(
+              window.hg.ColorShiftJob.config.lightnessDeltaMin,
+              window.hg.ColorShiftJob.config.lightnessDeltaMax
+          );
+        });
+    folder.add(window.hg.ColorShiftJob.config, 'lightnessDeltaMax', -100, 100)
+        .onChange(function (value) {
+          window.hg.ColorShiftJob.config.lightnessDeltaMin = Math.min(
+              window.hg.ColorShiftJob.config.lightnessDeltaMin,
+              window.hg.ColorShiftJob.config.lightnessDeltaMax
+          );
+        });
+    folder.add(window.hg.ColorShiftJob.config, 'imageBackgroundScreenOpacityDeltaMin', -1.0, 1.0)
+        .onChange(function (value) {
+          window.hg.ColorShiftJob.config.imageBackgroundScreenOpacityDeltaMax = Math.max(
+              window.hg.ColorShiftJob.config.imageBackgroundScreenOpacityDeltaMin,
+              window.hg.ColorShiftJob.config.imageBackgroundScreenOpacityDeltaMax
+          );
+        });
+    folder.add(window.hg.ColorShiftJob.config, 'imageBackgroundScreenOpacityDeltaMax', -1.0, 1.0)
+        .onChange(function (value) {
+          window.hg.ColorShiftJob.config.imageBackgroundScreenOpacityDeltaMin = Math.min(
+              window.hg.ColorShiftJob.config.imageBackgroundScreenOpacityDeltaMin,
+              window.hg.ColorShiftJob.config.imageBackgroundScreenOpacityDeltaMax
+          );
+        });
   }
 
   function createColorWaveItems(folder) {

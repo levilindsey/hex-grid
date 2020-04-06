@@ -65,7 +65,7 @@
       backgroundHue: 265,
       backgroundSaturation: 15,
       backgroundLightness: 3,
-      tileHue: 270,
+      tileHue: 260,
       tileSaturation: 10,
       tileLightness: 7
     },
@@ -96,8 +96,8 @@
     ColorWaveJob: {
       deltaSaturation: 20,
       deltaLightness: 14,
-      wavelength: 2000,
-      period: 2000,
+      wavelength: 4000,
+      period: 4500,
       originY: 2000
     },
     DisplacementWaveJob: {
@@ -186,7 +186,18 @@
       tileLightness: 50
     },
     LineJob: {
-      isRecurring: true
+      isRecurring: true,
+      lineWidth: 100,
+      duration: 3000,
+      startSaturation: 100,
+      startLightness: 60,
+      startOpacity: 0.7,
+      endSaturation: 100,
+      endLightness: 60,
+      endOpacity: 0,
+      sameDirectionProb: 0.25,
+      avgDelay: 20,
+      delayDeviationRange: 10
     },
     Input: {
       contentTileClickAnimation: 'None',
@@ -198,6 +209,10 @@
       tileDeltaY: -120,
       originX: 2000,
       originY: 1800
+    },
+    ColorShiftJob: {
+      hueDeltaMin: -180,
+      hueDeltaMax: 180,
     }
   };
   config.preSetConfigs['wire-frame'] = {
