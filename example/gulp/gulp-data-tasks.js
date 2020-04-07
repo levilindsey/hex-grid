@@ -166,16 +166,16 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
     var dateString = year + '-' + month + '-' + day;
 
     var rootUrlString =
-        '<url>' +
-          '<loc>' + config.urlOrigin + '/' + '</loc>' +
-          '<lastmod>' + dateString + '</lastmod>' +
-        '</url>';
+        '    <url>\n' +
+        '        <loc>' + config.urlOrigin + '/' + '</loc>\n' +
+        '        <lastmod>' + dateString + '</lastmod>\n' +
+        '    </url>\n';
 
     var sitemapString = metadataArray.map(function (postData) {
-      return '<url>' +
-               '<loc>' + config.urlOrigin + '/#' + postData.id + '</loc>' +
-               '<lastmod>' + dateString + '</lastmod>' +
-             '</url>';
+      return '\n    <url>\n' +
+             '        <loc>' + config.urlOrigin + '/#' + postData.id + '</loc>\n' +
+             '        <lastmod>' + dateString + '</lastmod>\n' +
+             '    </url>\n';
     }).reduce(function (result, postString) {
       return result + postString;
     }, rootUrlString);
