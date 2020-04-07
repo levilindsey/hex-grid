@@ -243,6 +243,10 @@
     job.onComplete = onComplete;
     job.init = init;
 
+    // Update the location hash to reference the current post.
+    var hash = job.baseTile.postData ? '#' + job.baseTile.postData.id : '';
+    history.pushState({}, document.title, hash);
+
     console.log('OpenPostJob created: tileIndex=' + job.baseTile.originalIndex);
   }
 

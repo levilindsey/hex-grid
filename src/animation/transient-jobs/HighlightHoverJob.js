@@ -13,7 +13,7 @@
 
   var config = {};
 
-  config.duration = 500;
+  config.duration = 200;
 
   config.deltaHue = 0;
   config.deltaSaturation = 0;
