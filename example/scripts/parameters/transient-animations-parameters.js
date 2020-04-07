@@ -91,7 +91,7 @@
       'triggerOpenPost': window.hg.controller.transientJobs.OpenPostJob.createRandom.bind(
           window.hg.controller, transientParams.grid),
       'triggerClosePost': window.hg.controller.transientJobs.ClosePostJob.createRandom.bind(
-              window.hg.controller, transientParams.grid),
+              window.hg.controller, transientParams.grid, false),
       'triggerTogglePost': function () {
         if (transientParams.grid.isPostOpen) {
           data.triggerClosePost();

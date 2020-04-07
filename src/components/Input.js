@@ -35,6 +35,10 @@
 
     input.grid = grid;
 
+    // Exposing this function so that we can automatically open the post corresponding to the URL.
+    // How this is accessed should be refactored.
+    input.createClickAnimation = createClickAnimation;
+
     addPointerEventListeners.call(input);
   }
 
@@ -130,7 +134,8 @@
       if (event.key === 'Escape' || event.key === 'Esc') {
         // Close any open post
         if (input.grid.isPostOpen) {
-          window.hg.controller.transientJobs.ClosePostJob.create(input.grid, input.grid.expandedTile);
+          window.hg.controller.transientJobs.ClosePostJob.create(
+              input.grid, input.grid.expandedTile, false);
         }
       }
     }
@@ -158,7 +163,7 @@
 
       // Close any open post
       if (grid.isPostOpen) {
-        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
+        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile, true);
       }
 
       // Open the post for the given tile
@@ -169,7 +174,7 @@
 
       // Close any open post
       if (grid.isPostOpen) {
-        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
+        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile, false);
       }
     }
   }

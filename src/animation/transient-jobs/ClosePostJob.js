@@ -178,8 +178,9 @@
    * @param {Grid} grid
    * @param {Tile} tile
    * @param {Function} onComplete
+   * @param {Boolean} isPairedWithAnotherOpen
    */
-  function ClosePostJob(grid, tile, onComplete) {
+  function ClosePostJob(grid, tile, onComplete, isPairedWithAnotherOpen) {
     var job = this;
 
     job.grid = grid;
@@ -194,6 +195,11 @@
     job.cancel = cancel;
     job.onComplete = onComplete;
     job.init = init;
+
+    if (!isPairedWithAnotherOpen) {
+      // If there isn't another OpenPostJob that will assign the hash, then clear it here.
+      history.pushState({}, document.title, '/');
+    }
 
     console.log('ClosePostJob created: tileIndex=' + job.baseTile.originalIndex);
   }

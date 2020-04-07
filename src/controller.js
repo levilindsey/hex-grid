@@ -470,12 +470,14 @@
 
   /**
    * @param {Grid} grid
+   * @param {Boolean} isPairedWithAnotherOpen
    * @returns {?Window.hg.ClosePostJob}
    */
-  function closePost(grid) {
+  function closePost(grid, isPairedWithAnotherOpen) {
     // If a post is open, close it; otherwise, do nothing
     if (grid.isPostOpen) {
-      return controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
+      return controller.transientJobs.ClosePostJob.create(
+          grid, grid.expandedTile, isPairedWithAnotherOpen);
     } else {
       return null;
     }
@@ -565,20 +567,22 @@
     handleSafariBrowser(grid);
     handleIosBrowser();
     handleSmallScreen();
+  }
 
-    // ---  --- //
+  /**
+   * @param {Grid} grid
+   * @param {String} postId
+   */
+  function getTileFromPostId(grid, postId) {
+    var i, count;
 
-    function getTileFromPostId(grid, postId) {
-      var i, count;
-
-      for (i = 0, count = grid.originalTiles.length; i < count; i += 1) {
-        if (grid.originalTiles[i].holdsContent && grid.originalTiles[i].postData.id === postId) {
-          return grid.originalTiles[i];
-        }
+    for (i = 0, count = grid.originalTiles.length; i < count; i += 1) {
+      if (grid.originalTiles[i].holdsContent && grid.originalTiles[i].postData.id === postId) {
+        return grid.originalTiles[i];
       }
-
-      return null;
     }
+
+    return null;
   }
 
   /**
@@ -617,6 +621,8 @@
     internal.postData[grid.index] = postData;
 
     setGridFilteredPostData(grid, postData);
+
+    openPostForHash(grid);
   }
 
   /**
@@ -656,6 +662,18 @@
     grid.computeContentIndices();
 
     resetGrid(grid);
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function openPostForHash(grid) {
+    if (location.hash.length > 1) {
+      var tile = getTileFromPostId(grid, location.hash.substr(1));
+      if (tile) {
+        internal.inputs[0].createClickAnimation(grid, tile);
+      }
+    }
   }
 
   /**

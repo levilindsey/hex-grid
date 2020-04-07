@@ -5058,12 +5058,14 @@ if (typeof define === 'function' && define.amd) {
 
   /**
    * @param {Grid} grid
+   * @param {Boolean} isPairedWithAnotherOpen
    * @returns {?Window.hg.ClosePostJob}
    */
-  function closePost(grid) {
+  function closePost(grid, isPairedWithAnotherOpen) {
     // If a post is open, close it; otherwise, do nothing
     if (grid.isPostOpen) {
-      return controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
+      return controller.transientJobs.ClosePostJob.create(
+          grid, grid.expandedTile, isPairedWithAnotherOpen);
     } else {
       return null;
     }
@@ -5153,20 +5155,22 @@ if (typeof define === 'function' && define.amd) {
     handleSafariBrowser(grid);
     handleIosBrowser();
     handleSmallScreen();
+  }
 
-    // ---  --- //
+  /**
+   * @param {Grid} grid
+   * @param {String} postId
+   */
+  function getTileFromPostId(grid, postId) {
+    var i, count;
 
-    function getTileFromPostId(grid, postId) {
-      var i, count;
-
-      for (i = 0, count = grid.originalTiles.length; i < count; i += 1) {
-        if (grid.originalTiles[i].holdsContent && grid.originalTiles[i].postData.id === postId) {
-          return grid.originalTiles[i];
-        }
+    for (i = 0, count = grid.originalTiles.length; i < count; i += 1) {
+      if (grid.originalTiles[i].holdsContent && grid.originalTiles[i].postData.id === postId) {
+        return grid.originalTiles[i];
       }
-
-      return null;
     }
+
+    return null;
   }
 
   /**
@@ -5205,6 +5209,8 @@ if (typeof define === 'function' && define.amd) {
     internal.postData[grid.index] = postData;
 
     setGridFilteredPostData(grid, postData);
+
+    openPostForHash(grid);
   }
 
   /**
@@ -5244,6 +5250,18 @@ if (typeof define === 'function' && define.amd) {
     grid.computeContentIndices();
 
     resetGrid(grid);
+  }
+
+  /**
+   * @param {Grid} grid
+   */
+  function openPostForHash(grid) {
+    if (location.hash.length > 1) {
+      var tile = getTileFromPostId(grid, location.hash.substr(1));
+      if (tile) {
+        internal.inputs[0].createClickAnimation(grid, tile);
+      }
+    }
   }
 
   /**
@@ -6142,6 +6160,210 @@ if (typeof define === 'function' && define.amd) {
   window.hg.util = util;
 
   console.log('util module loaded');
+})();
+
+/**
+ * This module defines a singleton for animating things.
+ *
+ * The animator singleton handles the animation loop for the application and updates all
+ * registered AnimationJobs during each animation frame.
+ *
+ * @module animator
+ */
+(function () {
+  /**
+   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, init: Function, isComplete: Boolean}} AnimationJob
+   */
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var animator = {};
+  var config = {};
+
+  config.deltaTimeUpperThreshold = 160;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  animator.jobs = [];
+  animator.previousTime = window.performance && window.performance.now() || 0;
+  animator.isLooping = false;
+  animator.isPaused = true;
+  animator.startJob = startJob;
+  animator.cancelJob = cancelJob;
+  animator.cancelAll = cancelAll;
+
+  animator.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.animator = animator;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * This is the animation loop that drives all of the animation.
+   *
+   * @param {Number} currentTime
+   */
+  function animationLoop(currentTime) {
+    var deltaTime = currentTime - animator.previousTime;
+    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
+        config.deltaTimeUpperThreshold : deltaTime;
+    animator.isLooping = true;
+
+    if (!animator.isPaused) {
+      updateJobs(currentTime, deltaTime);
+      drawJobs();
+      window.hg.util.requestAnimationFrame(animationLoop);
+    } else {
+      animator.isLooping = false;
+    }
+
+    animator.previousTime = currentTime;
+  }
+
+  /**
+   * Updates all of the active AnimationJobs.
+   *
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateJobs(currentTime, deltaTime) {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].update(currentTime, deltaTime);
+
+      // Remove jobs from the list after they are complete
+      if (animator.jobs[i].isComplete) {
+        removeJob(animator.jobs[i], i);
+        i--;
+        count--;
+      }
+    }
+  }
+
+  /**
+   * Removes the given job from the collection of active, animating jobs.
+   *
+   * @param {AnimationJob} job
+   * @param {Number} [index]
+   */
+  function removeJob(job, index) {
+    var count;
+
+    if (typeof index === 'number') {
+      animator.jobs.splice(index, 1);
+    } else {
+      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
+        if (animator.jobs[index] === job) {
+          animator.jobs.splice(index, 1);
+          break;
+        }
+      }
+    }
+
+    // Stop the animation loop when there are no more jobs to animate
+    if (animator.jobs.length === 0) {
+      animator.isPaused = true;
+    }
+  }
+
+  /**
+   * Draws all of the active AnimationJobs.
+   */
+  function drawJobs() {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].draw();
+    }
+  }
+
+  /**
+   * Starts the animation loop if it is not already running
+   */
+  function startAnimationLoop() {
+    animator.isPaused = false;
+
+    if (!animator.isLooping) {
+      animator.isLooping = true;
+      window.hg.util.requestAnimationFrame(firstAnimationLoop);
+    }
+
+    // ---  --- //
+
+    /**
+     * The time value provided by requestAnimationFrame appears to be the number of milliseconds since the page loaded.
+     * However, the rest of the application logic expects time values relative to the Unix epoch. This bootstrapping
+     * function helps in translating from the one time frame to the other.
+     *
+     * @param {Number} currentTime
+     */
+    function firstAnimationLoop(currentTime) {
+      animator.previousTime = currentTime;
+
+      window.hg.util.requestAnimationFrame(animationLoop);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+   * Starts the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function startJob(job) {
+    // Is this a restart?
+    if (!job.isComplete) {
+      console.log('Job restarting: ' + job.constructor.name);
+
+      if (job.refresh) {
+        job.refresh();
+      } else {
+        job.cancel();
+
+        job.init();// TODO: get rid of this init function
+        job.start(animator.previousTime);
+      }
+    } else {
+      console.log('Job starting: ' + job.constructor.name);
+
+      job.init();// TODO: get rid of this init function
+      job.start(animator.previousTime);
+      animator.jobs.push(job);
+    }
+
+    startAnimationLoop();
+  }
+
+  /**
+   * Cancels the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function cancelJob(job) {
+    console.log('Job cancelling: ' + job.constructor.name);
+
+    job.cancel();
+    removeJob(job);
+  }
+
+  /**
+   * Cancels all running AnimationJobs.
+   */
+  function cancelAll() {
+    while (animator.jobs.length) {
+      cancelJob(animator.jobs[0]);
+    }
+  }
+
+  console.log('animator module loaded');
 })();
 
 /**
@@ -9010,6 +9232,10 @@ if (typeof define === 'function' && define.amd) {
 
     input.grid = grid;
 
+    // Exposing this function so that we can automatically open the post corresponding to the URL.
+    // How this is accessed should be refactored.
+    input.createClickAnimation = createClickAnimation;
+
     addPointerEventListeners.call(input);
   }
 
@@ -9105,7 +9331,8 @@ if (typeof define === 'function' && define.amd) {
       if (event.key === 'Escape' || event.key === 'Esc') {
         // Close any open post
         if (input.grid.isPostOpen) {
-          window.hg.controller.transientJobs.ClosePostJob.create(input.grid, input.grid.expandedTile);
+          window.hg.controller.transientJobs.ClosePostJob.create(
+              input.grid, input.grid.expandedTile, false);
         }
       }
     }
@@ -9133,7 +9360,7 @@ if (typeof define === 'function' && define.amd) {
 
       // Close any open post
       if (grid.isPostOpen) {
-        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
+        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile, true);
       }
 
       // Open the post for the given tile
@@ -9144,7 +9371,7 @@ if (typeof define === 'function' && define.amd) {
 
       // Close any open post
       if (grid.isPostOpen) {
-        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile);
+        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile, false);
       }
     }
   }
@@ -11272,210 +11499,6 @@ if (typeof define === 'function' && define.amd) {
 })();
 
 /**
- * This module defines a singleton for animating things.
- *
- * The animator singleton handles the animation loop for the application and updates all
- * registered AnimationJobs during each animation frame.
- *
- * @module animator
- */
-(function () {
-  /**
-   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, init: Function, isComplete: Boolean}} AnimationJob
-   */
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var animator = {};
-  var config = {};
-
-  config.deltaTimeUpperThreshold = 160;
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this singleton
-
-  animator.jobs = [];
-  animator.previousTime = window.performance && window.performance.now() || 0;
-  animator.isLooping = false;
-  animator.isPaused = true;
-  animator.startJob = startJob;
-  animator.cancelJob = cancelJob;
-  animator.cancelAll = cancelAll;
-
-  animator.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.animator = animator;
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * This is the animation loop that drives all of the animation.
-   *
-   * @param {Number} currentTime
-   */
-  function animationLoop(currentTime) {
-    var deltaTime = currentTime - animator.previousTime;
-    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
-        config.deltaTimeUpperThreshold : deltaTime;
-    animator.isLooping = true;
-
-    if (!animator.isPaused) {
-      updateJobs(currentTime, deltaTime);
-      drawJobs();
-      window.hg.util.requestAnimationFrame(animationLoop);
-    } else {
-      animator.isLooping = false;
-    }
-
-    animator.previousTime = currentTime;
-  }
-
-  /**
-   * Updates all of the active AnimationJobs.
-   *
-   * @param {Number} currentTime
-   * @param {Number} deltaTime
-   */
-  function updateJobs(currentTime, deltaTime) {
-    var i, count;
-
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].update(currentTime, deltaTime);
-
-      // Remove jobs from the list after they are complete
-      if (animator.jobs[i].isComplete) {
-        removeJob(animator.jobs[i], i);
-        i--;
-        count--;
-      }
-    }
-  }
-
-  /**
-   * Removes the given job from the collection of active, animating jobs.
-   *
-   * @param {AnimationJob} job
-   * @param {Number} [index]
-   */
-  function removeJob(job, index) {
-    var count;
-
-    if (typeof index === 'number') {
-      animator.jobs.splice(index, 1);
-    } else {
-      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
-        if (animator.jobs[index] === job) {
-          animator.jobs.splice(index, 1);
-          break;
-        }
-      }
-    }
-
-    // Stop the animation loop when there are no more jobs to animate
-    if (animator.jobs.length === 0) {
-      animator.isPaused = true;
-    }
-  }
-
-  /**
-   * Draws all of the active AnimationJobs.
-   */
-  function drawJobs() {
-    var i, count;
-
-    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
-      animator.jobs[i].draw();
-    }
-  }
-
-  /**
-   * Starts the animation loop if it is not already running
-   */
-  function startAnimationLoop() {
-    animator.isPaused = false;
-
-    if (!animator.isLooping) {
-      animator.isLooping = true;
-      window.hg.util.requestAnimationFrame(firstAnimationLoop);
-    }
-
-    // ---  --- //
-
-    /**
-     * The time value provided by requestAnimationFrame appears to be the number of milliseconds since the page loaded.
-     * However, the rest of the application logic expects time values relative to the Unix epoch. This bootstrapping
-     * function helps in translating from the one time frame to the other.
-     *
-     * @param {Number} currentTime
-     */
-    function firstAnimationLoop(currentTime) {
-      animator.previousTime = currentTime;
-
-      window.hg.util.requestAnimationFrame(animationLoop);
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public static functions
-
-  /**
-   * Starts the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function startJob(job) {
-    // Is this a restart?
-    if (!job.isComplete) {
-      console.log('Job restarting: ' + job.constructor.name);
-
-      if (job.refresh) {
-        job.refresh();
-      } else {
-        job.cancel();
-
-        job.init();// TODO: get rid of this init function
-        job.start(animator.previousTime);
-      }
-    } else {
-      console.log('Job starting: ' + job.constructor.name);
-
-      job.init();// TODO: get rid of this init function
-      job.start(animator.previousTime);
-      animator.jobs.push(job);
-    }
-
-    startAnimationLoop();
-  }
-
-  /**
-   * Cancels the given AnimationJob.
-   *
-   * @param {AnimationJob} job
-   */
-  function cancelJob(job) {
-    console.log('Job cancelling: ' + job.constructor.name);
-
-    job.cancel();
-    removeJob(job);
-  }
-
-  /**
-   * Cancels all running AnimationJobs.
-   */
-  function cancelAll() {
-    while (animator.jobs.length) {
-      cancelJob(animator.jobs[0]);
-    }
-  }
-
-  console.log('animator module loaded');
-})();
-
-/**
  * @typedef {AnimationJob} ColorResetJob
  */
 
@@ -12912,8 +12935,9 @@ if (typeof define === 'function' && define.amd) {
    * @param {Grid} grid
    * @param {Tile} tile
    * @param {Function} onComplete
+   * @param {Boolean} isPairedWithAnotherOpen
    */
-  function ClosePostJob(grid, tile, onComplete) {
+  function ClosePostJob(grid, tile, onComplete, isPairedWithAnotherOpen) {
     var job = this;
 
     job.grid = grid;
@@ -12928,6 +12952,11 @@ if (typeof define === 'function' && define.amd) {
     job.cancel = cancel;
     job.onComplete = onComplete;
     job.init = init;
+
+    if (!isPairedWithAnotherOpen) {
+      // If there isn't another OpenPostJob that will assign the hash, then clear it here.
+      history.pushState({}, document.title, '/');
+    }
 
     console.log('ClosePostJob created: tileIndex=' + job.baseTile.originalIndex);
   }
@@ -13662,7 +13691,7 @@ if (typeof define === 'function' && define.amd) {
 
   var config = {};
 
-  config.duration = 500;
+  config.duration = 200;
 
   config.deltaHue = 0;
   config.deltaSaturation = 0;
@@ -16009,6 +16038,10 @@ if (typeof define === 'function' && define.amd) {
     job.cancel = cancel;
     job.onComplete = onComplete;
     job.init = init;
+
+    // Update the location hash to reference the current post.
+    var hash = job.baseTile.postData ? '#' + job.baseTile.postData.id : '';
+    history.pushState({}, document.title, hash);
 
     console.log('OpenPostJob created: tileIndex=' + job.baseTile.originalIndex);
   }
