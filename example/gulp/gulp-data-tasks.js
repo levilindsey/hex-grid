@@ -10,6 +10,8 @@ config.injectedMetadataDist = config.exampleDistPath + '/data';
 config.injectedMetadataSrc = config.injectedMetadataDist + '/**/*';
 config.combinedDataFilePath = config.exampleDistPath + '/data.min.json';
 
+config.urlOrigin = 'https://levi.dev';
+
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
 var merge = require('merge-stream');
@@ -36,7 +38,8 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
     .then(sortMetadata.bind(this, metadataArray))
     .then(combineMetadata.bind(this, metadataArray))
     .then(writeMetadata.bind(this, metadataArray))
-    .then(injectMetadata.bind(this, metadataArray));
+    .then(injectIndexHtml.bind(this, metadataArray))
+    .then(injectSitemap.bind(this, metadataArray));
 
   // ---  --- //
 
@@ -138,7 +141,7 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
     return deferred.promise;
   }
 
-  function injectMetadata(metadataArray) {
+  function injectIndexHtml(metadataArray) {
     return gulp.src(config.examplePath + '/index.html')
         .pipe(plugins.inject(gulp.src(config.combinedDataFilePath), {
           starttag: '<!-- inject:combinedMetadata -->',
@@ -146,6 +149,39 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
             return file.contents.toString();
           }
         }))
+        .pipe(gulp.dest(config.exampleDistPath));
+  }
+
+  function injectSitemap(metadataArray) {
+    var date = new Date();
+    var format = new Intl.DateTimeFormat('en', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    var parts = format.formatToParts(date);
+    var year = parts[4].value;
+    var month = parts[0].value;
+    var day = parts[2].value;
+    var dateString = year + '-' + month + '-' + day;
+
+    var rootUrlString =
+        '<url>' +
+          '<loc>' + config.urlOrigin + '/' + '</loc>' +
+          '<lastmod>' + dateString + '</lastmod>' +
+        '</url>';
+
+    var sitemapString = metadataArray.map(function (postData) {
+      return '<url>' +
+               '<loc>' + config.urlOrigin + '/#' + postData.id + '</loc>' +
+               '<lastmod>' + dateString + '</lastmod>' +
+             '</url>';
+    }).reduce(function (result, postString) {
+      return result + postString;
+    }, rootUrlString);
+
+    return gulp.src(config.examplePath + '/sitemap.xml')
+        .pipe(plugins.injectString.replace('<!-- inject:sitemapData -->', sitemapString))
         .pipe(gulp.dest(config.exampleDistPath));
   }
 });
