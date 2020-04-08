@@ -146,6 +146,9 @@
       if (event.target.getAttribute('data-hg-tile')) {
         tileIndex = event.target.getAttribute('data-hg-index');
         return input.grid.allTiles[tileIndex];
+      } else if (event.target.parentElement.getAttribute('data-hg-tile')) {
+        tileIndex = event.target.parentElement.getAttribute('data-hg-index');
+        return input.grid.allTiles[tileIndex];
       } else {
         return null;
       }
