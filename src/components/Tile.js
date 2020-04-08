@@ -81,6 +81,7 @@
     tile.svg = svg;
     tile.grid = grid;
     tile.element = null;
+    tile.polygonElement = null;
     tile.currentAnchor = {x: anchorX, y: anchorY};
     tile.originalAnchor = {x: anchorX, y: anchorY};
     tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
@@ -157,19 +158,60 @@
    * @this Tile
    */
   function createElement() {
-    var tile, id;
-
-    tile = this;
-
-    id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
+    var tile = this;
 
     tile.originalVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
     tile.currentVertexDeltas = tile.originalVertexDeltas.slice(0);
     tile.vertices = [];
     updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
 
+    createElementForNoTilePost.call(tile);
+  }
+
+  /**
+   * @this Tile
+   */
+  function createElementForTilePost() {
+    var tile, id;
+
+    tile = this;
+
+    id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
+
+    if (tile.element) {
+      tile.svg.removeChild(tile.element);
+    }
+    tile.element = document.createElementNS(window.hg.util.svgNamespace, 'a');
+    tile.svg.appendChild(tile.element);
+    tile.polygonElement = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
+    tile.element.appendChild(tile.polygonElement);
+
+    tile.element.id = 'hg-' + id;
+    tile.element.setAttribute('data-hg-tile', 'data-hg-tile');
+    tile.element.style.cursor = 'pointer';
+    tile.element.style.pointerEvents = 'auto';
+    tile.element.setAttribute('href', '#' + tile.postData.id);
+
+    // Set the vertices
+    draw.call(tile);
+  }
+
+  /**
+   * @this Tile
+   */
+  function createElementForNoTilePost() {
+    var tile, id;
+
+    tile = this;
+
+    id = !isNaN(tile.originalIndex) ? tile.originalIndex : parseInt(Math.random() * 1000000 + 1000);
+
+    if (tile.element) {
+      tile.svg.removeChild(tile.element);
+    }
     tile.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
+    tile.polygonElement = tile.element;
 
     tile.element.id = 'hg-' + id;
     tile.element.setAttribute('data-hg-tile', 'data-hg-tile');
@@ -229,9 +271,13 @@
   function createTilePost() {
     var tile = this;
 
+    createElementForTilePost.call(tile);
+
     tile.element.setAttribute('data-hg-post-tilePost', 'data-hg-post-tilePost');
 
     tile.tilePost = new window.hg.TilePost(tile);
+
+    draw.call(tile);
   }
 
   /**
@@ -241,6 +287,8 @@
    */
   function destroyTilePost() {
     var tile = this;
+
+    createElementForNoTilePost.call(tile);
 
     tile.element.removeAttribute('data-hg-post-tilePost');
 
@@ -527,15 +575,15 @@
     for (i = 0, pointsString = ''; i < 12;) {
       pointsString += tile.vertices[i++] + ',' + tile.vertices[i++] + ' ';
     }
-    tile.element.setAttribute('points', pointsString);
+    tile.polygonElement.setAttribute('points', pointsString);
 
     if (!tile.holdsContent) {
       // Set the color
       colorString = 'hsl(' + tile.currentColor.h + ',' +
       tile.currentColor.s + '%,' +
       tile.currentColor.l + '%)';
-      tile.element.setAttribute('fill', colorString);
-    } else {
+      tile.polygonElement.setAttribute('fill', colorString);
+    } else if (tile.tilePost) {
       // Set the position and opacity of the TilePost
       tile.tilePost.draw();
     }
