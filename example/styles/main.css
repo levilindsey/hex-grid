@@ -19,3 +19,40 @@ html, body, #hex-grid-area {
 div.dg.ac {
   z-index: 1;
 }
+
+/* --------------------------------------------------------------------------------------------- */
+/* --- Mobile styles --- */
+
+@media (max-width: 600px) {
+  div.dg.ac li:not(.folder),
+  div.dg.ac .close-button {
+    font-size: 22px;
+    height: 36px;
+    line-height: 36px;
+  }
+
+  div.dg.ac .closed li:not(.title),
+  div.dg.ac .closed ul li,
+  div.dg.ac .closed ul li > * {
+    height: 0;
+  }
+
+  div.dg.ac li.title {
+    padding-left: 18px;
+    background-position: 3px 13px;
+    background-size: 7px;
+  }
+
+  div.dg.ac .c input[type=checkbox] {
+    width: 16px;
+    height: 16px;
+  }
+
+  div.dg.ac .property-name {
+    width: 70%;
+  }
+
+  div.dg.ac .c {
+    width: 30%;
+  }
+}

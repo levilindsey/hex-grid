@@ -156,6 +156,14 @@
       paddingY = horizontalPadding;
     }
 
+    // Mobile responsiveness.
+    if (window.hg.util.isSmallScreen()) {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      paddingX = 0;
+      paddingY = 80;
+    }
+
     width -= paddingX * 2;
     height -= paddingY * 2;
 
