@@ -45,6 +45,38 @@ body {
 
 /* --- PagePost sub-panels styles --- */
 
+[data-hg-post-inner-wrapper] a[data-hg-post-close] {
+  position: absolute;
+  right: 46px;
+  top: 167px;
+  font-size: 36px;
+  font-weight: bold;
+  color: #FFFFFF;
+  text-shadow: 1px 1px 4px #000000;
+  text-decoration: none;
+  z-index: 1;
+  background-color: rgba(0,0,0,0.4);
+  padding: 4px 4px 8px 8px;
+  width: 40px;
+  height: 40px;
+  display: block;
+  line-height: 40px;
+  border-radius: 4px;
+}
+div[data-hg-post-inner-wrapper] a[data-hg-post-close]:hover,
+div[data-hg-post-inner-wrapper] a[data-hg-post-close]:visited:hover{
+  color: #AAAAAA;
+  text-decoration: none;
+}
+div[data-hg-post-inner-wrapper] a[data-hg-post-close]:active,
+div[data-hg-post-inner-wrapper] a[data-hg-post-close]:visited:active{
+  color: #444444;
+  text-decoration: none;
+}
+div[data-hg-post-inner-wrapper] a[data-hg-post-close]:visited {
+  color: #FFFFFF;
+}
+
 div[data-hg-post-logo] {
   float: left;
   width: 45%;
@@ -237,4 +269,9 @@ div[data-hg-post-logo] {
 /* --- Mobile styles --- */
 
 @media (max-width: 600px) {
+  [data-hg-post-inner-wrapper] a[data-hg-post-close] {
+    right: 24px;
+    top: 48px;
+    font-size: 36px;
+  }
 }
