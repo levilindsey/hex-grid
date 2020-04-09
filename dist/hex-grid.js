@@ -9331,17 +9331,13 @@ if (typeof define === 'function' && define.amd) {
           // TODO:
         }
 
-        createClickAnimation(input.grid, tile);
+        createClickAnimation.call(input, input.grid, tile);
       }
     }
 
     function handleKeyDown(event) {
       if (event.key === 'Escape' || event.key === 'Esc') {
-        // Close any open post
-        if (input.grid.isPostOpen) {
-          window.hg.controller.transientJobs.ClosePostJob.create(
-              input.grid, input.grid.expandedTile, false);
-        }
+        closeOpenPost.call(input, false);
       }
     }
 
@@ -9363,16 +9359,17 @@ if (typeof define === 'function' && define.amd) {
   /**
    * @param {Grid} grid
    * @param {Tile} tile
+   * @this Input
    */
   function createClickAnimation(grid, tile) {
+    var input = this;
+
     if (tile.holdsContent) {
       // Trigger an animation for the click
       config.possibleClickAnimations[config.contentTileClickAnimation](grid, tile);
 
       // Close any open post
-      if (grid.isPostOpen) {
-        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile, true);
-      }
+      closeOpenPost.call(input, true);
 
       // Open the post for the given tile
       window.hg.controller.transientJobs.OpenPostJob.create(grid, tile);
@@ -9381,9 +9378,21 @@ if (typeof define === 'function' && define.amd) {
       config.possibleClickAnimations[config.emptyTileClickAnimation](grid, tile);
 
       // Close any open post
-      if (grid.isPostOpen) {
-        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile, false);
-      }
+      closeOpenPost.call(input, false);
+    }
+  }
+
+  /**
+   * @param {Boolean} isPairedWithAnotherOpen
+   * @this Input
+   */
+  function closeOpenPost(isPairedWithAnotherOpen) {
+    var input = this;
+
+    // Close any open post
+    if (input.grid.isPostOpen) {
+      window.hg.controller.transientJobs.ClosePostJob.create(
+          input.grid, input.grid.expandedTile, isPairedWithAnotherOpen);
     }
   }
 
@@ -9536,8 +9545,8 @@ if (typeof define === 'function' && define.amd) {
         break;
     }
 
-    var horizontalPadding = 1.15 * window.hg.Grid.config.tileShortLengthWithGap;
-    var verticalPadding = 2.25 * window.hg.Grid.config.tileOuterRadius;
+    var horizontalPadding = 1.4 * window.hg.Grid.config.tileShortLengthWithGap;
+    var verticalPadding = 2.65 * window.hg.Grid.config.tileOuterRadius;
 
     var width, height, paddingX, paddingY, gradientColor1String,
       gradientColor2String, innerWrapperPaddingFromCss, innerWrapperVerticalPadding;
@@ -9586,6 +9595,7 @@ if (typeof define === 'function' && define.amd) {
     var innerWrapper = document.createElement('div');
     var title = document.createElement('h1');
     var content = document.createElement('div');
+    var closeButton = document.createElement('a');
     var logo = document.createElement('div');
     var date = document.createElement('div');
     var location = document.createElement('div');
@@ -9598,6 +9608,7 @@ if (typeof define === 'function' && define.amd) {
     pagePost.tile.grid.parent.appendChild(container);
     container.appendChild(outerWrapper);
     outerWrapper.appendChild(innerWrapper);
+    innerWrapper.appendChild(closeButton);
     innerWrapper.appendChild(logo);
     innerWrapper.appendChild(date);
     innerWrapper.appendChild(location);
@@ -9613,6 +9624,7 @@ if (typeof define === 'function' && define.amd) {
     pagePost.elements.container = container;
     pagePost.elements.title = title;
     pagePost.elements.content = content;
+    pagePost.elements.closeButton = closeButton;
     pagePost.elements.logo = logo;
     pagePost.elements.date = date;
     pagePost.elements.urls = urls;
@@ -9672,6 +9684,17 @@ if (typeof define === 'function' && define.amd) {
 
     content.setAttribute('data-hg-post-content', 'data-hg-post-content');
     content.innerHTML = converter.makeHtml(pagePost.tile.postData.content);
+
+    closeButton.setAttribute('data-hg-post-close', 'data-hg-post-close');
+    closeButton.setAttribute('href', '#');
+    closeButton.innerHTML = '&#9587;';
+    closeButton.addEventListener('click', function () {
+      // Close any open post
+      var grid = pagePost.tile.grid;
+      if (grid.isPostOpen) {
+        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile, false);
+      }
+    }, false);
 
     logo.setAttribute('data-hg-post-logo', 'data-hg-post-logo');
     logo.style.backgroundImage = 'url(' + pagePost.tile.postData.logoSrc + ')';

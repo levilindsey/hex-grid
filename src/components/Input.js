@@ -126,17 +126,13 @@
           // TODO:
         }
 
-        createClickAnimation(input.grid, tile);
+        createClickAnimation.call(input, input.grid, tile);
       }
     }
 
     function handleKeyDown(event) {
       if (event.key === 'Escape' || event.key === 'Esc') {
-        // Close any open post
-        if (input.grid.isPostOpen) {
-          window.hg.controller.transientJobs.ClosePostJob.create(
-              input.grid, input.grid.expandedTile, false);
-        }
+        closeOpenPost.call(input, false);
       }
     }
 
@@ -158,16 +154,17 @@
   /**
    * @param {Grid} grid
    * @param {Tile} tile
+   * @this Input
    */
   function createClickAnimation(grid, tile) {
+    var input = this;
+
     if (tile.holdsContent) {
       // Trigger an animation for the click
       config.possibleClickAnimations[config.contentTileClickAnimation](grid, tile);
 
       // Close any open post
-      if (grid.isPostOpen) {
-        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile, true);
-      }
+      closeOpenPost.call(input, true);
 
       // Open the post for the given tile
       window.hg.controller.transientJobs.OpenPostJob.create(grid, tile);
@@ -176,9 +173,21 @@
       config.possibleClickAnimations[config.emptyTileClickAnimation](grid, tile);
 
       // Close any open post
-      if (grid.isPostOpen) {
-        window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile, false);
-      }
+      closeOpenPost.call(input, false);
+    }
+  }
+
+  /**
+   * @param {Boolean} isPairedWithAnotherOpen
+   * @this Input
+   */
+  function closeOpenPost(isPairedWithAnotherOpen) {
+    var input = this;
+
+    // Close any open post
+    if (input.grid.isPostOpen) {
+      window.hg.controller.transientJobs.ClosePostJob.create(
+          input.grid, input.grid.expandedTile, isPairedWithAnotherOpen);
     }
   }
 
