@@ -709,6 +709,13 @@
     };
   }
 
+  /**
+   * @returns {Boolean}
+   */
+  function isSmallScreen() {
+    return window.innerWidth < 660;
+  }
+
   // ------------------------------------------------------------------------------------------- //
   // Expose this module
 
@@ -753,6 +760,7 @@
     checkForSafari: checkForSafari,
     checkForIos: checkForIos,
     debounce: debounce,
+    isSmallScreen: isSmallScreen,
     svgNamespace: 'http://www.w3.org/2000/svg',
     xlinkNamespace: 'http://www.w3.org/1999/xlink'
   };

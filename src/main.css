@@ -228,3 +228,9 @@ div[data-hg-post-logo] {
 [data-hg-carousel-thumbnail-screen]{
   background-color: #111111;
 }
+
+/* --------------------------------------------------------------------------------------------- */
+/* --- Mobile styles --- */
+
+@media (max-width: 600px) {
+}
