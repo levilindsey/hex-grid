@@ -33,6 +33,7 @@ body {
 }
 
 [data-hg-post-inner-wrapper] {
+  position: relative;
   padding: 26px;
   background-color: #282828;
   /* A small repeating hex pattern */
@@ -47,7 +48,8 @@ body {
 
 [data-hg-post-inner-wrapper] a[data-hg-post-close] {
   position: absolute;
-  right: 46px;
+  right: 0;
+  margin-right: 24px;
   top: 167px;
   font-size: 36px;
   font-weight: bold;
@@ -56,7 +58,7 @@ body {
   text-decoration: none;
   z-index: 1;
   background-color: rgba(0,0,0,0.4);
-  padding: 4px 4px 8px 8px;
+  padding: 0.1em 0.1em 0.2em 0.2em;
   width: 40px;
   height: 40px;
   display: block;
@@ -269,9 +271,4 @@ div[data-hg-post-logo] {
 /* --- Mobile styles --- */
 
 @media (max-width: 600px) {
-  [data-hg-post-inner-wrapper] a[data-hg-post-close] {
-    right: 24px;
-    top: 48px;
-    font-size: 36px;
-  }
 }
