@@ -9563,16 +9563,20 @@ if (typeof define === 'function' && define.amd) {
       paddingY = horizontalPadding;
     }
 
-    // Mobile responsiveness.
-    if (window.hg.util.isSmallScreen()) {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      paddingX = 0;
-      paddingY = 80;
-    }
-
     width -= paddingX * 2;
     height -= paddingY * 2;
+
+    // Mobile responsiveness.
+    var closeButtonTop = NaN;
+    if (height + paddingY * 2 > window.innerHeight) {
+      paddingY = 80;
+      height = window.innerHeight - paddingY * 2;
+      closeButtonTop = 48;
+    }
+    if (window.hg.util.isSmallScreen()) {
+      width = window.innerWidth;
+      paddingX = 0;
+    }
 
     pagePost.paddingX = paddingX;
     pagePost.paddingY = paddingY;
@@ -9688,6 +9692,9 @@ if (typeof define === 'function' && define.amd) {
     closeButton.setAttribute('data-hg-post-close', 'data-hg-post-close');
     closeButton.setAttribute('href', '#');
     closeButton.innerHTML = '&#9587;';
+    if (closeButtonTop) {
+      closeButton.style.top = closeButtonTop + 'px';
+    }
     closeButton.addEventListener('click', function () {
       // Close any open post
       var grid = pagePost.tile.grid;
