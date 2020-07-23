@@ -215,7 +215,7 @@
 
     tile.element.id = 'hg-' + id;
     tile.element.setAttribute('data-hg-tile', 'data-hg-tile');
-    tile.element.style.cursor = 'pointer';
+    tile.element.style.cursor = 'normal';
     tile.element.style.pointerEvents = 'auto';
 
     // Set the color and vertices
