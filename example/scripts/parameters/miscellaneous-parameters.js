@@ -54,26 +54,26 @@
     }
   ];
 
-  config.defaultPreSet = 'raven-scale';
+  config.defaultPreSet = 'gold-scale';
 
   config.preSetConfigs = {};
 
-  config.preSetConfigs['raven-scale'] = {
+  config.preSetConfigs['gold-scale'] = {
     Grid: {
       tileOuterRadius: 80,
       tileGap: 4,
-      backgroundHue: 265,
+      backgroundHue: 40,
       backgroundSaturation: 15,
       backgroundLightness: 3,
-      tileHue: 260,
+      tileHue: 45,
       tileSaturation: 10,
       tileLightness: 7
     },
     TilePost: {
-      inactiveScreenOpacity: 0.8,
-      inactiveScreenHue: 265,
+      inactiveScreenOpacity: 0.84,
+      inactiveScreenHue: 40,
       inactiveScreenSaturation: 1,
-      inactiveScreenLightness: 4
+      inactiveScreenLightness: 1
     },
     LineJob: {
       lineWidth: 4,
@@ -99,6 +99,20 @@
       wavelength: 4000,
       period: 4500,
       originY: 2000
+    },
+    ColorShiftJob: {
+      hueDeltaMin: 0,
+      hueDeltaMax: 0,
+      saturationDeltaMin: -10,
+      saturationDeltaMax: 8,
+      lightnessDeltaMin: -5,
+      lightnessDeltaMax: 5,
+
+      imageBackgroundScreenOpacityDeltaMin: -0.05,
+      imageBackgroundScreenOpacityDeltaMax: 0.05,
+
+      transitionDurationMin: 800,
+      transitionDurationMax: 2000
     },
     DisplacementWaveJob: {
       period: 1000000,
