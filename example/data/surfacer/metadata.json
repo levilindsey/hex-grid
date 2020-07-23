@@ -26,9 +26,31 @@
   "images": [
     {
       "fileName": "squirrel-running.gif",
-      "description": "A squirrel running animation that Levi created. This is the loading progress indicator."
+      "description": "A squirrel running animation that Levi created. This was created by hand-drawing pixel art for each frame."
+    },
+    {
+      "fileName": "cat-animation.gif",
+      "description": "A cat walking animation that Levi created. This was created using Godot's inverse kinematics and key frame APIs."
+    },
+    {
+      "fileName": "surfaces-and-edges.png",
+      "description": "The Surfacer framework works pre-parsing a level into a \"platform graph\". The nodes are represented by points along the different surfaces in the level (floors, walls, and ceilings). The edges are represented by possible movement trajectories between points along surfaces."
+    },
+    {
+      "fileName": "navigator-preselection.png",
+      "description": "A* search is used to find paths through the platform graph."
+    },
+    {
+      "fileName": "edge-step-calculation-debugging.png",
+      "description": "Surfacer includes a powerful platform graph inspector, which makes it easy to understand and debug how the platform graph was calculated."
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "2Q15fjAEncg",
+      "description": "A demonstration of the Surfacer framework in action. A cat is controlled by mouse clicks to navigate through a level of 2D platforms."
+    }
+  ],
   "content": ""
 }
