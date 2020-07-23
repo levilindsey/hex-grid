@@ -10,7 +10,7 @@ config.injectedMetadataDist = config.exampleDistPath + '/data';
 config.injectedMetadataSrc = config.injectedMetadataDist + '/**/*';
 config.combinedDataFilePath = config.exampleDistPath + '/data.min.json';
 
-config.urlOrigin = 'https://levi.dev';
+config.urlOrigin = 'https://www.levi.dev';
 
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
