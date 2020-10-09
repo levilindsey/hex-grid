@@ -1,0 +1,52 @@
+{
+  "id": "stuck-in-an-inner-tube",
+  "titleShort": "2D platformer\nendless\nclimber",
+  "titleLong": "Stuck in an Inner Tube!",
+  "urls": {
+    "demo": "https://levi.dev/stuck-in-an-inner-tube",
+    "github": "https://github.com/levilindsey/stuck-in-an-inner-tube"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": {
+    "start": "10/2020",
+    "end": "10/2020"
+  },
+  "categories": [
+    "side-project",
+    "frontend",
+    "animation",
+    "app",
+    "godot",
+    "gdscript",
+    "game",
+    "2D",
+    "game-jam"
+  ],
+  "images": [
+    {
+      "fileName": "game-play.png",
+      "description": "The goal of the game is to climb upward by jumping from platform to platform. A key mechanic is the ability to bounce off of the walls in order to gain additional height."
+    },
+    {
+      "fileName": "tuber-stuck.gif",
+      "description": "This animation of the character stuck in the snow and in their inner tube is shown at the start of the first level."
+    },
+    {
+      "fileName": "main-menu.png",
+      "description": "The main menu shows an animation of the player sliding downhill on their inner tube."
+    },
+    {
+      "fileName": "loading-screen.png",
+      "description": "The splash screen shown an animation of the player running."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "QeTW9v1jYFg",
+      "description": "A demonstration of the gameplay for \"Stuck in an Inner Tube!\""
+    }
+  ],
+  "content": ""
+}
