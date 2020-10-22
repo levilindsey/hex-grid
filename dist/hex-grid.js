@@ -9443,6 +9443,7 @@ if (typeof define === 'function' && define.amd) {
     'reverbNation': 'Reverb Nation',
     'resume': 'Resume',
     'youtube': 'YouTube',
+    'ludum-dare': 'Ludum Dare',
   };
 
   config.monthLabels = {
@@ -9625,6 +9626,7 @@ if (typeof define === 'function' && define.amd) {
     container.appendChild(bottomGradient);
 
     pagePost.elements = [];
+    pagePost.elements.outerWrapper = outerWrapper;
     pagePost.elements.container = container;
     pagePost.elements.title = title;
     pagePost.elements.content = content;
@@ -9726,6 +9728,14 @@ if (typeof define === 'function' && define.amd) {
       pagePost.tile.postData.images, pagePost.tile.postData.videos, true);
     innerWrapper.removeChild(pagePost.carousel.elements.container);
     innerWrapper.insertBefore(pagePost.carousel.elements.container, urls);
+
+    setTimeout(function () {
+      // If the post ID in the URL hash matches the text of a header in the post content, then the
+      // browser will automatically scroll downward to the header, which we want to prevent.
+      if (pagePost.elements.outerWrapper) {
+        pagePost.elements.outerWrapper.scrollTo(0, 0);
+      }
+    }, 10);
 
     draw.call(pagePost);
   }
