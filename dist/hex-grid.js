@@ -8380,14 +8380,14 @@ if (typeof define === 'function' && define.amd) {
 
   var config = {};
 
-  config.targetContentAreaWidth = 800;
+  config.targetContentAreaWidth = 900;
   config.backgroundHue = 230;
   config.backgroundSaturation = 1;
   config.backgroundLightness = 4;
   config.tileHue = 230;//147;
   config.tileSaturation = 67;
   config.tileLightness = 22;
-  config.tileOuterRadius = 80;
+  config.tileOuterRadius = document.documentElement.clientWidth > 812 ? 100 : 72;
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
   config.firstRowYOffset = config.tileOuterRadius * -0.8;
@@ -8521,12 +8521,13 @@ if (typeof define === 'function' && define.amd) {
    * @this Grid
    */
   function computeGridParameters() {
-    var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex, i, count,
+    var grid, parentWidth, parentHalfWidth, parentHeight, innerContentCount, rowIndex, i, count,
         emptyRowsContentTileCount, minInnerTileCount;
 
     grid = this;
 
-    parentHalfWidth = grid.parent.clientWidth * 0.5;
+    parentWidth = grid.parent.clientWidth;
+    parentHalfWidth = parentWidth * 0.5;
     parentHeight = grid.parent.clientHeight;
 
     grid.originalCenter.x = parentHalfWidth;
@@ -8536,8 +8537,8 @@ if (typeof define === 'function' && define.amd) {
     grid.panCenter.x = grid.originalCenter.x;
     grid.panCenter.y = grid.originalCenter.y;
 
-    grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
-        grid.parent.clientWidth : config.targetContentAreaWidth;
+    grid.actualContentAreaWidth = parentWidth < config.targetContentAreaWidth ?
+        parentWidth : config.targetContentAreaWidth;
 
     if (grid.isVertical) {
       grid.rowDeltaY = config.tileOuterRadius * 1.5 + config.tileGap * config.sqrtThreeOverTwo;
@@ -9444,6 +9445,7 @@ if (typeof define === 'function' && define.amd) {
     'resume': 'Resume',
     'youtube': 'YouTube',
     'ludum-dare': 'Ludum Dare',
+    'blog': 'Blog',
   };
 
   config.monthLabels = {
@@ -9467,6 +9469,27 @@ if (typeof define === 'function' && define.amd) {
   };
 
   config.computeDependentValues();
+
+  function addCloseDefinition() {
+    var body = document.querySelector('body');
+    var svg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
+    var symbol = document.createElementNS(window.hg.util.svgNamespace, 'symbol');
+    var close = document.createElementNS(window.hg.util.svgNamespace, 'path');
+
+    body.appendChild(svg);
+    svg.appendChild(symbol);
+    symbol.appendChild(close);
+
+    svg.style.display = 'none';
+    symbol.setAttribute('id', 'close');
+    symbol.setAttribute('width', '40');
+    symbol.setAttribute('height', '40');
+    symbol.setAttribute('viewBox', '0 0 12.9 9.1');
+    close.setAttribute('d', 'M1.8-1.9 0-0.1 4.6 4.6 0 9.2l1.8 1.8 4.6-4.6 4.6 4.6 1.8-1.8-4.6-4.6 4.6-4.6-1.8-1.8-4.6 4.6z');
+    window.hg.util.addClass(close, 'close-path');
+  }
+
+  addCloseDefinition();
 
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
@@ -9564,15 +9587,17 @@ if (typeof define === 'function' && define.amd) {
       paddingY = horizontalPadding;
     }
 
+    paddingY += 32;
+
     width -= paddingX * 2;
     height -= paddingY * 2;
 
     // Mobile responsiveness.
     var closeButtonTop = NaN;
     if (height + paddingY * 2 > window.innerHeight) {
-      paddingY = 80;
+      paddingY = 100;
       height = window.innerHeight - paddingY * 2;
-      closeButtonTop = 48;
+      closeButtonTop = 68;
     }
     if (window.hg.util.isSmallScreen()) {
       width = window.innerWidth;
@@ -9693,7 +9718,6 @@ if (typeof define === 'function' && define.amd) {
 
     closeButton.setAttribute('data-hg-post-close', 'data-hg-post-close');
     closeButton.setAttribute('href', '#');
-    closeButton.innerHTML = '&#9587;';
     if (closeButtonTop) {
       closeButton.style.top = closeButtonTop + 'px';
     }
@@ -9704,6 +9728,16 @@ if (typeof define === 'function' && define.amd) {
         window.hg.controller.transientJobs.ClosePostJob.create(grid, grid.expandedTile, false);
       }
     }, false);
+
+    var closeButtonSvg = document.createElementNS(window.hg.util.svgNamespace, 'svg');
+    var closeButtonUse = document.createElementNS(window.hg.util.svgNamespace, 'use');
+
+    closeButton.appendChild(closeButtonSvg);
+    closeButtonSvg.appendChild(closeButtonUse);
+
+    closeButtonSvg.setAttribute('width', '40');
+    closeButtonSvg.setAttribute('height', '40');
+    closeButtonUse.setAttributeNS(window.hg.util.xlinkNamespace, 'xlink:href', '#close');
 
     logo.setAttribute('data-hg-post-logo', 'data-hg-post-logo');
     logo.style.backgroundImage = 'url(' + pagePost.tile.postData.logoSrc + ')';
@@ -11872,6 +11906,10 @@ if (typeof define === 'function' && define.amd) {
     tile.currentColor.l += progress *
         (shiftStatus.lightnessDeltaEnd - shiftStatus.lightnessDeltaStart) +
         shiftStatus.lightnessDeltaStart;
+
+    // Also add a gradual hue shift across all tiles.
+    tile.currentColor.h += currentTime / 300;
+    tile.currentColor.h %= 360;
   }
 
   /**

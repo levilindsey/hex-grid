@@ -73,19 +73,29 @@
   }
 
   function resize() {
-    // Close the menu automatically on smaller screens
     setTimeout(function () {
+      // Don't show the menu on smaller screens.
       if (window.hg.controller.isSmallScreen) {
-        parameters.gui.close();
+        hideMenu();
+      } else {
+        showMenu();
       }
     }, 10);
   }
 
   function createDatGui() {
     parameters.gui = new dat.GUI();
+    parameters.gui.close();
     parameters.gui.width = config.datGuiWidth;
 
     window.gui = parameters.gui;
+
+    // Don't show the menu on smaller screens.
+    if (window.hg.controller.isSmallScreen) {
+      hideMenu();
+    } else {
+      showMenu();
+    }
 
     createFolders();
   }
@@ -245,8 +255,12 @@
   }
 
   function hideMenu() {
-    console.log('Hide Menu clicked');
+    // console.log('Hide Menu clicked');
     document.querySelector('body > .dg').style.display = 'none';
+  }
+
+  function showMenu() {
+    document.querySelector('body > .dg').style.display = 'block';
   }
 
   function updateToPreSetConfigs(preSetConfig) {

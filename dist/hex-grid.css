@@ -50,33 +50,41 @@ body {
   position: absolute;
   right: 0;
   margin-right: 24px;
-  top: 167px;
-  font-size: 36px;
-  font-weight: bold;
-  color: #FFFFFF;
-  text-shadow: 1px 1px 4px #000000;
-  text-decoration: none;
+  top: 179px;
   z-index: 1;
   background-color: rgba(0,0,0,0.4);
-  padding: 0.1em 0.1em 0.2em 0.2em;
+  padding: 6px;
   width: 40px;
   height: 40px;
   display: block;
-  line-height: 40px;
   border-radius: 4px;
 }
 div[data-hg-post-inner-wrapper] a[data-hg-post-close]:hover,
-div[data-hg-post-inner-wrapper] a[data-hg-post-close]:visited:hover{
+div[data-hg-post-inner-wrapper] a[data-hg-post-close]:visited:hover {
   color: #AAAAAA;
   text-decoration: none;
 }
 div[data-hg-post-inner-wrapper] a[data-hg-post-close]:active,
-div[data-hg-post-inner-wrapper] a[data-hg-post-close]:visited:active{
+div[data-hg-post-inner-wrapper] a[data-hg-post-close]:visited:active {
   color: #444444;
   text-decoration: none;
 }
 div[data-hg-post-inner-wrapper] a[data-hg-post-close]:visited {
   color: #FFFFFF;
+}
+
+[data-hg-post-close] use {
+  fill: #FFFFFF;
+  -webkit-transition: fill 0.15s;
+  transition: fill 0.15s;
+}
+
+[data-hg-post-close]:hover use {
+  fill: #AAAAAA;
+}
+
+[data-hg-post-close]:active use {
+  fill: #444444;
 }
 
 div[data-hg-post-logo] {
@@ -139,8 +147,8 @@ div[data-hg-post-logo] {
 [data-hg-post-container] a {
   color: #1E90FF;
   text-decoration: none;
-  -webkit-transition: color 0.2s;
-  transition: color 0.2s;
+  -webkit-transition: color 0.15s;
+  transition: color 0.15s;
 }
 
 [data-hg-post-container] a:visited {
@@ -231,8 +239,8 @@ div[data-hg-post-logo] {
 
 [data-hg-carousel-button] use {
   fill: #888888;
-  -webkit-transition: fill 0.2s;
-  transition: fill 0.2s;
+  -webkit-transition: fill 0.15s;
+  transition: fill 0.15s;
 }
 
 [data-hg-carousel-button]:hover use {
