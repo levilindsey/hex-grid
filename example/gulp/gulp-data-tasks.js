@@ -102,7 +102,7 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
             result = parseInt(dateParts[1]) + parseInt(dateParts[0]) * 0.01;
             break;
           case 3:
-            result = parseInt(dateParts[2]) + parseInt(dateParts[1]) * 0.01 + parseInt(dateParts[0]) * 0.0001;
+            result = parseInt(dateParts[2]) + parseInt(dateParts[0]) * 0.01 + parseInt(dateParts[1]) * 0.0001;
             break;
           default:
             throw new Error('Invalid date string format: ' + dateString);

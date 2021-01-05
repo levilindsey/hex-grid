@@ -124,6 +124,10 @@
     tile.currentColor.l += progress *
         (shiftStatus.lightnessDeltaEnd - shiftStatus.lightnessDeltaStart) +
         shiftStatus.lightnessDeltaStart;
+
+    // Also add a gradual hue shift across all tiles.
+    tile.currentColor.h += currentTime / 300;
+    tile.currentColor.h %= 360;
   }
 
   /**

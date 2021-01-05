@@ -1,12 +1,12 @@
 _Oh no! The player is stuck inside a "loop"--that is, their inner tube--from a tragic inner-tubing accident that left them stuck in the bottom of an endless crevasse!_
 
-This is an endless climber (2D platformer) game, with novel wall-bouncing mechanics!
+This is an endless climber game, with fun wall bouncing!
 
 ## Ludum Dare 47
 
 _**[Ludum Dare 47 Submission](https://ldjam.com/events/ludum-dare/47/stuck-in-an-inner-tube/)**_
 
-This game is based off of a "Compo" submission for the [Ludum Dare 47 game jam](https://ldjam.com/events/ludum-dare/47/stuck-in-an-inner-tube/). All design, code, images, sound effects, and music were created by Levi in under 48 hours. The creation of this game was also [livestreamed on Twitch](https://www.twitch.tv/ukulelefury/videos).
+This game is based off of a "Compo" submission for the [Ludum Dare 47 game jam](https://ldjam.com/events/ludum-dare/47/stuck-in-an-inner-tube/). All design, code, images, sound effects, and music were created by Levi in under 48 hours. This game rated in the 90th percentile for "Overall", "Fun", "Graphics", "Audio", and "Humor" (and in the 95th percentile for "Fun"!). The creation of this game was also [livestreamed on Twitch](https://www.twitch.tv/ukulelefury/videos).
 
 ### The theme: "Stuck in a loop"
 

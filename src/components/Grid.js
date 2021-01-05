@@ -48,14 +48,14 @@
 
   var config = {};
 
-  config.targetContentAreaWidth = 800;
+  config.targetContentAreaWidth = 900;
   config.backgroundHue = 230;
   config.backgroundSaturation = 1;
   config.backgroundLightness = 4;
   config.tileHue = 230;//147;
   config.tileSaturation = 67;
   config.tileLightness = 22;
-  config.tileOuterRadius = 80;
+  config.tileOuterRadius = document.documentElement.clientWidth > 812 ? 100 : 72;
   config.tileGap = 12;
   config.contentStartingRowIndex = 2;
   config.firstRowYOffset = config.tileOuterRadius * -0.8;
@@ -189,12 +189,13 @@
    * @this Grid
    */
   function computeGridParameters() {
-    var grid, parentHalfWidth, parentHeight, innerContentCount, rowIndex, i, count,
+    var grid, parentWidth, parentHalfWidth, parentHeight, innerContentCount, rowIndex, i, count,
         emptyRowsContentTileCount, minInnerTileCount;
 
     grid = this;
 
-    parentHalfWidth = grid.parent.clientWidth * 0.5;
+    parentWidth = grid.parent.clientWidth;
+    parentHalfWidth = parentWidth * 0.5;
     parentHeight = grid.parent.clientHeight;
 
     grid.originalCenter.x = parentHalfWidth;
@@ -204,8 +205,8 @@
     grid.panCenter.x = grid.originalCenter.x;
     grid.panCenter.y = grid.originalCenter.y;
 
-    grid.actualContentAreaWidth = grid.parent.clientWidth < config.targetContentAreaWidth ?
-        grid.parent.clientWidth : config.targetContentAreaWidth;
+    grid.actualContentAreaWidth = parentWidth < config.targetContentAreaWidth ?
+        parentWidth : config.targetContentAreaWidth;
 
     if (grid.isVertical) {
       grid.rowDeltaY = config.tileOuterRadius * 1.5 + config.tileGap * config.sqrtThreeOverTwo;

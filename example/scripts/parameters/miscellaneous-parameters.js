@@ -60,7 +60,6 @@
 
   config.preSetConfigs['gold-scale'] = {
     Grid: {
-      tileOuterRadius: 80,
       tileGap: 4,
       backgroundHue: 40,
       backgroundSaturation: 15,
@@ -120,7 +119,6 @@
       tileDeltaY: 0
     },
     OpenPostJob: {
-      expandedDisplacementTileCount: 3,
       fadePostDurationOffset: 300
     },
     ClosePostJob: {

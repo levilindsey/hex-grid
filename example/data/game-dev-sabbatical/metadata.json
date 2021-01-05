@@ -1,0 +1,30 @@
+{
+  "id": "game-dev-sabbatical",
+  "titleShort": "Sabbatical:\nGame dev\nexploration",
+  "titleLong": "Sabbatical: Adventures in game development",
+  "urls": {
+    "blog": "https://blog.levi.dev"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": {
+    "start": "1/2021",
+    "end": "Present"
+  },
+  "categories": [
+    "work",
+    "animation",
+    "godot",
+    "gdscript",
+    "game",
+    "2D"
+  ],
+  "images": [
+    {
+      "fileName": "logo.png",
+      "description": "A simple game-dev icon Levi made."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}
