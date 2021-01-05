@@ -4,6 +4,7 @@ Levi is a tech lead on the frontend framework for the Cloud Console. There he pu
 
 Highlights:
 
+-   Help lead the >4-year migration of >10M lines of JS code with >8M active-monthly users by >800 SWEs across >180 teams from AngularJS to Angular.
 -   Tech lead (of 4 other SWEs) for Angular Infrastructure:
     -   Bootstrapping the application
     -   Client-side routing
@@ -13,7 +14,6 @@ Highlights:
     -   Ensuring client infrastructure code health
 -   Collaborate across teams to align priorities, review designs, and guide strategies.
 -   Design novel patterns for deferred-loading AoT-compiled Angular components.
--   Lead the >3-year migration of >10M lines of JS code by >350 active-monthly SWEs across >180 teams from AngularJS to Angular.
 
 [google-url]: https://google.com/about
 [cloud-url]: https://cloud.google.com
