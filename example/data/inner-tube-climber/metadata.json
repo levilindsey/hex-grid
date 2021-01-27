@@ -1,9 +1,9 @@
 {
-  "id": "stuck-in-an-inner-tube",
+  "id": "inner-tube-climber",
   "titleShort": "2D platformer\nendless\nclimber",
-  "titleLong": "Stuck in an Inner Tube!",
+  "titleLong": "Inner-Tube Climber: A 2D platformer endless climber",
   "urls": {
-    "demo": "https://levi.dev/stuck-in-an-inner-tube",
+    "demo": "https://levi.dev/inner-tube-climber",
     "ludum-dare": "https://ldjam.com/events/ludum-dare/47/stuck-in-an-inner-tube",
     "github": "https://github.com/levilindsey/stuck-in-an-inner-tube"
   },
@@ -11,7 +11,7 @@
   "location": "",
   "date": {
     "start": "10/2020",
-    "end": "10/2020"
+    "end": "2/2021"
   },
   "categories": [
     "side-project",
@@ -46,7 +46,7 @@
     {
       "videoHost": "youtube",
       "id": "QeTW9v1jYFg",
-      "description": "A demonstration of the gameplay for \"Stuck in an Inner Tube!\""
+      "description": "A demonstration of the gameplay for the original Ludum Dare version of the game."
     }
   ],
   "content": ""
