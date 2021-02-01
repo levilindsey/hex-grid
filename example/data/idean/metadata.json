@@ -26,7 +26,8 @@
     "grunt",
     "d3.js",
     "svg",
-    "php"
+    "php",
+    "teamwork"
   ],
   "images": [
     {

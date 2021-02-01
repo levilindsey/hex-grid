@@ -4,7 +4,7 @@ This is an endless climber game, with fun wall bouncing!
 
 ## Ludum Dare 47
 
-_**[Ludum Dare 47 Submission](https://ldjam.com/events/ludum-dare/47/stuck-in-an-inner-tube/)**_
+_**[Ludum Dare 47 submission](https://ldjam.com/events/ludum-dare/47/stuck-in-an-inner-tube/)**_
 
 This game was originally a "Compo" submission for the [Ludum Dare 47 game jam](https://ldjam.com/events/ludum-dare/47/stuck-in-an-inner-tube/). All design, code, images, sound effects, and music were created by Levi in under 48 hours. This game rated in the 90th percentile for "Overall", "Fun", "Graphics", "Audio", and "Humor" (and in the 95th percentile for "Fun"!). The creation of this game was also [livestreamed on Twitch](https://www.twitch.tv/ukulelefury/videos).
 

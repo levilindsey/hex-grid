@@ -20,7 +20,8 @@
     "angular-2",
     "gulp.js",
     "typescript",
-    "animation"
+    "animation",
+    "solo-work"
   ],
   "images": [
     {

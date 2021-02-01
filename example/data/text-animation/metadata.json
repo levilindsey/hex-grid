@@ -18,7 +18,8 @@
     "animation",
     "library",
     "bower",
-    "gulp.js"
+    "gulp.js",
+    "solo-work"
   ],
   "images": [
     {

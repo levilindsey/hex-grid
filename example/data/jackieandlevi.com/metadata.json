@@ -23,7 +23,8 @@
     "angular",
     "mongodb",
     "gulp.js",
-    "animation"
+    "animation",
+    "solo-work"
   ],
   "images": [
     {
