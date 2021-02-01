@@ -1,0 +1,58 @@
+{
+  "id": "ooboloo",
+  "titleShort": "2D platformer\ncollecting\nblobs",
+  "titleLong": "OoboloO: A 2D platformer with collecting and losing blobs",
+  "urls": {
+    "demo": "https://levi.dev/ggj2021",
+    "global-game-jam": "https://globalgamejam.org/2021/games/ooboloo-2",
+    "github": "https://github.com/levilindsey/global-game-jam-2021/"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "1/2021",
+  "categories": [
+    "side-project",
+    "frontend",
+    "animation",
+    "app",
+    "godot",
+    "game",
+    "2D",
+    "game-jam",
+    "teamwork"
+  ],
+  "images": [
+    {
+      "fileName": "screenshot_gameplay_1.png",
+      "description": "A screenshot showing gameplay of OoboloO."
+    },
+    {
+      "fileName": "screenshot_gameplay_2.png",
+      "description": "A screenshot showing gameplay of OoboloO."
+    },
+    {
+      "fileName": "screenshot_gameplay_3.png",
+      "description": "A screenshot showing gameplay of OoboloO."
+    },
+    {
+      "fileName": "screenshot_gameplay_4.png",
+      "description": "A screenshot showing gameplay of OoboloO."
+    },
+    {
+      "fileName": "cover_art.png",
+      "description": "OoboloO's fancy cover art!"
+    },
+    {
+      "fileName": "ooboloo-game-over-screen.png",
+      "description": "OoboloO's game-over screen."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "qNUtp4FSwaY",
+      "description": "A demonstration of the gameplay for OoboloO."
+    }
+  ],
+  "content": ""
+}

@@ -20,7 +20,8 @@
     "angular-2",
     "google-closure-tools",
     "rxjs",
-    "sql"
+    "sql",
+    "teamwork"
   ],
   "images": [
     {

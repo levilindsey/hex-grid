@@ -25,7 +25,8 @@
     "gulp.js",
     "yeoman",
     "npm",
-    "library"
+    "library",
+    "solo-work"
   ],
   "images": [
     {

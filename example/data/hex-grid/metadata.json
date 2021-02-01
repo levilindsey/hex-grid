@@ -23,7 +23,8 @@
     "app",
     "dat.gui",
     "gulp.js",
-    "2D"
+    "2D",
+    "solo-work"
   ],
   "images": [
     {
