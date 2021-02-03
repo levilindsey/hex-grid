@@ -5,6 +5,7 @@
   "urls": {
     "demo": "https://levi.dev/inner-tube-climber",
     "ludum-dare": "https://ldjam.com/events/ludum-dare/47/stuck-in-an-inner-tube",
+    "itchio": "https://ukulelefury.itch.io/stuck-in-an-inner-tube",
     "github": "https://github.com/levilindsey/stuck-in-an-inner-tube"
   },
   "jobTitle": "",
@@ -15,8 +16,12 @@
   },
   "categories": [
     "side-project",
-    "frontend",
+    "art",
     "animation",
+    "music",
+    "mobile",
+    "android",
+    "ios",
     "app",
     "godot",
     "game",

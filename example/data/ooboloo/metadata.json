@@ -5,6 +5,7 @@
   "urls": {
     "demo": "https://levi.dev/ggj2021",
     "global-game-jam": "https://globalgamejam.org/2021/games/ooboloo-2",
+    "itchio": "https://ukulelefury.itch.io/ooboloo",
     "github": "https://github.com/levilindsey/global-game-jam-2021/"
   },
   "jobTitle": "",
@@ -12,8 +13,9 @@
   "date": "1/2021",
   "categories": [
     "side-project",
-    "frontend",
+    "art",
     "animation",
+    "music",
     "app",
     "godot",
     "game",

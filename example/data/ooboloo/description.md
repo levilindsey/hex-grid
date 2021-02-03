@@ -17,9 +17,9 @@ The theme for the game jam was "lost and found". This game addresses the theme b
 
 ## Software used
 
--   [Godot](https://godotengine.org/).
--   [Krita](https://krita.org/).
--   [Aseprite](https://www.aseprite.org/).
--   [DefleMask](https://deflemask.com/).
--   [Bfxr](https://www.bfxr.net/).
--   [Pixel FX Designer](https://codemanu.itch.io/particle-fx-designer).
+-   Game engine: [Godot](https://godotengine.org/)
+-   Art: [Krita](https://krita.org/)
+-   Art: [Aseprite](https://www.aseprite.org/)
+-   Music: [DefleMask](https://deflemask.com/)
+-   Sound effects: [Bfxr](https://www.bfxr.net/)
+-   Particle effects: [Pixel FX Designer](https://codemanu.itch.io/particle-fx-designer)
