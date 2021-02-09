@@ -1,6 +1,6 @@
 {
   "name": "hex-grid",
-  "version": "1.2.7",
+  "version": "1.5.1",
   "description": "A dynamic, expandable, animated grid of hexagonal tiles",
   "repository": {
     "type": "git",

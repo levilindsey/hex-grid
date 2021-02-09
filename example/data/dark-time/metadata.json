@@ -1,0 +1,27 @@
+{
+  "id": "dark-time",
+  "titleShort": "Dark Time:\nChrome\nextension",
+  "titleLong": "Dark Time: Chrome extension",
+  "urls": {
+    "chrome-web-store": "https://chrome.google.com/webstore/detail/dark-time/ofmngaeacndglijmheklbcnbjfdcohke",
+    "github": "https://github.com/levilindsey/dark-time"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "2/2021",
+  "categories": [
+    "web",
+    "frontend",
+    "side-project",
+    "solo-work",
+    "chrome-web-store"
+  ],
+  "images": [
+    {
+      "fileName": "thumbnail.png",
+      "description": "A simple clock logo."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}

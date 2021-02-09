@@ -1,0 +1,32 @@
+{
+  "id": "snoring-cat",
+  "titleShort": "Snoring Cat LLC",
+  "titleLong": "Snoring Cat LLC",
+  "urls": {
+    "snoring-cat": "https://snoringcat.games"
+  },
+  "jobTitle": "Owner and manager",
+  "location": "Seattle, WA",
+  "date": {
+    "start": "2/2021",
+    "end": "Present"
+  },
+  "categories": [
+    "work",
+    "art",
+    "animation",
+    "music",
+    "godot",
+    "game",
+    "2D",
+    "solo-work"
+  ],
+  "images": [
+    {
+      "fileName": "icon-512.png",
+      "description": "A pixel-art sleeping cat."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}
