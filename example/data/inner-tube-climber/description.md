@@ -1,3 +1,5 @@
+_The non-Ludum Dare version of Inner-Tube Climber is owned by [Snoring Cat LLC](https://snoringcat.games)._
+
 _Oh no! The player is stuck inside a "loop"--that is, their inner tube--from a tragic inner-tubing accident that left them stuck in the bottom of an endless crevasse!_
 
 This is an endless climber game, with fun wall bouncing!
