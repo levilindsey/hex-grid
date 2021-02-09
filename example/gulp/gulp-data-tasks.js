@@ -175,11 +175,6 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
         '        <loc>https://blog.levi.dev/</loc>\n' +
         '        <lastmod>' + dateString + '</lastmod>\n' +
         '    </url>\n';
-    rootUrlString +=
-        '\n    <url>\n' +
-        '        <loc>https://games.levi.dev/</loc>\n' +
-        '        <lastmod>' + dateString + '</lastmod>\n' +
-        '    </url>\n';
 
     var sitemapString = metadataArray.map(function (postData) {
       return '\n    <url>\n' +

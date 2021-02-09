@@ -9449,7 +9449,8 @@ if (typeof define === 'function' && define.amd) {
     'ludum-dare': 'Ludum Dare',
     'global-game-jam': 'Global Game Jam',
     'blog': 'Blog',
-    'games': 'Games',
+    'snoring-cat': 'Snoring Cat LLC',
+    'chrome-web-store': 'Chrome Web Store',
   };
 
   config.monthLabels = {
