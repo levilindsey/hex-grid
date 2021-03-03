@@ -9451,6 +9451,8 @@ if (typeof define === 'function' && define.amd) {
     'blog': 'Blog',
     'snoring-cat': 'Snoring Cat LLC',
     'chrome-web-store': 'Chrome Web Store',
+    'play-store': 'Google Play Store',
+    'app-store': 'Apple App Store',
   };
 
   config.monthLabels = {

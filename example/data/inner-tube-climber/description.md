@@ -1,4 +1,4 @@
-_The non-Ludum Dare version of Inner-Tube Climber is owned by [Snoring Cat LLC](https://snoringcat.games)._
+_The newer, mobile-app version of Inner-Tube Climber is owned by [Snoring Cat LLC](https://snoringcat.games)._
 
 _Oh no! The player is stuck inside a "loop"--that is, their inner tube--from a tragic inner-tubing accident that left them stuck in the bottom of an endless crevasse!_
 
@@ -10,7 +10,7 @@ _**[Ludum Dare 47 submission](https://ldjam.com/events/ludum-dare/47/stuck-in-an
 
 This game was originally a "Compo" submission for the [Ludum Dare 47 game jam](https://ldjam.com/events/ludum-dare/47/stuck-in-an-inner-tube/). All design, code, images, sound effects, and music were created by Levi in under 48 hours. This game rated in the 90th percentile for "Overall", "Fun", "Graphics", "Audio", and "Humor" (and in the 95th percentile for "Fun"!). The creation of this game was also [livestreamed on Twitch](https://www.twitch.tv/ukulelefury/videos).
 
-Levi later added more features to the game and re-released it as a mobile app.
+Levi later added a lot more polish and more features to the game and re-released it as a mobile app.
 
 ### The theme: "Stuck in a loop"
 

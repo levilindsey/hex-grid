@@ -3,7 +3,8 @@
   "titleShort": "2D platformer\nendless\nclimber",
   "titleLong": "Inner-Tube Climber: A 2D platformer endless climber",
   "urls": {
-    "demo": "https://levilindsey.itch.io/stuck-in-an-inner-tube",
+    "play-store": "https://play.google.com/store/apps/details?id=dev.levi.inner_tube_climber",
+    "app-store": "https://apps.apple.com/us/app/inner-tube-climber/id1553158659",
     "ludum-dare": "https://ldjam.com/events/ludum-dare/47/stuck-in-an-inner-tube",
     "github": "https://github.com/levilindsey/stuck-in-an-inner-tube"
   },
@@ -11,7 +12,7 @@
   "location": "",
   "date": {
     "start": "10/2020",
-    "end": "2/2021"
+    "end": "3/2021"
   },
   "categories": [
     "side-project",
@@ -46,6 +47,11 @@
     }
   ],
   "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "5ambx7K7Rjg",
+      "description": "Trailer for the mobile-app version of the game."
+    },
     {
       "videoHost": "youtube",
       "id": "QeTW9v1jYFg",
