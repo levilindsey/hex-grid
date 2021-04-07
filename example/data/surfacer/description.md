@@ -1,3 +1,9 @@
+# Surfacer
+
+> _**[Live demo](https://levi.dev/squirrel)**_
+> 
+> _**[Demo source](https://github.com/snoringcatgames/squirrel-away)**_
+
 _A procedural pathfinding 2D-platformer framework for [Godot](https://godotengine.org/)._
 
 _"Surfacer": Like a platformer, but with walking, climbing, and jumping on all surfaces!_
@@ -13,6 +19,7 @@ Some features include:
 -   Configurable movement parameters on a per-player basis (e.g., horizontal acceleration, jump power, gravity, collision boundary shape and size, which types of edge movement are allowed).
 -   Level creation using Godot's standard pattern with a [TileMap in the 2D scene editor](https://docs.godotengine.org/en/3.2/tutorials/2d/using_tilemaps.html).
 -   Preparsing the level into a platform graph, and using A* search for efficient path-finding at runtime.
+-   A powerful inspector for analyzing the platform graph, in order to debug and better understand how edges were calculated.
 
 ## Buy why?
 
@@ -54,7 +61,7 @@ The edges of this graph correspond to a type of movement that the player could p
 
 ### Nodes: Parsing a Godot `TileMap` into surfaces
 
-**NOTE**: The following algorithm assumes that the given `TileMap` only uses tiles with convex collision boundaries.
+> **NOTE:** The following algorithm assumes that the given `TileMap` only uses tiles with convex collision boundaries.
 
 #### Parse individual tiles into their constituent surfaces
 
@@ -77,7 +84,7 @@ The edges of this graph correspond to a type of movement that the player could p
 
 #### Remove internal surfaces
 
-**NOTE**: This will only detect internal surface segments that are equivalent with another internal segment. But for grid-based tiling systems, this can often be enough.
+> **NOTE:** This will only detect internal surface segments that are equivalent with another internal segment. But for grid-based tiling systems, this can often be enough.
 
 -   Check for pairs of floor+ceiling segments or left-wall+right-wall segments, such that both segments share the same vertices.
 -   Remove both segments in these pairs.
@@ -106,7 +113,7 @@ The edges of this graph correspond to a type of movement that the player could p
 
 **tl;dr**: The Surfacer framework uses a procedural approach to calculate trajectories for movement between surfaces. The algorithms used rely heavily on the classic [one-dimensional equations of motion for constant acceleration](https://physics.info/motion-equations/). These trajectories are calculated to match to the same abilities and limitations that are exhibited by corresponding human-controlled movement. After the trajectory for an edge is calculated, it is translated into a simple instruction/input-key start/end sequence that should reproduce the calculated trajectory.
 
-**NOTE**: A machine-learning-based approach would probably be a good alternate way to solve this general problem. However, one perk of a procedural approach is that it's relatively easy to understand how it works and to modify it to perform better for any given edge-case (and there are a _ton_ of edge-cases).
+> **NOTE:** A machine-learning-based approach would probably be a good alternate way to solve this general problem. However, one perk of a procedural approach is that it's relatively easy to understand how it works and to modify it to perform better for any given edge-case (and there are a _ton_ of edge-cases).
 
 #### The high-level steps
 
@@ -262,7 +269,7 @@ Unfortunately, most jump/land position calculations are highly dependent on the 
   -   After going through this new left-side (right-wall), top-side waypoint (#2), we can successfully reach the destination.
   -   With the resulting scenario, we shouldn't actually move through both of the intermediate waypoints (#1 and #2). We should should instead skip the first intermediate waypoint (#1) and go straight from the origin to the second intermediate waypoint (#2).
 
-TODO: screenshot of example scenario
+> TODO: screenshot of example scenario
 
 #### Collision calculation madness
 
@@ -313,7 +320,7 @@ Theoretically, this discrepancy shouldn't exist, and we should be able to elimin
 
 ## Platform graph inspector
 
-As you might imagine, the calculations for these edges can get quite complicated. To make these calculations easier to understand and debug, we created a powerful platform graph inspector. This can be accessed from the utility menu (the gear icon in the top-right corner of the screen).
+As you might imagine, the calculations for these edges can get quite complicated. To make these calculations easier to understand and debug, we created a powerful platform graph inspector. This can be accessed from the inspector panel (the gear icon in the top-right corner of the screen).
 
 ![Platform graph inspector](https://s3-us-west-2.amazonaws.com/levi-portfolio-media/surfacer/platform-graph.png)
 
@@ -380,11 +387,17 @@ Each entry in this inspector tree is encoded with annotation information which w
 
 ## Annotators
 
-We include a large collection of annotators that are useful for visually debugging calculation of the platform graph. Some of these are rendered by selecting entries in the platform graph inspector and some of them can be toggled through checkboxes in the utility panel.
+We include a large collection of annotators that are useful for visually debugging calculation of the platform graph. Some of these are rendered by selecting entries in the platform graph inspector and some of them can be toggled through checkboxes in the inspector panel.
 
 ## Movement parameters
 
 We support a large number of flags and parameters for adjusting various aspects of player/movement/platform-graph behavior. For a complete list of these params, see [movement_params.gd](./framework/platform_graph/edge/models/movement_params.gd).
+
+## Extensible framework for custom movement mechanics
+
+> TODO: Describe this system. For now, look at the code under `src/player/action/action_handlers/` for examples.
+
+> **NOTE:** The procedural pathfinding logic is implemented independently of this framework. So, you can use this to add cool new movement for human-controlled movement, but the automatic pathfinding will only know about the specific default mechanics that it was designed around.
 
 ## Notable limitations
 
@@ -418,36 +431,39 @@ We support a large number of flags and parameters for adjusting various aspects 
         -   face_right
         -   grab_wall
     -   Your level collidable foreground tiles must be defined in a TileMap that belongs to the "surfaces" node group.
+    -   Surfacer uses a very specific set of movement mechanics.
+        -   Fortunately, this set includes most features commonly used in platforms and is able to provide pretty sophisticated movement.
+        -   But the procedural path-finding doesn't know about complex platformer mechanics like special in-air friction or coyote time.
     -   The Surfacer framework isn't yet decoupled from the Squirrel Away demo app logic.
 
 ## Future work
 
-For a list of planned future work items / TODOs, see [main.gd](./main.gd).
+For a list of planned future work items / TODOs, see [Main.gd](./Main.gd).
 
 Some high-level planned future features include:
+-   Add an option for saving/loading the platform graph instead of parsing it each time.
 -   Bypass the Godot collision system at runtime, and use only the pre-calculated expected edge trajectories from the platform graph.
+-   More intelligent squirral avoidance.
+-   Better game-play goal, with an event that happens when you catch the squirrel.
+-   Decouple the Surface framework logic from the Squirrel Away demo logic.
+-   Add Surfacer to the Godot Asset Library.
+-   Use an R-Tree for faster surface lookup.
+-   Support for fall-through floors and walls in the platform graph.
 -   Support for double jumps in the platform graph.
 -   Support for dashes in the platform graph.
--   Support for fall-through floors and walls in the platform graph.
--   Support for surfaces of one point.
 -   Support for surfaces that face each other and are too close for player to fit between.
--   Use an R-Tree for faster surface lookup.
+-   Support for surfaces of one point.
 -   Support an alternate, template-based edge calculation pattern, which should be able to offer faster build times and still have quick run times.
+-   Add networking.
+-   Procedural level generation.
 
 ## Tests
 
-_**NOTE**: Sadly, the tests are not set up to automatically run on presubmit, so some of the tests are severely out-of-date and broken._
+_> **NOTE:** Sadly, the tests are not set up to automatically run on presubmit, so some of the tests are severely out-of-date and broken._
 
 Surfacer uses the [Gut tool](https://github.com/bitwes/Gut) for writing and running unit tests.
 
-## Licenses and acknowledgements
+## Licenses
 
-The Surfacer framework is published under the [MIT license](LICENSE).
-
-The Surface framework depends on various pieces of third-party code that are licensed separately. [Here is a list of these third-party licenses](https://github.com/levilindsey/surfacer/blob/master/docs/third-party-licenses.txt).
-
-The squirrel art was created using [Piskel](https://www.piskelapp.com/user/5663844106502144).
-
-All other art was created using [Aseprite](https://www.aseprite.org/).
-
-The Surfacer framework and Squirrel Away game were created using [Godot](https://godotengine.org/).
+-   All code is published under the [MIT license](LICENSE).
+-   This project depends on various pieces of third-party code that are licensed separately. [Here is a list of these third-party licenses](./src/surfacer_third_party_licenses.gd).
