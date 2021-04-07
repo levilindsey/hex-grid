@@ -90,30 +90,30 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
       var dateString = typeof d === 'object' ? d.end : d;
 
       if (dateString.toLowerCase() === 'present') {
-        return Number.MAX_VALUE;
-      } else {
-        dateParts = dateString.split('/');
-
-        switch (dateParts.length) {
-          case 1:
-            result = parseInt(dateParts[0]);
-            break;
-          case 2:
-            result = parseInt(dateParts[1]) + parseInt(dateParts[0]) * 0.01;
-            break;
-          case 3:
-            result = parseInt(dateParts[2]) + parseInt(dateParts[0]) * 0.01 + parseInt(dateParts[1]) * 0.0001;
-            break;
-          default:
-            throw new Error('Invalid date string format: ' + dateString);
-        }
-
-        if (typeof d === 'object' && d.tieBreaker) {
-          result += d.tieBreaker * 0.00001
-        }
-
-        return result
+        dateString = '1/1/9999';
       }
+
+      dateParts = dateString.split('/');
+
+      switch (dateParts.length) {
+        case 1:
+          result = parseInt(dateParts[0]);
+          break;
+        case 2:
+          result = parseInt(dateParts[1]) + parseInt(dateParts[0]) * 0.01;
+          break;
+        case 3:
+          result = parseInt(dateParts[2]) + parseInt(dateParts[0]) * 0.01 + parseInt(dateParts[1]) * 0.0001;
+          break;
+        default:
+          throw new Error('Invalid date string format: ' + dateString);
+      }
+
+      if (typeof d === 'object' && d.tieBreaker) {
+        result += d.tieBreaker * 0.00001
+      }
+
+      return result;
     }
   }
 

@@ -1,0 +1,32 @@
+{
+  "id": "scaffolder",
+  "titleShort": "Godot\napplication\nscaffolding",
+  "titleLong": "Scaffolder: Application scaffolding and utility functionality for Godot",
+  "urls": {
+    "github": "https://github.com/SnoringCatGames/scaffolder"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": {
+    "start": "11/2020",
+    "end": "Present",
+    "tieBreaker": 2
+  },
+  "categories": [
+    "side-project",
+    "app",
+    "godot",
+    "game",
+    "2D",
+    "library"
+  ],
+  "images": [
+    {
+      "fileName": "scaffolder-screenshot.png",
+      "description": "Scaffolder provides a bunch of general-purpose application scaffolding, such as a widget library and a a screen layout and navigation system."
+    }
+  ],
+  "videos": [
+  ],
+  "content": ""
+}

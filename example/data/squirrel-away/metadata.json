@@ -1,27 +1,36 @@
 {
-  "id": "surfacer",
-  "titleShort": "Platformer\nprocedural\npathfinding",
-  "titleLong": "Surfacer: A procedural pathfinding 2D-platformer framework for Godot",
+  "id": "squirrel-away",
+  "titleShort": "Point-and-click\nplatformer",
+  "titleLong": "Squirrel Away: A point-and-click platformer",
   "urls": {
     "demo": "https://snoringcat.games/play/squirrel-away",
-    "github": "https://github.com/SnoringCatGames/surfacer"
+    "github": "https://github.com/SnoringCatGames/squirrel-away"
   },
   "jobTitle": "",
   "location": "",
   "date": {
     "start": "2/2019",
-    "end": "Present",
-    "tieBreaker": 3
+    "end": "5/2021"
   },
   "categories": [
     "side-project",
+    "art",
+    "animation",
+    "music",
     "app",
     "godot",
     "game",
-    "2D",
-    "library"
+    "2D"
   ],
   "images": [
+    {
+      "fileName": "squirrel-running.gif",
+      "description": "A squirrel running animation that Levi created. This was created by hand-drawing pixel art for each frame."
+    },
+    {
+      "fileName": "cat-animation.gif",
+      "description": "A cat walking animation that Levi created. This was created using Godot's inverse kinematics and key frame APIs."
+    },
     {
       "fileName": "surfaces-and-edges.png",
       "description": "The Surfacer framework works pre-parsing a level into a \"platform graph\". The nodes are represented by points along the different surfaces in the level (floors, walls, and ceilings). The edges are represented by possible movement trajectories between points along surfaces."
@@ -29,10 +38,6 @@
     {
       "fileName": "navigator-preselection.png",
       "description": "A* search is used to find paths through the platform graph."
-    },
-    {
-      "fileName": "edge-step-calculation-debugging.png",
-      "description": "Surfacer includes a powerful platform graph inspector, which makes it easy to understand and debug how the platform graph was calculated."
     }
   ],
   "videos": [

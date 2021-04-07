@@ -9,7 +9,8 @@
   "location": "Seattle, WA",
   "date": {
     "start": "2/2021",
-    "end": "Present"
+    "end": "Present",
+    "tieBreaker": 6
   },
   "categories": [
     "work",
