@@ -3,14 +3,14 @@
   "titleShort": "Platformer\nprocedural\npathfinding",
   "titleLong": "Surfacer: A procedural pathfinding 2D-platformer framework for Godot",
   "urls": {
-    "demo": "https://levi.dev/surfacer",
-    "github": "https://github.com/levilindsey/surfacer"
+    "demo": "https://snoringcat.games/play/squirrel-away",
+    "github": "https://github.com/SnoringCatGames/surfacer"
   },
   "jobTitle": "",
   "location": "",
   "date": {
     "start": "2/2019",
-    "end": "2020"
+    "end": "2021"
   },
   "categories": [
     "side-project",
