@@ -1,5 +1,7 @@
 # Surfacer
 
+_Surfacer is owned by [Snoring Cat LLC](https://snoringcat.games)._
+
 > _**[Live demo](https://levi.dev/squirrel)**_
 > 
 > _**[Demo source](https://github.com/snoringcatgames/squirrel-away)**_
