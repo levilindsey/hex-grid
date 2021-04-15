@@ -172,7 +172,7 @@ gulp.task('merge-data', ['inject-data-descriptions'], function () {
         '    </url>\n';
     rootUrlString +=
         '\n    <url>\n' +
-        '        <loc>https://blog.levi.dev/</loc>\n' +
+        '        <loc>https://devlog.levi.dev/</loc>\n' +
         '        <lastmod>' + dateString + '</lastmod>\n' +
         '    </url>\n';
 

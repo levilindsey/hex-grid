@@ -40,7 +40,7 @@
     'itchio': 'itch.io',
     'ludum-dare': 'Ludum Dare',
     'global-game-jam': 'Global Game Jam',
-    'blog': 'Blog',
+    'devlog': 'Devlog',
     'snoring-cat': 'Snoring Cat LLC',
     'chrome-web-store': 'Chrome Web Store',
     'play-store': 'Google Play Store',
