@@ -1,0 +1,48 @@
+{
+  "id": "before-times",
+  "titleShort": "Atmospheric\nfirst-person game",
+  "titleLong": "The Before Times: An atmospheric first-person game",
+  "urls": {
+    "demo": "https://levi.dev/before-times",
+    "ludum-dare": "https://ldjam.com/events/ludum-dare/48/the-before-times",
+    "github": "https://github.com/MarjieVolk/InfiniteBasement"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "4/2021",
+  "categories": [
+    "side-project",
+    "app",
+    "unity",
+    "game",
+    "3D",
+    "game-jam",
+    "teamwork"
+  ],
+  "images": [
+    {
+      "fileName": "screenshot-1-min.png",
+      "description": "The Before Times's menu screen"
+    },
+    {
+      "fileName": "screenshot-2-min.png",
+      "description": "The first thing you see."
+    },
+    {
+      "fileName": "screenshot-3-min.png",
+      "description": "You get to let some light into the room."
+    },
+    {
+      "fileName": "screenshot-4-min.png",
+      "description": "Things brighten up as you progress. Don't worry, it isn't actually a psychological horror game!"
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "CggXbs2_YqQ",
+      "description": "A playthrough video for The Before Times."
+    }
+  ],
+  "content": ""
+}

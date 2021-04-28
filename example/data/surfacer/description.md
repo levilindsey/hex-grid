@@ -1,6 +1,8 @@
 _Surfacer is owned by [Snoring Cat LLC](https://snoringcat.games)._
 
-_A procedural pathfinding 2D-platformer framework for [Godot](https://godotengine.org/)._
+_Point-and-click platformers!_
+
+_Aka, a procedural pathfinding 2D-platformer framework for [Godot](https://godotengine.org/)._
 
 _"Surfacer": Like a platformer, but with walking, climbing, and jumping on all surfaces!_
 
