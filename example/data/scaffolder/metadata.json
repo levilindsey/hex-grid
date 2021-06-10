@@ -3,7 +3,8 @@
   "titleShort": "Godot\napplication\nscaffolding",
   "titleLong": "Scaffolder: Application scaffolding and utility functionality for Godot",
   "urls": {
-    "github": "https://github.com/SnoringCatGames/scaffolder"
+    "github": "https://github.com/SnoringCatGames/scaffolder",
+    "godot-asset-library": "https://godotengine.org/asset-library/asset/969"
   },
   "jobTitle": "",
   "location": "",

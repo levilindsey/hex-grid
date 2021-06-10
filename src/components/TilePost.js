@@ -19,7 +19,7 @@
   config.inactiveScreenSaturation = 1;
   config.inactiveScreenLightness = 4;
 
-  config.fontSize = 18;
+  config.fontSize = document.documentElement.clientWidth > 812 ? 18 : 14;
 
   //  --- Dependent parameters --- //
 
