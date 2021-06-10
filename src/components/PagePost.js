@@ -45,6 +45,7 @@
     'chrome-web-store': 'Chrome Web Store',
     'play-store': 'Google Play Store',
     'app-store': 'Apple App Store',
+    'godot-asset-library': 'Godot Asset Library',
   };
 
   config.monthLabels = {
