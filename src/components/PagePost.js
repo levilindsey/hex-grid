@@ -40,6 +40,7 @@
     'itchio': 'itch.io',
     'ludum-dare': 'Ludum Dare',
     'global-game-jam': 'Global Game Jam',
+    'gmtk': 'GMTK game jam',
     'devlog': 'Devlog',
     'snoring-cat': 'Snoring Cat LLC',
     'chrome-web-store': 'Chrome Web Store',

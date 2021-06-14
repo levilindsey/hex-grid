@@ -1,0 +1,55 @@
+{
+  "id": "momma-duck",
+  "titleShort": "Point-and-click\nplatformer",
+  "titleLong": "Momma Duck: A point-and-click platformer",
+  "urls": {
+    "demo": "https://levi.dev/momma-duck",
+    "gmtk": "https://itch.io/jam/gmtk-2021/rate/1085910",
+    "github": "https://github.com/levilindsey/gmtk-2021"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "6/2021",
+  "categories": [
+    "side-project",
+    "app",
+    "godot",
+    "game",
+    "2D",
+    "game-jam"
+  ],
+  "images": [
+    {
+      "fileName": "cover-art.png",
+      "description": "Cover art for Momma Duck."
+    },
+    {
+      "fileName": "recording-avoiding-enemies.gif",
+      "description": "As Momma navigates through the level, she must be careful to keep her ducklings away from any enemies!"
+    },
+    {
+      "fileName": "recording-finding-duckling.gif",
+      "description": "Momma first has to find her lost ducklings."
+    },
+    {
+      "fileName": "recording-lots-of-trailing-ducklings.gif",
+      "description": "Momma can end up with quite a few ducklings trailing behind her."
+    },
+    {
+      "fileName": "rope-simulation.gif",
+      "description": "An early version of the game included a rope simulation to show the connect between Momma and her followers. The rope would stretch, change color, then snap if the duckling fell too far behind!"
+    },
+    {
+      "fileName": "screenshot-pond.png",
+      "description": "The goal of each level is for Momma to lead all her ducklings to a safe pond."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "QYv0xNa0bO8",
+      "description": "A gameplay video for Momma Duck."
+    }
+  ],
+  "content": ""
+}
