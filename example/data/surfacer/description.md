@@ -1,5 +1,3 @@
-_Surfacer is owned by [Snoring Cat LLC](https://snoringcat.games)._
-
 _Point-and-click platformers!_
 
 _Aka, a procedural pathfinding 2D-platformer framework for [Godot](https://godotengine.org/)._
@@ -436,13 +434,4 @@ We support a large number of flags and parameters for adjusting various aspects 
         -   But the procedural path-finding doesn't know about complex platformer mechanics like special in-air friction or coyote time.
     -   The Surfacer framework isn't yet decoupled from the Squirrel Away demo app logic.
 
-## Tests
-
-_> **NOTE:** Sadly, the tests are not set up to automatically run on presubmit, so some of the tests are severely out-of-date and broken._
-
-Surfacer uses the [Gut tool](https://github.com/bitwes/Gut) for writing and running unit tests.
-
-## Licenses
-
--   All code is published under the [MIT license](https://github.com/SnoringCatGames/surfacer/blob/master/LICENSE).
--   This project depends on various pieces of third-party code that are licensed separately. [Here is a list of these third-party licenses](https://github.com/SnoringCatGames/surfacer/blob/master/src/config/SurfacerThirdPartyLicenses.gd).
+> _Surfacer is owned by [Snoring Cat LLC](https://snoringcat.games)._

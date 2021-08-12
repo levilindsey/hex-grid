@@ -1,5 +1,3 @@
-_Scaffolder is owned by [Snoring Cat LLC](https://snoringcat.games)._
-
 This is an opinionated framework that provides a bunch of general-purpose application scaffolding and utility functionality for Godot games.
 
 ## Features
@@ -100,8 +98,4 @@ For example:
 -   [`ShinyButton`](https://github.com/SnoringCatGames/scaffolder/blob/master/src/gui/ShinyButton.gd)
 -   [`NavBar`](https://github.com/SnoringCatGames/scaffolder/blob/master/src/gui/NavBar.gd)
 
-## Licenses
-
--   All code is published under the [MIT license](https://github.com/SnoringCatGames/scaffolder/blob/master/LICENSE).
--   All art assets (files under `assets/images/`, `assets/music/`, and `assets/sounds/`) are published under the [CC0 1.0 Universal license](https://creativecommons.org/publicdomain/zero/1.0/deed.en).
--   This project depends on various pieces of third-party code that are licensed separately. [Here is a list of these third-party licenses](https://github.com/SnoringCatGames/scaffolder/blob/master/src/config/ScaffolderThirdPartyLicenses.gd).
+> _Scaffolder is owned by [Snoring Cat LLC](https://snoringcat.games)._
