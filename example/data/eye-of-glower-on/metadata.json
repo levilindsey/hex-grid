@@ -1,0 +1,51 @@
+{
+  "id": "eye-of-glower-on",
+  "titleShort": "Point-and-click\ntug-of-war",
+  "titleLong": "The Eye of Glower-On: A point-and-click game",
+  "urls": {
+    "demo": "https://levilindsey.itch.io/the-eye-of-mount-glower-on",
+    "ludum-dare": "https://ldjam.com/events/ludum-dare/49/ludum-dare-49",
+    "github": "https://github.com/levilindsey/ludum-dare-49"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "10/2021",
+  "categories": [
+    "side-project",
+    "app",
+    "godot",
+    "game",
+    "2D",
+    "game-jam"
+  ],
+  "images": [
+    {
+      "fileName": "gameplay.gif",
+      "description": "Some gameplay. Notice the different attack mechanics, and the different hero types."
+    },
+    {
+      "fileName": "opening.gif",
+      "description": "Starting a game through the Scaffolder UI flow."
+    },
+    {
+      "fileName": "phone_gameplay.gif",
+      "description": "It also works well on mobile devices!"
+    },
+    {
+      "fileName": "characters_demo.gif",
+      "description": "These are the various characters in the game."
+    },
+    {
+      "fileName": "loading.gif",
+      "description": "The Eye of Glower-On."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "PsbyLwgKQr0",
+      "description": "A gameplay video for The Eye of Glower-On."
+    }
+  ],
+  "content": ""
+}
