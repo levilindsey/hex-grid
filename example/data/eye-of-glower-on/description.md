@@ -1,3 +1,5 @@
+_[Watch this let's-play video from a stranger on the Internet!](https://www.youtube.com/watch?v=bv0djyPlHwQ)_
+
 _In this point-and-click game, you control the vast power of an unstable mountain._
 
 > The heroes of the land aim to ascend **Mount Oh No** to destroy the vessel of your vast power! You must CRUSH THEM! And send them flying! They will FEEL YOUR ANGER!! They think they can scale Mount Oh No?? Not while **The Eye of Glower-On** is watching!
@@ -28,6 +30,19 @@ The mountain is unstable! You use frequent earthquakes and falling boulders to s
 Tap, tappity, tap tap!
 
 Mouse or touch!
+
+## What reviewers are saying
+
+[(See the reviews on ldjam.com)](https://ldjam.com/events/ludum-dare/49/ludum-dare-49)
+
+*   "Great game! I love the SFX and the art. The AI is really cool too and i love that if you shake them off and they land on another platform they start going again. Good work!"
+*   "Loving it, dig the simplicity! The forces of good surely felt my wrath as i pounded them with countless tremors, a hailstorm of meteors and they trembled by the sight of my orc army!(though I’m having a harder time then I’d like to admit with lvl 2 haha) The sounds you’ve made are incredible(I’m biased to anything midi or bit-like), fits really well with the all-around aesthetics of the game, and the soundtrack is just 😙👌. Gotta do some other stuff, but i have just put a solid 30-45 minutes into this haha, will definitely get back to it"
+*   "Very good game, played it more than other games! Auto jumping enemies looks like magic for me) My respect to SFX and burning eye animation"
+*   "this is so fun!!! you are so talented to do such a polished game especially as a COMPO entry. i loved everything here, i usually not into point and click but this was so addicting and fun, the simple graphics are very consistent and your UI\menu’s are beautiful as heck, the sound fits well and hit the spot. the game idea is so innovative and fun! amazing job dude. [...] BTW if you ever decide to expand on this one and make it a whole game on steam, i will be your first buyer :D really had great time with it."
+*   "👏👏👍better than licensed versions. fun and simple gameplay. also GODOT!"
+*   "It’s really fun to play as the bad guy, it’s like a vertical tower defense game, really cool!! Also love that they’re called Bobbits"
+*   "I can totally understand why someone would want an orc army."
+*   etc...
 
 ## Software used
 
