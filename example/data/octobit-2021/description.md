@@ -1,8 +1,8 @@
 > Check out **[Levi's devlog post](https://devlog.levi.dev/2021/11/octobit-2021-success.html)** for a more complete retrospective on his Octobit experience.
 
-* _A composite video: [levi.dev/octobit-video](htts://levi.dev/octobit-video)_
-* _The original Twitter posts: [levi.dev/octobit](htts://levi.dev/octobit-twitter)_
-* _Time-lapse videos: [levi.dev/octobit-timelapse](htts://levi.dev/octobit-timelapse)_
+* _A composite video: [levi.dev/octobit-video](https://levi.dev/octobit-video)_
+* _The original Twitter posts: [levi.dev/octobit-twitter](https://levi.dev/octobit-twitter)_
+* _Time-lapse videos: [levi.dev/octobit-timelapse](https://levi.dev/octobit-timelapse)_
 
 [Octobit](https://medium.com/retronator-magazine/octobit-5036eed7cb82) is a challenge to create one piece of pixel art per day during the month of October. [Here is 2021's daily prompt list](https://twitter.com/brunopixels/status/1436811641740464134?s=20).
 
