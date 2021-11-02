@@ -1,4 +1,5 @@
 _[Watch this let's-play video from a stranger on the Internet!](https://www.youtube.com/watch?v=bv0djyPlHwQ)_
+_[...or this one!](https://www.youtube.com/watch?v=S1iYKWqClok&t=2307s)
 
 _In this point-and-click game, you control the vast power of an unstable mountain._
 
