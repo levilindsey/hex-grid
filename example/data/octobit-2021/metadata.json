@@ -1,0 +1,155 @@
+{
+  "id": "octobit-2021",
+  "titleShort": "Octobit\n2021",
+  "titleLong": "Octobit 2021: Daily pixel-art challenge",
+  "urls": {
+    "twitter": "https://levi.dev/octobit-2021-twitter"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "10/2021",
+  "categories": [
+    "side-project",
+    "art",
+    "animation",
+    "2D"
+  ],
+  "images": [
+    {
+      "fileName": "action_figure_1024.gif",
+      "description": "Day 1: You as an action figure"
+    },
+    {
+      "fileName": "origami_1024.png",
+      "description": "Day 2: Origami"
+    },
+    {
+      "fileName": "half_human_1024.png",
+      "description": "Day 3: Half human"
+    },
+    {
+      "fileName": "latte_art_1024.gif",
+      "description": "Day 4: Latte art"
+    },
+    {
+      "fileName": "medical_procedure_1024.gif",
+      "description": "Day 5: Medical procedure"
+    },
+    {
+      "fileName": "it_came_from_outer_space_1024.png",
+      "description": "Day 6: It came from outer space"
+    },
+    {
+      "fileName": "garbage_1024.gif",
+      "description": "Day 7: Garbage"
+    },
+    {
+      "fileName": "marble_1024.gif",
+      "description": "Day 8: Marble"
+    },
+    {
+      "fileName": "your_biggest_treasure_1024.png",
+      "description": "Day 9: Your biggest treasure"
+    },
+    {
+      "fileName": "lunchbox_1024.png",
+      "description": "Day 10: Lunchbox"
+    },
+    {
+      "fileName": "dont_touch_1024.gif",
+      "description": "Day 11: Don't touch"
+    },
+    {
+      "fileName": "luchador_1024.png",
+      "description": "Day 12: Luchador"
+    },
+    {
+      "fileName": "big_bug_1024.gif",
+      "description": "Day 13: Big bug"
+    },
+    {
+      "fileName": "matryoshka_1024.gif",
+      "description": "Day 14: Matryoshka dolls"
+    },
+    {
+      "fileName": "typical_food_from_your_country_1024.gif",
+      "description": "Day 15: Typical food from your country"
+    },
+    {
+      "fileName": "beware_of_the_dog_1024.png",
+      "description": "Day 16: Beware of the dog"
+    },
+    {
+      "fileName": "sand_castle_1024.gif",
+      "description": "Day 17: Sandcastle"
+    },
+    {
+      "fileName": "walking_guts_1024.gif",
+      "description": "Day 18: Walking guts"
+    },
+    {
+      "fileName": "perfect_fit_1024.png",
+      "description": "Day 19: Perfect fit"
+    },
+    {
+      "fileName": "cursed_item_1024.gif",
+      "description": "Day 20: Cursed item"
+    },
+    {
+      "fileName": "stupid_hat_1024.png",
+      "description": "Day 21: Stupid hat"
+    },
+    {
+      "fileName": "delivery_service_1024.png",
+      "description": "Day 22: Delivery service"
+    },
+    {
+      "fileName": "tmnt_ripoff_1024.gif",
+      "description": "Day 23: TMNT ripoff"
+    },
+    {
+      "fileName": "cocktail_party_1024.png",
+      "description": "Day 24: Cocktail party"
+    },
+    {
+      "fileName": "homemade_weapon_1024.gif",
+      "description": "Day 25: Homemade weapon"
+    },
+    {
+      "fileName": "skull_1024.png",
+      "description": "Day 26: Skull"
+    },
+    {
+      "fileName": "home_wrecker_1024.gif",
+      "description": "Day 27: Homewrecker"
+    },
+    {
+      "fileName": "robot_1024.gif",
+      "description": "Day 28: Robot"
+    },
+    {
+      "fileName": "stained_glass_1024.png",
+      "description": "Day 29: Stained glass"
+    },
+    {
+      "fileName": "gashapon_1024.gif",
+      "description": "Day 30: Gashapon"
+    },
+    {
+      "fileName": "times_up_1024.gif",
+      "description": "Day 31: Time's up"
+    },
+    {
+      "fileName": "octobit_combined_art.png",
+      "description": "All Octobit pieces together."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "eZ1hoM2edDM",
+      "description": "A quick composite video showing all of Levi's Octobit art."
+    }
+  ],
+  "content": ""
+}
