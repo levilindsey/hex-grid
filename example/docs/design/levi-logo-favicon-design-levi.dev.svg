@@ -2,20 +2,20 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="210mm"
    height="297mm"
    viewBox="0 0 210 297"
    version="1.1"
    id="svg39475"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="Levi-logo-favicon-design-levi.dev.svg">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="levi-logo-favicon-design-levi.dev.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs39469" />
   <sodipodi:namedview
@@ -25,17 +25,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="2665.4432"
-     inkscape:cy="2802.3374"
+     inkscape:zoom="0.175"
+     inkscape:cx="1762.8571"
+     inkscape:cy="-914.28572"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
-     inkscape:window-height="1001"
-     inkscape:window-x="-9"
-     inkscape:window-y="-9"
-     inkscape:window-maximized="1" />
+     inkscape:window-height="1010"
+     inkscape:window-x="-1926"
+     inkscape:window-y="-6"
+     inkscape:window-maximized="1"
+     inkscape:pagecheckerboard="0" />
   <metadata
      id="metadata39472">
     <rdf:RDF>
@@ -44,7 +45,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -327,8 +328,9 @@
     <g
        transform="translate(215.13507,-6.5432106)"
        id="g40616-9"
-       inkscape:export-xdpi="2.03"
-       inkscape:export-ydpi="2.03">
+       inkscape:export-xdpi="16.26"
+       inkscape:export-ydpi="16.26"
+       inkscape:export-filename="C:\Users\lsl\Repositories\hex-grid\example\docs\design\favicon-128.png">
       <path
          inkscape:connector-curvature="0"
          id="rect40031-3-4-0-9-7-7-3-1-9"

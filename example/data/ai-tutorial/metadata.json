@@ -1,0 +1,27 @@
+{
+  "id": "ai-tutorial",
+  "titleShort": "Platformer AI\ntutorial",
+  "titleLong": "Platformer AI tutorial series",
+  "urls": {
+    "devlog": "https://levi.dev/ai-tutorial"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "9/2021",
+  "categories": [
+    "side-project",
+    "app",
+    "godot",
+    "AI",
+    "2D"
+  ],
+  "images": [
+    {
+      "fileName": "behavior_trajectory_icon.png",
+      "description": "An icon representing the series."
+    }
+  ],
+  "videos": [
+  ],
+  "content": ""
+}
