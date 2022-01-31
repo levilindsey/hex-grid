@@ -1,0 +1,80 @@
+{
+  "id": "tale-of-two-sides",
+  "titleShort": "2D platformer",
+  "titleLong": "Tale of Two Sides: A 2D platformer",
+  "urls": {
+    "demo": "https://voithos.itch.io/tale-of-two-sides",
+    "global-game-jam": "https://globalgamejam.org/2022/games/tale-two-sides-2",
+    "github": "https://github.com/voithos/global-game-jam-2022"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "1/2022",
+  "categories": [
+    "side-project",
+    "app",
+    "godot",
+    "game",
+    "2D",
+    "game-jam",
+    "teamwork"
+  ],
+  "images": [
+    {
+      "fileName": "phasing.gif",
+      "description": "The phasing mechanic is a lot of fun to control!"
+    },
+    {
+      "fileName": "phase-basics.gif",
+      "description": "This game includes lots of narrative elements!"
+    },
+    {
+      "fileName": "screenshot1.png",
+      "description": "The main menu."
+    },
+    {
+      "fileName": "screenshot2.png",
+      "description": "An intro storyboard screen illustrating how the protagonist broke the world by breaking a crystal."
+    },
+    {
+      "fileName": "screenshot3.png",
+      "description": "An intro storyboard screen illustrating how the protagonist broke the world by breaking a crystal."
+    },
+    {
+      "fileName": "screenshot5.png",
+      "description": "Our credits screen."
+    },
+    {
+      "fileName": "screenshot6.png",
+      "description": "The protagonist caused the terrible split in the world by breaking a crystal."
+    },
+    {
+      "fileName": "screenshot7.png",
+      "description": "You collect a fragment of the broken crystal at the end of each level."
+    },
+    {
+      "fileName": "screenshot8.png",
+      "description": "Along the way, you meet NPCs who have become separated from their friends and family during the divide."
+    },
+    {
+      "fileName": "screenshot10.png",
+      "description": "The final crystal that you reach at the end of the game."
+    },
+    {
+      "fileName": "screenshot11.png",
+      "description": "The game-completed art."
+    },
+    {
+      "fileName": "icon_128.gif",
+      "description": "."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "Ro5a_ssqQZM",
+      "description": "A gameplay video for Tale of Two Sides."
+    }
+  ],
+  "content": ""
+}
