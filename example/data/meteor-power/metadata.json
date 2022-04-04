@@ -1,0 +1,44 @@
+{
+  "id": "meteor-power",
+  "titleShort": "Point-and-click\nplatformer",
+  "titleLong": "Meteor Power: A point-and-click platformer",
+  "urls": {
+    "demo": "https://levi.dev/ld50",
+    "ludum-dare": "https://ldjam.com/events/ludum-dare/50/meteor-power",
+    "github": "https://github.com/levilindsey/ludum-dare-50"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "4/2022",
+  "categories": [
+    "side-project",
+    "app",
+    "godot",
+    "game",
+    "AI",
+    "2D",
+    "game-jam"
+  ],
+  "images": [
+    {
+      "fileName": "construction_bot_walking_256.gif",
+      "description": "Go little construction bot—keep on building!"
+    },
+    {
+      "fileName": "meteor-power-short-clip.gif",
+      "description": "Some gameplay. Notice the control of multiple bots, and the damage from falling meteors!"
+    },
+    {
+      "fileName": "cover-art-big.png",
+      "description": "Cover art for Meteor Power."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "tQ6M2WWKj7k",
+      "description": "A gameplay video for Meteor Power."
+    }
+  ],
+  "content": ""
+}
