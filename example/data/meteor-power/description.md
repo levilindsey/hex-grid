@@ -3,7 +3,7 @@
 All design, code, images, sound effects, and music were created during the jam.
 
 
-## The jam
+## ‍💻 The jam
 
 **Theme: "Delay the inevitable"**
 
