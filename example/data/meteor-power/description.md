@@ -23,7 +23,6 @@ I worked solo and created everything during the event. Except of course for my S
 -   A/S/D/Q/W/E to select a bot.
 -   Left-click on a platform to move the bot.
 -   Left-click a station button to do that command.
--   Right-click to cancel a command.
 
 
 ## 💿 Software used
@@ -35,6 +34,8 @@ I worked solo and created everything during the event. Except of course for my S
 -   **[Surfacer](https://godotengine.org/asset-library/asset/968):** Framework for procedural path-finding across 2D platforms.
 -   **[Scaffolder](https://godotengine.org/asset-library/asset/969):** Framework for general app and UI infrastructure.
 -   **[SurfaceTiler](https://github.com/SnoringCatGames/surface_tiler):** Framework for "next-level" autotiling.
+
+> _The latest version of **Meteor Power** is owned by [Snoring Cat LLC](https://snoringcat.games), but the original version was published by Levi in the Ludum Dare 50 game jam._
 
 
 ![A constructor bot](https://s3-us-west-2.amazonaws.com/levi-portfolio-media/meteor-power/construction_bot_walking_256.gif)

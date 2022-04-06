@@ -5,7 +5,7 @@ _In this point-and-click game, you control the vast power of an unstable mountai
 
 > The heroes of the land aim to ascend **Mount Oh No** to destroy the vessel of your vast power! You must CRUSH THEM! And send them flying! They will FEEL YOUR ANGER!! They think they can scale Mount Oh No?? Not while **The Eye of Glower-On** is watching!
 
-This game was originally created in 48-hours as a [submission](https://ldjam.com/events/ludum-dare/49/TODO) for the [Ludum Dare 49 game jam](https://ldjam.com/events/ludum-dare/48).
+This game was originally created in 48-hours as a [submission](https://ldjam.com/events/ludum-dare/49/ludum-dare-49) for the [Ludum Dare 49 game jam](https://ldjam.com/events/ludum-dare/49).
 
 All design, code, images, sound effects, and music were created by Levi.
 
@@ -63,7 +63,7 @@ Notably, this is what the pre-existing Godot Asset Library packages add:
 -   **[Scaffolder](https://godotengine.org/asset-library/asset/969)**
     -   This mostly adds the GUI and screen-layout you see before actually starting a level.
 
-> _The latest version of **TODO** is owned by [Snoring Cat LLC](https://snoringcat.games), but the original version was published by Levi in the Ludum Dare 49 game jam._
+> _The latest version of **The Eye of Glower-On** is owned by [Snoring Cat LLC](https://snoringcat.games), but the original version was published by Levi in the Ludum Dare 49 game jam._
 
 
 ![The various characters](https://s3-us-west-2.amazonaws.com/levi-portfolio-media/eye-of-glower-on/loading.gif)
