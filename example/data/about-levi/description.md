@@ -1,12 +1,14 @@
+_"I write code. I sing songs. I create things."_
+
 ## The Bio
 
-Levi is a Frontend Software Engineer. He's also constantly tinkering on game-dev side projects&mdash;which are all highlighted in this portfolio.
+Levi is a gameplay engineer. He used to be a Frontend (Web) Software Engineer. He's also constantly tinkering on game-dev side projects&mdash;which are all highlighted in this portfolio.
 
-Levi is originally from from Olympia, WA. He now lives in Seattle, WA with his wife Jackie and their daughter.
+Levi is originally from Olympia, WA. He now lives in Seattle, WA with his wife Jackie and their daughter.
 
 Outside the realm of computer science, Levi has many hobbies and interests. First and foremost, he is a musician. Levi is a classically trained singer and has led in many operas and musicals; some of his more notable performances include: [Dido and Aeneas][dido-and-aeneas-url] (Aeneas), [Savitri][savitri-url] (Satyavan), and [My Fair Lady][my-fair-lady-url] (Henry Higgins). Levi also [sings with a capella groups][love-like-you-url] and [plays a lot of ukulele][down-today-url]. Check out some of his [recordings on YouTube][youtube-url]!
 
-Some of his other hobbies include: board games/card games, laser-cutting, brewing beer, blacksmithing, scuba diving, and a never-ending list of home improvements.
+Some of his other hobbies include: board games/card games, laser-cutting, brewing beer, blacksmithing, scuba diving, gardening, baking, and a never-ending list of home improvements.
 
 Levi was also an Eagle Scout, and spent his highschool summers as a camp counsellor and lifeguard at [Camp Hahobas][camp-hahobas-url], a boy scout camp in Washington state.
 
