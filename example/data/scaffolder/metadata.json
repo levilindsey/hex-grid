@@ -23,8 +23,12 @@
   ],
   "images": [
     {
-      "fileName": "scaffolder-screenshot.png",
-      "description": "Scaffolder provides a bunch of general-purpose application scaffolding, such as a widget library and a a screen layout and navigation system."
+      "fileName": "scaffolder-gui.gif",
+      "description": "Scaffolder provides a bunch of general-purpose UI and application scaffolding, such as a widget library and a a screen layout and navigation system."
+    },
+    {
+      "fileName": "scaffolder-resizing.gif",
+      "description": "Scaffolder provides a sophisticated rescaling system to help you make responsive UIs."
     }
   ],
   "videos": [
