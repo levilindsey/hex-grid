@@ -2,6 +2,8 @@
   "id": "uw-graphics",
   "titleShort": "OpenGL\nanimations",
   "titleLong": "OpenGL models and animations",
+  "emphasis": 0.8,
+  "color": "#186303",
   "urls": {
   },
   "jobTitle": "",

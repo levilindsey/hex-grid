@@ -2,6 +2,8 @@
   "id": "inner-tube-climber",
   "titleShort": "2D platformer\nendless\nclimber",
   "titleLong": "Inner-Tube Climber: A 2D platformer endless climber",
+  "emphasis": 0.8,
+  "color": "#fbf236",
   "urls": {
     "play-store": "https://play.google.com/store/apps/details?id=dev.levi.inner_tube_climber",
     "app-store": "https://apps.apple.com/us/app/inner-tube-climber/id1553158659",

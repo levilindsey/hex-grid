@@ -13,6 +13,7 @@
    * @property {String} titleShort
    * @property {String} titleLong
    * @property {String} thumbnailSrc
+   * @property {?Number} emphasis
    * @property {Array.<String>} mainImages
    * @property {String} content
    */
@@ -38,6 +39,10 @@
   config.forceSuppressionLowerThreshold = 0.0005;
   config.velocitySuppressionLowerThreshold = 0.0005;
   // TODO: add similar, upper thresholds
+
+  config.innerRadiusDiff = 2.0;
+
+  config.nonContentTileRadiusMultiplier = 1.0;
 
   //  --- Dependent parameters --- //
 
@@ -81,7 +86,8 @@
     tile.svg = svg;
     tile.grid = grid;
     tile.element = null;
-    tile.polygonElement = null;
+    tile.outerPolygonElement = null;
+    tile.innerPolygonElement = null;
     tile.currentAnchor = {x: anchorX, y: anchorY};
     tile.originalAnchor = {x: anchorX, y: anchorY};
     tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
@@ -109,10 +115,14 @@
     tile.imageScreenOpacity = Number.NaN;
 
     tile.neighborStates = [];
-    tile.vertices = null;
-    tile.currentVertexDeltas = null;
-    tile.originalVertexDeltas = null;
-    tile.expandedVertexDeltas = null;
+    tile.outerVertices = null;
+    tile.innerVertices = null;
+    tile.currentVertexOuterDeltas = null;
+    tile.originalVertexOuterDeltas = null;
+    tile.expandedVertexOuterDeltas = null;
+    tile.currentVertexInnerDeltas = null;
+    tile.originalVertexInnerDeltas = null;
+    tile.expandedVertexInnerDeltas = null;
     tile.particle = null;
 
     tile.setContent = setContent;
@@ -138,7 +148,8 @@
     }
   }
 
-  Tile.computeVertexDeltas = computeVertexDeltas;
+  Tile.computeVertexOuterDeltas = computeVertexOuterDeltas;
+  Tile.computeVertexInnerDeltas = computeVertexInnerDeltas;
   Tile.setTileNeighborState = setTileNeighborState;
   Tile.initializeTileExpandedState = initializeTileExpandedState;
   Tile.config = config;
@@ -160,12 +171,30 @@
   function createElement() {
     var tile = this;
 
-    tile.originalVertexDeltas = computeVertexDeltas(tile.outerRadius, tile.isVertical);
-    tile.currentVertexDeltas = tile.originalVertexDeltas.slice(0);
-    tile.vertices = [];
-    updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
+    updateVerticesForPostRadius.call(tile);
 
     createElementForNoTilePost.call(tile);
+  }
+
+  /**
+   * @this Tile
+   */
+  function updateVerticesForPostRadius() {
+    var tile = this;
+
+    var radiusMultiplier = tile.holdsContent && !!tile.postData.emphasis ? tile.postData.emphasis : 1.0;
+    var radius = tile.outerRadius * radiusMultiplier;
+    if (!tile.holdsContent) {
+      radius *= config.nonContentTileRadiusMultiplier;
+    }
+
+    tile.originalVertexOuterDeltas = computeVertexOuterDeltas(radius, tile.isVertical);
+    tile.currentVertexOuterDeltas = tile.originalVertexOuterDeltas.slice(0);
+    tile.originalVertexInnerDeltas = computeVertexInnerDeltas(radius, tile.isVertical);
+    tile.currentVertexInnerDeltas = tile.originalVertexInnerDeltas.slice(0);
+    tile.outerVertices = [];
+    tile.innerVertices = tile.holdsContent ? [] : null;
+    updateVertices.call(tile, tile.currentAnchor.x, tile.currentAnchor.y);
   }
 
   /**
@@ -183,8 +212,10 @@
     }
     tile.element = document.createElementNS(window.hg.util.svgNamespace, 'a');
     tile.svg.appendChild(tile.element);
-    tile.polygonElement = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
-    tile.element.appendChild(tile.polygonElement);
+    tile.outerPolygonElement = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
+    tile.element.appendChild(tile.outerPolygonElement);
+    tile.innerPolygonElement = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
+    tile.element.appendChild(tile.innerPolygonElement);
 
     tile.element.id = 'hg-' + id;
     tile.element.setAttribute('data-hg-tile', 'data-hg-tile');
@@ -211,7 +242,7 @@
     }
     tile.element = document.createElementNS(window.hg.util.svgNamespace, 'polygon');
     tile.svg.appendChild(tile.element);
-    tile.polygonElement = tile.element;
+    tile.outerPolygonElement = tile.element;
 
     tile.element.id = 'hg-' + id;
     tile.element.setAttribute('data-hg-tile', 'data-hg-tile');
@@ -258,8 +289,15 @@
     tile = this;
 
     for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
-      tile.vertices[coordIndex] = anchorX + tile.currentVertexDeltas[coordIndex++];
-      tile.vertices[coordIndex] = anchorY + tile.currentVertexDeltas[coordIndex++];
+      tile.outerVertices[coordIndex] = anchorX + tile.currentVertexOuterDeltas[coordIndex++];
+      tile.outerVertices[coordIndex] = anchorY + tile.currentVertexOuterDeltas[coordIndex++];
+    }
+
+    if (tile.holdsContent) {
+      for (trigIndex = 0, coordIndex = 0; trigIndex < 6; trigIndex += 1) {
+        tile.innerVertices[coordIndex] = anchorX + tile.currentVertexInnerDeltas[coordIndex++];
+        tile.innerVertices[coordIndex] = anchorY + tile.currentVertexInnerDeltas[coordIndex++];
+      }
     }
   }
 
@@ -342,6 +380,8 @@
 
     tile.postData = postData;
     tile.holdsContent = !!postData;
+
+    updateVerticesForPostRadius.call(tile);
 
     if (usedToHoldContent) {
       destroyTilePost.call(tile);
@@ -571,19 +611,47 @@
 
     tile = this;
 
-    // Set the vertices
+    // Set the outer vertices
     for (i = 0, pointsString = ''; i < 12;) {
-      pointsString += tile.vertices[i++] + ',' + tile.vertices[i++] + ' ';
+      pointsString += tile.outerVertices[i++] + ',' + tile.outerVertices[i++] + ' ';
     }
-    tile.polygonElement.setAttribute('points', pointsString);
+    tile.outerPolygonElement.setAttribute('points', pointsString);
+
+    if (!!tile.innerPolygonElement) {
+      // Set the inner vertices
+      for (i = 0, pointsString = ''; i < 12;) {
+        pointsString += tile.innerVertices[i++] + ',' + tile.innerVertices[i++] + ' ';
+      }
+      tile.innerPolygonElement.setAttribute('points', pointsString);
+    }
 
     if (!tile.holdsContent) {
       // Set the color
-      colorString = 'hsl(' + tile.currentColor.h + ',' +
-      tile.currentColor.s + '%,' +
-      tile.currentColor.l + '%)';
-      tile.polygonElement.setAttribute('fill', colorString);
+      colorString = 'hsl(' +
+          tile.currentColor.h + ',' +
+          tile.currentColor.s + '%,' +
+          tile.currentColor.l + '%)';
+      tile.outerPolygonElement.setAttribute('fill', colorString);
     } else if (tile.tilePost) {
+      var h, s, l;
+      var a = !!tile.postData.emphasis ? tile.postData.emphasis : 0.5;
+      a = Math.pow(a, 2.5) * 0.8;
+
+      // Set the border color
+      if (!!tile.postData.color && tile.postData.color.length > 1) {
+        var rgb = window.hg.util.hexToRgb(tile.postData.color);
+        var hsl = window.hg.util.rgbToHsl(rgb);
+        h = hsl.h;
+        s = window.hg.util.clamp(hsl.s, 60, 99);
+        l = window.hg.util.clamp(hsl.l, 70, 99);
+      } else {
+        h = tile.currentColor.h;
+        s = Math.max(tile.currentColor.s - 0, 0);
+        l = Math.min(tile.currentColor.l + 100, 100);
+      }
+      colorString = 'hsla(' + h + ',' + s + '%,' + l + '%,' + a + ')';
+      tile.outerPolygonElement.setAttribute('fill', colorString);
+
       // Set the position and opacity of the TilePost
       tile.tilePost.draw();
     }
@@ -661,8 +729,39 @@
    * @param {Boolean} isVertical
    * @returns {Array.<Number>}
    */
-  function computeVertexDeltas(radius, isVertical) {
+  function computeVertexOuterDeltas(radius, isVertical) {
     var trigIndex, coordIndex, sines, cosines, currentVertexDeltas;
+
+    // Grab the pre-computed sine and cosine values
+    if (isVertical) {
+      sines = config.verticalSines;
+      cosines = config.verticalCosines;
+    } else {
+      sines = config.horizontalSines;
+      cosines = config.horizontalCosines;
+    }
+
+    for (trigIndex = 0, coordIndex = 0, currentVertexDeltas = [];
+         trigIndex < 6;
+         trigIndex += 1) {
+      currentVertexDeltas[coordIndex++] = radius * cosines[trigIndex];
+      currentVertexDeltas[coordIndex++] = radius * sines[trigIndex];
+    }
+
+    return currentVertexDeltas;
+  }
+
+  /**
+   * Computes the offsets of the vertices from the center of the hexagon.
+   *
+   * @param {Number} radius
+   * @param {Boolean} isVertical
+   * @returns {Array.<Number>}
+   */
+  function computeVertexInnerDeltas(radius, isVertical) {
+    var trigIndex, coordIndex, sines, cosines, currentVertexDeltas;
+
+    radius -= config.innerRadiusDiff;
 
     // Grab the pre-computed sine and cosine values
     if (isVertical) {

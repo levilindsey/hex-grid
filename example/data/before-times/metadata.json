@@ -1,7 +1,9 @@
 {
   "id": "before-times",
-  "titleShort": "Atmospheric\nfirst-person\ngame",
+  "titleShort": "3D Atmospheric\nfirst-person\ngame",
   "titleLong": "The Before Times: An atmospheric first-person game",
+  "emphasis": 0.8,
+  "color": "#ffffff",
   "urls": {
     "demo": "https://levi.dev/before-times",
     "ludum-dare": "https://ldjam.com/events/ludum-dare/48/the-before-times",

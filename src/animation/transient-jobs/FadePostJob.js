@@ -46,7 +46,8 @@
       } else {
         job.pagePost.destroy();
 
-        job.baseTile.currentVertexDeltas = job.baseTile.originalVertexDeltas.slice(0);
+        job.baseTile.currentVertexOuterDeltas = job.baseTile.originalVertexOuterDeltas.slice(0);
+        job.baseTile.currentVertexInnerDeltas = job.baseTile.originalVertexInnerDeltas.slice(0);
       }
 
       job.baseTile.show();
@@ -110,10 +111,12 @@
       job.pagePost = job.grid.createPagePost(job.baseTile, job.pagePostStartPosition);
 
       expandedTileOuterRadius = window.hg.OpenPostJob.config.expandedDisplacementTileCount *
-      window.hg.Grid.config.tileShortLengthWithGap;
+          window.hg.Grid.config.tileShortLengthWithGap;
 
-      job.baseTile.expandedVertexDeltas =
-        window.hg.Tile.computeVertexDeltas(expandedTileOuterRadius, job.grid.isVertical);
+      job.baseTile.expandedVertexOuterDeltas =
+        window.hg.Tile.computeVertexOuterDeltas(expandedTileOuterRadius, job.grid.isVertical);
+      job.baseTile.expandedVertexInnerDeltas =
+        window.hg.Tile.computeVertexInnerDeltas(expandedTileOuterRadius, job.grid.isVertical);
     } else {
       job.pagePostStartPosition.x = job.grid.originalCenter.x;
       job.pagePostStartPosition.y = job.grid.originalCenter.y + job.grid.scrollTop;
@@ -164,8 +167,10 @@
     job.pagePost.center.y = job.pagePostStartPosition.y +
     job.pagePostDisplacement.y * progress;
 
-    interpolateVertexDeltas(job.baseTile.currentVertexDeltas, job.baseTile.originalVertexDeltas,
-      job.baseTile.expandedVertexDeltas, quick1FadeProgress);
+    interpolateVertexDeltas(job.baseTile.currentVertexOuterDeltas, job.baseTile.originalVertexOuterDeltas,
+        job.baseTile.expandedVertexOuterDeltas, quick1FadeProgress);
+    interpolateVertexDeltas(job.baseTile.currentVertexInnerDeltas, job.baseTile.originalVertexInnerDeltas,
+        job.baseTile.expandedVertexInnerDeltas, quick1FadeProgress);
 
     // Is the job done?
     if (progress === 1) {
@@ -209,8 +214,10 @@
     job.pagePost.center.y = job.pagePostStartPosition.y +
     job.pagePostDisplacement.y * progress;
 
-    interpolateVertexDeltas(job.baseTile.currentVertexDeltas, job.baseTile.expandedVertexDeltas,
-      job.baseTile.originalVertexDeltas, quick1FadeProgress);
+    interpolateVertexDeltas(job.baseTile.currentVertexOuterDeltas, job.baseTile.expandedVertexOuterDeltas,
+      job.baseTile.originalVertexOuterDeltas, quick1FadeProgress);
+    interpolateVertexDeltas(job.baseTile.currentVertexInnerDeltas, job.baseTile.expandedVertexInnerDeltas,
+      job.baseTile.originalVertexInnerDeltas, quick1FadeProgress);
 
     // Is the job done?
     if (progress === 1) {

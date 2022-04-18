@@ -2,6 +2,8 @@
   "id": "eye-of-glower-on",
   "titleShort": "Point-and-click\ntug-of-war",
   "titleLong": "The Eye of Glower-On: A point-and-click game",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "demo": "https://levilindsey.itch.io/the-eye-of-glower-on",
     "ludum-dare": "https://ldjam.com/events/ludum-dare/49/ludum-dare-49",

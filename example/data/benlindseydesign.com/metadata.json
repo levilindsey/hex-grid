@@ -2,6 +2,8 @@
   "id": "benlindseydesign.com",
   "titleShort": "Portfolio\nwebsite:\nDesigner",
   "titleLong": "Portfolio for an Industrial Designer",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "homepage": "http://benlindseydesign.com",
     "github": "https://github.com/levilindsey/benlindseydesign.com"

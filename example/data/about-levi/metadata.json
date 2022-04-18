@@ -2,6 +2,8 @@
   "id": "about-levi",
   "titleShort": "About\nLevi",
   "titleLong": "About Levi",
+  "emphasis": 1.0,
+  "color": "#bc8e62",
   "urls": {
     "devlog": "https://devlog.levi.dev",
     "githubProfile": "https://github.com/levilindsey",
@@ -14,7 +16,7 @@
     "snoring-cat": "https://snoringcat.games",
     "resume": "https://levi.dev/resume"
   },
-  "jobTitle": "Frontend Software Engineer",
+  "jobTitle": "Gameplay Engineer",
   "location": "Seattle, WA",
   "date": {
     "start": "4/27/1988",

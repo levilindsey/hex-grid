@@ -2,6 +2,8 @@
   "id": "tale-of-two-sides",
   "titleShort": "2D platformer",
   "titleLong": "Tale of Two Sides: A 2D platformer",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "demo": "https://voithos.itch.io/tale-of-two-sides",
     "global-game-jam": "https://globalgamejam.org/2022/games/tale-two-sides-2",

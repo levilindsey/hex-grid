@@ -2,6 +2,8 @@
   "id": "dark-time",
   "titleShort": "Dark Time:\nChrome\nextension",
   "titleLong": "Dark Time: Chrome extension",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "chrome-web-store": "https://chrome.google.com/webstore/detail/dark-time/ofmngaeacndglijmheklbcnbjfdcohke",
     "github": "https://github.com/levilindsey/dark-time"

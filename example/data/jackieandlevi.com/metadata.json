@@ -3,6 +3,8 @@
   "id": "jackieandlevi.com",
   "titleShort": "Portfolio\nwebsite:\nLevi's first",
   "titleLong": "Levi's first portfolio website",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "homepage": "http://jackieandlevi.com",
     "github": "https://github.com/levilindsey/jackieandlevi.com"

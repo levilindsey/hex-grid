@@ -626,6 +626,78 @@
   }
 
   /**
+   * @param {String} hex
+   * @returns {{r:Number,g:Number,b:Number}}
+   */
+  function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    var r = parseInt(result[1], 16);
+    var g = parseInt(result[2], 16);
+    var b = parseInt(result[3], 16);
+    return {
+      r: r,
+      g: g,
+      b: b,
+    }
+  }
+
+  /**
+   * @param {{r:Number,g:Number,b:Number}} rgb
+   * @returns {{h:Number,s:Number,l:Number}}
+   */
+  function rgbToHsl(rgb) {
+    var r = rgb.r / 255;
+    var g = rgb.g / 255;
+    var b = rgb.b / 255;
+    var max = Math.max(r, g, b);
+    var min = Math.min(r, g, b);
+    var h = (max + min) / 2;
+    var s = (max + min) / 2;
+    var l = (max + min) / 2;
+
+    if (max === min) {
+      h = 0;
+      s = 0;
+    } else {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / d + 2;
+          break;
+        case b:
+          h = (r - g) / d + 4;
+          break;
+      }
+      h /= 6;
+    }
+
+    h = Math.round(360 * h);
+    s = s * 100;
+    s = Math.round(s);
+    l = l * 100;
+    l = Math.round(l);
+    return {
+      h: h,
+      s: s,
+      l: l,
+    }
+  }
+
+  /**
+   * @param {Number} value
+   * @param {Number} min
+   * @param {Number} max
+   * #returns {Number}
+   */
+  function clamp(value, min, max) {
+    return Math.max(Math.min(value, max), min);
+  }
+
+  /**
    * Checks the given element and all of its ancestors, and returns the first that contains the
    * given class.
    *
@@ -755,6 +827,9 @@
     deepCopy: deepCopy,
     hsvToHsl: hsvToHsl,
     hslToHsv: hslToHsv,
+    hexToRgb: hexToRgb,
+    rgbToHsl: rgbToHsl,
+    clamp: clamp,
     findClassInSelfOrAncestors: findClassInSelfOrAncestors,
     addRuleToStyleSheet: addRuleToStyleSheet,
     checkForSafari: checkForSafari,

@@ -2,6 +2,8 @@
   "id": "hex-grid",
   "titleShort": "Hex Grid",
   "titleLong": "Hex Grid",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "demo": "https://levi.dev/hex-grid",
     "github": "https://github.com/levilindsey/hex-grid"

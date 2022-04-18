@@ -2,6 +2,8 @@
   "id": "google-greentea",
   "titleShort": "Google:\nGreentea",
   "titleLong": "Google: Greentea",
+  "emphasis": 1.0,
+  "color": "#0d904f",
   "urls": {
     "homepage": "https://google.com/about"
   },

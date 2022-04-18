@@ -2,6 +2,8 @@
   "id": "metabounce",
   "titleShort": "Metabounce:\nWeb doodle",
   "titleLong": "Metabounce: A web doodle",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "demo": "https://levi.dev/metabounce",
     "github": "https://github.com/levilindsey/metabounce",
