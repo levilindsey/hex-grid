@@ -2,6 +2,8 @@
   "id": "newtons-pen",
   "titleShort": "Intelligent\ntutoring\nsystem:\nPen",
   "titleLong": "Newtons Pen: An intelligent tutoring system",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "published": "http://escholarship.org/uc/item/40r3k5v2"
   },

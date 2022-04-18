@@ -2,6 +2,8 @@
   "id": "game-engine",
   "titleShort": "WebGL\ngraphics &\nphysics\nengine",
   "titleLong": "A WebGL graphics framework, physics engine, and game engine",
+  "emphasis": 1.0,
+  "color": "#6f0458",
   "urls": {
     "demo": "https://levi.dev/dynamics",
     "github": "https://github.com/levilindsey/gamex"

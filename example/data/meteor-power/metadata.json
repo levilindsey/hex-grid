@@ -2,6 +2,8 @@
   "id": "meteor-power",
   "titleShort": "Point-and-click\nplatformer",
   "titleLong": "Meteor Power: A point-and-click platformer",
+  "emphasis": 0.9,
+  "color": "#636a94",
   "urls": {
     "demo": "https://levi.dev/ld50",
     "ludum-dare": "https://ldjam.com/events/ludum-dare/50/meteor-power",

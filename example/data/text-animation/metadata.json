@@ -2,6 +2,8 @@
   "id": "text-animation",
   "titleShort": "Text\nanimation",
   "titleLong": "Text animation",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "bower": "http://bower.io/search/?q=text-animation",
     "demo": "https://levi.dev/text-animation",

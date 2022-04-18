@@ -2,6 +2,8 @@
   "id": "anvato",
   "titleShort": "Anvato",
   "titleLong": "Anvato",
+  "emphasis": 0.7,
+  "color": "#d1242c",
   "urls": {
     "homepage": "http://anvato.com"
   },

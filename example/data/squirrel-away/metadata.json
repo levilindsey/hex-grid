@@ -2,6 +2,8 @@
   "id": "squirrel-away",
   "titleShort": "Point-and-click\nplatformer",
   "titleLong": "Squirrel Away: A point-and-click platformer",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "demo": "https://snoringcat.games/play/squirrel-away",
     "github": "https://github.com/SnoringCatGames/squirrel_away"

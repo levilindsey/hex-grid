@@ -2,6 +2,8 @@
   "id": "gesture-recognizer",
   "titleShort": "Gesture\nrecognition",
   "titleLong": "Gesture segmenter and recognizer",
+  "emphasis": 0.8,
+  "color": "#9592c9",
   "urls": {
     "github": "https://github.com/levilindsey/stroke-recognition"
   },

@@ -170,6 +170,7 @@
     // Have the title change across a wider opacity range than the background screen
     var titleOpacity = 0.5 + (backgroundImageScreenOpacity - 0.5) * 2;
     titleOpacity = titleOpacity > 1 ? 1 : (titleOpacity < 0 ? 0 : titleOpacity);
+    titleOpacity *= Math.pow(!!tilePost.tile.postData.emphasis ? tilePost.tile.postData.emphasis : 0.5, 0.7);
 
     window.hg.util.setTransform(tilePost.elements.title,
         'translate(' + tilePost.tile.particle.px + 'px,' + tilePost.tile.particle.py + 'px)');

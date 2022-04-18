@@ -2,6 +2,8 @@
   "id": "ai-tutorial",
   "titleShort": "Platformer AI\ntutorial",
   "titleLong": "Platformer AI tutorial series",
+  "emphasis": 0.8,
+  "color": "#5bc75e",
   "urls": {
     "devlog": "https://levi.dev/ai-tutorial"
   },

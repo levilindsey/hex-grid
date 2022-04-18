@@ -2,6 +2,8 @@
   "id": "google-cloud-platform",
   "titleShort": "Google:\nCloud\nPlatform",
   "titleLong": "Google: Cloud Platform",
+  "emphasis": 1.0,
+  "color": "#ea4335",
   "urls": {
     "homepage": "https://cloud.google.com/"
   },

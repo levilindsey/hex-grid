@@ -2,6 +2,8 @@
   "id": "space-debris",
   "titleShort": "Space\nflight\ngame",
   "titleLong": "Space Debris: A space-flight simulation game",
+  "emphasis": 0.8,
+  "color": "#8ecb4c",
   "urls": {
     "demo": "https://levi.dev/space-debris",
     "github": "https://github.com/levilindsey/space-debris"

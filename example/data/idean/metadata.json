@@ -2,6 +2,8 @@
   "id": "idean",
   "titleShort": "Idean",
   "titleLong": "Idean",
+  "emphasis": 0.7,
+  "color": "#e23000",
   "urls": {
     "homepage": "http://idean.com"
   },

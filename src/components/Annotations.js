@@ -1203,8 +1203,8 @@
 
     function getCornerPosition(tile, corner) {
       return {
-        x: tile.vertices[corner * 2],
-        y: tile.vertices[corner * 2 + 1]
+        x: tile.outerVertices[corner * 2],
+        y: tile.outerVertices[corner * 2 + 1]
       };
     }
   }

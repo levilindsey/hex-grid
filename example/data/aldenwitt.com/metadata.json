@@ -2,6 +2,8 @@
   "id": "aldenwitt.com",
   "titleShort": "Portfolio\nwebsite:\nSongwriter",
   "titleLong": "Portfolio for a songwriter",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "homepage": "http://levi.dev/aldenwitt.com",
     "github": "https://github.com/levilindsey/aldenwitt.com"

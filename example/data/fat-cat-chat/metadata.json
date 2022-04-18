@@ -2,6 +2,8 @@
   "id": "fat-cat-chat",
   "titleShort": "IRC-like\nchat",
   "titleLong": "Fat Cat Chat",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "demo": "https://levi.dev/fat-cat-chat",
     "github": "https://github.com/levilindsey/fat-cat-chat"

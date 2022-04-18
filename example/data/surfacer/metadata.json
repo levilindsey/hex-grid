@@ -2,6 +2,8 @@
   "id": "surfacer",
   "titleShort": "Platformer\nprocedural\npathfinding",
   "titleLong": "Surfacer: A procedural pathfinding 2D-platformer framework for Godot",
+  "emphasis": 1.0,
+  "color": "#4488c0",
   "urls": {
     "demo": "https://snoringcat.games/play/squirrel-away",
     "github": "https://github.com/SnoringCatGames/surfacer",

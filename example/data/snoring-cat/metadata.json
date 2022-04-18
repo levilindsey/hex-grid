@@ -2,6 +2,8 @@
   "id": "snoring-cat",
   "titleShort": "Snoring Cat LLC",
   "titleLong": "Snoring Cat LLC",
+  "emphasis": 0.8,
+  "color": "#7e664d",
   "urls": {
     "snoring-cat": "https://snoringcat.games"
   },

@@ -2,6 +2,8 @@
   "id": "ucr-ta",
   "titleShort": "Teaching\nassistant",
   "titleLong": "Teaching assistant",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
   },
   "jobTitle": "Teaching Assistant",

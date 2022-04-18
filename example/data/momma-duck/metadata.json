@@ -2,6 +2,8 @@
   "id": "momma-duck",
   "titleShort": "Point-and-click\nplatformer",
   "titleLong": "Momma Duck: A point-and-click platformer",
+  "emphasis": 0.6,
+  "color": "#",
   "urls": {
     "demo": "https://levi.dev/momma-duck",
     "gmtk": "https://itch.io/jam/gmtk-2021/rate/1085910",
