@@ -3,7 +3,7 @@
   "titleShort": "MEAN-stack\ngenerator",
   "titleLong": "MEAN-stack Yeoman generator with Gulp",
   "emphasis": 0.6,
-  "color": "#",
+  "color": "#d77472",
   "urls": {
     "npm": "https://npmjs.org/package/generator-meanie",
     "github": "https://github.com/levilindsey/generator-meanie"

@@ -3,7 +3,7 @@
   "titleShort": "Photo viewer",
   "titleLong": "Photo viewer",
   "emphasis": 0.6,
-  "color": "#",
+  "color": "#839939",
   "urls": {
     "demo": "https://levi.dev/photo-viewer",
     "github": "https://github.com/levilindsey/photo-viewer"

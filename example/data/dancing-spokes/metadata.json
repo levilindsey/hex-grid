@@ -3,7 +3,7 @@
   "titleShort": "Dancing\nspokes:\nWeb doodle",
   "titleLong": "Dancing spokes: A web doodle",
   "emphasis": 0.6,
-  "color": "#",
+  "color": "#1c6c45",
   "urls": {
     "demo": "https://levi.dev/dancing-spokes",
     "github": "https://github.com/levilindsey/dancing-spokes",
