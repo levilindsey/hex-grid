@@ -3,7 +3,7 @@
   "titleShort": "Chess",
   "titleLong": "Chess",
   "emphasis": 0.6,
-  "color": "#",
+  "color": "#0373c4",
   "urls": {
     "demo": "https://levi.dev/chess",
     "github": "https://github.com/levilindsey/chess"

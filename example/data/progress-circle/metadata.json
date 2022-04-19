@@ -3,7 +3,7 @@
   "titleShort": "Progress\ncircle:\nWeb doodle",
   "titleLong": "Progress circle: A web doodle",
   "emphasis": 0.6,
-  "color": "#",
+  "color": "#960969",
   "urls": {
     "demo": "https://levi.dev/progress-circle",
     "github": "https://github.com/levilindsey/progress-circle",

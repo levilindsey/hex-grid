@@ -3,7 +3,7 @@
   "titleShort": "IRC-like\nchat",
   "titleLong": "Fat Cat Chat",
   "emphasis": 0.6,
-  "color": "#",
+  "color": "#eeb6b6",
   "urls": {
     "demo": "https://levi.dev/fat-cat-chat",
     "github": "https://github.com/levilindsey/fat-cat-chat"

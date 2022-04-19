@@ -3,7 +3,7 @@
   "titleShort": "Tile-matching\npuzzle\ngame",
   "titleLong": "Squared Away: A tile-matching puzzle game",
   "emphasis": 0.6,
-  "color": "#",
+  "color": "#8a2128",
   "urls": {
     "demo": "https://levi.dev/squared-away",
     "github": "https://github.com/levilindsey/squared-away"
