@@ -1,4 +1,6 @@
-> 🤖 A point-and-click AI platformer: Build solar stations, connect power, avoid meteors!
+> Meteor Power is a mobile RTS point-and-click 2D platformer.
+>
+> ☄️🤖 _Build solar stations, connect power, avoid meteors!_
 
 All design, code, images, sound effects, and music were created during the jam.
 
