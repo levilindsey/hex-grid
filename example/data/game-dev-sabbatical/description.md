@@ -4,4 +4,6 @@ Follow along by subscribing to Levi's [devlog](https://devlog.levi.dev)!
 
 In particular, if you're curious about Levi's motivations and goals for his sabbatical, check out [his first post](https://devlog.levi.dev/2021/01/wait-what-am-i-doing.html).
 
+Levi wrote [many game-dev tutorials during his sabbatical, which you can find here](https://levi.dev/game-dev-tutorials).
+
 Levi also formed Snoring Cat LLC to publish some of his more substantial games and software projects under. Check out Snoring Cat LLC's site at [snoringcat.games](https://snoringcat.games).
