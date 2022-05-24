@@ -5,6 +5,15 @@
 All design, code, images, sound effects, and music were created during the jam.
 
 
+## 📱 The mobile app
+
+I am currently extending the Ludum Dare version of Meteor Power into a more-polished mobile version.
+
+-   It should be released late June.
+-   You can follow my progress at [devlog.levi.dev](https://devlog.levi.dev).
+-   This extended version is also [open-source on GitHub](https://github.com/SnoringCatGames/meteor_power).
+
+
 ## ‍💻 The jam
 
 **Theme: "Delay the inevitable"**
