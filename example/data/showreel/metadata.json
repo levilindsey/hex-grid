@@ -1,0 +1,36 @@
+{
+  "id": "showreel",
+  "titleShort": "Gameplay\nshowreel",
+  "titleLong": "Showreel: Highlighting Levi's gameplay work",
+  "emphasis": 0.9,
+  "color": "#636a94",
+  "urls": {
+  },
+  "jobTitle": "Senior Gameplay Engineer",
+  "location": "",
+  "date": {
+    "start": "2013",
+    "end": "Present",
+    "tieBreaker": 8
+  },
+  "categories": [
+    "side-project",
+    "app",
+    "godot",
+    "unity",
+    "game",
+    "AI",
+    "2D",
+    "3D"
+  ],
+  "images": [
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "XCHBPZsOKGw",
+      "description": "A showreel highlighting gameplay work that Levi has done."
+    }
+  ],
+  "content": ""
+}
