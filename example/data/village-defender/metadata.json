@@ -1,0 +1,47 @@
+{
+  "id": "village-defender",
+  "titleShort": "Platformer\nstrategy game",
+  "titleLong": "Village Defender: Platformer strategy game",
+  "emphasis": 0.6,
+  "color": "#d4ce63",
+  "urls": {
+    "demo": "https://levi.dev/ld51",
+    "ludum-dare": "https://ldjam.com/events/ludum-dare/51/ludum-dare-51-here-we-come",
+    "github": "https://github.com/levilindsey/ludum-dare-51",
+    "soundcloud": "https://soundcloud.com/levilindsey/sets/village-defender"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "10/2022",
+  "categories": [
+    "side-project",
+    "app",
+    "godot",
+    "game",
+    "AI",
+    "2D",
+    "game-jam"
+  ],
+  "images": [
+    {
+      "fileName": "ld51_raining.gif",
+      "description": "Some gameplay. Lots of arrows and rocks flying back and forth!"
+    },
+    {
+      "fileName": "worker_standing_256.gif",
+      "description": "Down, up, down, up, down, up, ..."
+    },
+    {
+      "fileName": "cover.png",
+      "description": "Cover art for Village Defender."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "Ix7IdaGE3AA",
+      "description": "A gameplay video for Village Defender."
+    }
+  ],
+  "content": ""
+}
