@@ -51,5 +51,8 @@
     "merge-stream": "^0.1.8",
     "natives": "^1.1.6",
     "q": "^1.5.0"
+  },
+  "overrides": {
+    "graceful-fs": "^4.2.10"
   }
 }
