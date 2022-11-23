@@ -5142,7 +5142,8 @@ if (typeof define === 'function' && define.amd) {
 
 //# sourceMappingURL=showdown.js.map
 
-/*! showdown-twitter 26-11-2016 */(function (extension) {
+/*! showdown-twitter 26-11-2016 */
+(function (extension) {
   'use strict';
 
   if (typeof showdown !== 'undefined') {
@@ -6885,6 +6886,8 @@ if (typeof define === 'function' && define.amd) {
 })();
 
 /**
+<<<<<<< HEAD
+=======
  * This module defines a singleton for animating things.
  *
  * The animator singleton handles the animation loop for the application and updates all
@@ -7089,6 +7092,7 @@ if (typeof define === 'function' && define.amd) {
 })();
 
 /**
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
  * @typedef {AnimationJob} Annotations
  */
 
@@ -12464,6 +12468,8 @@ if (typeof define === 'function' && define.amd) {
 })();
 
 /**
+<<<<<<< HEAD
+<<<<<<< HEAD
  * @typedef {AnimationJob} ColorResetJob
  */
 
@@ -12473,1094 +12479,28 @@ if (typeof define === 'function' && define.amd) {
  * ColorResetJob objects reset tile color values during each animation frame.
  *
  * @module ColorResetJob
+=======
+ * This module defines a singleton for animating things.
+ *
+ * The animator singleton handles the animation loop for the application and updates all
+ * registered AnimationJobs during each animation frame.
+ *
+ * @module animator
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
  */
 (function () {
+  /**
+   * @typedef {{start: Function, update: Function(Number, Number), draw: Function, cancel: Function, init: Function, isComplete: Boolean}} AnimationJob
+   */
+
   // ------------------------------------------------------------------------------------------- //
   // Private static variables
 
+  var animator = {};
   var config = {};
 
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this ColorResetJob as started.
-   *
-   * @this ColorResetJob
-   * @param {Number} startTime
-   */
-  function start(startTime) {
-    var job = this;
-
-    job.startTime = startTime;
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this ColorResetJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorResetJob
-   * @param {Number} currentTime
-   * @param {Number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, i, count;
-
-    job = this;
-
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].currentColor.h = job.grid.allTiles[i].originalColor.h;
-      job.grid.allTiles[i].currentColor.s = job.grid.allTiles[i].originalColor.s;
-      job.grid.allTiles[i].currentColor.l = job.grid.allTiles[i].originalColor.l;
-      job.grid.allTiles[i].imageScreenOpacity = window.hg.TilePost.config.inactiveScreenOpacity;
-    }
-  }
-
-  /**
-   * Draws the current state of this ColorResetJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorResetJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this ColorResetJob, and returns the element its original form.
-   *
-   * @this ColorResetJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  /**
-   * @this ColorResetJob
-   */
-  function refresh() {
-    var job = this;
-
-    init.call(job);
-  }
-
-  /**
-   * @this ColorResetJob
-   */
-  function init() {
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function ColorResetJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.startTime = 0;
-    job.isComplete = true;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.refresh = refresh;
-    job.init = init;
-
-    job.init();
-
-    console.log('ColorResetJob created');
-  }
-
-  ColorResetJob.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.ColorResetJob = ColorResetJob;
-
-  console.log('ColorResetJob module loaded');
-})();
-
-/**
- * @typedef {AnimationJob} ColorShiftJob
- */
-
-/**
- * @typedef {Object} ShiftStatus
- * @property {Number} timeStart
- * @property {Number} timeEnd
- */
-
-/**
- * @typedef {ShiftStatus} NonContentTileShiftStatus
- * @property {Number} hueDeltaStart
- * @property {Number} hueDeltaEnd
- * @property {Number} saturationDeltaStart
- * @property {Number} saturationDeltaEnd
- * @property {Number} lightnessDeltaStart
- * @property {Number} lightnessDeltaEnd
- */
-
-/**
- * @typedef {ShiftStatus} ContentTileShiftStatus
- * @property {Number} opacityDeltaStart
- * @property {Number} opacityDeltaEnd
- */
-
-/**
- * This module defines a constructor for ColorShiftJob objects.
- *
- * ColorShiftJob objects animate the colors of the tiles in a random fashion.
- *
- * @module ColorShiftJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  config.hueDeltaMin = -20;
-  config.hueDeltaMax = 20;
-  config.saturationDeltaMin = 0;
-  config.saturationDeltaMax = 0;
-  config.lightnessDeltaMin = 0;
-  config.lightnessDeltaMax = 0;
-
-  config.imageBackgroundScreenOpacityDeltaMin = -0.05;
-  config.imageBackgroundScreenOpacityDeltaMax = 0.05;
-
-  config.transitionDurationMin = 200;
-  config.transitionDurationMax = 2000;
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Creates a shift status object for each tile to keep track of their individual animation
-   * progress.
-   *
-   * @this ColorShiftJob
-   */
-  function initTileShiftStatuses() {
-    var job, i, count;
-
-    job = this;
-
-    job.shiftStatusesNonContentTiles = [];
-    job.shiftStatusesContentTiles = [];
-
-    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
-      job.shiftStatusesNonContentTiles[i] = {
-        timeStart: 0,
-        timeEnd: 0,
-        hueDeltaStart: 0,
-        hueDeltaEnd: 0,
-        saturationDeltaStart: 0,
-        saturationDeltaEnd: 0,
-        lightnessDeltaStart: 0,
-        lightnessDeltaEnd: 0,
-      };
-    }
-
-    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
-      job.shiftStatusesContentTiles[i] = {
-        timeStart: 0,
-        timeEnd: 0,
-        opacityDeltaStart: 0,
-        opacityDeltaEnd: 0,
-      };
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Updates the animation progress of the given non-content tile.
-   *
-   * @param {Number} currentTime
-   * @param {Tile} tile
-   * @param {NonContentTileShiftStatus} shiftStatus
-   */
-  function updateNonContentTile(currentTime, tile, shiftStatus) {
-    if (currentTime > shiftStatus.timeEnd) {
-      assignNewNonContentTileTransition(currentTime, shiftStatus);
-    }
-
-    var progress = (currentTime - shiftStatus.timeStart) /
-        (shiftStatus.timeEnd - shiftStatus.timeStart);
-
-    tile.currentColor.h += progress *
-        (shiftStatus.hueDeltaEnd - shiftStatus.hueDeltaStart) +
-        shiftStatus.hueDeltaStart;
-    tile.currentColor.s += progress *
-        (shiftStatus.saturationDeltaEnd - shiftStatus.saturationDeltaStart) +
-        shiftStatus.saturationDeltaStart;
-    tile.currentColor.l += progress *
-        (shiftStatus.lightnessDeltaEnd - shiftStatus.lightnessDeltaStart) +
-        shiftStatus.lightnessDeltaStart;
-
-    // Also add a gradual hue shift across all tiles.
-    tile.currentColor.h += currentTime / 300;
-    tile.currentColor.h %= 360;
-  }
-
-  /**
-   * Updates the animation progress of the given content tile.
-   *
-   * @param {Number} currentTime
-   * @param {Tile} tile
-   * @param {ContentTileShiftStatus} shiftStatus
-   */
-  function updateContentTile(currentTime, tile, shiftStatus) {
-    if (currentTime > shiftStatus.timeEnd) {
-      assignNewContentTileTransition(currentTime, shiftStatus);
-    }
-
-    var progress = (currentTime - shiftStatus.timeStart) /
-        (shiftStatus.timeEnd - shiftStatus.timeStart);
-
-    tile.imageScreenOpacity += progress *
-        (shiftStatus.opacityDeltaEnd - shiftStatus.opacityDeltaStart) +
-        shiftStatus.opacityDeltaStart;
-    // tile.imageScreenOpacity += -tileProgress * config.opacity *
-    //     config.deltaOpacityImageBackgroundScreen;
-  }
-
-  /**
-   * @param {Number} currentTime
-   * @param {NonContentTileShiftStatus} shiftStatus
-   */
-  function assignNewNonContentTileTransition(currentTime, shiftStatus) {
-    assignNewTransitionDuration(currentTime, shiftStatus);
-
-    shiftStatus.hueDeltaStart = shiftStatus.hueDeltaEnd;
-    shiftStatus.hueDeltaEnd = getNewHueDelta();
-
-    shiftStatus.saturationDeltaStart = shiftStatus.saturationDeltaEnd;
-    shiftStatus.saturationDeltaEnd = getNewSaturationDelta();
-
-    shiftStatus.lightnessDeltaStart = shiftStatus.lightnessDeltaEnd;
-    shiftStatus.lightnessDeltaEnd = getNewLightnessDelta();
-  }
-
-  /**
-   * @param {Number} currentTime
-   * @param {ContentTileShiftStatus} shiftStatus
-   */
-  function assignNewContentTileTransition(currentTime, shiftStatus) {
-    assignNewTransitionDuration(currentTime, shiftStatus);
-
-    shiftStatus.opacityDeltaStart = shiftStatus.opacityDeltaEnd;
-    shiftStatus.opacityDeltaEnd = getNewOpacityDelta();
-  }
-
-  /**
-   * Create a new duration value, and set up the start and end time to account for any time gap
-   * between the end of the last transition and the current time.
-   *
-   * @param {Number} currentTime
-   * @param {ShiftStatus} shiftStatus
-   */
-  function assignNewTransitionDuration(currentTime, shiftStatus) {
-    var elapsedTimeSinceEnd = currentTime - shiftStatus.timeEnd;
-    var newDuration = getNewTransitionDuration();
-    while (newDuration <= elapsedTimeSinceEnd) {
-      elapsedTimeSinceEnd -= newDuration;
-      newDuration = getNewTransitionDuration();
-    }
-
-    shiftStatus.timeStart = currentTime - elapsedTimeSinceEnd;
-    shiftStatus.timeEnd = shiftStatus.timeStart + newDuration;
-  }
-
-  /**
-   * @returns {Number} A random shift transition duration value between the configured min and max.
-   */
-  function getNewTransitionDuration() {
-    return Math.random() * (config.transitionDurationMax - config.transitionDurationMin) +
-        config.transitionDurationMin;
-  }
-
-  /**
-   * @returns {Number} A random hue delta value between the configured min and max.
-   */
-  function getNewHueDelta() {
-    return Math.random() * (config.hueDeltaMax - config.hueDeltaMin) + config.hueDeltaMin;
-  }
-
-  /**
-   * @returns {Number} A random saturation delta value between the configured min and max.
-   */
-  function getNewSaturationDelta() {
-    return Math.random() * (config.saturationDeltaMax - config.saturationDeltaMin) +
-        config.saturationDeltaMin;
-  }
-
-  /**
-   * @returns {Number} A random lightness delta value between the configured min and max.
-   */
-  function getNewLightnessDelta() {
-    return Math.random() * (config.lightnessDeltaMax - config.lightnessDeltaMin) +
-        config.lightnessDeltaMin;
-  }
-
-  /**
-   * @returns {Number} A random opacity delta value between the configured min and max.
-   */
-  function getNewOpacityDelta() {
-    return Math.random() * (config.imageBackgroundScreenOpacityDeltaMax -
-        config.imageBackgroundScreenOpacityDeltaMin) +
-        config.imageBackgroundScreenOpacityDeltaMin;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this ColorShiftJob as started.
-   *
-   * @this ColorShiftJob
-   * @param {Number} startTime
-   */
-  function start(startTime) {
-    var job, i, count;
-
-    job = this;
-
-    job.startTime = startTime;
-    job.isComplete = false;
-
-    for (i = 0, count = job.shiftStatusesNonContentTiles.length; i < count; i += 1) {
-      job.shiftStatusesNonContentTiles[i].timeStart = startTime;
-      job.shiftStatusesNonContentTiles[i].timeEnd = startTime;
-    }
-
-    for (i = 0, count = job.shiftStatusesContentTiles.length; i < count; i += 1) {
-      job.shiftStatusesContentTiles[i].timeStart = startTime;
-      job.shiftStatusesContentTiles[i].timeEnd = startTime;
-    }
-  }
-
-  /**
-   * Updates the animation progress of this ColorShiftJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorShiftJob
-   * @param {Number} currentTime
-   * @param {Number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, i, count;
-
-    job = this;
-
-    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
-      updateNonContentTile(currentTime, job.grid.allNonContentTiles[i],
-          job.shiftStatusesNonContentTiles[i]);
-    }
-
-    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
-      updateContentTile(currentTime, job.grid.contentTiles[i],
-          job.shiftStatusesContentTiles[i]);
-    }
-  }
-
-  /**
-   * Draws the current state of this ColorShiftJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorShiftJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this ColorShiftJob.
-   *
-   * @this ColorShiftJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  /**
-   * @this ColorShiftJob
-   */
-  function refresh() {
-    var job = this;
-
-    init.call(job);
-  }
-
-  /**
-   * @this ColorShiftJob
-   */
-  function init() {
-    var job = this;
-
-    config.computeDependentValues();
-    initTileShiftStatuses.call(job);
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function ColorShiftJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.shiftStatusesNonContentTiles = null;
-    job.shiftStatusesContentTiles = null;
-    job.startTime = 0;
-    job.isComplete = true;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.refresh = refresh;
-    job.init = init;
-
-    job.init();
-
-    console.log('ColorShiftJob created');
-  }
-
-  ColorShiftJob.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.ColorShiftJob = ColorShiftJob;
-
-  console.log('ColorShiftJob module loaded');
-})();
-
-/**
- * @typedef {AnimationJob} ColorWaveJob
- */
-
-/**
- * This module defines a constructor for ColorWaveJob objects.
- *
- * ColorWaveJob objects animate the tiles of a Grid in order to create waves of color.
- *
- * @module ColorWaveJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  config.period = 1000;
-  config.wavelength = 600;
-  config.originX = -100;
-  config.originY = 1400;
-
-  // Amplitude (will range from negative to positive)
-  config.deltaHue = 0;
-  config.deltaSaturation = 0;
-  config.deltaLightness = 5;
-
-  config.deltaOpacityImageBackgroundScreen = 0.18;
-
-  config.opacity = 0.5;
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    config.halfPeriod = config.period / 2;
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Calculates a wave offset value for each tile according to their positions in the grid.
-   *
-   * @this ColorWaveJob
-   */
-  function initTileProgressOffsets() {
-    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
-
-    job = this;
-
-    halfWaveProgressWavelength = config.wavelength / 2;
-    job.waveProgressOffsetsNonContentTiles = [];
-    job.waveProgressOffsetsContentTiles = [];
-
-    // Calculate offsets for the non-content tiles
-    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
-      tile = job.grid.allNonContentTiles[i];
-
-      deltaX = tile.originalAnchor.x - config.originX;
-      deltaY = tile.originalAnchor.y - config.originY;
-      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
-
-      job.waveProgressOffsetsNonContentTiles[i] =
-          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
-    }
-
-    // Calculate offsets for the content tiles
-    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
-      tile = job.grid.contentTiles[i];
-
-      deltaX = tile.originalAnchor.x - config.originX;
-      deltaY = tile.originalAnchor.y - config.originY;
-      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
-
-      job.waveProgressOffsetsContentTiles[i] =
-          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Updates the animation progress of the given non-content tile.
-   *
-   * @param {Number} progress From -1 to 1
-   * @param {Tile} tile
-   * @param {Number} waveProgressOffset From -1 to 1
-   */
-  function updateNonContentTile(progress, tile, waveProgressOffset) {
-    var tileProgress =
-        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
-
-    tile.currentColor.h += config.deltaHue * tileProgress * config.opacity;
-    tile.currentColor.s += config.deltaSaturation * tileProgress * config.opacity;
-    tile.currentColor.l += config.deltaLightness * tileProgress * config.opacity;
-  }
-
-  /**
-   * Updates the animation progress of the given content tile.
-   *
-   * @param {Number} progress From -1 to 1
-   * @param {Tile} tile
-   * @param {Number} waveProgressOffset From -1 to 1
-   */
-  function updateContentTile(progress, tile, waveProgressOffset) {
-    var tileProgress =
-        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI) * 0.5 + 0.5;
-
-    tile.imageScreenOpacity += -tileProgress * config.opacity *
-        config.deltaOpacityImageBackgroundScreen;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this ColorWaveJob as started.
-   *
-   * @this ColorWaveJob
-   * @param {Number} startTime
-   */
-  function start(startTime) {
-    var job = this;
-
-    job.startTime = startTime;
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this ColorWaveJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorWaveJob
-   * @param {Number} currentTime
-   * @param {Number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, progress, i, count;
-
-    job = this;
-
-    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
-
-    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
-      updateNonContentTile(progress, job.grid.allNonContentTiles[i],
-          job.waveProgressOffsetsNonContentTiles[i]);
-    }
-
-    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
-      updateContentTile(progress, job.grid.contentTiles[i],
-          job.waveProgressOffsetsContentTiles[i]);
-    }
-  }
-
-  /**
-   * Draws the current state of this ColorWaveJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this ColorWaveJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this ColorWaveJob, and returns the element its original form.
-   *
-   * @this ColorWaveJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  /**
-   * @this ColorWaveJob
-   */
-  function refresh() {
-    var job = this;
-
-    init.call(job);
-  }
-
-  /**
-   * @this ColorWaveJob
-   */
-  function init() {
-    var job = this;
-
-    config.computeDependentValues();
-    initTileProgressOffsets.call(job);
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function ColorWaveJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.waveProgressOffsetsNonContentTiles = null;
-    job.waveProgressOffsetsContentTiles = null;
-    job.startTime = 0;
-    job.isComplete = true;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.refresh = refresh;
-    job.init = init;
-
-    job.init();
-
-    console.log('ColorWaveJob created');
-  }
-
-  ColorWaveJob.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.ColorWaveJob = ColorWaveJob;
-
-  console.log('ColorWaveJob module loaded');
-})();
-
-/**
- * @typedef {AnimationJob} DisplacementResetJob
- */
-
-/**
- * This module defines a constructor for DisplacementResetJob objects.
- *
- * DisplacementResetJob objects reset tile displacement values during each animation frame.
- *
- * @module DisplacementResetJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this DisplacementResetJob as started.
-   *
-   * @this DisplacementResetJob
-   * @param {Number} startTime
-   */
-  function start(startTime) {
-    var job = this;
-
-    job.startTime = startTime;
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this DisplacementResetJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this DisplacementResetJob
-   * @param {Number} currentTime
-   * @param {Number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, i, count;
-
-    job = this;
-
-    // Update the Tiles
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      job.grid.allTiles[i].currentAnchor.x = job.grid.allTiles[i].originalAnchor.x;
-      job.grid.allTiles[i].currentAnchor.y = job.grid.allTiles[i].originalAnchor.y;
-    }
-
-    if (job.grid.isPostOpen) {
-      // Update the Carousel
-      job.grid.pagePost.carousel.currentIndexPositionRatio =
-        job.grid.pagePost.carousel.currentIndex;
-    }
-  }
-
-  /**
-   * Draws the current state of this DisplacementResetJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this DisplacementResetJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this DisplacementResetJob, and returns the element its original form.
-   *
-   * @this DisplacementResetJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  /**
-   * @this DisplacementResetJob
-   */
-  function refresh() {
-    var job = this;
-
-    init.call(job);
-  }
-
-  /**
-   * @this DisplacementResetJob
-   */
-  function init() {
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function DisplacementResetJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.startTime = 0;
-    job.isComplete = true;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.refresh = refresh;
-    job.init = init;
-
-    job.init();
-
-    console.log('DisplacementResetJob created');
-  }
-
-  DisplacementResetJob.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.DisplacementResetJob = DisplacementResetJob;
-
-  console.log('DisplacementResetJob module loaded');
-})();
-
-/**
- * @typedef {AnimationJob} DisplacementWaveJob
- */
-
-/**
- * This module defines a constructor for DisplacementWaveJob objects.
- *
- * DisplacementWaveJob objects animate the tiles of a Grid in order to create waves of
- * motion.
- *
- * @module DisplacementWaveJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  config.period = 3200;
-  config.wavelength = 1800;
-  config.originX = 0;
-  config.originY = 0;
-
-  // Amplitude (will range from negative to positive)
-  config.tileDeltaX = -15;
-  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    config.halfPeriod = config.period / 2;
-
-    config.displacementAmplitude =
-        Math.sqrt(config.tileDeltaX * config.tileDeltaX +
-            config.tileDeltaY * config.tileDeltaY);
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Calculates a wave offset value for each tile according to their positions in the grid.
-   *
-   * @this DisplacementWaveJob
-   */
-  function initTileProgressOffsets() {
-    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
-
-    job = this;
-
-    halfWaveProgressWavelength = config.wavelength / 2;
-    job.waveProgressOffsets = [];
-
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      tile = job.grid.allTiles[i];
-
-      deltaX = tile.originalAnchor.x - config.originX;
-      deltaY = tile.originalAnchor.y - config.originY;
-      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
-
-      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
-          / halfWaveProgressWavelength;
-    }
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  /**
-   * Updates the animation progress of the given tile.
-   *
-   * @param {Number} progress
-   * @param {Tile} tile
-   * @param {Number} waveProgressOffset
-   */
-  function updateTile(progress, tile, waveProgressOffset) {
-    var tileProgress =
-        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
-
-    tile.currentAnchor.x += config.tileDeltaX * tileProgress;
-    tile.currentAnchor.y += config.tileDeltaY * tileProgress;
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this DisplacementWaveJob as started.
-   *
-   * @this DisplacementWaveJob
-   * @param {Number} startTime
-   */
-  function start(startTime) {
-    var job = this;
-
-    job.startTime = startTime;
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this DisplacementWaveJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this DisplacementWaveJob
-   * @param {Number} currentTime
-   * @param {Number} deltaTime
-   */
-  function update(currentTime, deltaTime) {
-    var job, progress, i, count;
-
-    job = this;
-
-    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
-
-    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
-      updateTile(progress, job.grid.allTiles[i], job.waveProgressOffsets[i]);
-    }
-  }
-
-  /**
-   * Draws the current state of this DisplacementWaveJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this DisplacementWaveJob
-   */
-  function draw() {
-    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
-  }
-
-  /**
-   * Stops this DisplacementWaveJob, and returns the element its original form.
-   *
-   * @this DisplacementWaveJob
-   */
-  function cancel() {
-    var job = this;
-
-    job.isComplete = true;
-  }
-
-  /**
-   * @this DisplacementWaveJob
-   */
-  function refresh() {
-    var job = this;
-
-    init.call(job);
-  }
-
-  /**
-   * @this DisplacementWaveJob
-   */
-  function init() {
-    var job = this;
-
-    config.computeDependentValues();
-    initTileProgressOffsets.call(job);
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   */
-  function DisplacementWaveJob(grid) {
-    var job = this;
-
-    job.grid = grid;
-    job.waveProgressOffsets = null;
-    job.startTime = 0;
-    job.isComplete = true;
-
-    job.start = start;
-    job.update = update;
-    job.draw = draw;
-    job.cancel = cancel;
-    job.refresh = refresh;
-    job.init = init;
-
-    job.init();
-
-    console.log('DisplacementWaveJob created');
-  }
-
-  DisplacementWaveJob.config = config;
-
-  // Expose this module
-  window.hg = window.hg || {};
-  window.hg.DisplacementWaveJob = DisplacementWaveJob;
-
-  console.log('DisplacementWaveJob module loaded');
-})();
-
-/**
+<<<<<<< HEAD
+=======
  * @typedef {AnimationJob} CarouselImageSlideJob
  */
 
@@ -13577,6 +12517,7 @@ if (typeof define === 'function' && define.amd) {
 
   config.duration = 300;
 
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -13586,6 +12527,28 @@ if (typeof define === 'function' && define.amd) {
 
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
+<<<<<<< HEAD
+=======
+  config.deltaTimeUpperThreshold = 160;
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this singleton
+
+  animator.jobs = [];
+  animator.previousTime = window.performance && window.performance.now() || 0;
+  animator.isLooping = false;
+  animator.isPaused = true;
+  animator.startJob = startJob;
+  animator.cancelJob = cancelJob;
+  animator.cancelAll = cancelAll;
+
+  animator.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.animator = animator;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
 
   /**
    * @this CarouselImageSlideJob
@@ -13600,10 +12563,42 @@ if (typeof define === 'function' && define.amd) {
 
     job.carousel.onSlideFinished();
   }
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
+<<<<<<< HEAD
+  /**
+<<<<<<< HEAD
+   * Sets this ColorResetJob as started.
+   *
+   * @this ColorResetJob
+   * @param {Number} startTime
+=======
+   * This is the animation loop that drives all of the animation.
+   *
+   * @param {Number} currentTime
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function animationLoop(currentTime) {
+    var deltaTime = currentTime - animator.previousTime;
+    deltaTime = deltaTime > config.deltaTimeUpperThreshold ?
+        config.deltaTimeUpperThreshold : deltaTime;
+    animator.isLooping = true;
+
+<<<<<<< HEAD
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this ColorResetJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorResetJob
+=======
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
@@ -13628,10 +12623,53 @@ if (typeof define === 'function' && define.amd) {
    * This should be called from the overall animation loop.
    *
    * @this CarouselImageSlideJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
    * @param {Number} currentTime
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].currentColor.h = job.grid.allTiles[i].originalColor.h;
+      job.grid.allTiles[i].currentColor.s = job.grid.allTiles[i].originalColor.s;
+      job.grid.allTiles[i].currentColor.l = job.grid.allTiles[i].originalColor.l;
+      job.grid.allTiles[i].imageScreenOpacity = window.hg.TilePost.config.inactiveScreenOpacity;
+=======
+    if (!animator.isPaused) {
+      updateJobs(currentTime, deltaTime);
+      drawJobs();
+      window.hg.util.requestAnimationFrame(animationLoop);
+    } else {
+      animator.isLooping = false;
+    }
+
+    animator.previousTime = currentTime;
+  }
+
+  /**
+   * Updates all of the active AnimationJobs.
+   *
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateJobs(currentTime, deltaTime) {
+    var i, count;
+
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].update(currentTime, deltaTime);
+
+      // Remove jobs from the list after they are complete
+      if (animator.jobs[i].isComplete) {
+        removeJob(animator.jobs[i], i);
+        i--;
+        count--;
+      }
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
     var job, progress;
 
     job = this;
@@ -13646,10 +12684,127 @@ if (typeof define === 'function' && define.amd) {
     // Is the job done?
     if (progress === 0) {
       handleComplete.call(job, false);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
     }
   }
 
   /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Draws the current state of this ColorResetJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorResetJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this ColorResetJob, and returns the element its original form.
+   *
+   * @this ColorResetJob
+=======
+   * Removes the given job from the collection of active, animating jobs.
+   *
+   * @param {AnimationJob} job
+   * @param {Number} [index]
+   */
+  function removeJob(job, index) {
+    var count;
+
+    if (typeof index === 'number') {
+      animator.jobs.splice(index, 1);
+    } else {
+      for (index = 0, count = animator.jobs.length; index < count; index += 1) {
+        if (animator.jobs[index] === job) {
+          animator.jobs.splice(index, 1);
+          break;
+        }
+      }
+    }
+
+    // Stop the animation loop when there are no more jobs to animate
+    if (animator.jobs.length === 0) {
+      animator.isPaused = true;
+    }
+  }
+
+  /**
+   * Draws all of the active AnimationJobs.
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function drawJobs() {
+    var i, count;
+
+<<<<<<< HEAD
+    job.isComplete = true;
+  }
+
+  /**
+   * @this ColorResetJob
+   */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorResetJob
+   */
+  function init() {
+=======
+    for (i = 0, count = animator.jobs.length; i < count; i += 1) {
+      animator.jobs[i].draw();
+    }
+  }
+
+  /**
+   * Starts the animation loop if it is not already running
+   */
+  function startAnimationLoop() {
+    animator.isPaused = false;
+
+    if (!animator.isLooping) {
+      animator.isLooping = true;
+      window.hg.util.requestAnimationFrame(firstAnimationLoop);
+    }
+
+    // ---  --- //
+
+    /**
+     * The time value provided by requestAnimationFrame appears to be the number of milliseconds since the page loaded.
+     * However, the rest of the application logic expects time values relative to the Unix epoch. This bootstrapping
+     * function helps in translating from the one time frame to the other.
+     *
+     * @param {Number} currentTime
+     */
+    function firstAnimationLoop(currentTime) {
+      animator.previousTime = currentTime;
+
+      window.hg.util.requestAnimationFrame(animationLoop);
+    }
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public static functions
+
+  /**
+<<<<<<< HEAD
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   */
+  function ColorResetJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = true;
+=======
    * Draws the current state of this CarouselImageSlideJob.
    *
    * This should be called from the overall animation loop.
@@ -13703,11 +12858,127 @@ if (typeof define === 'function' && define.amd) {
     job.indexInitialDisplacement = Number.NaN;
 
     job.duration = config.duration;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+<<<<<<< HEAD
+    job.refresh = refresh;
+    job.init = init;
+
+    job.init();
+
+    console.log('ColorResetJob created');
+  }
+
+  ColorResetJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorResetJob = ColorResetJob;
+
+  console.log('ColorResetJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ColorShiftJob
+ */
+
+/**
+ * @typedef {Object} ShiftStatus
+ * @property {Number} timeStart
+ * @property {Number} timeEnd
+ */
+
+/**
+ * @typedef {ShiftStatus} NonContentTileShiftStatus
+ * @property {Number} hueDeltaStart
+ * @property {Number} hueDeltaEnd
+ * @property {Number} saturationDeltaStart
+ * @property {Number} saturationDeltaEnd
+ * @property {Number} lightnessDeltaStart
+ * @property {Number} lightnessDeltaEnd
+ */
+
+/**
+ * @typedef {ShiftStatus} ContentTileShiftStatus
+ * @property {Number} opacityDeltaStart
+ * @property {Number} opacityDeltaEnd
+ */
+
+/**
+ * This module defines a constructor for ColorShiftJob objects.
+ *
+ * ColorShiftJob objects animate the colors of the tiles in a random fashion.
+ *
+ * @module ColorShiftJob
+=======
+   * Starts the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function startJob(job) {
+    // Is this a restart?
+    if (!job.isComplete) {
+      console.log('Job restarting: ' + job.constructor.name);
+
+      if (job.refresh) {
+        job.refresh();
+      } else {
+        job.cancel();
+
+        job.init();// TODO: get rid of this init function
+        job.start(animator.previousTime);
+      }
+    } else {
+      console.log('Job starting: ' + job.constructor.name);
+
+      job.init();// TODO: get rid of this init function
+      job.start(animator.previousTime);
+      animator.jobs.push(job);
+    }
+
+    startAnimationLoop();
+  }
+
+  /**
+   * Cancels the given AnimationJob.
+   *
+   * @param {AnimationJob} job
+   */
+  function cancelJob(job) {
+    console.log('Job cancelling: ' + job.constructor.name);
+
+    job.cancel();
+    removeJob(job);
+  }
+
+  /**
+   * Cancels all running AnimationJobs.
+   */
+  function cancelAll() {
+    while (animator.jobs.length) {
+      cancelJob(animator.jobs[0]);
+    }
+  }
+
+  console.log('animator module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ColorResetJob
+ */
+
+/**
+ * This module defines a constructor for ColorResetJob objects.
+ *
+ * ColorResetJob objects reset tile color values during each animation frame.
+ *
+ * @module ColorResetJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
     job.onComplete = onComplete;
     job.init = init;
 
@@ -13947,6 +13218,7 @@ if (typeof define === 'function' && define.amd) {
  * This module defines a constructor for DilateSectorsJob objects.
  *
  * @module DilateSectorsJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -13954,8 +13226,27 @@ if (typeof define === 'function' && define.amd) {
 
   var config = {};
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+  config.hueDeltaMin = -20;
+  config.hueDeltaMax = 20;
+  config.saturationDeltaMin = 0;
+  config.saturationDeltaMax = 0;
+  config.lightnessDeltaMin = 0;
+  config.lightnessDeltaMax = 0;
+
+  config.imageBackgroundScreenOpacityDeltaMin = -0.05;
+  config.imageBackgroundScreenOpacityDeltaMax = 0.05;
+
+  config.transitionDurationMin = 200;
+  config.transitionDurationMax = 2000;
+
+=======
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
   config.duration = 500;
 
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
@@ -13966,6 +13257,43 @@ if (typeof define === 'function' && define.amd) {
   // ------------------------------------------------------------------------------------------- //
   // Private dynamic functions
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+  /**
+   * Creates a shift status object for each tile to keep track of their individual animation
+   * progress.
+   *
+   * @this ColorShiftJob
+   */
+  function initTileShiftStatuses() {
+    var job, i, count;
+
+    job = this;
+
+    job.shiftStatusesNonContentTiles = [];
+    job.shiftStatusesContentTiles = [];
+
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      job.shiftStatusesNonContentTiles[i] = {
+        timeStart: 0,
+        timeEnd: 0,
+        hueDeltaStart: 0,
+        hueDeltaEnd: 0,
+        saturationDeltaStart: 0,
+        saturationDeltaEnd: 0,
+        lightnessDeltaStart: 0,
+        lightnessDeltaEnd: 0,
+      };
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      job.shiftStatusesContentTiles[i] = {
+        timeStart: 0,
+        timeEnd: 0,
+        opacityDeltaStart: 0,
+        opacityDeltaEnd: 0,
+      };
+=======
   /**
    * @this DilateSectorsJob
    */
@@ -13993,12 +13321,213 @@ if (typeof define === 'function' && define.amd) {
       job.sectors[i].originalAnchor.y += job.panDisplacement.y;
 
       job.sectors[i].setOriginalPositionForExpansion(job.isExpanding);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
     }
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
+<<<<<<< HEAD
+  /**
+   * Updates the animation progress of the given non-content tile.
+   *
+   * @param {Number} currentTime
+   * @param {Tile} tile
+   * @param {NonContentTileShiftStatus} shiftStatus
+   */
+  function updateNonContentTile(currentTime, tile, shiftStatus) {
+    if (currentTime > shiftStatus.timeEnd) {
+      assignNewNonContentTileTransition(currentTime, shiftStatus);
+    }
+
+    var progress = (currentTime - shiftStatus.timeStart) /
+        (shiftStatus.timeEnd - shiftStatus.timeStart);
+
+    tile.currentColor.h += progress *
+        (shiftStatus.hueDeltaEnd - shiftStatus.hueDeltaStart) +
+        shiftStatus.hueDeltaStart;
+    tile.currentColor.s += progress *
+        (shiftStatus.saturationDeltaEnd - shiftStatus.saturationDeltaStart) +
+        shiftStatus.saturationDeltaStart;
+    tile.currentColor.l += progress *
+        (shiftStatus.lightnessDeltaEnd - shiftStatus.lightnessDeltaStart) +
+        shiftStatus.lightnessDeltaStart;
+=======
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+
+    // Also add a gradual hue shift across all tiles.
+    tile.currentColor.h += currentTime / 300;
+    tile.currentColor.h %= 360;
+  }
+
+  /**
+<<<<<<< HEAD
+   * Updates the animation progress of the given content tile.
+   *
+   * @param {Number} currentTime
+   * @param {Tile} tile
+   * @param {ContentTileShiftStatus} shiftStatus
+   */
+  function updateContentTile(currentTime, tile, shiftStatus) {
+    if (currentTime > shiftStatus.timeEnd) {
+      assignNewContentTileTransition(currentTime, shiftStatus);
+    }
+
+    var progress = (currentTime - shiftStatus.timeStart) /
+        (shiftStatus.timeEnd - shiftStatus.timeStart);
+
+    tile.imageScreenOpacity += progress *
+        (shiftStatus.opacityDeltaEnd - shiftStatus.opacityDeltaStart) +
+        shiftStatus.opacityDeltaStart;
+    // tile.imageScreenOpacity += -tileProgress * config.opacity *
+    //     config.deltaOpacityImageBackgroundScreen;
+  }
+
+  /**
+   * @param {Number} currentTime
+   * @param {NonContentTileShiftStatus} shiftStatus
+   */
+  function assignNewNonContentTileTransition(currentTime, shiftStatus) {
+    assignNewTransitionDuration(currentTime, shiftStatus);
+
+    shiftStatus.hueDeltaStart = shiftStatus.hueDeltaEnd;
+    shiftStatus.hueDeltaEnd = getNewHueDelta();
+
+    shiftStatus.saturationDeltaStart = shiftStatus.saturationDeltaEnd;
+    shiftStatus.saturationDeltaEnd = getNewSaturationDelta();
+
+    shiftStatus.lightnessDeltaStart = shiftStatus.lightnessDeltaEnd;
+    shiftStatus.lightnessDeltaEnd = getNewLightnessDelta();
+  }
+
+  /**
+   * @param {Number} currentTime
+   * @param {ContentTileShiftStatus} shiftStatus
+   */
+  function assignNewContentTileTransition(currentTime, shiftStatus) {
+    assignNewTransitionDuration(currentTime, shiftStatus);
+
+    shiftStatus.opacityDeltaStart = shiftStatus.opacityDeltaEnd;
+    shiftStatus.opacityDeltaEnd = getNewOpacityDelta();
+  }
+
+  /**
+   * Create a new duration value, and set up the start and end time to account for any time gap
+   * between the end of the last transition and the current time.
+   *
+   * @param {Number} currentTime
+   * @param {ShiftStatus} shiftStatus
+   */
+  function assignNewTransitionDuration(currentTime, shiftStatus) {
+    var elapsedTimeSinceEnd = currentTime - shiftStatus.timeEnd;
+    var newDuration = getNewTransitionDuration();
+    while (newDuration <= elapsedTimeSinceEnd) {
+      elapsedTimeSinceEnd -= newDuration;
+      newDuration = getNewTransitionDuration();
+    }
+
+    shiftStatus.timeStart = currentTime - elapsedTimeSinceEnd;
+    shiftStatus.timeEnd = shiftStatus.timeStart + newDuration;
+  }
+
+  /**
+   * @returns {Number} A random shift transition duration value between the configured min and max.
+   */
+  function getNewTransitionDuration() {
+    return Math.random() * (config.transitionDurationMax - config.transitionDurationMin) +
+        config.transitionDurationMin;
+  }
+
+  /**
+   * @returns {Number} A random hue delta value between the configured min and max.
+   */
+  function getNewHueDelta() {
+    return Math.random() * (config.hueDeltaMax - config.hueDeltaMin) + config.hueDeltaMin;
+  }
+
+  /**
+   * @returns {Number} A random saturation delta value between the configured min and max.
+   */
+  function getNewSaturationDelta() {
+    return Math.random() * (config.saturationDeltaMax - config.saturationDeltaMin) +
+        config.saturationDeltaMin;
+  }
+
+  /**
+   * @returns {Number} A random lightness delta value between the configured min and max.
+   */
+  function getNewLightnessDelta() {
+    return Math.random() * (config.lightnessDeltaMax - config.lightnessDeltaMin) +
+        config.lightnessDeltaMin;
+  }
+
+  /**
+   * @returns {Number} A random opacity delta value between the configured min and max.
+   */
+  function getNewOpacityDelta() {
+    return Math.random() * (config.imageBackgroundScreenOpacityDeltaMax -
+        config.imageBackgroundScreenOpacityDeltaMin) +
+        config.imageBackgroundScreenOpacityDeltaMin;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this ColorShiftJob as started.
+   *
+   * @this ColorShiftJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job, i, count;
+
+    job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+
+    for (i = 0, count = job.shiftStatusesNonContentTiles.length; i < count; i += 1) {
+      job.shiftStatusesNonContentTiles[i].timeStart = startTime;
+      job.shiftStatusesNonContentTiles[i].timeEnd = startTime;
+    }
+
+    for (i = 0, count = job.shiftStatusesContentTiles.length; i < count; i += 1) {
+      job.shiftStatusesContentTiles[i].timeStart = startTime;
+      job.shiftStatusesContentTiles[i].timeEnd = startTime;
+    }
+  }
+
+  /**
+   * Updates the animation progress of this ColorShiftJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorShiftJob
+=======
+   * Sets this ColorResetJob as started.
+   *
+   * @this ColorResetJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this ColorResetJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorResetJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
@@ -14024,10 +13553,33 @@ if (typeof define === 'function' && define.amd) {
    * This should be called from the overall animation loop.
    *
    * @this DilateSectorsJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
    * @param {Number} currentTime
    * @param {Number} deltaTime
    */
   function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+    var job, i, count;
+
+    job = this;
+
+<<<<<<< HEAD
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      updateNonContentTile(currentTime, job.grid.allNonContentTiles[i],
+          job.shiftStatusesNonContentTiles[i]);
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      updateContentTile(currentTime, job.grid.contentTiles[i],
+          job.shiftStatusesContentTiles[i]);
+=======
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].currentColor.h = job.grid.allTiles[i].originalColor.h;
+      job.grid.allTiles[i].currentColor.s = job.grid.allTiles[i].originalColor.s;
+      job.grid.allTiles[i].currentColor.l = job.grid.allTiles[i].originalColor.l;
+      job.grid.allTiles[i].imageScreenOpacity = window.hg.TilePost.config.inactiveScreenOpacity;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
     var job, progress, i, dx, dy;
 
     job = this;
@@ -14049,28 +13601,93 @@ if (typeof define === 'function' && define.amd) {
     // Is the job done?
     if (progress === 0) {
       handleComplete.call(job, false);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
     }
   }
 
   /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Draws the current state of this ColorShiftJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorShiftJob
+=======
+   * Draws the current state of this ColorResetJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorResetJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
    * Draws the current state of this DilateSectorsJob.
    *
    * This should be called from the overall animation loop.
    *
    * @this DilateSectorsJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
    */
   function draw() {
     // This animation job updates the state of actual tiles, so it has nothing of its own to draw
   }
 
   /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Stops this ColorShiftJob.
+   *
+   * @this ColorShiftJob
+=======
+   * Stops this ColorResetJob, and returns the element its original form.
+   *
+   * @this ColorResetJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
    * Stops this DilateSectorsJob, and returns the element its original form.
    *
    * @this DilateSectorsJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
    */
   function cancel() {
     var job = this;
 
+<<<<<<< HEAD
+    job.isComplete = true;
+  }
+
+  /**
+<<<<<<< HEAD
+   * @this ColorShiftJob
+   */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorShiftJob
+=======
+   * @this ColorResetJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function refresh() {
+    var job = this;
+
+<<<<<<< HEAD
+    config.computeDependentValues();
+    initTileShiftStatuses.call(job);
+=======
+    init.call(job);
+  }
+
+  /**
+   * @this ColorResetJob
+   */
+  function init() {
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
     handleComplete.call(job, true);
   }
 
@@ -14081,6 +13698,7 @@ if (typeof define === 'function' && define.amd) {
     var job = this;
 
     config.computeDependentValues();
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -14090,6 +13708,24 @@ if (typeof define === 'function' && define.amd) {
    * @constructor
    * @global
    * @param {Grid} grid
+<<<<<<< HEAD
+   */
+<<<<<<< HEAD
+  function ColorShiftJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.shiftStatusesNonContentTiles = null;
+    job.shiftStatusesContentTiles = null;
+=======
+  function ColorResetJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.startTime = 0;
+    job.isComplete = true;
+=======
    * @param {Tile} tile
    * @param {Function} onComplete
    * @param {{x:Number,y:Number}} panDisplacement
@@ -14107,11 +13743,88 @@ if (typeof define === 'function' && define.amd) {
     job.isExpanding = grid.isPostOpen;
 
     job.duration = config.duration;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
 
     job.start = start;
     job.update = update;
     job.draw = draw;
     job.cancel = cancel;
+<<<<<<< HEAD
+    job.refresh = refresh;
+    job.init = init;
+
+    job.init();
+
+<<<<<<< HEAD
+    console.log('ColorShiftJob created');
+  }
+
+  ColorShiftJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorShiftJob = ColorShiftJob;
+
+  console.log('ColorShiftJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ColorWaveJob
+ */
+
+/**
+ * This module defines a constructor for ColorWaveJob objects.
+ *
+ * ColorWaveJob objects animate the tiles of a Grid in order to create waves of color.
+ *
+ * @module ColorWaveJob
+=======
+    console.log('ColorResetJob created');
+  }
+
+  ColorResetJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorResetJob = ColorResetJob;
+
+  console.log('ColorResetJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ColorShiftJob
+ */
+
+/**
+ * @typedef {Object} ShiftStatus
+ * @property {Number} timeStart
+ * @property {Number} timeEnd
+ */
+
+/**
+ * @typedef {ShiftStatus} NonContentTileShiftStatus
+ * @property {Number} hueDeltaStart
+ * @property {Number} hueDeltaEnd
+ * @property {Number} saturationDeltaStart
+ * @property {Number} saturationDeltaEnd
+ * @property {Number} lightnessDeltaStart
+ * @property {Number} lightnessDeltaEnd
+ */
+
+/**
+ * @typedef {ShiftStatus} ContentTileShiftStatus
+ * @property {Number} opacityDeltaStart
+ * @property {Number} opacityDeltaEnd
+ */
+
+/**
+ * This module defines a constructor for ColorShiftJob objects.
+ *
+ * ColorShiftJob objects animate the colors of the tiles in a random fashion.
+ *
+ * @module ColorShiftJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
     job.onComplete = onComplete;
     job.init = init;
 
@@ -14135,6 +13848,7 @@ if (typeof define === 'function' && define.amd) {
  * This module defines a constructor for DisplacementRadiateJob objects.
  *
  * @module DisplacementRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -14142,6 +13856,36 @@ if (typeof define === 'function' && define.amd) {
 
   var config = {};
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+  config.period = 1000;
+  config.wavelength = 600;
+  config.originX = -100;
+  config.originY = 1400;
+
+  // Amplitude (will range from negative to positive)
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 5;
+
+  config.deltaOpacityImageBackgroundScreen = 0.18;
+
+  config.opacity = 0.5;
+=======
+  config.hueDeltaMin = -20;
+  config.hueDeltaMax = 20;
+  config.saturationDeltaMin = 0;
+  config.saturationDeltaMax = 0;
+  config.lightnessDeltaMin = 0;
+  config.lightnessDeltaMax = 0;
+
+  config.imageBackgroundScreenOpacityDeltaMin = -0.05;
+  config.imageBackgroundScreenOpacityDeltaMax = 0.05;
+
+  config.transitionDurationMin = 200;
+  config.transitionDurationMax = 2000;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
   config.duration = 500;
   config.waveSpeed = 3; // pixels / millisecond
   config.waveWidth = 500;
@@ -14151,11 +13895,16 @@ if (typeof define === 'function' && define.amd) {
   config.isRecurring = false;
   config.avgDelay = 4000;
   config.delayDeviationRange = 3800;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
 
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
+<<<<<<< HEAD
+    config.halfPeriod = config.period / 2;
+=======
     // TODO:
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
   };
 
   config.computeDependentValues();
@@ -14164,6 +13913,3194 @@ if (typeof define === 'function' && define.amd) {
   // Private dynamic functions
 
   /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this ColorWaveJob
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
+
+    job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsetsNonContentTiles = [];
+    job.waveProgressOffsetsContentTiles = [];
+
+    // Calculate offsets for the non-content tiles
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      tile = job.grid.allNonContentTiles[i];
+
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsetsNonContentTiles[i] =
+          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
+    }
+
+    // Calculate offsets for the content tiles
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      tile = job.grid.contentTiles[i];
+
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsetsContentTiles[i] =
+          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
+=======
+   * Creates a shift status object for each tile to keep track of their individual animation
+   * progress.
+   *
+   * @this ColorShiftJob
+   */
+  function initTileShiftStatuses() {
+    var job, i, count;
+
+    job = this;
+
+    job.shiftStatusesNonContentTiles = [];
+    job.shiftStatusesContentTiles = [];
+
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      job.shiftStatusesNonContentTiles[i] = {
+        timeStart: 0,
+        timeEnd: 0,
+        hueDeltaStart: 0,
+        hueDeltaEnd: 0,
+        saturationDeltaStart: 0,
+        saturationDeltaEnd: 0,
+        lightnessDeltaStart: 0,
+        lightnessDeltaEnd: 0,
+      };
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      job.shiftStatusesContentTiles[i] = {
+        timeStart: 0,
+        timeEnd: 0,
+        opacityDeltaStart: 0,
+        opacityDeltaEnd: 0,
+      };
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+    }
+=======
+   * Calculates and stores the maximal displacement values for all tiles.
+   *
+   * @this DisplacementRadiateJob
+   */
+  function initializeDisplacements() {
+    // TODO:
+//    var job, i, iCount, j, jCount, k, tiles, displacementRatio;
+//
+//    job = this;
+//
+//    displacementRatio =
+//        (window.hg.Grid.config.tileShortLengthWithGap + window.hg.Grid.config.tileGap) /
+//        (window.hg.Grid.config.tileShortLengthWithGap);
+//
+//    job.displacements = [];
+//
+//    k = 0;
+//
+//    if (job.grid.isPostOpen) {
+//      // Consider all of the old AND new tiles
+//      for (i = 0, iCount = job.grid.sectors.length; i < iCount; i += 1) {
+//        tiles = job.grid.sectors[i].tiles;
+//
+//        for (j = 0, jCount = tiles.length; j < jCount; j += 1) {
+//          job.displacements[k] = {
+//            tile: tiles[j],
+//            displacementX: displacementRatio *
+//                (tiles[j].originalAnchorX - job.tile.originalAnchorX),
+//            displacementY: displacementRatio *
+//                (tiles[j].originalAnchorY - job.tile.originalAnchorY)
+//          };
+//          k += 1;
+//        }
+//      }
+//    } else {
+//      for (i = 0, iCount = job.grid.originalTiles.length; i < iCount; i += 1) {
+//        job.displacements[i] = {
+//          tile: job.grid.originalTiles[i],
+//          displacementX: displacementRatio *
+//              (job.grid.originalTiles[i].originalAnchorX - job.tile.originalAnchorX),
+//          displacementY: displacementRatio *
+//              (job.grid.originalTiles[i].originalAnchorY - job.tile.originalAnchorY)
+//        };
+//      }
+//    }
+  }
+
+  /**
+   * @this DisplacementRadiateJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('DisplacementRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+  /**
+   * Updates the animation progress of the given non-content tile.
+   *
+   * @param {Number} progress From -1 to 1
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset From -1 to 1
+   */
+  function updateNonContentTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+
+    tile.currentColor.h += config.deltaHue * tileProgress * config.opacity;
+    tile.currentColor.s += config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentColor.l += config.deltaLightness * tileProgress * config.opacity;
+  }
+
+  /**
+   * Updates the animation progress of the given content tile.
+   *
+   * @param {Number} progress From -1 to 1
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset From -1 to 1
+   */
+  function updateContentTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI) * 0.5 + 0.5;
+
+    tile.imageScreenOpacity += -tileProgress * config.opacity *
+        config.deltaOpacityImageBackgroundScreen;
+  }
+
+=======
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * Sets this ColorWaveJob as started.
+   *
+   * @this ColorWaveJob
+   * @param {Number} startTime
+=======
+  /**
+   * Updates the animation progress of the given non-content tile.
+   *
+   * @param {Number} currentTime
+   * @param {Tile} tile
+   * @param {NonContentTileShiftStatus} shiftStatus
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function updateNonContentTile(currentTime, tile, shiftStatus) {
+    if (currentTime > shiftStatus.timeEnd) {
+      assignNewNonContentTileTransition(currentTime, shiftStatus);
+    }
+
+<<<<<<< HEAD
+=======
+   * Sets this DisplacementRadiateJob as started.
+   *
+   * @this DisplacementRadiateJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+<<<<<<< HEAD
+   * Updates the animation progress of this ColorWaveJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorWaveJob
+=======
+    var progress = (currentTime - shiftStatus.timeStart) /
+        (shiftStatus.timeEnd - shiftStatus.timeStart);
+
+    tile.currentColor.h += progress *
+        (shiftStatus.hueDeltaEnd - shiftStatus.hueDeltaStart) +
+        shiftStatus.hueDeltaStart;
+    tile.currentColor.s += progress *
+        (shiftStatus.saturationDeltaEnd - shiftStatus.saturationDeltaStart) +
+        shiftStatus.saturationDeltaStart;
+    tile.currentColor.l += progress *
+        (shiftStatus.lightnessDeltaEnd - shiftStatus.lightnessDeltaStart) +
+        shiftStatus.lightnessDeltaStart;
+
+    // Also add a gradual hue shift across all tiles.
+    tile.currentColor.h += currentTime / 300;
+    tile.currentColor.h %= 360;
+  }
+
+  /**
+   * Updates the animation progress of the given content tile.
+   *
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Tile} tile
+   * @param {ContentTileShiftStatus} shiftStatus
+   */
+<<<<<<< HEAD
+  function update(currentTime, deltaTime) {
+    var job, progress, i, count;
+
+    job = this;
+
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      updateNonContentTile(progress, job.grid.allNonContentTiles[i],
+          job.waveProgressOffsetsNonContentTiles[i]);
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      updateContentTile(progress, job.grid.contentTiles[i],
+          job.waveProgressOffsetsContentTiles[i]);
+    }
+  }
+
+  /**
+   * Draws the current state of this ColorWaveJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorWaveJob
+=======
+  function updateContentTile(currentTime, tile, shiftStatus) {
+    if (currentTime > shiftStatus.timeEnd) {
+      assignNewContentTileTransition(currentTime, shiftStatus);
+    }
+
+    var progress = (currentTime - shiftStatus.timeStart) /
+        (shiftStatus.timeEnd - shiftStatus.timeStart);
+
+    tile.imageScreenOpacity += progress *
+        (shiftStatus.opacityDeltaEnd - shiftStatus.opacityDeltaStart) +
+        shiftStatus.opacityDeltaStart;
+    // tile.imageScreenOpacity += -tileProgress * config.opacity *
+    //     config.deltaOpacityImageBackgroundScreen;
+  }
+
+  /**
+   * @param {Number} currentTime
+   * @param {NonContentTileShiftStatus} shiftStatus
+   */
+  function assignNewNonContentTileTransition(currentTime, shiftStatus) {
+    assignNewTransitionDuration(currentTime, shiftStatus);
+
+    shiftStatus.hueDeltaStart = shiftStatus.hueDeltaEnd;
+    shiftStatus.hueDeltaEnd = getNewHueDelta();
+
+    shiftStatus.saturationDeltaStart = shiftStatus.saturationDeltaEnd;
+    shiftStatus.saturationDeltaEnd = getNewSaturationDelta();
+
+    shiftStatus.lightnessDeltaStart = shiftStatus.lightnessDeltaEnd;
+    shiftStatus.lightnessDeltaEnd = getNewLightnessDelta();
+  }
+
+  /**
+   * @param {Number} currentTime
+   * @param {ContentTileShiftStatus} shiftStatus
+   */
+  function assignNewContentTileTransition(currentTime, shiftStatus) {
+    assignNewTransitionDuration(currentTime, shiftStatus);
+
+    shiftStatus.opacityDeltaStart = shiftStatus.opacityDeltaEnd;
+    shiftStatus.opacityDeltaEnd = getNewOpacityDelta();
+  }
+
+  /**
+   * Create a new duration value, and set up the start and end time to account for any time gap
+   * between the end of the last transition and the current time.
+   *
+   * @param {Number} currentTime
+   * @param {ShiftStatus} shiftStatus
+   */
+  function assignNewTransitionDuration(currentTime, shiftStatus) {
+    var elapsedTimeSinceEnd = currentTime - shiftStatus.timeEnd;
+    var newDuration = getNewTransitionDuration();
+    while (newDuration <= elapsedTimeSinceEnd) {
+      elapsedTimeSinceEnd -= newDuration;
+      newDuration = getNewTransitionDuration();
+    }
+
+    shiftStatus.timeStart = currentTime - elapsedTimeSinceEnd;
+    shiftStatus.timeEnd = shiftStatus.timeStart + newDuration;
+  }
+
+  /**
+   * @returns {Number} A random shift transition duration value between the configured min and max.
+   */
+  function getNewTransitionDuration() {
+    return Math.random() * (config.transitionDurationMax - config.transitionDurationMin) +
+        config.transitionDurationMin;
+  }
+
+  /**
+   * @returns {Number} A random hue delta value between the configured min and max.
+   */
+  function getNewHueDelta() {
+    return Math.random() * (config.hueDeltaMax - config.hueDeltaMin) + config.hueDeltaMin;
+  }
+
+  /**
+   * @returns {Number} A random saturation delta value between the configured min and max.
+   */
+  function getNewSaturationDelta() {
+    return Math.random() * (config.saturationDeltaMax - config.saturationDeltaMin) +
+        config.saturationDeltaMin;
+  }
+
+  /**
+   * @returns {Number} A random lightness delta value between the configured min and max.
+   */
+  function getNewLightnessDelta() {
+    return Math.random() * (config.lightnessDeltaMax - config.lightnessDeltaMin) +
+        config.lightnessDeltaMin;
+  }
+
+  /**
+   * @returns {Number} A random opacity delta value between the configured min and max.
+   */
+  function getNewOpacityDelta() {
+    return Math.random() * (config.imageBackgroundScreenOpacityDeltaMax -
+        config.imageBackgroundScreenOpacityDeltaMin) +
+        config.imageBackgroundScreenOpacityDeltaMin;
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this ColorShiftJob as started.
+   *
+   * @this ColorShiftJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job, i, count;
+
+    job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+
+    for (i = 0, count = job.shiftStatusesNonContentTiles.length; i < count; i += 1) {
+      job.shiftStatusesNonContentTiles[i].timeStart = startTime;
+      job.shiftStatusesNonContentTiles[i].timeEnd = startTime;
+    }
+
+    for (i = 0, count = job.shiftStatusesContentTiles.length; i < count; i += 1) {
+      job.shiftStatusesContentTiles[i].timeStart = startTime;
+      job.shiftStatusesContentTiles[i].timeEnd = startTime;
+    }
+  }
+
+  /**
+   * Updates the animation progress of this ColorShiftJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorShiftJob
+=======
+   * Updates the animation progress of this DisplacementRadiateJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      updateNonContentTile(currentTime, job.grid.allNonContentTiles[i],
+          job.shiftStatusesNonContentTiles[i]);
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      updateContentTile(currentTime, job.grid.contentTiles[i],
+          job.shiftStatusesContentTiles[i]);
+    }
+  }
+
+  /**
+   * Draws the current state of this ColorShiftJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorShiftJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    // TODO:
+//    var job, progress, i, count;
+//
+//    job = this;
+//
+//    if (currentTime > job.startTime + config.duration) {
+//      handleComplete.call(job, false);
+//    } else {
+//      // Ease-out halfway, then ease-in back
+//      progress = (currentTime - job.startTime) / config.duration;
+//      progress = (progress > 0.5 ? 1 - progress : progress) * 2;
+//      progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+//
+//      // Displace the tiles
+//      for (i = 0, count = job.displacements.length; i < count; i += 1) {
+//        job.displacements[i].tile.anchorX += job.displacements[i].displacementX * progress;
+//        job.displacements[i].tile.anchorY += job.displacements[i].displacementY * progress;
+//      }
+//    }
+  }
+
+  /**
+   * Draws the current state of this DisplacementRadiateJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Stops this ColorWaveJob, and returns the element its original form.
+   *
+   * @this ColorWaveJob
+=======
+   * Stops this ColorShiftJob.
+   *
+   * @this ColorShiftJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * Stops this DisplacementRadiateJob, and returns the element its original form.
+   *
+   * @this DisplacementRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function cancel() {
+    var job = this;
+
+<<<<<<< HEAD
+    job.isComplete = true;
+  }
+
+  /**
+<<<<<<< HEAD
+   * @this ColorWaveJob
+=======
+   * @this ColorShiftJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+<<<<<<< HEAD
+   * @this ColorWaveJob
+=======
+   * @this ColorShiftJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this DisplacementRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+<<<<<<< HEAD
+<<<<<<< HEAD
+    initTileProgressOffsets.call(job);
+=======
+    initTileShiftStatuses.call(job);
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    // TODO:
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+<<<<<<< HEAD
+   */
+<<<<<<< HEAD
+  function ColorWaveJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.waveProgressOffsetsNonContentTiles = null;
+    job.waveProgressOffsetsContentTiles = null;
+=======
+  function ColorShiftJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.shiftStatusesNonContentTiles = null;
+    job.shiftStatusesContentTiles = null;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.startTime = 0;
+    job.isComplete = true;
+=======
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function DisplacementRadiateJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+    job.startTime = 0;
+    job.isComplete = true;
+
+    job.displacements = null;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+<<<<<<< HEAD
+    job.refresh = refresh;
+    job.init = init;
+
+    job.init();
+
+<<<<<<< HEAD
+    console.log('ColorWaveJob created');
+  }
+
+  ColorWaveJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorWaveJob = ColorWaveJob;
+
+  console.log('ColorWaveJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DisplacementResetJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementResetJob objects.
+ *
+ * DisplacementResetJob objects reset tile displacement values during each animation frame.
+ *
+ * @module DisplacementResetJob
+=======
+    console.log('ColorShiftJob created');
+  }
+
+  ColorShiftJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorShiftJob = ColorShiftJob;
+
+  console.log('ColorShiftJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ColorWaveJob
+ */
+
+/**
+ * This module defines a constructor for ColorWaveJob objects.
+ *
+ * ColorWaveJob objects animate the tiles of a Grid in order to create waves of color.
+ *
+ * @module ColorWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    job.onComplete = onComplete;
+    job.init = init;
+
+    initializeDisplacements.call(job);
+
+    console.log('DisplacementRadiateJob created: tileIndex=' + job.tile.originalIndex);
+  }
+
+  DisplacementRadiateJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementRadiateJob = DisplacementRadiateJob;
+
+  console.log('DisplacementRadiateJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} FadePostJob
+ */
+
+/**
+ * This module defines a constructor for FadePostJob objects.
+ *
+ * @module FadePostJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+=======
+  config.period = 1000;
+  config.wavelength = 600;
+  config.originX = -100;
+  config.originY = 1400;
+
+  // Amplitude (will range from negative to positive)
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 5;
+
+  config.deltaOpacityImageBackgroundScreen = 0.18;
+
+  config.opacity = 0.5;
+=======
+  config.duration = 500;
+
+  config.quick1FadeDurationRatio = 0.7;
+  config.quick2FadeDurationRatio = 0.3;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+<<<<<<< HEAD
+    config.halfPeriod = config.period / 2;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  /**
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this ColorWaveJob
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
+
+    job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsetsNonContentTiles = [];
+    job.waveProgressOffsetsContentTiles = [];
+
+    // Calculate offsets for the non-content tiles
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      tile = job.grid.allNonContentTiles[i];
+
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsetsNonContentTiles[i] =
+          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
+    }
+
+    // Calculate offsets for the content tiles
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      tile = job.grid.contentTiles[i];
+
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsetsContentTiles[i] =
+          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
+    }
+  }
+
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+  /**
+   * @this FadePostJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('FadePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+    job.onComplete();
+
+    if (!job.isFadingIn) {
+      // Don't reset some state if another expansion job started after this one did
+      if (job.parentExpansionJob === job.grid.lastExpansionJob) {
+        job.grid.destroyPagePost();
+      } else {
+        job.pagePost.destroy();
+
+        job.baseTile.currentVertexOuterDeltas = job.baseTile.originalVertexOuterDeltas.slice(0);
+        job.baseTile.currentVertexInnerDeltas = job.baseTile.originalVertexInnerDeltas.slice(0);
+      }
+
+      job.baseTile.show();
+    } else {
+      // Don't reset some state if another expansion job started after this one did
+      if (job.parentExpansionJob === job.grid.lastExpansionJob) {
+        job.baseTile.hide();
+      }
+    }
+
+    job.baseTile.element.style.pointerEvents = 'auto';
+  }
+
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+<<<<<<< HEAD
+   * Updates the animation progress of the given non-content tile.
+   *
+   * @param {Number} progress From -1 to 1
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset From -1 to 1
+   */
+  function updateNonContentTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+
+    tile.currentColor.h += config.deltaHue * tileProgress * config.opacity;
+    tile.currentColor.s += config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentColor.l += config.deltaLightness * tileProgress * config.opacity;
+  }
+
+  /**
+   * Updates the animation progress of the given content tile.
+   *
+   * @param {Number} progress From -1 to 1
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset From -1 to 1
+   */
+  function updateContentTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI) * 0.5 + 0.5;
+
+    tile.imageScreenOpacity += -tileProgress * config.opacity *
+        config.deltaOpacityImageBackgroundScreen;
+=======
+   * @param {Array.<Number>} currentVertexDeltas
+   * @param {Array.<Number>} oldVertexDeltas
+   * @param {Array.<Number>} newVertexDeltas
+   * @param {Number} progress
+   */
+  function interpolateVertexDeltas(currentVertexDeltas, oldVertexDeltas, newVertexDeltas,
+                                   progress) {
+    var i, count;
+
+    for (i = 0, count = currentVertexDeltas.length; i < count; i += 1) {
+      currentVertexDeltas[i] =
+        oldVertexDeltas[i] + (newVertexDeltas[i] - oldVertexDeltas[i]) * progress;
+    }
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Sets this DisplacementResetJob as started.
+   *
+   * @this DisplacementResetJob
+=======
+   * Sets this ColorWaveJob as started.
+   *
+   * @this ColorWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+=======
+   * Sets this FadePostJob as started.
+   *
+   * @this FadePostJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var expandedTileOuterRadius;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+<<<<<<< HEAD
+  }
+
+  /**
+<<<<<<< HEAD
+   * Updates the animation progress of this DisplacementResetJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementResetJob
+=======
+   * Updates the animation progress of this ColorWaveJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+    var job, i, count;
+
+    job = this;
+
+    // Update the Tiles
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].currentAnchor.x = job.grid.allTiles[i].originalAnchor.x;
+      job.grid.allTiles[i].currentAnchor.y = job.grid.allTiles[i].originalAnchor.y;
+    }
+
+    if (job.grid.isPostOpen) {
+      // Update the Carousel
+      job.grid.pagePost.carousel.currentIndexPositionRatio =
+        job.grid.pagePost.carousel.currentIndex;
+=======
+    var job, progress, i, count;
+
+    job = this;
+
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      updateNonContentTile(progress, job.grid.allNonContentTiles[i],
+          job.waveProgressOffsetsNonContentTiles[i]);
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      updateContentTile(progress, job.grid.contentTiles[i],
+          job.waveProgressOffsetsContentTiles[i]);
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+
+    job.pagePostStartPosition = {};
+    job.pagePostDisplacement = {};
+
+    job.baseTile.show();
+
+    if (job.isFadingIn) {
+      job.pagePostStartPosition.x = job.baseTile.particle.px;
+      job.pagePostStartPosition.y = job.baseTile.particle.py;
+      job.pagePostDisplacement.x = job.grid.originalCenter.x - job.pagePostStartPosition.x;
+      job.pagePostDisplacement.y = job.grid.originalCenter.y - job.pagePostStartPosition.y +
+      job.grid.scrollTop;
+
+      job.pagePost = job.grid.createPagePost(job.baseTile, job.pagePostStartPosition);
+
+      expandedTileOuterRadius = window.hg.OpenPostJob.config.expandedDisplacementTileCount *
+          window.hg.Grid.config.tileShortLengthWithGap;
+
+      job.baseTile.expandedVertexOuterDeltas =
+        window.hg.Tile.computeVertexOuterDeltas(expandedTileOuterRadius, job.grid.isVertical);
+      job.baseTile.expandedVertexInnerDeltas =
+        window.hg.Tile.computeVertexInnerDeltas(expandedTileOuterRadius, job.grid.isVertical);
+    } else {
+      job.pagePostStartPosition.x = job.grid.originalCenter.x;
+      job.pagePostStartPosition.y = job.grid.originalCenter.y + job.grid.scrollTop;
+      job.pagePostDisplacement.x = job.pagePostStartPosition.x - job.grid.currentCenter.x;
+      job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y -
+      job.grid.scrollTop;
+    }
+
+    job.baseTile.element.style.pointerEvents = 'none';
+  }
+
+  /**
+   * Updates the animation progress of this FadePostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePostJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateFadeIn(currentTime, deltaTime) {
+    var job, progress, uneasedProgress, quick1FadeProgress, quick2FadeProgress;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / job.duration;
+    uneasedProgress = progress;
+    progress = window.hg.util.easingFunctions.easeOutCubic(progress);
+    progress = progress > 1 ? 1 : progress;
+
+    // Some parts of the animation should happen at different speeds
+    quick1FadeProgress = progress / config.quick1FadeDurationRatio;
+    quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
+    quick2FadeProgress = progress / config.quick2FadeDurationRatio;
+    quick2FadeProgress = (quick2FadeProgress > 1 ? 1 : quick2FadeProgress);
+
+    // Update the opacity of the center Tile
+    job.baseTile.element.style.opacity = 1 - quick1FadeProgress;
+    job.baseTile.tilePost.elements.title.style.opacity = 1 - quick2FadeProgress;
+
+    // Update the opacity of the PagePost
+    job.pagePost.opacity = uneasedProgress;
+
+    // Update the position of the PagePost
+    job.pagePost.center.x = job.pagePostStartPosition.x +
+    job.pagePostDisplacement.x * progress;
+    job.pagePost.center.y = job.pagePostStartPosition.y +
+    job.pagePostDisplacement.y * progress;
+
+    interpolateVertexDeltas(job.baseTile.currentVertexOuterDeltas, job.baseTile.originalVertexOuterDeltas,
+        job.baseTile.expandedVertexOuterDeltas, quick1FadeProgress);
+    interpolateVertexDeltas(job.baseTile.currentVertexInnerDeltas, job.baseTile.originalVertexInnerDeltas,
+        job.baseTile.expandedVertexInnerDeltas, quick1FadeProgress);
+
+    // Is the job done?
+    if (progress === 1) {
+      handleComplete.call(job, false);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    }
+  }
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Draws the current state of this DisplacementResetJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementResetJob
+=======
+   * Draws the current state of this ColorWaveJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+<<<<<<< HEAD
+   * Stops this DisplacementResetJob, and returns the element its original form.
+   *
+   * @this DisplacementResetJob
+=======
+   * Stops this ColorWaveJob, and returns the element its original form.
+   *
+   * @this ColorWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function cancel() {
+    var job = this;
+
+    job.isComplete = true;
+  }
+
+  /**
+<<<<<<< HEAD
+   * @this DisplacementResetJob
+=======
+   * @this ColorWaveJob
+   */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function refresh() {
+    var job = this;
+
+<<<<<<< HEAD
+    init.call(job);
+  }
+
+  /**
+   * @this DisplacementResetJob
+   */
+  function init() {
+=======
+    config.computeDependentValues();
+    initTileProgressOffsets.call(job);
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * Updates the animation progress of this FadePostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePostJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateFadeOut(currentTime, deltaTime) {
+    var job, progress, quick1FadeProgress;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress > 1 ? 1 : progress;
+
+    // Some parts of the animation should happen at different speeds
+    quick1FadeProgress = progress / config.quick1FadeDurationRatio;
+    quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
+
+    // Update the opacity of the center Tile
+    job.baseTile.element.style.opacity = progress;
+    job.baseTile.tilePost.elements.title.style.opacity = progress;
+
+    // Update the opacity of the PagePost
+    job.pagePost.opacity = 1 - quick1FadeProgress;
+
+    // Update the position of the PagePost
+    job.pagePost.center.x = job.pagePostStartPosition.x +
+    job.pagePostDisplacement.x * progress;
+    job.pagePost.center.y = job.pagePostStartPosition.y +
+    job.pagePostDisplacement.y * progress;
+
+    interpolateVertexDeltas(job.baseTile.currentVertexOuterDeltas, job.baseTile.expandedVertexOuterDeltas,
+      job.baseTile.originalVertexOuterDeltas, quick1FadeProgress);
+    interpolateVertexDeltas(job.baseTile.currentVertexInnerDeltas, job.baseTile.expandedVertexInnerDeltas,
+      job.baseTile.originalVertexInnerDeltas, quick1FadeProgress);
+
+    // Is the job done?
+    if (progress === 1) {
+      handleComplete.call(job, false);
+    }
+  }
+
+  /**
+   * Draws the current state of this FadePostJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePostJob
+   */
+  function draw() {
+    var job = this;
+
+    job.pagePost.draw();
+  }
+
+  /**
+   * Stops this FadePostJob, and returns the element its original form.
+   *
+   * @this FadePostJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this FadePostJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+<<<<<<< HEAD
+   */
+<<<<<<< HEAD
+  function DisplacementResetJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+=======
+  function ColorWaveJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.waveProgressOffsetsNonContentTiles = null;
+    job.waveProgressOffsetsContentTiles = null;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.startTime = 0;
+    job.isComplete = true;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.refresh = refresh;
+    job.init = init;
+
+    job.init();
+
+<<<<<<< HEAD
+    console.log('DisplacementResetJob created');
+  }
+
+  DisplacementResetJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementResetJob = DisplacementResetJob;
+
+  console.log('DisplacementResetJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DisplacementWaveJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementWaveJob objects.
+ *
+ * DisplacementWaveJob objects animate the tiles of a Grid in order to create waves of
+ * motion.
+ *
+ * @module DisplacementWaveJob
+=======
+    console.log('ColorWaveJob created');
+  }
+
+  ColorWaveJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorWaveJob = ColorWaveJob;
+
+  console.log('ColorWaveJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DisplacementResetJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementResetJob objects.
+ *
+ * DisplacementResetJob objects reset tile displacement values during each animation frame.
+ *
+ * @module DisplacementResetJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function FadePostJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = grid.expandedTile;
+    job.startTime = 0;
+    job.isComplete = true;
+    job.pagePost = grid.pagePost;
+    job.parentExpansionJob = job.grid.lastExpansionJob;
+    job.isFadingIn = grid.isPostOpen;
+    job.pagePostStartPosition = null;
+    job.pagePostDisplacement = null;
+
+    job.duration = config.duration;
+
+    job.start = start;
+    job.update = job.isFadingIn ? updateFadeIn : updateFadeOut;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+    console.log('FadePostJob created: tileIndex=' + job.baseTile.originalIndex +
+    ', isFadingIn=' + job.isFadingIn);
+  }
+
+  FadePostJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.FadePostJob = FadePostJob;
+
+  console.log('FadePostJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} HighlightHoverJob
+ */
+
+/**
+ * This module defines a constructor for HighlightHoverJob objects.
+ *
+ * @module HighlightHoverJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+  config.period = 3200;
+  config.wavelength = 1800;
+  config.originX = 0;
+  config.originY = 0;
+
+  // Amplitude (will range from negative to positive)
+  config.tileDeltaX = -15;
+  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
+
+=======
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    config.halfPeriod = config.period / 2;
+
+    config.displacementAmplitude =
+        Math.sqrt(config.tileDeltaX * config.tileDeltaX +
+            config.tileDeltaY * config.tileDeltaY);
+=======
+  config.duration = 200;
+
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 50;
+
+  config.opacity = 0.5;
+
+  config.isRecurring = false;
+  config.avgDelay = 30;
+  config.delayDeviationRange = 20;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+  /**
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this DisplacementWaveJob
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
+
+    job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsets = [];
+
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      tile = job.grid.allTiles[i];
+
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
+          / halfWaveProgressWavelength;
+    }
+=======
+  /**
+   * @this HighlightHoverJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+//    console.log('HighlightHoverJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+<<<<<<< HEAD
+   * Updates the animation progress of the given tile.
+   *
+   * @param {Number} progress
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset
+   */
+  function updateTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+
+    tile.currentAnchor.x += config.tileDeltaX * tileProgress;
+    tile.currentAnchor.y += config.tileDeltaY * tileProgress;
+  }
+
+=======
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * Updates the background image screen opacity of the given content tile according to the given
+   * durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateContentTile(tile, durationRatio) {
+    var opacity = window.hg.TilePost.config.activeScreenOpacity +
+        (durationRatio * (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity));
+
+    tile.imageScreenOpacity = opacity;
+  }
+
+  /**
+   * Updates the color of the given non-content tile according to the given durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateNonContentTile(tile, durationRatio) {
+    var opacity = config.opacity * (1 - durationRatio);
+
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
+  }
+
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Sets this DisplacementWaveJob as started.
+   *
+   * @this DisplacementWaveJob
+=======
+   * Sets this DisplacementResetJob as started.
+   *
+   * @this DisplacementResetJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * Sets this HighlightHoverJob as started.
+   *
+   * @this HighlightHoverJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Updates the animation progress of this DisplacementWaveJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementWaveJob
+=======
+   * Updates the animation progress of this DisplacementResetJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementResetJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * Updates the animation progress of this HighlightHoverJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightHoverJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+<<<<<<< HEAD
+    var job, progress, i, count;
+
+    job = this;
+
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      updateTile(progress, job.grid.allTiles[i], job.waveProgressOffsets[i]);
+=======
+    var job, i, count;
+
+    job = this;
+
+    // Update the Tiles
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].currentAnchor.x = job.grid.allTiles[i].originalAnchor.x;
+      job.grid.allTiles[i].currentAnchor.y = job.grid.allTiles[i].originalAnchor.y;
+    }
+
+    if (job.grid.isPostOpen) {
+      // Update the Carousel
+      job.grid.pagePost.carousel.currentIndexPositionRatio =
+        job.grid.pagePost.carousel.currentIndex;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    var job, durationRatio;
+
+    job = this;
+
+    // When the tile is re-highlighted after this job has started, then this job should be
+    // cancelled
+    if (job.tile.isHighlighted) {
+      job.cancel();
+      return;
+    }
+
+    if (currentTime > job.startTime + config.duration) {
+      job.updateTile(job.tile, 1);
+      handleComplete.call(job, false);
+    } else {
+      durationRatio = (currentTime - job.startTime) / config.duration;
+
+      job.updateTile(job.tile, durationRatio);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    }
+  }
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Draws the current state of this DisplacementWaveJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementWaveJob
+=======
+   * Draws the current state of this DisplacementResetJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementResetJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * Draws the current state of this HighlightHoverJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightHoverJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Stops this DisplacementWaveJob, and returns the element its original form.
+   *
+   * @this DisplacementWaveJob
+=======
+   * Stops this DisplacementResetJob, and returns the element its original form.
+   *
+   * @this DisplacementResetJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * Stops this HighlightHoverJob, and returns the element its original form.
+   *
+   * @this HighlightHoverJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function cancel() {
+    var job = this;
+
+<<<<<<< HEAD
+    job.isComplete = true;
+  }
+
+  /**
+<<<<<<< HEAD
+   * @this DisplacementWaveJob
+=======
+   * @this DisplacementResetJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+<<<<<<< HEAD
+   * @this DisplacementWaveJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    initTileProgressOffsets.call(job);
+=======
+   * @this DisplacementResetJob
+   */
+  function init() {
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this HighlightHoverJob
+   */
+  function init() {
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+<<<<<<< HEAD
+   */
+<<<<<<< HEAD
+  function DisplacementWaveJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.waveProgressOffsets = null;
+=======
+  function DisplacementResetJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.startTime = 0;
+    job.isComplete = true;
+
+=======
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function HighlightHoverJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+    job.startTime = 0;
+    job.isComplete = true;
+
+    job.updateTile = tile.holdsContent ? updateContentTile : updateNonContentTile;
+
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+<<<<<<< HEAD
+    job.refresh = refresh;
+    job.init = init;
+
+    job.init();
+
+<<<<<<< HEAD
+    console.log('DisplacementWaveJob created');
+  }
+
+  DisplacementWaveJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementWaveJob = DisplacementWaveJob;
+
+  console.log('DisplacementWaveJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} CarouselImageSlideJob
+ */
+
+/**
+ * This module defines a constructor for CarouselImageSlideJob objects.
+ *
+ * @module CarouselImageSlideJob
+=======
+    console.log('DisplacementResetJob created');
+  }
+
+  DisplacementResetJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementResetJob = DisplacementResetJob;
+
+  console.log('DisplacementResetJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DisplacementWaveJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementWaveJob objects.
+ *
+ * DisplacementWaveJob objects animate the tiles of a Grid in order to create waves of
+ * motion.
+ *
+ * @module DisplacementWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    job.onComplete = onComplete;
+    job.init = init;
+
+//    console.log('HighlightHoverJob created: tileIndex=' + job.tile.originalIndex);
+  }
+
+  HighlightHoverJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.HighlightHoverJob = HighlightHoverJob;
+
+  console.log('HighlightHoverJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} HighlightRadiateJob
+ */
+
+/**
+ * This module defines a constructor for HighlightRadiateJob objects.
+ *
+ * @module HighlightRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+  config.duration = 300;
+=======
+  config.period = 3200;
+  config.wavelength = 1800;
+  config.originX = 0;
+  config.originY = 0;
+
+  // Amplitude (will range from negative to positive)
+  config.tileDeltaX = -15;
+  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+  config.shimmerSpeed = 3; // pixels / millisecond
+  config.shimmerWaveWidth = 500;
+  config.duration = 500;
+
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 50;
+
+  config.opacity = 0.5;
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+<<<<<<< HEAD
+    config.halfPeriod = config.period / 2;
+
+    config.displacementAmplitude =
+        Math.sqrt(config.tileDeltaX * config.tileDeltaX +
+            config.tileDeltaY * config.tileDeltaY);
+=======
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * @this CarouselImageSlideJob
+=======
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this DisplacementWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
+
+<<<<<<< HEAD
+    console.log('CarouselImageSlideJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+    job.onComplete();
+
+    job.carousel.onSlideFinished();
+=======
+    job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsets = [];
+
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      tile = job.grid.allTiles[i];
+
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
+          / halfWaveProgressWavelength;
+    }
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * Calculates the distance from each tile in the grid to the starting point of this
+   * HighlightRadiateJob.
+   *
+   * This cheats by only calculating the distance to the tiles' original center. This allows us to
+   * not need to re-calculate tile distances during each time step.
+   *
+   * @this HighlightRadiateJob
+   */
+  function calculateTileDistances() {
+    var job, i, count, deltaX, deltaY, distanceOffset;
+
+    job = this;
+
+    distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
+
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      deltaX = job.grid.allNonContentTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.allNonContentTiles[i].originalAnchor.y - job.startPoint.y;
+      job.distancesNonContentTiles[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) +
+          distanceOffset;
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      deltaX = job.grid.contentTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.contentTiles[i].originalAnchor.y - job.startPoint.y;
+      job.distancesContentTiles[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
+    }
+  }
+
+  /**
+   * @this HighlightRadiateJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('HighlightRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  /**
+   * Updates the animation progress of the given tile.
+   *
+   * @param {Number} progress
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset
+   */
+  function updateTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+
+    tile.currentAnchor.x += config.tileDeltaX * tileProgress;
+    tile.currentAnchor.y += config.tileDeltaY * tileProgress;
+  }
+
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+  /**
+   * Updates the color of the given non-content tile according to the given waveWidthRatio and
+   * durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * shimmer distances.
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateNonContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    var opacity = waveWidthRatio * config.opacity * oneMinusDurationRatio;
+
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
+  }
+
+  /**
+   * Updates the color of the given content tile according to the given waveWidthRatio and
+   * durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * shimmer distances.
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    tile.imageScreenOpacity += -waveWidthRatio * config.opacity * oneMinusDurationRatio *
+        (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity);
+  }
+
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * Sets this CarouselImageSlideJob as started.
+   *
+   * @this CarouselImageSlideJob
+=======
+   * Sets this DisplacementWaveJob as started.
+   *
+   * @this DisplacementWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * Sets this HighlightRadiateJob as started.
+   *
+   * @this HighlightRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+<<<<<<< HEAD
+
+    job.indexInitialDisplacement = job.carousel.previousIndex - job.carousel.currentIndex;
+  }
+
+  /**
+<<<<<<< HEAD
+   * Updates the animation progress of this CarouselImageSlideJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this CarouselImageSlideJob
+=======
+   * Updates the animation progress of this DisplacementWaveJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+  }
+
+  /**
+   * Updates the animation progress of this HighlightRadiateJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+<<<<<<< HEAD
+    var job, progress;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = 1 - window.hg.util.easingFunctions.easeInOutCubic(progress);
+    progress = progress < 0 ? 0 : progress;
+
+    job.carousel.currentIndexPositionRatio += job.indexInitialDisplacement * progress;
+
+    // Is the job done?
+    if (progress === 0) {
+      handleComplete.call(job, false);
+=======
+    var job, progress, i, count;
+
+    job = this;
+
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      updateTile(progress, job.grid.allTiles[i], job.waveProgressOffsets[i]);
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+    }
+  }
+
+  /**
+<<<<<<< HEAD
+   * Draws the current state of this CarouselImageSlideJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this CarouselImageSlideJob
+=======
+   * Draws the current state of this DisplacementWaveJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function draw() {
+    // This animation job updates the state of the carousel and has nothing of its own to draw
+  }
+
+  /**
+<<<<<<< HEAD
+   * Stops this CarouselImageSlideJob, and returns the element its original form.
+   *
+   * @this CarouselImageSlideJob
+=======
+   * Stops this DisplacementWaveJob, and returns the element its original form.
+   *
+   * @this DisplacementWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
+        oneMinusDurationRatio, animatedSomeTile;
+
+    job = this;
+
+    if (currentTime > job.startTime + config.duration) {
+      handleComplete.call(job, false);
+    } else {
+      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+
+      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
+      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
+
+      animatedSomeTile = false;
+
+      for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+        distance = job.distancesNonContentTiles[i];
+
+        if (distance > currentMinDistance && distance < currentMaxDistance) {
+          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+
+          updateNonContentTile(job.grid.allNonContentTiles[i], waveWidthRatio,
+              oneMinusDurationRatio);
+
+          animatedSomeTile = true;
+        }
+      }
+
+      for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+        distance = job.distancesContentTiles[i];
+
+        if (distance > currentMinDistance && distance < currentMaxDistance) {
+          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+
+          updateContentTile(job.grid.contentTiles[i], waveWidthRatio, oneMinusDurationRatio);
+
+          animatedSomeTile = true;
+        }
+      }
+
+      if (!animatedSomeTile) {
+        handleComplete.call(job, false);
+      }
+    }
+  }
+
+  /**
+   * Draws the current state of this HighlightRadiateJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightRadiateJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this HighlightRadiateJob, and returns the element its original form.
+   *
+   * @this HighlightRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function cancel() {
+    var job = this;
+
+<<<<<<< HEAD
+    job.isComplete = true;
+  }
+
+  /**
+<<<<<<< HEAD
+   * @this CarouselImageSlideJob
+=======
+   * @this DisplacementWaveJob
+   */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this DisplacementWaveJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+<<<<<<< HEAD
+=======
+    initTileProgressOffsets.call(job);
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this HighlightRadiateJob
+   */
+  function init() {
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   * @param {Carousel} carousel
+   */
+  function CarouselImageSlideJob(grid, tile, onComplete, carousel) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = grid.expandedTile;
+=======
+   */
+  function DisplacementWaveJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.waveProgressOffsets = null;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.startTime = 0;
+    job.isComplete = true;
+    job.carousel = carousel;
+
+<<<<<<< HEAD
+    job.indexInitialDisplacement = Number.NaN;
+
+    job.duration = config.duration;
+
+=======
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * @param {Tile} tile
+   * @param {Function} [onComplete]
+   */
+  function HighlightRadiateJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.startPoint = {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
+    job.distancesNonContentTiles = [];
+    job.distancesContentTiles = [];
+    job.startTime = 0;
+    job.isComplete = true;
+
+    job.onComplete = onComplete || function () {};
+
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+<<<<<<< HEAD
+    job.refresh = refresh;
+    job.init = init;
+
+<<<<<<< HEAD
+    console.log('CarouselImageSlideJob created: currentIndex=' + job.carousel.currentIndex +
+      ', previousIndex=' + job.carousel.previousIndex);
+  }
+
+  CarouselImageSlideJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.CarouselImageSlideJob = CarouselImageSlideJob;
+
+  console.log('CarouselImageSlideJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ClosePostJob
+ */
+
+/**
+ * This module defines a constructor for ClosePostJob objects.
+ *
+ * @module ClosePostJob
+=======
+    job.init();
+
+    console.log('DisplacementWaveJob created');
+  }
+
+  DisplacementWaveJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementWaveJob = DisplacementWaveJob;
+
+  console.log('DisplacementWaveJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} CarouselImageSlideJob
+ */
+
+/**
+ * This module defines a constructor for CarouselImageSlideJob objects.
+ *
+ * @module CarouselImageSlideJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    job.init = init;
+
+    calculateTileDistances.call(job);
+
+    console.log('HighlightRadiateJob created: tileIndex=' + (tile && tile.originalIndex));
+  }
+
+  HighlightRadiateJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.HighlightRadiateJob = HighlightRadiateJob;
+
+  console.log('HighlightRadiateJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} IntraTileRadiateJob
+ */
+
+/**
+ * This module defines a constructor for IntraTileRadiateJob objects.
+ *
+ * @module IntraTileRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+  config.duration = 500;
+=======
+  config.duration = 300;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+  config.duration = 500;
+
+  // TODO:
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+<<<<<<< HEAD
+=======
+    // TODO:
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * @this ClosePostJob
+=======
+   * @this IntraTileRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+<<<<<<< HEAD
+    console.log('ClosePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    destroySectors.call(job);
+
+    // Don't reset some state if another expansion job started after this one did
+    if (job.grid.lastExpansionJob === job) {
+      // Destroy the expanded tile expanded state
+      job.baseTile.expandedState = null;
+
+      job.grid.sectors = [];
+      job.grid.updateAllTilesCollection(job.grid.originalTiles);
+
+      job.grid.isTransitioning = false;
+      job.grid.expandedTile = null;
+
+      // TODO: this should instead fade out the old persistent animations and fade in the new ones
+      // Restart the persistent jobs now the the overall collection of tiles has changed
+      window.hg.controller.resetPersistentJobs(job.grid);
+    }
+
+    job.isComplete = true;
+    job.onComplete();
+  }
+
+  /**
+   * @this ClosePostJob
+=======
+   * @this CarouselImageSlideJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function destroySectors() {
+    var job, i, count, alsoDestroyOriginalTileExpandedState;
+
+<<<<<<< HEAD
+    job = this;
+
+    alsoDestroyOriginalTileExpandedState = job.grid.lastExpansionJob === job;
+
+    // Destroy the sectors
+    for (i = 0, count = job.sectors.length; i < count; i += 1) {
+      job.sectors[i].destroy(alsoDestroyOriginalTileExpandedState);
+    }
+
+    job.sectors = [];
+=======
+    console.log('CarouselImageSlideJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+    job.onComplete();
+
+    job.carousel.onSlideFinished();
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    console.log('IntraTileRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+  /**
+   * Sets this ClosePostJob as started.
+   *
+   * @this ClosePostJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var panDisplacement;
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+
+    job.grid.isPostOpen = false;
+    job.grid.isTransitioning = true;
+    job.grid.lastExpansionJob = job;
+
+    panDisplacement = {
+      x: job.grid.originalCenter.x - job.grid.panCenter.x,
+      y: job.grid.originalCenter.y - job.grid.panCenter.y
+    };
+
+    // Start the sub-jobs
+    window.hg.controller.transientJobs.SpreadJob.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.spreadDurationOffset;
+    window.hg.controller.transientJobs.PanJob.create(job.grid, job.baseTile, {
+      x: job.grid.panCenter.x,
+      y: job.grid.panCenter.y
+    })
+        .duration = config.duration + window.hg.OpenPostJob.config.panDurationOffset;
+    window.hg.controller.transientJobs.DilateSectorsJob.create(job.grid, job.baseTile, panDisplacement)
+        .duration = config.duration + window.hg.OpenPostJob.config.dilateSectorsDurationOffset;
+    window.hg.controller.transientJobs.FadePostJob.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.fadePostDurationOffset;
+
+    job.grid.annotations.setExpandedAnnotations(false);
+
+    // Turn scrolling back on
+    job.grid.parent.style.overflowY = 'auto';
+  }
+
+  /**
+   * Updates the animation progress of this ClosePostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ClosePostJob
+=======
+
+  /**
+   * Sets this CarouselImageSlideJob as started.
+   *
+   * @this CarouselImageSlideJob
+=======
+
+  /**
+   * Sets this IntraTileRadiateJob as started.
+   *
+   * @this IntraTileRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+<<<<<<< HEAD
+
+    job.indexInitialDisplacement = job.carousel.previousIndex - job.carousel.currentIndex;
+  }
+
+  /**
+   * Updates the animation progress of this CarouselImageSlideJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this CarouselImageSlideJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+  }
+
+  /**
+   * Updates the animation progress of this IntraTileRadiateJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this IntraTileRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+<<<<<<< HEAD
+    var job = this;
+
+    // Is the job done?
+    if (currentTime - job.startTime >= config.duration) {
+=======
+    var job, progress;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = 1 - window.hg.util.easingFunctions.easeInOutCubic(progress);
+    progress = progress < 0 ? 0 : progress;
+
+    job.carousel.currentIndexPositionRatio += job.indexInitialDisplacement * progress;
+
+    // Is the job done?
+    if (progress === 0) {
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+      handleComplete.call(job, false);
+    }
+  }
+
+  /**
+<<<<<<< HEAD
+   * Draws the current state of this ClosePostJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ClosePostJob
+=======
+   * Draws the current state of this CarouselImageSlideJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this CarouselImageSlideJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function draw() {
+    // This animation job updates the state of the carousel and has nothing of its own to draw
+  }
+
+  /**
+<<<<<<< HEAD
+   * Stops this ClosePostJob, and returns the element its original form.
+   *
+   * @this ClosePostJob
+=======
+   * Stops this CarouselImageSlideJob, and returns the element its original form.
+   *
+   * @this CarouselImageSlideJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    // TODO:
+//    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
+//        oneMinusDurationRatio, animatedSomeTile;
+//
+//    job = this;
+//
+//    if (currentTime > job.startTime + config.duration) {
+//      handleComplete.call(job, false);
+//    } else {
+//      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+//
+//      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
+//      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
+//
+//      animatedSomeTile = false;
+//
+//      for (i = 0, count = job.grid.originalTiles.length; i < count; i += 1) {
+//        distance = job.tileDistances[i];
+//
+//        if (distance > currentMinDistance && distance < currentMaxDistance) {
+//          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+//
+//          updateTile(job.grid.originalTiles[i], waveWidthRatio, oneMinusDurationRatio);
+//
+//          animatedSomeTile = true;
+//        }
+//      }
+//
+//      if (!animatedSomeTile) {
+//        handleComplete.call(job, false);
+//      }
+//    }**;
+  }
+
+  /**
+   * Draws the current state of this IntraTileRadiateJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this IntraTileRadiateJob
+   */
+  function draw() {
+    var job;
+
+    job = this;
+
+    // TODO:
+  }
+
+  /**
+   * Stops this IntraTileRadiateJob, and returns the element its original form.
+   *
+   * @this IntraTileRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * @this ClosePostJob
+=======
+   * @this CarouselImageSlideJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * @this IntraTileRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+<<<<<<< HEAD
+=======
+    // TODO:
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * @param {Boolean} isPairedWithAnotherOpen
+   */
+  function ClosePostJob(grid, tile, onComplete, isPairedWithAnotherOpen) {
+=======
+   * @param {Carousel} carousel
+   */
+  function CarouselImageSlideJob(grid, tile, onComplete, carousel) {
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = grid.expandedTile;
+    job.startTime = 0;
+    job.isComplete = true;
+<<<<<<< HEAD
+    job.sectors = grid.sectors;
+=======
+    job.carousel = carousel;
+
+    job.indexInitialDisplacement = Number.NaN;
+
+    job.duration = config.duration;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   */
+  function IntraTileRadiateJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+    job.startTime = 0;
+    job.isComplete = true;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+    if (!isPairedWithAnotherOpen) {
+      // If there isn't another OpenPostJob that will assign the hash, then clear it here.
+      history.pushState({}, document.title, '/');
+    }
+
+    console.log('ClosePostJob created: tileIndex=' + job.baseTile.originalIndex);
+  }
+
+  ClosePostJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ClosePostJob = ClosePostJob;
+
+  console.log('ClosePostJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DilateSectorsJob
+ */
+
+/**
+ * This module defines a constructor for DilateSectorsJob objects.
+ *
+ * @module DilateSectorsJob
+=======
+    console.log('CarouselImageSlideJob created: currentIndex=' + job.carousel.currentIndex +
+      ', previousIndex=' + job.carousel.previousIndex);
+  }
+
+  CarouselImageSlideJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.CarouselImageSlideJob = CarouselImageSlideJob;
+
+  console.log('CarouselImageSlideJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ClosePostJob
+ */
+
+/**
+ * This module defines a constructor for ClosePostJob objects.
+ *
+ * @module ClosePostJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+    console.log('IntraTileRadiateJob created: tileIndex=' + job.tile.originalIndex);
+  }
+
+  IntraTileRadiateJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.IntraTileRadiateJob = IntraTileRadiateJob;
+
+  console.log('IntraTileRadiateJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} LineJob
+ */
+
+/**
+ * This module defines a constructor for LineJob objects.
+ *
+ * @module LineJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+<<<<<<< HEAD
+  config.duration = 500;
+=======
+  config.duration = 2000;
+  config.lineWidth = 28;
+  config.lineLength = 60000;
+  config.lineSidePeriod = 5; // milliseconds per tile side
+
+  config.startSaturation = 100;
+  config.startLightness = 100;
+  config.startOpacity = 0.6;
+
+  config.endSaturation = 30;
+  config.endLightness = 80;
+  config.endOpacity = 0;
+
+  config.sameDirectionProb = 0.8;
+
+  config.blurStdDeviation = 2;
+  config.isBlurOn = false;
+
+  config.isRecurring = true;
+  config.avgDelay = 2200;
+  config.delayDeviationRange = 2100;
+
+  // ---  --- //
+
+  config.NEIGHBOR = 0;
+  config.LOWER_SELF = 1;
+  config.UPPER_SELF = 2;
+
+  config.oppositeDirectionProb = 0;
+  config.epsilon = 0.00001;
+
+  config.haveDefinedLineBlur = false;
+  config.filterId = 'random-line-filter';
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+<<<<<<< HEAD
+=======
+    config.distantSidewaysDirectionProb = (1 - config.sameDirectionProb) / 2;
+    config.closeSidewaysDirectionProb = (1 - config.oppositeDirectionProb) / 2;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+   * @this DilateSectorsJob
+=======
+   * @this ClosePostJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+<<<<<<< HEAD
+    console.log('DilateSectorsJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+=======
+    console.log('ClosePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    destroySectors.call(job);
+
+    // Don't reset some state if another expansion job started after this one did
+    if (job.grid.lastExpansionJob === job) {
+      // Destroy the expanded tile expanded state
+      job.baseTile.expandedState = null;
+
+      job.grid.sectors = [];
+      job.grid.updateAllTilesCollection(job.grid.originalTiles);
+
+      job.grid.isTransitioning = false;
+      job.grid.expandedTile = null;
+
+      // TODO: this should instead fade out the old persistent animations and fade in the new ones
+      // Restart the persistent jobs now the the overall collection of tiles has changed
+      window.hg.controller.resetPersistentJobs(job.grid);
+    }
+
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.isComplete = true;
+    job.onComplete();
+  }
+
+  /**
+<<<<<<< HEAD
+   * @this OpenPostJob
+   */
+  function setFinalPositions() {
+    var i;
+
+    var job = this;
+
+    // Displace the sectors
+    for (i = 0; i < 6; i += 1) {
+      // Update the Sector's base position to account for the panning
+      job.sectors[i].originalAnchor.x += job.panDisplacement.x;
+      job.sectors[i].originalAnchor.y += job.panDisplacement.y;
+
+      job.sectors[i].setOriginalPositionForExpansion(job.isExpanding);
+    }
+=======
+   * @this ClosePostJob
+   */
+  function destroySectors() {
+    var job, i, count, alsoDestroyOriginalTileExpandedState;
+
+    job = this;
+
+    alsoDestroyOriginalTileExpandedState = job.grid.lastExpansionJob === job;
+
+    // Destroy the sectors
+    for (i = 0, count = job.sectors.length; i < count; i += 1) {
+      job.sectors[i].destroy(alsoDestroyOriginalTileExpandedState);
+    }
+
+    job.sectors = [];
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * Sets this DilateSectorsJob as started.
+   *
+   * @this DilateSectorsJob
+=======
+   * Sets this ClosePostJob as started.
+   *
+   * @this ClosePostJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var panDisplacement;
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+
+<<<<<<< HEAD
+    // Set the final positions at the start, and animate everything in "reverse"
+    setFinalPositions.call(job);
+  }
+
+  /**
+   * Updates the animation progress of this DilateSectorsJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DilateSectorsJob
+=======
+    job.grid.isPostOpen = false;
+    job.grid.isTransitioning = true;
+    job.grid.lastExpansionJob = job;
+
+    panDisplacement = {
+      x: job.grid.originalCenter.x - job.grid.panCenter.x,
+      y: job.grid.originalCenter.y - job.grid.panCenter.y
+    };
+
+    // Start the sub-jobs
+    window.hg.controller.transientJobs.SpreadJob.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.spreadDurationOffset;
+    window.hg.controller.transientJobs.PanJob.create(job.grid, job.baseTile, {
+      x: job.grid.panCenter.x,
+      y: job.grid.panCenter.y
+    })
+        .duration = config.duration + window.hg.OpenPostJob.config.panDurationOffset;
+    window.hg.controller.transientJobs.DilateSectorsJob.create(job.grid, job.baseTile, panDisplacement)
+        .duration = config.duration + window.hg.OpenPostJob.config.dilateSectorsDurationOffset;
+    window.hg.controller.transientJobs.FadePostJob.create(job.grid, job.baseTile)
+        .duration = config.duration + window.hg.OpenPostJob.config.fadePostDurationOffset;
+
+    job.grid.annotations.setExpandedAnnotations(false);
+
+    // Turn scrolling back on
+    job.grid.parent.style.overflowY = 'auto';
+  }
+
+  /**
+   * Updates the animation progress of this ClosePostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ClosePostJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+    var job, progress, i, dx, dy;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    // Because the final positions were set at the start, the progress needs to update in "reverse"
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress < 0 ? 0 : (job.isExpanding ? progress : -progress);
+
+    // Update the offsets for each of the six sectors
+    for (i = 0; i < 6; i += 1) {
+      dx = job.sectors[i].expandedDisplacement.x * progress;
+      dy = job.sectors[i].expandedDisplacement.y * progress;
+
+      job.sectors[i].updateCurrentPosition(dx, dy);
+    }
+
+    // Is the job done?
+    if (progress === 0) {
+=======
+    var job = this;
+
+    // Is the job done?
+    if (currentTime - job.startTime >= config.duration) {
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+      handleComplete.call(job, false);
+    }
+  }
+
+  /**
+<<<<<<< HEAD
+   * Draws the current state of this DilateSectorsJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DilateSectorsJob
+=======
+   * Draws the current state of this ClosePostJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ClosePostJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+<<<<<<< HEAD
+   * Stops this DilateSectorsJob, and returns the element its original form.
+   *
+   * @this DilateSectorsJob
+=======
+   * Stops this ClosePostJob, and returns the element its original form.
+   *
+   * @this ClosePostJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+<<<<<<< HEAD
+   * @this DilateSectorsJob
+=======
+   * @this ClosePostJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+<<<<<<< HEAD
+   * @param {{x:Number,y:Number}} panDisplacement
+   */
+  function DilateSectorsJob(grid, tile, onComplete, panDisplacement) {
+=======
+   * @param {Boolean} isPairedWithAnotherOpen
+   */
+  function ClosePostJob(grid, tile, onComplete, isPairedWithAnotherOpen) {
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = grid.expandedTile;
+    job.startTime = 0;
+    job.isComplete = true;
+<<<<<<< HEAD
+    job.panDisplacement = panDisplacement;
+    job.sectors = grid.sectors;
+    job.parentExpansionJob = job.grid.lastExpansionJob;
+    job.isExpanding = grid.isPostOpen;
+
+    job.duration = config.duration;
+=======
+    job.sectors = grid.sectors;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+<<<<<<< HEAD
+    console.log('DilateSectorsJob created: tileIndex=' + job.baseTile.originalIndex);
+  }
+
+  DilateSectorsJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DilateSectorsJob = DilateSectorsJob;
+
+  console.log('DilateSectorsJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DisplacementRadiateJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementRadiateJob objects.
+ *
+ * @module DisplacementRadiateJob
+=======
+    if (!isPairedWithAnotherOpen) {
+      // If there isn't another OpenPostJob that will assign the hash, then clear it here.
+      history.pushState({}, document.title, '/');
+    }
+
+    console.log('ClosePostJob created: tileIndex=' + job.baseTile.originalIndex);
+  }
+
+  ClosePostJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ClosePostJob = ClosePostJob;
+
+  console.log('ClosePostJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DilateSectorsJob
+ */
+
+/**
+ * This module defines a constructor for DilateSectorsJob objects.
+ *
+ * @module DilateSectorsJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 500;
+<<<<<<< HEAD
+  config.waveSpeed = 3; // pixels / millisecond
+  config.waveWidth = 500;
+
+  config.displacementDistance = 50;
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
+=======
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+<<<<<<< HEAD
+    // TODO:
+=======
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+<<<<<<< HEAD
    * Calculates and stores the maximal displacement values for all tiles.
    *
    * @this DisplacementRadiateJob
@@ -14304,16 +17241,722 @@ if (typeof define === 'function' && define.amd) {
 
     config.computeDependentValues();
     // TODO:
+=======
+   * @this DilateSectorsJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('DilateSectorsJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+    job.onComplete();
+  }
+
+  /**
+   * @this OpenPostJob
+   */
+  function setFinalPositions() {
+    var i;
+
+    var job = this;
+
+    // Displace the sectors
+    for (i = 0; i < 6; i += 1) {
+      // Update the Sector's base position to account for the panning
+      job.sectors[i].originalAnchor.x += job.panDisplacement.x;
+      job.sectors[i].originalAnchor.y += job.panDisplacement.y;
+
+      job.sectors[i].setOriginalPositionForExpansion(job.isExpanding);
+    }
+=======
+   * Creates an SVG definition that is used for blurring the lines of LineJobs.
+   *
+   * @this LineJob
+   */
+  function defineLineBlur() {
+    var job, filter, feGaussianBlur;
+
+    job = this;
+
+    // Create the elements
+
+    filter = document.createElementNS(window.hg.util.svgNamespace, 'filter');
+    job.grid.svgDefs.appendChild(filter);
+
+    feGaussianBlur = document.createElementNS(window.hg.util.svgNamespace, 'feGaussianBlur');
+    filter.appendChild(feGaussianBlur);
+
+    // Define the blur
+
+    filter.setAttribute('id', config.filterId);
+    filter.setAttribute('x', '-10%');
+    filter.setAttribute('y', '-10%');
+    filter.setAttribute('width', '120%');
+    filter.setAttribute('height', '120%');
+
+    feGaussianBlur.setAttribute('in', 'SourceGraphic');
+    feGaussianBlur.setAttribute('result', 'blurOut');
+
+    config.filter = filter;
+    config.feGaussianBlur = feGaussianBlur;
+  }
+
+  /**
+   * Creates the start and end hue for the line of this animation.
+   *
+   * @this LineJob
+   */
+  function createHues() {
+    var job;
+
+    job = this;
+
+    job.startHue = Math.random() * 360;
+    job.endHue = Math.random() * 360;
+  }
+
+  /**
+   * Creates the polyline SVG element that is used to render this animation.
+   *
+   * @this LineJob
+   */
+  function createPolyline() {
+    var job;
+
+    job = this;
+
+    job.polyline = document.createElementNS(window.hg.util.svgNamespace, 'polyline');
+    job.grid.svg.insertBefore(job.polyline, job.grid.svg.firstChild);
+
+    job.polyline.setAttribute('fill-opacity', '0');
+
+    if (config.isBlurOn) {
+      job.polyline.setAttribute('filter', 'url(#' + config.filterId + ')');
+    }
+  }
+
+  /**
+   * Updates the color values of the line of this animation.
+   *
+   * @this LineJob
+   */
+  function updateColorValues() {
+    var job, progress, oneMinusProgress;
+
+    job = this;
+
+    progress = job.ellapsedTime / job.duration;
+    oneMinusProgress = 1 - progress;
+
+    job.currentColor.h = oneMinusProgress * job.startHue + progress * job.endHue;
+    job.currentColor.s = oneMinusProgress * job.startSaturation + progress * job.endSaturation;
+    job.currentColor.l = oneMinusProgress * job.startLightness + progress * job.endLightness;
+    job.currentOpacity = oneMinusProgress * job.startOpacity + progress * job.endOpacity;
+  }
+
+  /**
+   * Updates the state of this job to handle its completion.
+   *
+   * @this LineJob
+   */
+  function handleCompletion() {
+    var job;
+
+    job = this;
+
+    console.log('LineJob completed');
+
+    if (job.polyline) {
+      job.grid.svg.removeChild(job.polyline);
+      job.polyline = null;
+    }
+
+    job.tiles = [];
+    job.corners = [];
+    job.direction = Number.NaN;
+    job.currentCornerIndex = Number.NaN;
+    job.hasReachedEdge = true;
+
+    job.isComplete = true;
+
+    job.onComplete(job);
+  }
+
+  /**
+   * Determines whether this LineJob has reached the edge of the grid.
+   *
+   * @this LineJob
+   */
+  function checkHasAlmostReachedEdge() {
+    var job;
+
+    job = this;
+
+    if (job.direction === (job.corners[job.currentCornerIndex] + 3) % 6) {
+      // When the job is at the opposite corner of a tile from the direction it is headed, then it
+      // has not reached the edge
+      job.hasAlmostReachedEdge = false;
+    } else {
+      job.hasAlmostReachedEdge = !job.lowerNeighbors[job.currentCornerIndex] ||
+          !job.upperNeighbors[job.currentCornerIndex];
+    }
+  }
+
+  /**
+   * Determines the neighbors of this job's current tile at the current corner.
+   *
+   * @this LineJob
+   */
+  function determineNeighbors() {
+    var job, lowerNeigborTileIndex, upperNeigborTileIndex, currentCorner;
+
+    job = this;
+    currentCorner = job.corners[job.currentCornerIndex];
+
+    if (job.grid.isVertical) {
+      lowerNeigborTileIndex = (currentCorner + 5) % 6;
+      upperNeigborTileIndex = currentCorner;
+    } else {
+      lowerNeigborTileIndex = currentCorner;
+      upperNeigborTileIndex = (currentCorner + 1) % 6;
+    }
+
+    job.lowerNeighbors[job.currentCornerIndex] =
+        job.tiles[job.currentCornerIndex].neighborStates[lowerNeigborTileIndex];
+    job.upperNeighbors[job.currentCornerIndex] =
+        job.tiles[job.currentCornerIndex].neighborStates[upperNeigborTileIndex];
+
+    job.lowerNeighborCorners[job.currentCornerIndex] = (currentCorner + 2) % 6;
+    job.upperNeighborCorners[job.currentCornerIndex] = (currentCorner + 4) % 6;
+  }
+
+  /**
+   * Returns the next vertex in the path of this animation.
+   *
+   * @this LineJob
+   */
+  function chooseNextVertex() {
+    var job, cornerConfig, neighborProb, lowerSelfProb, upperSelfProb, random, relativeDirection,
+        absoluteDirection, nextCorner, nextTile, currentCorner;
+
+    job = this;
+    currentCorner = job.corners[job.currentCornerIndex];
+
+    // The first segment of a line animation is forced to go in a given direction
+    if (job.currentCornerIndex === 0) {
+      relativeDirection = job.forcedInitialRelativeDirection;
+      job.latestDirection = relativeToAbsoluteDirection(relativeDirection, currentCorner);
+    } else {
+      cornerConfig = (currentCorner - job.direction + 6) % 6;
+
+      // Determine relative direction probabilities
+      switch (cornerConfig) {
+        case 0:
+          neighborProb = job.sameDirectionProb;
+          lowerSelfProb = config.distantSidewaysDirectionProb;
+          upperSelfProb = config.distantSidewaysDirectionProb;
+          break;
+        case 1:
+          neighborProb = config.closeSidewaysDirectionProb;
+          lowerSelfProb = config.closeSidewaysDirectionProb;
+          upperSelfProb = config.oppositeDirectionProb;
+          break;
+        case 2:
+          neighborProb = config.distantSidewaysDirectionProb;
+          lowerSelfProb = job.sameDirectionProb;
+          upperSelfProb = config.distantSidewaysDirectionProb;
+          break;
+        case 3:
+          neighborProb = config.oppositeDirectionProb;
+          lowerSelfProb = config.closeSidewaysDirectionProb;
+          upperSelfProb = config.closeSidewaysDirectionProb;
+          break;
+        case 4:
+          neighborProb = config.distantSidewaysDirectionProb;
+          lowerSelfProb = config.distantSidewaysDirectionProb;
+          upperSelfProb = job.sameDirectionProb;
+          break;
+        case 5:
+          neighborProb = config.closeSidewaysDirectionProb;
+          lowerSelfProb = config.oppositeDirectionProb;
+          upperSelfProb = config.closeSidewaysDirectionProb;
+          break;
+        default:
+          throw new Error('Invalid state: cornerConfig=' + cornerConfig);
+      }
+
+      // Determine the next direction to travel
+      do {
+        // Pick a random direction
+        random = Math.random();
+        relativeDirection = random < neighborProb ? config.NEIGHBOR :
+                random < neighborProb + lowerSelfProb ? config.LOWER_SELF : config.UPPER_SELF;
+        absoluteDirection = relativeToAbsoluteDirection(relativeDirection, currentCorner);
+
+        // Disallow the line from going back the way it just came
+      } while (absoluteDirection === (job.latestDirection + 3) % 6);
+
+      job.latestDirection = absoluteDirection;
+    }
+
+    // Determine the next corner configuration
+    switch (relativeDirection) {
+      case config.NEIGHBOR:
+        if (job.grid.isVertical) {
+          nextCorner = (currentCorner + 1) % 6;
+          nextTile = job.tiles[job.currentCornerIndex].neighborStates[(currentCorner + 5) % 6].tile;
+        } else {
+          nextCorner = (currentCorner + 1) % 6;
+          nextTile = job.tiles[job.currentCornerIndex].neighborStates[currentCorner].tile;
+        }
+        break;
+      case config.LOWER_SELF:
+        nextCorner = (currentCorner + 5) % 6;
+        nextTile = job.tiles[job.currentCornerIndex];
+        break;
+      case config.UPPER_SELF:
+        nextCorner = (currentCorner + 1) % 6;
+        nextTile = job.tiles[job.currentCornerIndex];
+        break;
+      default:
+        throw new Error('Invalid state: relativeDirection=' + relativeDirection);
+    }
+
+    job.currentCornerIndex = job.corners.length;
+
+    job.corners[job.currentCornerIndex] = nextCorner;
+    job.tiles[job.currentCornerIndex] = nextTile;
+
+    determineNeighbors.call(job);
+    checkHasAlmostReachedEdge.call(job);
+  }
+
+  /**
+   * Translates the givern relative direction to an absolute direction.
+   *
+   * @param {Number} relativeDirection
+   * @param {Number} corner
+   * @returns {Number}
+   */
+  function relativeToAbsoluteDirection(relativeDirection, corner) {
+    switch (relativeDirection) {
+      case config.NEIGHBOR:
+        return corner;
+      case config.LOWER_SELF:
+        return (corner + 4) % 6;
+      case config.UPPER_SELF:
+        return (corner + 2) % 6;
+      default:
+        throw new Error('Invalid state: relativeDirection=' + relativeDirection);
+    }
+  }
+
+  /**
+   * Updates the parameters of the segments of this animation.
+   *
+   * @this LineJob
+   */
+  function updateSegments() {
+    var job, distanceTravelled, frontSegmentLength, backSegmentLength, segmentsTouchedCount,
+        distancePastEdge, segmentsPastEdgeCount;
+
+    job = this;
+
+    // --- Compute some values of the polyline at the current time --- //
+
+    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * window.hg.Grid.config.tileOuterRadius;
+    segmentsTouchedCount = parseInt(job.ellapsedTime / job.lineSidePeriod) + 1;
+
+    // Add additional vertices to the polyline as needed
+    while (segmentsTouchedCount >= job.corners.length && !job.hasAlmostReachedEdge) {
+      chooseNextVertex.call(job);
+    }
+
+    frontSegmentLength = distanceTravelled % window.hg.Grid.config.tileOuterRadius;
+    backSegmentLength = (job.lineLength - frontSegmentLength +
+        window.hg.Grid.config.tileOuterRadius) % window.hg.Grid.config.tileOuterRadius;
+
+    job.frontSegmentEndRatio = frontSegmentLength / window.hg.Grid.config.tileOuterRadius;
+    job.backSegmentStartRatio = 1 - (backSegmentLength / window.hg.Grid.config.tileOuterRadius);
+
+    job.isShort = job.lineLength < window.hg.Grid.config.tileOuterRadius;
+    job.isStarting = distanceTravelled < job.lineLength;
+
+    // Check whether the line has reached the edge
+    if (job.hasAlmostReachedEdge && segmentsTouchedCount >= job.corners.length) {
+      job.hasReachedEdge = true;
+    }
+
+    // --- Determine how many segments are included in the polyline --- //
+
+    // When the polyline is neither starting nor ending and is not shorter than the length of a
+    // segment, then this is how many segments it includes
+    job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
+        backSegmentLength - config.epsilon) / window.hg.Grid.config.tileOuterRadius) + 2;
+
+    // Subtract from the number of included segments depending on current conditions
+    if (job.isShort) {
+      // The polyline is shorter than a tile side
+
+      if (job.isStarting || job.hasReachedEdge) {
+        // One end of the polyline would lie outside the grid
+        job.segmentsIncludedCount = 1;
+      } else {
+        if (frontSegmentLength - job.lineLength >= 0) {
+          // The polyline is between corners
+          job.segmentsIncludedCount = 1;
+        } else {
+          // The polyline is across a corner
+          job.segmentsIncludedCount = 2;
+        }
+      }
+    } else {
+      // The polyline is longer than a tile side
+
+      if (job.isStarting) {
+        // The polyline is starting; the back of the polyline would lie outside the grid
+        job.segmentsIncludedCount = segmentsTouchedCount;
+      }
+
+      if (job.hasReachedEdge) {
+        // The polyline is ending; the front of the polyline would lie outside the grid
+        segmentsPastEdgeCount = segmentsTouchedCount - job.corners.length + 1;
+        distancePastEdge = distanceTravelled - (job.corners.length - 1) *
+            window.hg.Grid.config.tileOuterRadius;
+
+        if (distancePastEdge > job.lineLength) {
+          handleCompletion.call(job);
+        }
+
+        job.segmentsIncludedCount -= segmentsPastEdgeCount;
+      }
+    }
+  }
+
+
+  /**
+   * Calculates the points in the middle of the gaps between tiles at each known corner.
+   *
+   * @this LineJob
+   */
+  function computeCornerGapPoints() {
+    var job, i, count;
+
+    job = this;
+
+    job.gapPoints = [];
+
+    for (i = 0, count = job.corners.length; i < count; i += 1) {
+      job.gapPoints[i] = computeCornerGapPoint(job.tiles[i], job.corners[i], job.lowerNeighbors[i],
+          job.upperNeighbors[i], job.lowerNeighborCorners[i], job.upperNeighborCorners[i]);
+    }
+  }
+
+  /**
+   * Calculates the point in the middle of the gap between tiles at the given corner.
+   *
+   * @param {Tile} tile
+   * @param {Number} corner
+   * @param {Object} lowerNeighbor
+   * @param {Object} upperNeighbor
+   * @param {Number} lowerNeighborCorner
+   * @param {Number} upperNeighborCorner
+   * @returns {{x:Number,y:Number}}
+   */
+  function computeCornerGapPoint(tile, corner, lowerNeighbor, upperNeighbor, lowerNeighborCorner,
+                             upperNeighborCorner) {
+    var count, xSum, ySum;
+
+    if (lowerNeighbor) {
+      if (upperNeighbor) {
+        count = 3;
+        xSum = tile.particle.px + lowerNeighbor.tile.particle.px + upperNeighbor.tile.particle.px;
+        ySum = tile.particle.py + lowerNeighbor.tile.particle.py + upperNeighbor.tile.particle.py;
+      } else {
+        count = 2;
+        xSum = tile.outerVertices[corner * 2] + lowerNeighbor.tile.outerVertices[lowerNeighborCorner * 2];
+        ySum = tile.outerVertices[corner * 2 + 1] +
+            lowerNeighbor.tile.outerVertices[lowerNeighborCorner * 2 + 1];
+      }
+    } else {
+      if (upperNeighbor) {
+        count = 2;
+        xSum = tile.outerVertices[corner * 2] + upperNeighbor.tile.outerVertices[upperNeighborCorner * 2];
+        ySum = tile.outerVertices[corner * 2 + 1] +
+            upperNeighbor.tile.outerVertices[upperNeighborCorner * 2 + 1];
+      } else {
+        count = 1;
+        xSum = tile.outerVertices[corner * 2];
+        ySum = tile.outerVertices[corner * 2 + 1];
+      }
+    }
+
+    return {
+      x: xSum / count,
+      y: ySum / count
+    };
+  }
+
+  /**
+   * Calculates the points of the SVG polyline element.
+   *
+   * @this LineJob
+   */
+  function computePolylinePoints() {
+    var job, gapPointsIndex, polylinePointsIndex, stopIndex;
+
+    job = this;
+
+    job.polylinePoints = [];
+    gapPointsIndex = job.currentCornerIndex;
+
+    if (job.extraStartPoint && job.isStarting) {
+      // Add the extra, forced initial point (this is useful for making radiating lines actually
+      // start from the center of the tile and not show any gap around the corners of the tile)
+      job.polylinePoints[0] = job.extraStartPoint;
+
+      polylinePointsIndex = job.segmentsIncludedCount + 1;
+      stopIndex = 1;
+    } else {
+      polylinePointsIndex = job.segmentsIncludedCount;
+      stopIndex = 0;
+    }
+
+    // Add the frontend segment point
+    if (!job.hasReachedEdge) {
+      job.polylinePoints[polylinePointsIndex] = {
+        x: job.gapPoints[gapPointsIndex].x * job.frontSegmentEndRatio +
+            job.gapPoints[gapPointsIndex - 1].x * (1 - job.frontSegmentEndRatio),
+        y: job.gapPoints[gapPointsIndex].y * job.frontSegmentEndRatio +
+            job.gapPoints[gapPointsIndex - 1].y * (1 - job.frontSegmentEndRatio)
+      };
+    } else {
+      job.polylinePoints[polylinePointsIndex] = {
+        x: job.gapPoints[gapPointsIndex].x,
+        y: job.gapPoints[gapPointsIndex].y
+      };
+    }
+
+    polylinePointsIndex -= 1;
+    gapPointsIndex -= 1;
+
+    // Add the internal segment points
+    for (; polylinePointsIndex > stopIndex; polylinePointsIndex -= 1, gapPointsIndex -= 1) {
+      job.polylinePoints[polylinePointsIndex] = job.gapPoints[gapPointsIndex];
+    }
+
+    // Add the back-end segment point
+    if (!job.isStarting) {
+      job.polylinePoints[polylinePointsIndex] = {
+        x: job.gapPoints[gapPointsIndex + 1].x * job.backSegmentStartRatio +
+            job.gapPoints[gapPointsIndex].x * (1 - job.backSegmentStartRatio),
+        y: job.gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
+            job.gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
+      }
+    } else {
+      job.polylinePoints[polylinePointsIndex] = {
+        x: job.gapPoints[gapPointsIndex].x,
+        y: job.gapPoints[gapPointsIndex].y
+      };
+    }
+  }
+
+  /**
+   * Updates the actual SVG elements to render the current state of this animation.
+   *
+   * @this LineJob
+   */
+  function drawSegments() {
+    var job, i, count, pointsString;
+
+    job = this;
+
+    // Create the points string
+    pointsString = '';
+    for (i = 0, count = job.polylinePoints.length; i < count; i += 1) {
+      pointsString += job.polylinePoints[i].x + ',' + job.polylinePoints[i].y + ' ';
+    }
+
+    // Update the attributes of the polyline SVG element
+    job.polyline.setAttribute('points', pointsString);
+    job.polyline.setAttribute('stroke', 'hsl(' + job.currentColor.h + ',' + job.currentColor.s +
+        '%,' + job.currentColor.l + '%)');
+    job.polyline.setAttribute('stroke-opacity', job.currentOpacity);
+    job.polyline.setAttribute('stroke-width', job.lineWidth);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * Sets this DilateSectorsJob as started.
+   *
+   * @this DilateSectorsJob
+=======
+   * Sets this LineJob as started.
+   *
+   * @this LineJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+<<<<<<< HEAD
+
+    // Set the final positions at the start, and animate everything in "reverse"
+    setFinalPositions.call(job);
+  }
+
+  /**
+   * Updates the animation progress of this DilateSectorsJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DilateSectorsJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, progress, i, dx, dy;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    // Because the final positions were set at the start, the progress needs to update in "reverse"
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress < 0 ? 0 : (job.isExpanding ? progress : -progress);
+
+    // Update the offsets for each of the six sectors
+    for (i = 0; i < 6; i += 1) {
+      dx = job.sectors[i].expandedDisplacement.x * progress;
+      dy = job.sectors[i].expandedDisplacement.y * progress;
+
+      job.sectors[i].updateCurrentPosition(dx, dy);
+    }
+
+    // Is the job done?
+    if (progress === 0) {
+      handleComplete.call(job, false);
+=======
+  }
+
+  /**
+   * Updates the animation progress of this LineJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LineJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateWithBlur(currentTime, deltaTime) {
+    var job = this;
+
+    job.ellapsedTime = currentTime - job.startTime;
+
+    if (job.ellapsedTime >= job.duration) {
+      handleCompletion.call(job);
+    } else {
+      updateColorValues.call(job);
+      updateSegments.call(job);
+
+      config.feGaussianBlur.setAttribute('stdDeviation', job.blurStdDeviation);
+
+      if (!job.isComplete) {
+        computeCornerGapPoints.call(job);
+        computePolylinePoints.call(job);
+      }
+    }
+  }
+  function updateWithOutBlur(currentTime, deltaTime) {
+    var job = this;
+
+    job.ellapsedTime = currentTime - job.startTime;
+
+    if (job.ellapsedTime >= job.duration) {
+      handleCompletion.call(job);
+    } else {
+      updateColorValues.call(job);
+      updateSegments.call(job);
+
+      if (!job.isComplete) {
+        computeCornerGapPoints.call(job);
+        computePolylinePoints.call(job);
+      }
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    }
+  }
+
+  /**
+<<<<<<< HEAD
+   * Draws the current state of this DilateSectorsJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DilateSectorsJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+=======
+   * Draws the current state of this LineJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LineJob
+   */
+  function draw() {
+    var job = this;
+
+    drawSegments.call(job);
+  }
+
+  /**
+   * Stops this LineJob, and returns the element its original form.
+   *
+   * @this LineJob
+   */
+  function cancel() {
+    var job;
+
+    job = this;
+
+    handleCompletion.call(job);
+  }
+
+  /**
+   * @this LineJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Expose this module's constructor
 
   /**
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
    * @constructor
    * @global
    * @param {Grid} grid
    * @param {Tile} tile
+<<<<<<< HEAD
    * @param {Function} onComplete
    */
   function DisplacementRadiateJob(grid, tile, onComplete) {
@@ -14409,11 +18052,112 @@ if (typeof define === 'function' && define.amd) {
 
     job.baseTile.element.style.pointerEvents = 'auto';
   }
+=======
+   * Stops this DilateSectorsJob, and returns the element its original form.
+   *
+   * @this DilateSectorsJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this DilateSectorsJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   * @param {{x:Number,y:Number}} panDisplacement
+   */
+  function DilateSectorsJob(grid, tile, onComplete, panDisplacement) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = grid.expandedTile;
+    job.startTime = 0;
+    job.isComplete = true;
+    job.panDisplacement = panDisplacement;
+    job.sectors = grid.sectors;
+    job.parentExpansionJob = job.grid.lastExpansionJob;
+    job.isExpanding = grid.isPostOpen;
+
+    job.duration = config.duration;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+    console.log('DilateSectorsJob created: tileIndex=' + job.baseTile.originalIndex);
+  }
+
+  DilateSectorsJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DilateSectorsJob = DilateSectorsJob;
+
+  console.log('DilateSectorsJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DisplacementRadiateJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementRadiateJob objects.
+ *
+ * @module DisplacementRadiateJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 500;
+  config.waveSpeed = 3; // pixels / millisecond
+  config.waveWidth = 500;
+
+  config.displacementDistance = 50;
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
 
   // ------------------------------------------------------------------------------------------- //
   // Private static functions
 
   /**
+<<<<<<< HEAD
    * @param {Array.<Number>} currentVertexDeltas
    * @param {Array.<Number>} oldVertexDeltas
    * @param {Array.<Number>} newVertexDeltas
@@ -14427,12 +18171,60 @@ if (typeof define === 'function' && define.amd) {
       currentVertexDeltas[i] =
         oldVertexDeltas[i] + (newVertexDeltas[i] - oldVertexDeltas[i]) * progress;
     }
+=======
+   * Calculates and stores the maximal displacement values for all tiles.
+   *
+   * @this DisplacementRadiateJob
+   */
+  function initializeDisplacements() {
+    // TODO:
+//    var job, i, iCount, j, jCount, k, tiles, displacementRatio;
+//
+//    job = this;
+//
+//    displacementRatio =
+//        (window.hg.Grid.config.tileShortLengthWithGap + window.hg.Grid.config.tileGap) /
+//        (window.hg.Grid.config.tileShortLengthWithGap);
+//
+//    job.displacements = [];
+//
+//    k = 0;
+//
+//    if (job.grid.isPostOpen) {
+//      // Consider all of the old AND new tiles
+//      for (i = 0, iCount = job.grid.sectors.length; i < iCount; i += 1) {
+//        tiles = job.grid.sectors[i].tiles;
+//
+//        for (j = 0, jCount = tiles.length; j < jCount; j += 1) {
+//          job.displacements[k] = {
+//            tile: tiles[j],
+//            displacementX: displacementRatio *
+//                (tiles[j].originalAnchorX - job.tile.originalAnchorX),
+//            displacementY: displacementRatio *
+//                (tiles[j].originalAnchorY - job.tile.originalAnchorY)
+//          };
+//          k += 1;
+//        }
+//      }
+//    } else {
+//      for (i = 0, iCount = job.grid.originalTiles.length; i < iCount; i += 1) {
+//        job.displacements[i] = {
+//          tile: job.grid.originalTiles[i],
+//          displacementX: displacementRatio *
+//              (job.grid.originalTiles[i].originalAnchorX - job.tile.originalAnchorX),
+//          displacementY: displacementRatio *
+//              (job.grid.originalTiles[i].originalAnchorY - job.tile.originalAnchorY)
+//        };
+//      }
+//    }
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
   }
 
   // ------------------------------------------------------------------------------------------- //
   // Public dynamic functions
 
   /**
+<<<<<<< HEAD
    * Sets this FadePostJob as started.
    *
    * @this FadePostJob
@@ -14478,6 +18270,591 @@ if (typeof define === 'function' && define.amd) {
   }
 
   /**
+   * Updates the animation progress of this FadePostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePostJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateFadeIn(currentTime, deltaTime) {
+    var job, progress, uneasedProgress, quick1FadeProgress, quick2FadeProgress;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / job.duration;
+    uneasedProgress = progress;
+    progress = window.hg.util.easingFunctions.easeOutCubic(progress);
+    progress = progress > 1 ? 1 : progress;
+
+    // Some parts of the animation should happen at different speeds
+    quick1FadeProgress = progress / config.quick1FadeDurationRatio;
+    quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
+    quick2FadeProgress = progress / config.quick2FadeDurationRatio;
+    quick2FadeProgress = (quick2FadeProgress > 1 ? 1 : quick2FadeProgress);
+
+    // Update the opacity of the center Tile
+    job.baseTile.element.style.opacity = 1 - quick1FadeProgress;
+    job.baseTile.tilePost.elements.title.style.opacity = 1 - quick2FadeProgress;
+
+    // Update the opacity of the PagePost
+    job.pagePost.opacity = uneasedProgress;
+
+    // Update the position of the PagePost
+    job.pagePost.center.x = job.pagePostStartPosition.x +
+    job.pagePostDisplacement.x * progress;
+    job.pagePost.center.y = job.pagePostStartPosition.y +
+    job.pagePostDisplacement.y * progress;
+
+    interpolateVertexDeltas(job.baseTile.currentVertexOuterDeltas, job.baseTile.originalVertexOuterDeltas,
+        job.baseTile.expandedVertexOuterDeltas, quick1FadeProgress);
+    interpolateVertexDeltas(job.baseTile.currentVertexInnerDeltas, job.baseTile.originalVertexInnerDeltas,
+        job.baseTile.expandedVertexInnerDeltas, quick1FadeProgress);
+
+    // Is the job done?
+    if (progress === 1) {
+      handleComplete.call(job, false);
+    }
+  }
+
+  /**
+   * Updates the animation progress of this FadePostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePostJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateFadeOut(currentTime, deltaTime) {
+    var job, progress, quick1FadeProgress;
+=======
+   * @this DisplacementRadiateJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('DisplacementRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this DisplacementRadiateJob as started.
+   *
+   * @this DisplacementRadiateJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this DisplacementRadiateJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementRadiateJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    // TODO:
+//    var job, progress, i, count;
+//
+//    job = this;
+//
+//    if (currentTime > job.startTime + config.duration) {
+//      handleComplete.call(job, false);
+//    } else {
+//      // Ease-out halfway, then ease-in back
+//      progress = (currentTime - job.startTime) / config.duration;
+//      progress = (progress > 0.5 ? 1 - progress : progress) * 2;
+//      progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+//
+//      // Displace the tiles
+//      for (i = 0, count = job.displacements.length; i < count; i += 1) {
+//        job.displacements[i].tile.anchorX += job.displacements[i].displacementX * progress;
+//        job.displacements[i].tile.anchorY += job.displacements[i].displacementY * progress;
+//      }
+//    }
+  }
+
+  /**
+   * Draws the current state of this DisplacementRadiateJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementRadiateJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this DisplacementRadiateJob, and returns the element its original form.
+   *
+   * @this DisplacementRadiateJob
+   */
+  function cancel() {
+    var job = this;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+
+    handleComplete.call(job, true);
+  }
+
+<<<<<<< HEAD
+    // Calculate progress with an easing function
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress > 1 ? 1 : progress;
+
+    // Some parts of the animation should happen at different speeds
+    quick1FadeProgress = progress / config.quick1FadeDurationRatio;
+    quick1FadeProgress = (quick1FadeProgress > 1 ? 1 : quick1FadeProgress);
+
+    // Update the opacity of the center Tile
+    job.baseTile.element.style.opacity = progress;
+    job.baseTile.tilePost.elements.title.style.opacity = progress;
+
+    // Update the opacity of the PagePost
+    job.pagePost.opacity = 1 - quick1FadeProgress;
+
+    // Update the position of the PagePost
+    job.pagePost.center.x = job.pagePostStartPosition.x +
+    job.pagePostDisplacement.x * progress;
+    job.pagePost.center.y = job.pagePostStartPosition.y +
+    job.pagePostDisplacement.y * progress;
+
+    interpolateVertexDeltas(job.baseTile.currentVertexOuterDeltas, job.baseTile.expandedVertexOuterDeltas,
+      job.baseTile.originalVertexOuterDeltas, quick1FadeProgress);
+    interpolateVertexDeltas(job.baseTile.currentVertexInnerDeltas, job.baseTile.expandedVertexInnerDeltas,
+      job.baseTile.originalVertexInnerDeltas, quick1FadeProgress);
+
+    // Is the job done?
+    if (progress === 1) {
+      handleComplete.call(job, false);
+    }
+=======
+  /**
+   * @this DisplacementRadiateJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    // TODO:
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+<<<<<<< HEAD
+   * Draws the current state of this FadePostJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this FadePostJob
+   */
+  function draw() {
+    var job = this;
+
+    job.pagePost.draw();
+  }
+
+  /**
+   * Stops this FadePostJob, and returns the element its original form.
+   *
+   * @this FadePostJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this FadePostJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function FadePostJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = grid.expandedTile;
+    job.startTime = 0;
+    job.isComplete = true;
+    job.pagePost = grid.pagePost;
+    job.parentExpansionJob = job.grid.lastExpansionJob;
+    job.isFadingIn = grid.isPostOpen;
+    job.pagePostStartPosition = null;
+    job.pagePostDisplacement = null;
+
+    job.duration = config.duration;
+
+    job.start = start;
+    job.update = job.isFadingIn ? updateFadeIn : updateFadeOut;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+    console.log('FadePostJob created: tileIndex=' + job.baseTile.originalIndex +
+    ', isFadingIn=' + job.isFadingIn);
+  }
+=======
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function DisplacementRadiateJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+    job.startTime = 0;
+    job.isComplete = true;
+
+    job.displacements = null;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+    initializeDisplacements.call(job);
+
+    console.log('DisplacementRadiateJob created: tileIndex=' + job.tile.originalIndex);
+  }
+
+  DisplacementRadiateJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementRadiateJob = DisplacementRadiateJob;
+
+  console.log('DisplacementRadiateJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} FadePostJob
+ */
+
+/**
+ * This module defines a constructor for FadePostJob objects.
+ *
+ * @module FadePostJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 500;
+
+  config.quick1FadeDurationRatio = 0.7;
+  config.quick2FadeDurationRatio = 0.3;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  FadePostJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.FadePostJob = FadePostJob;
+
+  console.log('FadePostJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} HighlightHoverJob
+ */
+
+/**
+ * This module defines a constructor for HighlightHoverJob objects.
+ *
+ * @module HighlightHoverJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 200;
+
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 50;
+
+  config.opacity = 0.5;
+
+  config.isRecurring = false;
+  config.avgDelay = 30;
+  config.delayDeviationRange = 20;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * @this HighlightHoverJob
+=======
+   * @this FadePostJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+<<<<<<< HEAD
+//    console.log('HighlightHoverJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+=======
+    console.log('FadePostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+    job.onComplete();
+
+    if (!job.isFadingIn) {
+      // Don't reset some state if another expansion job started after this one did
+      if (job.parentExpansionJob === job.grid.lastExpansionJob) {
+        job.grid.destroyPagePost();
+      } else {
+        job.pagePost.destroy();
+
+        job.baseTile.currentVertexOuterDeltas = job.baseTile.originalVertexOuterDeltas.slice(0);
+        job.baseTile.currentVertexInnerDeltas = job.baseTile.originalVertexInnerDeltas.slice(0);
+      }
+
+      job.baseTile.show();
+    } else {
+      // Don't reset some state if another expansion job started after this one did
+      if (job.parentExpansionJob === job.grid.lastExpansionJob) {
+        job.baseTile.hide();
+      }
+    }
+
+    job.baseTile.element.style.pointerEvents = 'auto';
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+<<<<<<< HEAD
+   * Updates the background image screen opacity of the given content tile according to the given
+   * durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateContentTile(tile, durationRatio) {
+    var opacity = window.hg.TilePost.config.activeScreenOpacity +
+        (durationRatio * (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity));
+
+    tile.imageScreenOpacity = opacity;
+  }
+
+  /**
+   * Updates the color of the given non-content tile according to the given durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} durationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateNonContentTile(tile, durationRatio) {
+    var opacity = config.opacity * (1 - durationRatio);
+
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
+=======
+   * @param {Array.<Number>} currentVertexDeltas
+   * @param {Array.<Number>} oldVertexDeltas
+   * @param {Array.<Number>} newVertexDeltas
+   * @param {Number} progress
+   */
+  function interpolateVertexDeltas(currentVertexDeltas, oldVertexDeltas, newVertexDeltas,
+                                   progress) {
+    var i, count;
+
+    for (i = 0, count = currentVertexDeltas.length; i < count; i += 1) {
+      currentVertexDeltas[i] =
+        oldVertexDeltas[i] + (newVertexDeltas[i] - oldVertexDeltas[i]) * progress;
+    }
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * Sets this HighlightHoverJob as started.
+   *
+   * @this HighlightHoverJob
+=======
+   * Sets this FadePostJob as started.
+   *
+   * @this FadePostJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var expandedTileOuterRadius;
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+<<<<<<< HEAD
+  }
+
+  /**
+   * Updates the animation progress of this HighlightHoverJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightHoverJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, durationRatio;
+
+    job = this;
+
+    // When the tile is re-highlighted after this job has started, then this job should be
+    // cancelled
+    if (job.tile.isHighlighted) {
+      job.cancel();
+      return;
+    }
+
+    if (currentTime > job.startTime + config.duration) {
+      job.updateTile(job.tile, 1);
+      handleComplete.call(job, false);
+    } else {
+      durationRatio = (currentTime - job.startTime) / config.duration;
+
+      job.updateTile(job.tile, durationRatio);
+=======
+
+    job.pagePostStartPosition = {};
+    job.pagePostDisplacement = {};
+
+    job.baseTile.show();
+
+    if (job.isFadingIn) {
+      job.pagePostStartPosition.x = job.baseTile.particle.px;
+      job.pagePostStartPosition.y = job.baseTile.particle.py;
+      job.pagePostDisplacement.x = job.grid.originalCenter.x - job.pagePostStartPosition.x;
+      job.pagePostDisplacement.y = job.grid.originalCenter.y - job.pagePostStartPosition.y +
+      job.grid.scrollTop;
+
+      job.pagePost = job.grid.createPagePost(job.baseTile, job.pagePostStartPosition);
+
+      expandedTileOuterRadius = window.hg.OpenPostJob.config.expandedDisplacementTileCount *
+          window.hg.Grid.config.tileShortLengthWithGap;
+
+      job.baseTile.expandedVertexOuterDeltas =
+        window.hg.Tile.computeVertexOuterDeltas(expandedTileOuterRadius, job.grid.isVertical);
+      job.baseTile.expandedVertexInnerDeltas =
+        window.hg.Tile.computeVertexInnerDeltas(expandedTileOuterRadius, job.grid.isVertical);
+    } else {
+      job.pagePostStartPosition.x = job.grid.originalCenter.x;
+      job.pagePostStartPosition.y = job.grid.originalCenter.y + job.grid.scrollTop;
+      job.pagePostDisplacement.x = job.pagePostStartPosition.x - job.grid.currentCenter.x;
+      job.pagePostDisplacement.y = job.pagePostStartPosition.y - job.grid.currentCenter.y -
+      job.grid.scrollTop;
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
+    }
+
+    job.baseTile.element.style.pointerEvents = 'none';
+  }
+
+  /**
+<<<<<<< HEAD
+   * Draws the current state of this HighlightHoverJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightHoverJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this HighlightHoverJob, and returns the element its original form.
+   *
+   * @this HighlightHoverJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this HighlightHoverJob
+=======
    * Updates the animation progress of this FadePostJob to match the given time.
    *
    * This should be called from the overall animation loop.
@@ -14600,11 +18977,9 @@ if (typeof define === 'function' && define.amd) {
 
   /**
    * @this FadePostJob
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
    */
   function init() {
-    var job = this;
-
-    config.computeDependentValues();
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -14617,6 +18992,462 @@ if (typeof define === 'function' && define.amd) {
    * @param {Tile} tile
    * @param {Function} onComplete
    */
+<<<<<<< HEAD
+  function HighlightHoverJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+    job.startTime = 0;
+    job.isComplete = true;
+
+    job.updateTile = tile.holdsContent ? updateContentTile : updateNonContentTile;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.onComplete = onComplete;
+    job.init = init;
+
+//    console.log('HighlightHoverJob created: tileIndex=' + job.tile.originalIndex);
+  }
+
+  HighlightHoverJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.HighlightHoverJob = HighlightHoverJob;
+
+  console.log('HighlightHoverJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} HighlightRadiateJob
+ */
+
+/**
+ * This module defines a constructor for HighlightRadiateJob objects.
+ *
+ * @module HighlightRadiateJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.shimmerSpeed = 3; // pixels / millisecond
+  config.shimmerWaveWidth = 500;
+  config.duration = 500;
+
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 50;
+
+  config.opacity = 0.5;
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Calculates the distance from each tile in the grid to the starting point of this
+   * HighlightRadiateJob.
+   *
+   * This cheats by only calculating the distance to the tiles' original center. This allows us to
+   * not need to re-calculate tile distances during each time step.
+   *
+   * @this HighlightRadiateJob
+   */
+  function calculateTileDistances() {
+    var job, i, count, deltaX, deltaY, distanceOffset;
+
+    job = this;
+
+    distanceOffset = -window.hg.Grid.config.tileShortLengthWithGap;
+
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      deltaX = job.grid.allNonContentTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.allNonContentTiles[i].originalAnchor.y - job.startPoint.y;
+      job.distancesNonContentTiles[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) +
+          distanceOffset;
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      deltaX = job.grid.contentTiles[i].originalAnchor.x - job.startPoint.x;
+      deltaY = job.grid.contentTiles[i].originalAnchor.y - job.startPoint.y;
+      job.distancesContentTiles[i] = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + distanceOffset;
+    }
+  }
+
+  /**
+   * @this HighlightRadiateJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('HighlightRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * Updates the color of the given non-content tile according to the given waveWidthRatio and
+   * durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * shimmer distances.
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateNonContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    var opacity = waveWidthRatio * config.opacity * oneMinusDurationRatio;
+
+    tile.currentColor.h += config.deltaHue * opacity;
+    tile.currentColor.s += config.deltaSaturation * opacity;
+    tile.currentColor.l += config.deltaLightness * opacity;
+  }
+
+  /**
+   * Updates the color of the given content tile according to the given waveWidthRatio and
+   * durationRatio.
+   *
+   * @param {Tile} tile
+   * @param {Number} waveWidthRatio Specifies the tile's relative distance to the min and max
+   * shimmer distances.
+   * @param {Number} oneMinusDurationRatio Specifies how far this animation is through its overall
+   * duration.
+   */
+  function updateContentTile(tile, waveWidthRatio, oneMinusDurationRatio) {
+    tile.imageScreenOpacity += -waveWidthRatio * config.opacity * oneMinusDurationRatio *
+        (window.hg.TilePost.config.inactiveScreenOpacity -
+        window.hg.TilePost.config.activeScreenOpacity);
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this HighlightRadiateJob as started.
+   *
+   * @this HighlightRadiateJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this HighlightRadiateJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightRadiateJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
+        oneMinusDurationRatio, animatedSomeTile;
+
+    job = this;
+
+    if (currentTime > job.startTime + config.duration) {
+      handleComplete.call(job, false);
+    } else {
+      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+
+      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
+      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
+
+      animatedSomeTile = false;
+
+      for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+        distance = job.distancesNonContentTiles[i];
+
+        if (distance > currentMinDistance && distance < currentMaxDistance) {
+          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+
+          updateNonContentTile(job.grid.allNonContentTiles[i], waveWidthRatio,
+              oneMinusDurationRatio);
+
+          animatedSomeTile = true;
+        }
+      }
+
+      for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+        distance = job.distancesContentTiles[i];
+
+        if (distance > currentMinDistance && distance < currentMaxDistance) {
+          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+
+          updateContentTile(job.grid.contentTiles[i], waveWidthRatio, oneMinusDurationRatio);
+
+          animatedSomeTile = true;
+        }
+      }
+
+      if (!animatedSomeTile) {
+        handleComplete.call(job, false);
+      }
+    }
+  }
+
+  /**
+   * Draws the current state of this HighlightRadiateJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this HighlightRadiateJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this HighlightRadiateJob, and returns the element its original form.
+   *
+   * @this HighlightRadiateJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this HighlightRadiateJob
+   */
+  function init() {
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} [onComplete]
+   */
+  function HighlightRadiateJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.startPoint = {x: tile.originalAnchor.x, y: tile.originalAnchor.y};
+    job.distancesNonContentTiles = [];
+    job.distancesContentTiles = [];
+    job.startTime = 0;
+    job.isComplete = true;
+
+    job.onComplete = onComplete || function () {};
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = init;
+
+    calculateTileDistances.call(job);
+
+    console.log('HighlightRadiateJob created: tileIndex=' + (tile && tile.originalIndex));
+  }
+
+  HighlightRadiateJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.HighlightRadiateJob = HighlightRadiateJob;
+
+  console.log('HighlightRadiateJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} IntraTileRadiateJob
+ */
+
+/**
+ * This module defines a constructor for IntraTileRadiateJob objects.
+ *
+ * @module IntraTileRadiateJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 500;
+
+  // TODO:
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+    // TODO:
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * @this IntraTileRadiateJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('IntraTileRadiateJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+   * Sets this IntraTileRadiateJob as started.
+   *
+   * @this IntraTileRadiateJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this IntraTileRadiateJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this IntraTileRadiateJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    // TODO:
+//    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
+//        oneMinusDurationRatio, animatedSomeTile;
+//
+//    job = this;
+//
+//    if (currentTime > job.startTime + config.duration) {
+//      handleComplete.call(job, false);
+//    } else {
+//      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+//
+//      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
+//      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
+//
+//      animatedSomeTile = false;
+//
+//      for (i = 0, count = job.grid.originalTiles.length; i < count; i += 1) {
+//        distance = job.tileDistances[i];
+//
+//        if (distance > currentMinDistance && distance < currentMaxDistance) {
+//          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+//
+//          updateTile(job.grid.originalTiles[i], waveWidthRatio, oneMinusDurationRatio);
+//
+//          animatedSomeTile = true;
+//        }
+//      }
+//
+//      if (!animatedSomeTile) {
+//        handleComplete.call(job, false);
+//      }
+//    }**;
+  }
+
+  /**
+   * Draws the current state of this IntraTileRadiateJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this IntraTileRadiateJob
+   */
+  function draw() {
+    var job;
+
+    job = this;
+
+    // TODO:
+  }
+
+  /**
+   * Stops this IntraTileRadiateJob, and returns the element its original form.
+   *
+   * @this IntraTileRadiateJob
+   */
+  function cancel() {
+    var job = this;
+
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this IntraTileRadiateJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    // TODO:
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function IntraTileRadiateJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+    job.startTime = 0;
+    job.isComplete = true;
+
+=======
   function FadePostJob(grid, tile, onComplete) {
     var job = this;
 
@@ -15275,6 +20106,7 @@ if (typeof define === 'function' && define.amd) {
     job.startTime = 0;
     job.isComplete = true;
 
+>>>>>>> c7a24bb... Migrate gulp tasks to gulp v4+, and add a music post.
     job.start = start;
     job.update = update;
     job.draw = draw;
@@ -15302,684 +20134,7 @@ if (typeof define === 'function' && define.amd) {
  * This module defines a constructor for LineJob objects.
  *
  * @module LineJob
- */
-(function () {
-  // ------------------------------------------------------------------------------------------- //
-  // Private static variables
-
-  var config = {};
-
-  config.duration = 2000;
-  config.lineWidth = 28;
-  config.lineLength = 60000;
-  config.lineSidePeriod = 5; // milliseconds per tile side
-
-  config.startSaturation = 100;
-  config.startLightness = 100;
-  config.startOpacity = 0.6;
-
-  config.endSaturation = 30;
-  config.endLightness = 80;
-  config.endOpacity = 0;
-
-  config.sameDirectionProb = 0.8;
-
-  config.blurStdDeviation = 2;
-  config.isBlurOn = false;
-
-  config.isRecurring = true;
-  config.avgDelay = 2200;
-  config.delayDeviationRange = 2100;
-
-  // ---  --- //
-
-  config.NEIGHBOR = 0;
-  config.LOWER_SELF = 1;
-  config.UPPER_SELF = 2;
-
-  config.oppositeDirectionProb = 0;
-  config.epsilon = 0.00001;
-
-  config.haveDefinedLineBlur = false;
-  config.filterId = 'random-line-filter';
-
-  //  --- Dependent parameters --- //
-
-  config.computeDependentValues = function () {
-    config.distantSidewaysDirectionProb = (1 - config.sameDirectionProb) / 2;
-    config.closeSidewaysDirectionProb = (1 - config.oppositeDirectionProb) / 2;
-  };
-
-  config.computeDependentValues();
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private dynamic functions
-
-  /**
-   * Creates an SVG definition that is used for blurring the lines of LineJobs.
-   *
-   * @this LineJob
-   */
-  function defineLineBlur() {
-    var job, filter, feGaussianBlur;
-
-    job = this;
-
-    // Create the elements
-
-    filter = document.createElementNS(window.hg.util.svgNamespace, 'filter');
-    job.grid.svgDefs.appendChild(filter);
-
-    feGaussianBlur = document.createElementNS(window.hg.util.svgNamespace, 'feGaussianBlur');
-    filter.appendChild(feGaussianBlur);
-
-    // Define the blur
-
-    filter.setAttribute('id', config.filterId);
-    filter.setAttribute('x', '-10%');
-    filter.setAttribute('y', '-10%');
-    filter.setAttribute('width', '120%');
-    filter.setAttribute('height', '120%');
-
-    feGaussianBlur.setAttribute('in', 'SourceGraphic');
-    feGaussianBlur.setAttribute('result', 'blurOut');
-
-    config.filter = filter;
-    config.feGaussianBlur = feGaussianBlur;
-  }
-
-  /**
-   * Creates the start and end hue for the line of this animation.
-   *
-   * @this LineJob
-   */
-  function createHues() {
-    var job;
-
-    job = this;
-
-    job.startHue = Math.random() * 360;
-    job.endHue = Math.random() * 360;
-  }
-
-  /**
-   * Creates the polyline SVG element that is used to render this animation.
-   *
-   * @this LineJob
-   */
-  function createPolyline() {
-    var job;
-
-    job = this;
-
-    job.polyline = document.createElementNS(window.hg.util.svgNamespace, 'polyline');
-    job.grid.svg.insertBefore(job.polyline, job.grid.svg.firstChild);
-
-    job.polyline.setAttribute('fill-opacity', '0');
-
-    if (config.isBlurOn) {
-      job.polyline.setAttribute('filter', 'url(#' + config.filterId + ')');
-    }
-  }
-
-  /**
-   * Updates the color values of the line of this animation.
-   *
-   * @this LineJob
-   */
-  function updateColorValues() {
-    var job, progress, oneMinusProgress;
-
-    job = this;
-
-    progress = job.ellapsedTime / job.duration;
-    oneMinusProgress = 1 - progress;
-
-    job.currentColor.h = oneMinusProgress * job.startHue + progress * job.endHue;
-    job.currentColor.s = oneMinusProgress * job.startSaturation + progress * job.endSaturation;
-    job.currentColor.l = oneMinusProgress * job.startLightness + progress * job.endLightness;
-    job.currentOpacity = oneMinusProgress * job.startOpacity + progress * job.endOpacity;
-  }
-
-  /**
-   * Updates the state of this job to handle its completion.
-   *
-   * @this LineJob
-   */
-  function handleCompletion() {
-    var job;
-
-    job = this;
-
-    console.log('LineJob completed');
-
-    if (job.polyline) {
-      job.grid.svg.removeChild(job.polyline);
-      job.polyline = null;
-    }
-
-    job.tiles = [];
-    job.corners = [];
-    job.direction = Number.NaN;
-    job.currentCornerIndex = Number.NaN;
-    job.hasReachedEdge = true;
-
-    job.isComplete = true;
-
-    job.onComplete(job);
-  }
-
-  /**
-   * Determines whether this LineJob has reached the edge of the grid.
-   *
-   * @this LineJob
-   */
-  function checkHasAlmostReachedEdge() {
-    var job;
-
-    job = this;
-
-    if (job.direction === (job.corners[job.currentCornerIndex] + 3) % 6) {
-      // When the job is at the opposite corner of a tile from the direction it is headed, then it
-      // has not reached the edge
-      job.hasAlmostReachedEdge = false;
-    } else {
-      job.hasAlmostReachedEdge = !job.lowerNeighbors[job.currentCornerIndex] ||
-          !job.upperNeighbors[job.currentCornerIndex];
-    }
-  }
-
-  /**
-   * Determines the neighbors of this job's current tile at the current corner.
-   *
-   * @this LineJob
-   */
-  function determineNeighbors() {
-    var job, lowerNeigborTileIndex, upperNeigborTileIndex, currentCorner;
-
-    job = this;
-    currentCorner = job.corners[job.currentCornerIndex];
-
-    if (job.grid.isVertical) {
-      lowerNeigborTileIndex = (currentCorner + 5) % 6;
-      upperNeigborTileIndex = currentCorner;
-    } else {
-      lowerNeigborTileIndex = currentCorner;
-      upperNeigborTileIndex = (currentCorner + 1) % 6;
-    }
-
-    job.lowerNeighbors[job.currentCornerIndex] =
-        job.tiles[job.currentCornerIndex].neighborStates[lowerNeigborTileIndex];
-    job.upperNeighbors[job.currentCornerIndex] =
-        job.tiles[job.currentCornerIndex].neighborStates[upperNeigborTileIndex];
-
-    job.lowerNeighborCorners[job.currentCornerIndex] = (currentCorner + 2) % 6;
-    job.upperNeighborCorners[job.currentCornerIndex] = (currentCorner + 4) % 6;
-  }
-
-  /**
-   * Returns the next vertex in the path of this animation.
-   *
-   * @this LineJob
-   */
-  function chooseNextVertex() {
-    var job, cornerConfig, neighborProb, lowerSelfProb, upperSelfProb, random, relativeDirection,
-        absoluteDirection, nextCorner, nextTile, currentCorner;
-
-    job = this;
-    currentCorner = job.corners[job.currentCornerIndex];
-
-    // The first segment of a line animation is forced to go in a given direction
-    if (job.currentCornerIndex === 0) {
-      relativeDirection = job.forcedInitialRelativeDirection;
-      job.latestDirection = relativeToAbsoluteDirection(relativeDirection, currentCorner);
-    } else {
-      cornerConfig = (currentCorner - job.direction + 6) % 6;
-
-      // Determine relative direction probabilities
-      switch (cornerConfig) {
-        case 0:
-          neighborProb = job.sameDirectionProb;
-          lowerSelfProb = config.distantSidewaysDirectionProb;
-          upperSelfProb = config.distantSidewaysDirectionProb;
-          break;
-        case 1:
-          neighborProb = config.closeSidewaysDirectionProb;
-          lowerSelfProb = config.closeSidewaysDirectionProb;
-          upperSelfProb = config.oppositeDirectionProb;
-          break;
-        case 2:
-          neighborProb = config.distantSidewaysDirectionProb;
-          lowerSelfProb = job.sameDirectionProb;
-          upperSelfProb = config.distantSidewaysDirectionProb;
-          break;
-        case 3:
-          neighborProb = config.oppositeDirectionProb;
-          lowerSelfProb = config.closeSidewaysDirectionProb;
-          upperSelfProb = config.closeSidewaysDirectionProb;
-          break;
-        case 4:
-          neighborProb = config.distantSidewaysDirectionProb;
-          lowerSelfProb = config.distantSidewaysDirectionProb;
-          upperSelfProb = job.sameDirectionProb;
-          break;
-        case 5:
-          neighborProb = config.closeSidewaysDirectionProb;
-          lowerSelfProb = config.oppositeDirectionProb;
-          upperSelfProb = config.closeSidewaysDirectionProb;
-          break;
-        default:
-          throw new Error('Invalid state: cornerConfig=' + cornerConfig);
-      }
-
-      // Determine the next direction to travel
-      do {
-        // Pick a random direction
-        random = Math.random();
-        relativeDirection = random < neighborProb ? config.NEIGHBOR :
-                random < neighborProb + lowerSelfProb ? config.LOWER_SELF : config.UPPER_SELF;
-        absoluteDirection = relativeToAbsoluteDirection(relativeDirection, currentCorner);
-
-        // Disallow the line from going back the way it just came
-      } while (absoluteDirection === (job.latestDirection + 3) % 6);
-
-      job.latestDirection = absoluteDirection;
-    }
-
-    // Determine the next corner configuration
-    switch (relativeDirection) {
-      case config.NEIGHBOR:
-        if (job.grid.isVertical) {
-          nextCorner = (currentCorner + 1) % 6;
-          nextTile = job.tiles[job.currentCornerIndex].neighborStates[(currentCorner + 5) % 6].tile;
-        } else {
-          nextCorner = (currentCorner + 1) % 6;
-          nextTile = job.tiles[job.currentCornerIndex].neighborStates[currentCorner].tile;
-        }
-        break;
-      case config.LOWER_SELF:
-        nextCorner = (currentCorner + 5) % 6;
-        nextTile = job.tiles[job.currentCornerIndex];
-        break;
-      case config.UPPER_SELF:
-        nextCorner = (currentCorner + 1) % 6;
-        nextTile = job.tiles[job.currentCornerIndex];
-        break;
-      default:
-        throw new Error('Invalid state: relativeDirection=' + relativeDirection);
-    }
-
-    job.currentCornerIndex = job.corners.length;
-
-    job.corners[job.currentCornerIndex] = nextCorner;
-    job.tiles[job.currentCornerIndex] = nextTile;
-
-    determineNeighbors.call(job);
-    checkHasAlmostReachedEdge.call(job);
-  }
-
-  /**
-   * Translates the givern relative direction to an absolute direction.
-   *
-   * @param {Number} relativeDirection
-   * @param {Number} corner
-   * @returns {Number}
-   */
-  function relativeToAbsoluteDirection(relativeDirection, corner) {
-    switch (relativeDirection) {
-      case config.NEIGHBOR:
-        return corner;
-      case config.LOWER_SELF:
-        return (corner + 4) % 6;
-      case config.UPPER_SELF:
-        return (corner + 2) % 6;
-      default:
-        throw new Error('Invalid state: relativeDirection=' + relativeDirection);
-    }
-  }
-
-  /**
-   * Updates the parameters of the segments of this animation.
-   *
-   * @this LineJob
-   */
-  function updateSegments() {
-    var job, distanceTravelled, frontSegmentLength, backSegmentLength, segmentsTouchedCount,
-        distancePastEdge, segmentsPastEdgeCount;
-
-    job = this;
-
-    // --- Compute some values of the polyline at the current time --- //
-
-    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * window.hg.Grid.config.tileOuterRadius;
-    segmentsTouchedCount = parseInt(job.ellapsedTime / job.lineSidePeriod) + 1;
-
-    // Add additional vertices to the polyline as needed
-    while (segmentsTouchedCount >= job.corners.length && !job.hasAlmostReachedEdge) {
-      chooseNextVertex.call(job);
-    }
-
-    frontSegmentLength = distanceTravelled % window.hg.Grid.config.tileOuterRadius;
-    backSegmentLength = (job.lineLength - frontSegmentLength +
-        window.hg.Grid.config.tileOuterRadius) % window.hg.Grid.config.tileOuterRadius;
-
-    job.frontSegmentEndRatio = frontSegmentLength / window.hg.Grid.config.tileOuterRadius;
-    job.backSegmentStartRatio = 1 - (backSegmentLength / window.hg.Grid.config.tileOuterRadius);
-
-    job.isShort = job.lineLength < window.hg.Grid.config.tileOuterRadius;
-    job.isStarting = distanceTravelled < job.lineLength;
-
-    // Check whether the line has reached the edge
-    if (job.hasAlmostReachedEdge && segmentsTouchedCount >= job.corners.length) {
-      job.hasReachedEdge = true;
-    }
-
-    // --- Determine how many segments are included in the polyline --- //
-
-    // When the polyline is neither starting nor ending and is not shorter than the length of a
-    // segment, then this is how many segments it includes
-    job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
-        backSegmentLength - config.epsilon) / window.hg.Grid.config.tileOuterRadius) + 2;
-
-    // Subtract from the number of included segments depending on current conditions
-    if (job.isShort) {
-      // The polyline is shorter than a tile side
-
-      if (job.isStarting || job.hasReachedEdge) {
-        // One end of the polyline would lie outside the grid
-        job.segmentsIncludedCount = 1;
-      } else {
-        if (frontSegmentLength - job.lineLength >= 0) {
-          // The polyline is between corners
-          job.segmentsIncludedCount = 1;
-        } else {
-          // The polyline is across a corner
-          job.segmentsIncludedCount = 2;
-        }
-      }
-    } else {
-      // The polyline is longer than a tile side
-
-      if (job.isStarting) {
-        // The polyline is starting; the back of the polyline would lie outside the grid
-        job.segmentsIncludedCount = segmentsTouchedCount;
-      }
-
-      if (job.hasReachedEdge) {
-        // The polyline is ending; the front of the polyline would lie outside the grid
-        segmentsPastEdgeCount = segmentsTouchedCount - job.corners.length + 1;
-        distancePastEdge = distanceTravelled - (job.corners.length - 1) *
-            window.hg.Grid.config.tileOuterRadius;
-
-        if (distancePastEdge > job.lineLength) {
-          handleCompletion.call(job);
-        }
-
-        job.segmentsIncludedCount -= segmentsPastEdgeCount;
-      }
-    }
-  }
-
-
-  /**
-   * Calculates the points in the middle of the gaps between tiles at each known corner.
-   *
-   * @this LineJob
-   */
-  function computeCornerGapPoints() {
-    var job, i, count;
-
-    job = this;
-
-    job.gapPoints = [];
-
-    for (i = 0, count = job.corners.length; i < count; i += 1) {
-      job.gapPoints[i] = computeCornerGapPoint(job.tiles[i], job.corners[i], job.lowerNeighbors[i],
-          job.upperNeighbors[i], job.lowerNeighborCorners[i], job.upperNeighborCorners[i]);
-    }
-  }
-
-  /**
-   * Calculates the point in the middle of the gap between tiles at the given corner.
-   *
-   * @param {Tile} tile
-   * @param {Number} corner
-   * @param {Object} lowerNeighbor
-   * @param {Object} upperNeighbor
-   * @param {Number} lowerNeighborCorner
-   * @param {Number} upperNeighborCorner
-   * @returns {{x:Number,y:Number}}
-   */
-  function computeCornerGapPoint(tile, corner, lowerNeighbor, upperNeighbor, lowerNeighborCorner,
-                             upperNeighborCorner) {
-    var count, xSum, ySum;
-
-    if (lowerNeighbor) {
-      if (upperNeighbor) {
-        count = 3;
-        xSum = tile.particle.px + lowerNeighbor.tile.particle.px + upperNeighbor.tile.particle.px;
-        ySum = tile.particle.py + lowerNeighbor.tile.particle.py + upperNeighbor.tile.particle.py;
-      } else {
-        count = 2;
-        xSum = tile.outerVertices[corner * 2] + lowerNeighbor.tile.outerVertices[lowerNeighborCorner * 2];
-        ySum = tile.outerVertices[corner * 2 + 1] +
-            lowerNeighbor.tile.outerVertices[lowerNeighborCorner * 2 + 1];
-      }
-    } else {
-      if (upperNeighbor) {
-        count = 2;
-        xSum = tile.outerVertices[corner * 2] + upperNeighbor.tile.outerVertices[upperNeighborCorner * 2];
-        ySum = tile.outerVertices[corner * 2 + 1] +
-            upperNeighbor.tile.outerVertices[upperNeighborCorner * 2 + 1];
-      } else {
-        count = 1;
-        xSum = tile.outerVertices[corner * 2];
-        ySum = tile.outerVertices[corner * 2 + 1];
-      }
-    }
-
-    return {
-      x: xSum / count,
-      y: ySum / count
-    };
-  }
-
-  /**
-   * Calculates the points of the SVG polyline element.
-   *
-   * @this LineJob
-   */
-  function computePolylinePoints() {
-    var job, gapPointsIndex, polylinePointsIndex, stopIndex;
-
-    job = this;
-
-    job.polylinePoints = [];
-    gapPointsIndex = job.currentCornerIndex;
-
-    if (job.extraStartPoint && job.isStarting) {
-      // Add the extra, forced initial point (this is useful for making radiating lines actually
-      // start from the center of the tile and not show any gap around the corners of the tile)
-      job.polylinePoints[0] = job.extraStartPoint;
-
-      polylinePointsIndex = job.segmentsIncludedCount + 1;
-      stopIndex = 1;
-    } else {
-      polylinePointsIndex = job.segmentsIncludedCount;
-      stopIndex = 0;
-    }
-
-    // Add the frontend segment point
-    if (!job.hasReachedEdge) {
-      job.polylinePoints[polylinePointsIndex] = {
-        x: job.gapPoints[gapPointsIndex].x * job.frontSegmentEndRatio +
-            job.gapPoints[gapPointsIndex - 1].x * (1 - job.frontSegmentEndRatio),
-        y: job.gapPoints[gapPointsIndex].y * job.frontSegmentEndRatio +
-            job.gapPoints[gapPointsIndex - 1].y * (1 - job.frontSegmentEndRatio)
-      };
-    } else {
-      job.polylinePoints[polylinePointsIndex] = {
-        x: job.gapPoints[gapPointsIndex].x,
-        y: job.gapPoints[gapPointsIndex].y
-      };
-    }
-
-    polylinePointsIndex -= 1;
-    gapPointsIndex -= 1;
-
-    // Add the internal segment points
-    for (; polylinePointsIndex > stopIndex; polylinePointsIndex -= 1, gapPointsIndex -= 1) {
-      job.polylinePoints[polylinePointsIndex] = job.gapPoints[gapPointsIndex];
-    }
-
-    // Add the back-end segment point
-    if (!job.isStarting) {
-      job.polylinePoints[polylinePointsIndex] = {
-        x: job.gapPoints[gapPointsIndex + 1].x * job.backSegmentStartRatio +
-            job.gapPoints[gapPointsIndex].x * (1 - job.backSegmentStartRatio),
-        y: job.gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
-            job.gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
-      }
-    } else {
-      job.polylinePoints[polylinePointsIndex] = {
-        x: job.gapPoints[gapPointsIndex].x,
-        y: job.gapPoints[gapPointsIndex].y
-      };
-    }
-  }
-
-  /**
-   * Updates the actual SVG elements to render the current state of this animation.
-   *
-   * @this LineJob
-   */
-  function drawSegments() {
-    var job, i, count, pointsString;
-
-    job = this;
-
-    // Create the points string
-    pointsString = '';
-    for (i = 0, count = job.polylinePoints.length; i < count; i += 1) {
-      pointsString += job.polylinePoints[i].x + ',' + job.polylinePoints[i].y + ' ';
-    }
-
-    // Update the attributes of the polyline SVG element
-    job.polyline.setAttribute('points', pointsString);
-    job.polyline.setAttribute('stroke', 'hsl(' + job.currentColor.h + ',' + job.currentColor.s +
-        '%,' + job.currentColor.l + '%)');
-    job.polyline.setAttribute('stroke-opacity', job.currentOpacity);
-    job.polyline.setAttribute('stroke-width', job.lineWidth);
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Private static functions
-
-  // ------------------------------------------------------------------------------------------- //
-  // Public dynamic functions
-
-  /**
-   * Sets this LineJob as started.
-   *
-   * @this LineJob
-   * @param {Number} startTime
-   */
-  function start(startTime) {
-    var job = this;
-
-    job.startTime = startTime;
-    job.isComplete = false;
-  }
-
-  /**
-   * Updates the animation progress of this LineJob to match the given time.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this LineJob
-   * @param {Number} currentTime
-   * @param {Number} deltaTime
-   */
-  function updateWithBlur(currentTime, deltaTime) {
-    var job = this;
-
-    job.ellapsedTime = currentTime - job.startTime;
-
-    if (job.ellapsedTime >= job.duration) {
-      handleCompletion.call(job);
-    } else {
-      updateColorValues.call(job);
-      updateSegments.call(job);
-
-      config.feGaussianBlur.setAttribute('stdDeviation', job.blurStdDeviation);
-
-      if (!job.isComplete) {
-        computeCornerGapPoints.call(job);
-        computePolylinePoints.call(job);
-      }
-    }
-  }
-  function updateWithOutBlur(currentTime, deltaTime) {
-    var job = this;
-
-    job.ellapsedTime = currentTime - job.startTime;
-
-    if (job.ellapsedTime >= job.duration) {
-      handleCompletion.call(job);
-    } else {
-      updateColorValues.call(job);
-      updateSegments.call(job);
-
-      if (!job.isComplete) {
-        computeCornerGapPoints.call(job);
-        computePolylinePoints.call(job);
-      }
-    }
-  }
-
-  /**
-   * Draws the current state of this LineJob.
-   *
-   * This should be called from the overall animation loop.
-   *
-   * @this LineJob
-   */
-  function draw() {
-    var job = this;
-
-    drawSegments.call(job);
-  }
-
-  /**
-   * Stops this LineJob, and returns the element its original form.
-   *
-   * @this LineJob
-   */
-  function cancel() {
-    var job;
-
-    job = this;
-
-    handleCompletion.call(job);
-  }
-
-  /**
-   * @this LineJob
-   */
-  function init() {
-    var job = this;
-
-    config.computeDependentValues();
-  }
-
-  // ------------------------------------------------------------------------------------------- //
-  // Expose this module's constructor
-
-  /**
-   * @constructor
-   * @global
-   * @param {Grid} grid
-   * @param {Tile} tile
+=======
    * @param {Number} corner
    * @param {Number} direction
    * @param {Number} forcedInitialRelativeDirection
@@ -16474,6 +20629,7 @@ if (typeof define === 'function' && define.amd) {
  * This module defines a constructor for LinesRadiateJob objects.
  *
  * @module LinesRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -16481,6 +20637,22 @@ if (typeof define === 'function' && define.amd) {
 
   var config = {};
 
+<<<<<<< HEAD
+  config.duration = 2000;
+  config.lineWidth = 28;
+  config.lineLength = 60000;
+  config.lineSidePeriod = 5; // milliseconds per tile side
+
+  config.startSaturation = 100;
+  config.startLightness = 100;
+  config.startOpacity = 0.6;
+
+  config.endSaturation = 30;
+  config.endLightness = 80;
+  config.endOpacity = 0;
+
+  config.sameDirectionProb = 0.8;
+=======
   config.duration = 700;
   config.lineWidth = 24;
   config.lineLength = 1300;
@@ -16495,22 +20667,44 @@ if (typeof define === 'function' && define.amd) {
   config.endOpacity = 0;
 
   config.sameDirectionProb = 0.85;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
 
   config.blurStdDeviation = 2;
   config.isBlurOn = false;
 
+<<<<<<< HEAD
+  config.isRecurring = true;
+  config.avgDelay = 2200;
+  config.delayDeviationRange = 2100;
+
+  // ---  --- //
+
+  config.NEIGHBOR = 0;
+  config.LOWER_SELF = 1;
+  config.UPPER_SELF = 2;
+
+  config.oppositeDirectionProb = 0;
+  config.epsilon = 0.00001;
+
+=======
   config.isRecurring = false;
   config.avgDelay = 2000;
   config.delayDeviationRange = 1800;
 
   // ---  --- //
 
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
   config.haveDefinedLineBlur = false;
   config.filterId = 'random-line-filter';
 
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
+<<<<<<< HEAD
+    config.distantSidewaysDirectionProb = (1 - config.sameDirectionProb) / 2;
+    config.closeSidewaysDirectionProb = (1 - config.oppositeDirectionProb) / 2;
+=======
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
   };
 
   config.computeDependentValues();
@@ -16521,7 +20715,11 @@ if (typeof define === 'function' && define.amd) {
   /**
    * Creates an SVG definition that is used for blurring the lines of LineJobs.
    *
+<<<<<<< HEAD
+   * @this LineJob
+=======
    * @this LinesRadiateJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
    */
   function defineLineBlur() {
     var job, filter, feGaussianBlur;
@@ -16547,6 +20745,494 @@ if (typeof define === 'function' && define.amd) {
     feGaussianBlur.setAttribute('in', 'SourceGraphic');
     feGaussianBlur.setAttribute('result', 'blurOut');
 
+<<<<<<< HEAD
+    config.filter = filter;
+    config.feGaussianBlur = feGaussianBlur;
+  }
+
+  /**
+   * Creates the start and end hue for the line of this animation.
+   *
+   * @this LineJob
+   */
+  function createHues() {
+    var job;
+
+    job = this;
+
+    job.startHue = Math.random() * 360;
+    job.endHue = Math.random() * 360;
+  }
+
+  /**
+   * Creates the polyline SVG element that is used to render this animation.
+   *
+   * @this LineJob
+   */
+  function createPolyline() {
+    var job;
+
+    job = this;
+
+    job.polyline = document.createElementNS(window.hg.util.svgNamespace, 'polyline');
+    job.grid.svg.insertBefore(job.polyline, job.grid.svg.firstChild);
+
+    job.polyline.setAttribute('fill-opacity', '0');
+
+    if (config.isBlurOn) {
+      job.polyline.setAttribute('filter', 'url(#' + config.filterId + ')');
+    }
+  }
+
+  /**
+   * Updates the color values of the line of this animation.
+   *
+   * @this LineJob
+   */
+  function updateColorValues() {
+    var job, progress, oneMinusProgress;
+
+    job = this;
+
+    progress = job.ellapsedTime / job.duration;
+    oneMinusProgress = 1 - progress;
+
+    job.currentColor.h = oneMinusProgress * job.startHue + progress * job.endHue;
+    job.currentColor.s = oneMinusProgress * job.startSaturation + progress * job.endSaturation;
+    job.currentColor.l = oneMinusProgress * job.startLightness + progress * job.endLightness;
+    job.currentOpacity = oneMinusProgress * job.startOpacity + progress * job.endOpacity;
+  }
+
+  /**
+   * Updates the state of this job to handle its completion.
+   *
+   * @this LineJob
+   */
+  function handleCompletion() {
+    var job;
+
+    job = this;
+
+    console.log('LineJob completed');
+
+    if (job.polyline) {
+      job.grid.svg.removeChild(job.polyline);
+      job.polyline = null;
+    }
+
+    job.tiles = [];
+    job.corners = [];
+    job.direction = Number.NaN;
+    job.currentCornerIndex = Number.NaN;
+    job.hasReachedEdge = true;
+
+    job.isComplete = true;
+
+    job.onComplete(job);
+  }
+
+  /**
+   * Determines whether this LineJob has reached the edge of the grid.
+   *
+   * @this LineJob
+   */
+  function checkHasAlmostReachedEdge() {
+    var job;
+
+    job = this;
+
+    if (job.direction === (job.corners[job.currentCornerIndex] + 3) % 6) {
+      // When the job is at the opposite corner of a tile from the direction it is headed, then it
+      // has not reached the edge
+      job.hasAlmostReachedEdge = false;
+    } else {
+      job.hasAlmostReachedEdge = !job.lowerNeighbors[job.currentCornerIndex] ||
+          !job.upperNeighbors[job.currentCornerIndex];
+    }
+  }
+
+  /**
+   * Determines the neighbors of this job's current tile at the current corner.
+   *
+   * @this LineJob
+   */
+  function determineNeighbors() {
+    var job, lowerNeigborTileIndex, upperNeigborTileIndex, currentCorner;
+
+    job = this;
+    currentCorner = job.corners[job.currentCornerIndex];
+
+    if (job.grid.isVertical) {
+      lowerNeigborTileIndex = (currentCorner + 5) % 6;
+      upperNeigborTileIndex = currentCorner;
+    } else {
+      lowerNeigborTileIndex = currentCorner;
+      upperNeigborTileIndex = (currentCorner + 1) % 6;
+    }
+
+    job.lowerNeighbors[job.currentCornerIndex] =
+        job.tiles[job.currentCornerIndex].neighborStates[lowerNeigborTileIndex];
+    job.upperNeighbors[job.currentCornerIndex] =
+        job.tiles[job.currentCornerIndex].neighborStates[upperNeigborTileIndex];
+
+    job.lowerNeighborCorners[job.currentCornerIndex] = (currentCorner + 2) % 6;
+    job.upperNeighborCorners[job.currentCornerIndex] = (currentCorner + 4) % 6;
+  }
+
+  /**
+   * Returns the next vertex in the path of this animation.
+   *
+   * @this LineJob
+   */
+  function chooseNextVertex() {
+    var job, cornerConfig, neighborProb, lowerSelfProb, upperSelfProb, random, relativeDirection,
+        absoluteDirection, nextCorner, nextTile, currentCorner;
+
+    job = this;
+    currentCorner = job.corners[job.currentCornerIndex];
+
+    // The first segment of a line animation is forced to go in a given direction
+    if (job.currentCornerIndex === 0) {
+      relativeDirection = job.forcedInitialRelativeDirection;
+      job.latestDirection = relativeToAbsoluteDirection(relativeDirection, currentCorner);
+    } else {
+      cornerConfig = (currentCorner - job.direction + 6) % 6;
+
+      // Determine relative direction probabilities
+      switch (cornerConfig) {
+        case 0:
+          neighborProb = job.sameDirectionProb;
+          lowerSelfProb = config.distantSidewaysDirectionProb;
+          upperSelfProb = config.distantSidewaysDirectionProb;
+          break;
+        case 1:
+          neighborProb = config.closeSidewaysDirectionProb;
+          lowerSelfProb = config.closeSidewaysDirectionProb;
+          upperSelfProb = config.oppositeDirectionProb;
+          break;
+        case 2:
+          neighborProb = config.distantSidewaysDirectionProb;
+          lowerSelfProb = job.sameDirectionProb;
+          upperSelfProb = config.distantSidewaysDirectionProb;
+          break;
+        case 3:
+          neighborProb = config.oppositeDirectionProb;
+          lowerSelfProb = config.closeSidewaysDirectionProb;
+          upperSelfProb = config.closeSidewaysDirectionProb;
+          break;
+        case 4:
+          neighborProb = config.distantSidewaysDirectionProb;
+          lowerSelfProb = config.distantSidewaysDirectionProb;
+          upperSelfProb = job.sameDirectionProb;
+          break;
+        case 5:
+          neighborProb = config.closeSidewaysDirectionProb;
+          lowerSelfProb = config.oppositeDirectionProb;
+          upperSelfProb = config.closeSidewaysDirectionProb;
+          break;
+        default:
+          throw new Error('Invalid state: cornerConfig=' + cornerConfig);
+      }
+
+      // Determine the next direction to travel
+      do {
+        // Pick a random direction
+        random = Math.random();
+        relativeDirection = random < neighborProb ? config.NEIGHBOR :
+                random < neighborProb + lowerSelfProb ? config.LOWER_SELF : config.UPPER_SELF;
+        absoluteDirection = relativeToAbsoluteDirection(relativeDirection, currentCorner);
+
+        // Disallow the line from going back the way it just came
+      } while (absoluteDirection === (job.latestDirection + 3) % 6);
+
+      job.latestDirection = absoluteDirection;
+    }
+
+    // Determine the next corner configuration
+    switch (relativeDirection) {
+      case config.NEIGHBOR:
+        if (job.grid.isVertical) {
+          nextCorner = (currentCorner + 1) % 6;
+          nextTile = job.tiles[job.currentCornerIndex].neighborStates[(currentCorner + 5) % 6].tile;
+        } else {
+          nextCorner = (currentCorner + 1) % 6;
+          nextTile = job.tiles[job.currentCornerIndex].neighborStates[currentCorner].tile;
+        }
+        break;
+      case config.LOWER_SELF:
+        nextCorner = (currentCorner + 5) % 6;
+        nextTile = job.tiles[job.currentCornerIndex];
+        break;
+      case config.UPPER_SELF:
+        nextCorner = (currentCorner + 1) % 6;
+        nextTile = job.tiles[job.currentCornerIndex];
+        break;
+      default:
+        throw new Error('Invalid state: relativeDirection=' + relativeDirection);
+    }
+
+    job.currentCornerIndex = job.corners.length;
+
+    job.corners[job.currentCornerIndex] = nextCorner;
+    job.tiles[job.currentCornerIndex] = nextTile;
+
+    determineNeighbors.call(job);
+    checkHasAlmostReachedEdge.call(job);
+  }
+
+  /**
+   * Translates the givern relative direction to an absolute direction.
+   *
+   * @param {Number} relativeDirection
+   * @param {Number} corner
+   * @returns {Number}
+   */
+  function relativeToAbsoluteDirection(relativeDirection, corner) {
+    switch (relativeDirection) {
+      case config.NEIGHBOR:
+        return corner;
+      case config.LOWER_SELF:
+        return (corner + 4) % 6;
+      case config.UPPER_SELF:
+        return (corner + 2) % 6;
+      default:
+        throw new Error('Invalid state: relativeDirection=' + relativeDirection);
+    }
+  }
+
+  /**
+   * Updates the parameters of the segments of this animation.
+   *
+   * @this LineJob
+   */
+  function updateSegments() {
+    var job, distanceTravelled, frontSegmentLength, backSegmentLength, segmentsTouchedCount,
+        distancePastEdge, segmentsPastEdgeCount;
+
+    job = this;
+
+    // --- Compute some values of the polyline at the current time --- //
+
+    distanceTravelled = job.ellapsedTime / job.lineSidePeriod * window.hg.Grid.config.tileOuterRadius;
+    segmentsTouchedCount = parseInt(job.ellapsedTime / job.lineSidePeriod) + 1;
+
+    // Add additional vertices to the polyline as needed
+    while (segmentsTouchedCount >= job.corners.length && !job.hasAlmostReachedEdge) {
+      chooseNextVertex.call(job);
+    }
+
+    frontSegmentLength = distanceTravelled % window.hg.Grid.config.tileOuterRadius;
+    backSegmentLength = (job.lineLength - frontSegmentLength +
+        window.hg.Grid.config.tileOuterRadius) % window.hg.Grid.config.tileOuterRadius;
+
+    job.frontSegmentEndRatio = frontSegmentLength / window.hg.Grid.config.tileOuterRadius;
+    job.backSegmentStartRatio = 1 - (backSegmentLength / window.hg.Grid.config.tileOuterRadius);
+
+    job.isShort = job.lineLength < window.hg.Grid.config.tileOuterRadius;
+    job.isStarting = distanceTravelled < job.lineLength;
+
+    // Check whether the line has reached the edge
+    if (job.hasAlmostReachedEdge && segmentsTouchedCount >= job.corners.length) {
+      job.hasReachedEdge = true;
+    }
+
+    // --- Determine how many segments are included in the polyline --- //
+
+    // When the polyline is neither starting nor ending and is not shorter than the length of a
+    // segment, then this is how many segments it includes
+    job.segmentsIncludedCount = parseInt((job.lineLength - frontSegmentLength -
+        backSegmentLength - config.epsilon) / window.hg.Grid.config.tileOuterRadius) + 2;
+
+    // Subtract from the number of included segments depending on current conditions
+    if (job.isShort) {
+      // The polyline is shorter than a tile side
+
+      if (job.isStarting || job.hasReachedEdge) {
+        // One end of the polyline would lie outside the grid
+        job.segmentsIncludedCount = 1;
+      } else {
+        if (frontSegmentLength - job.lineLength >= 0) {
+          // The polyline is between corners
+          job.segmentsIncludedCount = 1;
+        } else {
+          // The polyline is across a corner
+          job.segmentsIncludedCount = 2;
+        }
+      }
+    } else {
+      // The polyline is longer than a tile side
+
+      if (job.isStarting) {
+        // The polyline is starting; the back of the polyline would lie outside the grid
+        job.segmentsIncludedCount = segmentsTouchedCount;
+      }
+
+      if (job.hasReachedEdge) {
+        // The polyline is ending; the front of the polyline would lie outside the grid
+        segmentsPastEdgeCount = segmentsTouchedCount - job.corners.length + 1;
+        distancePastEdge = distanceTravelled - (job.corners.length - 1) *
+            window.hg.Grid.config.tileOuterRadius;
+
+        if (distancePastEdge > job.lineLength) {
+          handleCompletion.call(job);
+        }
+
+        job.segmentsIncludedCount -= segmentsPastEdgeCount;
+      }
+    }
+  }
+
+
+  /**
+   * Calculates the points in the middle of the gaps between tiles at each known corner.
+   *
+   * @this LineJob
+   */
+  function computeCornerGapPoints() {
+    var job, i, count;
+
+    job = this;
+
+    job.gapPoints = [];
+
+    for (i = 0, count = job.corners.length; i < count; i += 1) {
+      job.gapPoints[i] = computeCornerGapPoint(job.tiles[i], job.corners[i], job.lowerNeighbors[i],
+          job.upperNeighbors[i], job.lowerNeighborCorners[i], job.upperNeighborCorners[i]);
+    }
+  }
+
+  /**
+   * Calculates the point in the middle of the gap between tiles at the given corner.
+   *
+   * @param {Tile} tile
+   * @param {Number} corner
+   * @param {Object} lowerNeighbor
+   * @param {Object} upperNeighbor
+   * @param {Number} lowerNeighborCorner
+   * @param {Number} upperNeighborCorner
+   * @returns {{x:Number,y:Number}}
+   */
+  function computeCornerGapPoint(tile, corner, lowerNeighbor, upperNeighbor, lowerNeighborCorner,
+                             upperNeighborCorner) {
+    var count, xSum, ySum;
+
+    if (lowerNeighbor) {
+      if (upperNeighbor) {
+        count = 3;
+        xSum = tile.particle.px + lowerNeighbor.tile.particle.px + upperNeighbor.tile.particle.px;
+        ySum = tile.particle.py + lowerNeighbor.tile.particle.py + upperNeighbor.tile.particle.py;
+      } else {
+        count = 2;
+        xSum = tile.outerVertices[corner * 2] + lowerNeighbor.tile.outerVertices[lowerNeighborCorner * 2];
+        ySum = tile.outerVertices[corner * 2 + 1] +
+            lowerNeighbor.tile.outerVertices[lowerNeighborCorner * 2 + 1];
+      }
+    } else {
+      if (upperNeighbor) {
+        count = 2;
+        xSum = tile.outerVertices[corner * 2] + upperNeighbor.tile.outerVertices[upperNeighborCorner * 2];
+        ySum = tile.outerVertices[corner * 2 + 1] +
+            upperNeighbor.tile.outerVertices[upperNeighborCorner * 2 + 1];
+      } else {
+        count = 1;
+        xSum = tile.outerVertices[corner * 2];
+        ySum = tile.outerVertices[corner * 2 + 1];
+      }
+    }
+
+    return {
+      x: xSum / count,
+      y: ySum / count
+    };
+  }
+
+  /**
+   * Calculates the points of the SVG polyline element.
+   *
+   * @this LineJob
+   */
+  function computePolylinePoints() {
+    var job, gapPointsIndex, polylinePointsIndex, stopIndex;
+
+    job = this;
+
+    job.polylinePoints = [];
+    gapPointsIndex = job.currentCornerIndex;
+
+    if (job.extraStartPoint && job.isStarting) {
+      // Add the extra, forced initial point (this is useful for making radiating lines actually
+      // start from the center of the tile and not show any gap around the corners of the tile)
+      job.polylinePoints[0] = job.extraStartPoint;
+
+      polylinePointsIndex = job.segmentsIncludedCount + 1;
+      stopIndex = 1;
+    } else {
+      polylinePointsIndex = job.segmentsIncludedCount;
+      stopIndex = 0;
+    }
+
+    // Add the frontend segment point
+    if (!job.hasReachedEdge) {
+      job.polylinePoints[polylinePointsIndex] = {
+        x: job.gapPoints[gapPointsIndex].x * job.frontSegmentEndRatio +
+            job.gapPoints[gapPointsIndex - 1].x * (1 - job.frontSegmentEndRatio),
+        y: job.gapPoints[gapPointsIndex].y * job.frontSegmentEndRatio +
+            job.gapPoints[gapPointsIndex - 1].y * (1 - job.frontSegmentEndRatio)
+      };
+    } else {
+      job.polylinePoints[polylinePointsIndex] = {
+        x: job.gapPoints[gapPointsIndex].x,
+        y: job.gapPoints[gapPointsIndex].y
+      };
+    }
+
+    polylinePointsIndex -= 1;
+    gapPointsIndex -= 1;
+
+    // Add the internal segment points
+    for (; polylinePointsIndex > stopIndex; polylinePointsIndex -= 1, gapPointsIndex -= 1) {
+      job.polylinePoints[polylinePointsIndex] = job.gapPoints[gapPointsIndex];
+    }
+
+    // Add the back-end segment point
+    if (!job.isStarting) {
+      job.polylinePoints[polylinePointsIndex] = {
+        x: job.gapPoints[gapPointsIndex + 1].x * job.backSegmentStartRatio +
+            job.gapPoints[gapPointsIndex].x * (1 - job.backSegmentStartRatio),
+        y: job.gapPoints[gapPointsIndex + 1].y * job.backSegmentStartRatio +
+            job.gapPoints[gapPointsIndex].y * (1 - job.backSegmentStartRatio)
+      }
+    } else {
+      job.polylinePoints[polylinePointsIndex] = {
+        x: job.gapPoints[gapPointsIndex].x,
+        y: job.gapPoints[gapPointsIndex].y
+      };
+    }
+  }
+
+  /**
+   * Updates the actual SVG elements to render the current state of this animation.
+   *
+   * @this LineJob
+   */
+  function drawSegments() {
+    var job, i, count, pointsString;
+
+    job = this;
+
+    // Create the points string
+    pointsString = '';
+    for (i = 0, count = job.polylinePoints.length; i < count; i += 1) {
+      pointsString += job.polylinePoints[i].x + ',' + job.polylinePoints[i].y + ' ';
+    }
+
+    // Update the attributes of the polyline SVG element
+    job.polyline.setAttribute('points', pointsString);
+    job.polyline.setAttribute('stroke', 'hsl(' + job.currentColor.h + ',' + job.currentColor.s +
+        '%,' + job.currentColor.l + '%)');
+    job.polyline.setAttribute('stroke-opacity', job.currentOpacity);
+    job.polyline.setAttribute('stroke-width', job.lineWidth);
+=======
     job.feGaussianBlur = feGaussianBlur;
   }
 
@@ -17094,6 +21780,7 @@ if (typeof define === 'function' && define.amd) {
     // Update the grid
     job.grid.panCenter.x += job.displacement.x;
     job.grid.panCenter.y += job.displacement.y;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -17103,14 +21790,69 @@ if (typeof define === 'function' && define.amd) {
   // Public dynamic functions
 
   /**
+<<<<<<< HEAD
+   * Sets this LineJob as started.
+   *
+   * @this LineJob
+=======
    * Sets this PanJob as started.
    *
    * @this PanJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
    * @param {Number} startTime
    */
   function start(startTime) {
     var job = this;
 
+<<<<<<< HEAD
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this LineJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LineJob
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function updateWithBlur(currentTime, deltaTime) {
+    var job = this;
+
+    job.ellapsedTime = currentTime - job.startTime;
+
+    if (job.ellapsedTime >= job.duration) {
+      handleCompletion.call(job);
+    } else {
+      updateColorValues.call(job);
+      updateSegments.call(job);
+
+      config.feGaussianBlur.setAttribute('stdDeviation', job.blurStdDeviation);
+
+      if (!job.isComplete) {
+        computeCornerGapPoints.call(job);
+        computePolylinePoints.call(job);
+      }
+    }
+  }
+  function updateWithOutBlur(currentTime, deltaTime) {
+    var job = this;
+
+    job.ellapsedTime = currentTime - job.startTime;
+
+    if (job.ellapsedTime >= job.duration) {
+      handleCompletion.call(job);
+    } else {
+      updateColorValues.call(job);
+      updateSegments.call(job);
+
+      if (!job.isComplete) {
+        computeCornerGapPoints.call(job);
+        computePolylinePoints.call(job);
+      }
+=======
     job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
     job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
 
@@ -17157,10 +21899,45 @@ if (typeof define === 'function' && define.amd) {
     // Is the job done?
     if (progress === 0) {
       handleComplete.call(job, false);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
     }
   }
 
   /**
+<<<<<<< HEAD
+   * Draws the current state of this LineJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LineJob
+   */
+  function draw() {
+    var job = this;
+
+    drawSegments.call(job);
+  }
+
+  /**
+   * Stops this LineJob, and returns the element its original form.
+   *
+   * @this LineJob
+   */
+  function cancel() {
+    var job;
+
+    job = this;
+
+    handleCompletion.call(job);
+  }
+
+  /**
+   * @this LineJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+=======
    * Draws the current state of this PanJob.
    *
    * This should be called from the overall animation loop.
@@ -17186,6 +21963,7 @@ if (typeof define === 'function' && define.amd) {
    * @this PanJob
    */
   function init() {
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
   }
 
   // ------------------------------------------------------------------------------------------- //
@@ -17195,6 +21973,92 @@ if (typeof define === 'function' && define.amd) {
    * @constructor
    * @global
    * @param {Grid} grid
+<<<<<<< HEAD
+   * @param {Tile} tile
+   * @param {Number} corner
+   * @param {Number} direction
+   * @param {Number} forcedInitialRelativeDirection
+   * @param {Function} [onComplete]
+   * @param {{x:Number,y:Number}} extraStartPoint
+   * @throws {Error}
+   */
+  function LineJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
+                            onComplete, extraStartPoint) {
+    var job = this;
+
+    job.grid = grid;
+    job.tiles = [tile];
+    job.corners = [corner];
+    job.lowerNeighbors = [];
+    job.upperNeighbors = [];
+    job.lowerNeighborCorners = [];
+    job.upperNeighborCorners = [];
+    job.direction = direction;
+    job.forcedInitialRelativeDirection = forcedInitialRelativeDirection;
+    job.extraStartPoint = extraStartPoint;
+    job.currentCornerIndex = 0;
+    job.frontSegmentEndRatio = Number.NaN;
+    job.backSegmentStartRatio = Number.NaN;
+    job.latestDirection = direction;
+    job.polyline = null;
+    job.gapPoints = [];
+    job.polylinePoints = null;
+    job.hasReachedEdge = false;
+    job.startTime = 0;
+    job.ellapsedTime = 0;
+    job.isComplete = true;
+
+    job.startHue = Number.NaN;
+    job.endHue = Number.NaN;
+    job.currentColor = {
+      h: Number.NaN,
+      s: config.startSaturation,
+      l: config.startLightness
+    };
+    job.currentOpacity = config.startOpacity;
+
+    job.duration = config.duration;
+    job.lineWidth = config.lineWidth;
+    job.lineLength = config.lineLength;
+    job.lineSidePeriod = config.lineSidePeriod;
+
+    job.startSaturation = config.startSaturation;
+    job.startLightness = config.startLightness;
+    job.startOpacity = config.startOpacity;
+
+    job.endSaturation = config.endSaturation;
+    job.endLightness = config.endLightness;
+    job.endOpacity = config.endOpacity;
+
+    job.sameDirectionProb = config.sameDirectionProb;
+
+    job.blurStdDeviation = config.blurStdDeviation;
+    job.isBlurOn = config.isBlurOn;
+
+    job.onComplete = onComplete || function () {};
+
+    job.start = start;
+    job.update = job.isBlurOn ? updateWithBlur : updateWithOutBlur;
+    job.draw = draw;
+    job.cancel = cancel;
+    job.init = init;
+
+    if (!config.haveDefinedLineBlur) {
+      config.haveDefinedLineBlur = true;
+      defineLineBlur.call(job);
+    }
+
+    if (!checkIsValidInitialCornerConfiguration(job)) {
+      throw new Error('LineJob created with invalid initial corner configuration: ' +
+          'tileIndex=' + tile.originalIndex + ', corner=' + corner + ', direction=' + direction);
+    } else {
+      determineNeighbors.call(job);
+      createHues.call(job);
+      createPolyline.call(job);
+
+      console.log('LineJob created: tileIndex=' + tile.originalIndex + ', corner=' + corner +
+          ', direction=' + direction);
+=======
    * @param {?Tile} tile
    * @param {Function} onComplete
    * @param {{x:Number,y:Number}} [destinationPoint]
@@ -17294,10 +22158,420 @@ if (typeof define === 'function' && define.amd) {
         dy: config.displacementRatio *
             (job.grid.allTiles[i].originalAnchor.y - job.baseTile.originalAnchor.y)
       };
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
     }
   }
 
   /**
+<<<<<<< HEAD
+   * Creates a LineJob that is initialized at a tile vertex along the border of the grid.
+   *
+   * @param {Grid} grid
+   * @param {Function} onComplete
+   */
+  function createRandomLineJob(grid, onComplete) {
+    var tile, corner, direction, forcedInitialRelativeDirection;
+
+    // Pick a random, non-corner, border tile to start from
+    do {
+      tile = grid.originalBorderTiles[parseInt(Math.random() * grid.originalBorderTiles.length)];
+    } while (tile.isCornerTile);
+
+    // Determine which corner and direction to use based on the selected tile
+    if (grid.isVertical) {
+      if (!tile.neighborStates[4]) { // Left side
+        if (tile.isInLargerRow) {
+          if (Math.random() < 0.5) {
+            corner = 0;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 2;
+          } else {
+            corner = 3;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 1;
+          }
+        } else { // Smaller row
+          if (Math.random() < 0.5) {
+            corner = 4;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 2;
+          } else {
+            corner = 5;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 1;
+          }
+        }
+        direction = tile.originalAnchor.y < grid.originalCenter.y ? 2 : 1;
+      } else if (!tile.neighborStates[1]) { // Right side
+        if (tile.isInLargerRow) {
+          if (Math.random() < 0.5) {
+            corner = 0;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 4;
+          } else {
+            corner = 3;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 5;
+          }
+        } else { // Smaller row
+          if (Math.random() < 0.5) {
+            corner = 1;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 5;
+          } else {
+            corner = 2;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 4;
+          }
+        }
+        direction = tile.originalAnchor.y < grid.originalCenter.y ? 4 : 5;
+      } else if (!tile.neighborStates[0]) { // Top side
+        if (Math.random() < 0.5) {
+          corner = 1;
+          forcedInitialRelativeDirection = config.UPPER_SELF;
+        } else {
+          corner = 5;
+          forcedInitialRelativeDirection = config.LOWER_SELF;
+        }
+        //forcedInitialAbsoluteDirection = 3;
+        direction = 3;
+      } else { // Bottom side
+        if (Math.random() < 0.5) {
+          corner = 2;
+          forcedInitialRelativeDirection = config.LOWER_SELF;
+        } else {
+          corner = 4;
+          forcedInitialRelativeDirection = config.UPPER_SELF;
+        }
+        //forcedInitialAbsoluteDirection = 0;
+        direction = 0;
+      }
+    } else { // Not vertical
+      if (!tile.neighborStates[0]) { // Top side
+        if (tile.rowIndex === 0) { // First row
+          if (Math.random() < 0.5) {
+            corner = 1;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 3;
+          } else {
+            corner = 4;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 2;
+          }
+        } else { // Second row
+          if (Math.random() < 0.5) {
+            corner = 0;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 2;
+          } else {
+            corner = 5;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 3;
+          }
+        }
+        direction = tile.originalAnchor.x < grid.originalCenter.x ? 2 : 3;
+      } else if (!tile.neighborStates[3]) { // Bottom side
+        if (tile.rowIndex === grid.rowCount - 1) { // Last row
+          if (Math.random() < 0.5) {
+            corner = 1;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 5;
+          } else {
+            corner = 4;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 0;
+          }
+        } else { // Second-to-last row
+          if (Math.random() < 0.5) {
+            corner = 2;
+            forcedInitialRelativeDirection = config.LOWER_SELF;
+            //forcedInitialAbsoluteDirection = 0;
+          } else {
+            corner = 3;
+            forcedInitialRelativeDirection = config.UPPER_SELF;
+            //forcedInitialAbsoluteDirection = 5;
+          }
+        }
+        direction = tile.originalAnchor.x < grid.originalCenter.x ? 0 : 5;
+      } else if (!tile.neighborStates[4]) { // Left side
+        if (Math.random() < 0.5) {
+          corner = 3;
+          forcedInitialRelativeDirection = config.LOWER_SELF;
+        } else {
+          corner = 5;
+          forcedInitialRelativeDirection = config.UPPER_SELF;
+        }
+        //forcedInitialAbsoluteDirection = 1;
+        direction = 1;
+      } else { // Right side
+        if (Math.random() < 0.5) {
+          corner = 0;
+          forcedInitialRelativeDirection = config.LOWER_SELF;
+        } else {
+          corner = 2;
+          forcedInitialRelativeDirection = config.UPPER_SELF;
+        }
+        //forcedInitialAbsoluteDirection = 4;
+        direction = 4;
+      }
+    }
+
+    return new LineJob(grid, tile, corner, direction, forcedInitialRelativeDirection,
+        onComplete, null);
+  }
+
+  /**
+   * Checks whether the given LineJob has a valid corner configuration for its initial
+   * position.
+   *
+   * @param {LineJob} job
+   */
+  function checkIsValidInitialCornerConfiguration(job) {
+    var tile, corner, direction, forcedInitialRelativeDirection, isValidEdgeDirection;
+
+    tile = job.tiles[0];
+    corner = job.corners[0];
+    direction = job.direction;
+    forcedInitialRelativeDirection = job.forcedInitialRelativeDirection;
+
+    if (tile.isCornerTile) {
+      return false;
+    }
+
+    if (tile.isBorderTile) {
+      if (job.grid.isVertical) {
+        if (!tile.neighborStates[4]) { // Left side
+          isValidEdgeDirection = direction === 1 || direction === 2;
+
+          if (tile.isInLargerRow) {
+            switch (corner) {
+              case 0:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 1:
+                return true;
+              case 2:
+                return true;
+              case 3:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 4:
+                return false;
+              case 5:
+                return false;
+            }
+          } else {
+            switch (corner) {
+              case 0:
+                return true;
+              case 1:
+                return true;
+              case 2:
+                return true;
+              case 3:
+                return true;
+              case 4:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 5:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+            }
+          }
+        } else if (!tile.neighborStates[1]) { // Right side
+          isValidEdgeDirection = direction === 4 || direction === 5;
+
+          if (tile.isInLargerRow) {
+            switch (corner) {
+              case 0:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 1:
+                return false;
+              case 2:
+                return false;
+              case 3:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 4:
+                return true;
+              case 5:
+                return true;
+            }
+          } else { // Smaller row
+            switch (corner) {
+              case 0:
+                return true;
+              case 1:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 2:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 3:
+                return true;
+              case 4:
+                return true;
+              case 5:
+                return true;
+            }
+          }
+        } else if (!tile.neighborStates[0]) { // Top side
+          isValidEdgeDirection = direction === 3;
+
+          switch (corner) {
+            case 0:
+              return false;
+            case 1:
+              return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+            case 2:
+              return true;
+            case 3:
+              return true;
+            case 4:
+              return true;
+            case 5:
+              return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+          }
+        } else { // Bottom side
+          isValidEdgeDirection = direction === 0;
+
+          switch (corner) {
+            case 0:
+              return true;
+            case 1:
+              return true;
+            case 2:
+              return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+            case 3:
+              return false;
+            case 4:
+              return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+            case 5:
+              return true;
+          }
+        }
+      } else { // Not vertical
+        if (!tile.neighborStates[0]) { // Top side
+          isValidEdgeDirection = direction === 2 || direction === 3;
+
+          if (tile.rowIndex === 0) { // First row
+            switch (corner) {
+              case 0:
+                return false;
+              case 1:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 2:
+                return true;
+              case 3:
+                return true;
+              case 4:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 5:
+                return false;
+            }
+          } else { // Second row
+            switch (corner) {
+              case 0:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 1:
+                return true;
+              case 2:
+                return true;
+              case 3:
+                return true;
+              case 4:
+                return true;
+              case 5:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+            }
+          }
+        } else if (!tile.neighborStates[3]) { // Bottom side
+          isValidEdgeDirection = direction === 0 || direction === 5;
+
+          if (tile.rowIndex === job.grid.rowCount - 1) { // Last row
+            switch (corner) {
+              case 0:
+                return true;
+              case 1:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 2:
+                return false;
+              case 3:
+                return false;
+              case 4:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 5:
+                return true;
+            }
+          } else { // Second-to-last row
+            switch (corner) {
+              case 0:
+                return true;
+              case 1:
+                return true;
+              case 2:
+                return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+              case 3:
+                return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+              case 4:
+                return true;
+              case 5:
+                return true;
+            }
+          }
+        } else if (!tile.neighborStates[4]) { // Left side
+          isValidEdgeDirection = direction === 1;
+
+          switch (corner) {
+            case 0:
+              return true;
+            case 1:
+              return true;
+            case 2:
+              return true;
+            case 3:
+              return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+            case 4:
+              return false;
+            case 5:
+              return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+          }
+        } else { // Right side
+          isValidEdgeDirection = direction === 4;
+
+          switch (corner) {
+            case 0:
+              return forcedInitialRelativeDirection === config.LOWER_SELF && isValidEdgeDirection;
+            case 1:
+              return false;
+            case 2:
+              return forcedInitialRelativeDirection === config.UPPER_SELF && isValidEdgeDirection;
+            case 3:
+              return true;
+            case 4:
+              return true;
+            case 5:
+              return true;
+          }
+        }
+      }
+    }
+
+    return true;
+  }
+
+  LineJob.config = config;
+  LineJob.createRandomLineJob = createRandomLineJob;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.LineJob = LineJob;
+
+  console.log('LineJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} LinesRadiateJob
+ */
+
+/**
+ * This module defines a constructor for LinesRadiateJob objects.
+ *
+ * @module LinesRadiateJob
+=======
    * @this SpreadJob
    */
   function handleComplete(wasCancelled) {
@@ -17438,6 +22712,7 @@ if (typeof define === 'function' && define.amd) {
  * This module defines a constructor for TileBorderJob objects.
  *
  * @module TileBorderJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
  */
 (function () {
   // ------------------------------------------------------------------------------------------- //
@@ -17445,6 +22720,34 @@ if (typeof define === 'function' && define.amd) {
 
   var config = {};
 
+<<<<<<< HEAD
+  config.duration = 700;
+  config.lineWidth = 24;
+  config.lineLength = 1300;
+  config.lineSidePeriod = 30; // milliseconds per tile side
+
+  config.startSaturation = 100;
+  config.startLightness = 100;
+  config.startOpacity = 0.8;
+
+  config.endSaturation = 100;
+  config.endLightness = 70;
+  config.endOpacity = 0;
+
+  config.sameDirectionProb = 0.85;
+
+  config.blurStdDeviation = 2;
+  config.isBlurOn = false;
+
+  config.isRecurring = false;
+  config.avgDelay = 2000;
+  config.delayDeviationRange = 1800;
+
+  // ---  --- //
+
+  config.haveDefinedLineBlur = false;
+  config.filterId = 'random-line-filter';
+=======
   config.duration = 500;
 
   // TODO:
@@ -17452,11 +22755,15 @@ if (typeof define === 'function' && define.amd) {
   config.isRecurring = false;
   config.avgDelay = 4000;
   config.delayDeviationRange = 3800;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
 
   //  --- Dependent parameters --- //
 
   config.computeDependentValues = function () {
+<<<<<<< HEAD
+=======
     // TODO:
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
   };
 
   config.computeDependentValues();
@@ -17465,6 +22772,112 @@ if (typeof define === 'function' && define.amd) {
   // Private dynamic functions
 
   /**
+<<<<<<< HEAD
+   * Creates an SVG definition that is used for blurring the lines of LineJobs.
+   *
+   * @this LinesRadiateJob
+   */
+  function defineLineBlur() {
+    var job, filter, feGaussianBlur;
+
+    job = this;
+
+    // Create the elements
+
+    filter = document.createElementNS(window.hg.util.svgNamespace, 'filter');
+    job.grid.svgDefs.appendChild(filter);
+
+    feGaussianBlur = document.createElementNS(window.hg.util.svgNamespace, 'feGaussianBlur');
+    filter.appendChild(feGaussianBlur);
+
+    // Define the blur
+
+    filter.setAttribute('id', config.filterId);
+    filter.setAttribute('x', '-10%');
+    filter.setAttribute('y', '-10%');
+    filter.setAttribute('width', '120%');
+    filter.setAttribute('height', '120%');
+
+    feGaussianBlur.setAttribute('in', 'SourceGraphic');
+    feGaussianBlur.setAttribute('result', 'blurOut');
+
+    job.feGaussianBlur = feGaussianBlur;
+  }
+
+  /**
+   * Creates the individual LineJobs that comprise this LinesRadiateJob.
+   *
+   * @this LinesRadiateJob
+   */
+  function createLineJobs() {
+    var job, i, line;
+
+    job = this;
+    job.lineJobs = [];
+
+    for (i = 0; i < 6; i += 1) {
+      try {
+        line = new window.hg.LineJob(job.grid, job.tile, i, i,
+            window.hg.LineJob.config.NEIGHBOR, job.onComplete, job.extraStartPoint);
+      } catch (error) {
+        console.debug(error.message);
+        continue;
+      }
+
+      job.lineJobs.push(line);
+
+      // Replace the line animation's normal parameters with some that are specific to radiating
+      // lines
+      line.duration = config.duration;
+      line.lineWidth = config.lineWidth;
+      line.lineLength = config.lineLength;
+      line.lineSidePeriod = config.lineSidePeriod;
+
+      line.startSaturation = config.startSaturation;
+      line.startLightness = config.startLightness;
+      line.startOpacity = config.startOpacity;
+
+      line.endSaturation = config.endSaturation;
+      line.endLightness = config.endLightness;
+      line.endOpacity = config.endOpacity;
+
+      line.sameDirectionProb = config.sameDirectionProb;
+
+      line.filterId = config.filterId;
+      line.blurStdDeviation = config.blurStdDeviation;
+      line.isBlurOn = config.isBlurOn;
+
+      if (config.isBlurOn) {
+        line.polyline.setAttribute('filter', 'url(#' + config.filterId + ')');
+      } else {
+        line.polyline.setAttribute('filter', 'none');
+      }
+    }
+  }
+
+  /**
+   * Checks whether this job is complete. If so, a flag is set and a callback is called.
+   *
+   * @this LinesRadiateJob
+   */
+  function checkForComplete() {
+    var job, i;
+
+    job = this;
+
+    for (i = 0; i < job.lineJobs.length; i += 1) {
+      if (job.lineJobs[i].isComplete) {
+        job.lineJobs.splice(i--, 1);
+      } else {
+        return;
+      }
+    }
+
+    console.log('LinesRadiateJob completed');
+
+    job.isComplete = true;
+  }
+=======
    * @this TileBorderJob
    */
   function handleComplete(wasCancelled) {
@@ -17611,4 +23024,1955 @@ if (typeof define === 'function' && define.amd) {
   window.hg.TileBorderJob = TileBorderJob;
 
   console.log('TileBorderJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ColorResetJob
+ */
+
+/**
+ * This module defines a constructor for ColorResetJob objects.
+ *
+ * ColorResetJob objects reset tile color values during each animation frame.
+ *
+ * @module ColorResetJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * Sets this LinesRadiateJob as started.
+   *
+   * @this LinesRadiateJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job, i, count;
+
+    job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].start(startTime);
+    }
+  }
+
+  /**
+   * Updates the animation progress of this LinesRadiateJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LinesRadiateJob
+=======
+   * Sets this ColorResetJob as started.
+   *
+   * @this ColorResetJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this ColorResetJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorResetJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+    var job, i, count;
+
+    job = this;
+
+<<<<<<< HEAD
+    // Update the extra point
+    job.extraStartPoint.x = job.tile.particle.px;
+    job.extraStartPoint.y = job.tile.particle.py;
+
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].update(currentTime, deltaTime);
+
+      if (job.lineJobs[i].isComplete) {
+        job.lineJobs.splice(i, 1);
+        i--;
+        count--;
+      }
+    }
+
+    job.feGaussianBlur.setAttribute('stdDeviation', config.blurStdDeviation);
+
+    checkForComplete.call(job);
+  }
+
+  /**
+   * Draws the current state of this LinesRadiateJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this LinesRadiateJob
+   */
+  function draw() {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].draw();
+    }
+  }
+
+  /**
+   * Stops this LinesRadiateJob, and returns the element its original form.
+   *
+   * @this LinesRadiateJob
+   */
+  function cancel() {
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.lineJobs.length; i < count; i += 1) {
+      job.lineJobs[i].cancel();
+    }
+
+    job.lineJobs = [];
+
+    job.isComplete = true;
+  }
+
+  /**
+   * @this LinesRadiateJob
+=======
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].currentColor.h = job.grid.allTiles[i].originalColor.h;
+      job.grid.allTiles[i].currentColor.s = job.grid.allTiles[i].originalColor.s;
+      job.grid.allTiles[i].currentColor.l = job.grid.allTiles[i].originalColor.l;
+      job.grid.allTiles[i].imageScreenOpacity = window.hg.TilePost.config.inactiveScreenOpacity;
+    }
+  }
+
+  /**
+   * Draws the current state of this ColorResetJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorResetJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this ColorResetJob, and returns the element its original form.
+   *
+   * @this ColorResetJob
+   */
+  function cancel() {
+    var job = this;
+
+    job.isComplete = true;
+  }
+
+  /**
+   * @this ColorResetJob
+   */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorResetJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function init() {
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+<<<<<<< HEAD
+   * @param {Tile} tile
+   * @param {Function} [onComplete]
+   */
+  function LinesRadiateJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+    job.extraStartPoint = { x: tile.particle.px, y: tile.particle.py };
+    job.startTime = 0;
+    job.isComplete = true;
+    job.lineJobs = null;
+
+    job.onComplete = onComplete || function () {};
+=======
+   */
+  function ColorResetJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = true;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+<<<<<<< HEAD
+    job.init = init;
+
+    if (!config.haveDefinedLineBlur) {
+      defineLineBlur.call(job);
+    }
+
+    createLineJobs.call(job);
+
+    console.log('LinesRadiateJob created: tileIndex=' + tile.originalIndex);
+  }
+
+  LinesRadiateJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.LinesRadiateJob = LinesRadiateJob;
+
+  console.log('LinesRadiateJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} OpenPostJob
+ */
+
+/**
+ * This module defines a constructor for OpenPostJob objects.
+ *
+ * @module OpenPostJob
+=======
+    job.refresh = refresh;
+    job.init = init;
+
+    job.init();
+
+    console.log('ColorResetJob created');
+  }
+
+  ColorResetJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorResetJob = ColorResetJob;
+
+  console.log('ColorResetJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ColorShiftJob
+ */
+
+/**
+ * @typedef {Object} ShiftStatus
+ * @property {Number} timeStart
+ * @property {Number} timeEnd
+ */
+
+/**
+ * @typedef {ShiftStatus} NonContentTileShiftStatus
+ * @property {Number} hueDeltaStart
+ * @property {Number} hueDeltaEnd
+ * @property {Number} saturationDeltaStart
+ * @property {Number} saturationDeltaEnd
+ * @property {Number} lightnessDeltaStart
+ * @property {Number} lightnessDeltaEnd
+ */
+
+/**
+ * @typedef {ShiftStatus} ContentTileShiftStatus
+ * @property {Number} opacityDeltaStart
+ * @property {Number} opacityDeltaEnd
+ */
+
+/**
+ * This module defines a constructor for ColorShiftJob objects.
+ *
+ * ColorShiftJob objects animate the colors of the tiles in a random fashion.
+ *
+ * @module ColorShiftJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+<<<<<<< HEAD
+  config.duration = 500;
+
+  config.expandedDisplacementTileCount = 3;
+
+  config.spreadDurationOffset = -200;
+  config.panDurationOffset = -100;
+  config.fadePostDurationOffset = 1100;
+  config.dilateSectorsDurationOffset = 0;
+=======
+  config.hueDeltaMin = -20;
+  config.hueDeltaMax = 20;
+  config.saturationDeltaMin = 0;
+  config.saturationDeltaMax = 0;
+  config.lightnessDeltaMin = 0;
+  config.lightnessDeltaMax = 0;
+
+  config.imageBackgroundScreenOpacityDeltaMin = -0.05;
+  config.imageBackgroundScreenOpacityDeltaMax = 0.05;
+
+  config.transitionDurationMin = 200;
+  config.transitionDurationMax = 2000;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+<<<<<<< HEAD
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * @this OpenPostJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('OpenPostJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.grid.isTransitioning = false;
+
+    // Don't reset some state if another expansion job started after this one did
+    if (job.grid.lastExpansionJob === job) {
+      job.grid.pagePost.loadCarouselMedia();
+    }
+
+    job.isComplete = true;
+    job.onComplete();
+  }
+
+  /**
+   * Creates the Sectors for expanding the grid.
+   *
+   * @this OpenPostJob
+   */
+  function createSectors() {
+    var job, i, j, jCount, k, sectorTiles, allExpandedTiles;
+
+    job = this;
+
+    // Create the sectors
+    for (i = 0; i < 6; i += 1) {
+      job.sectors[i] = new window.hg.Sector(job.grid, job.baseTile, i,
+          config.expandedDisplacementTileCount);
+    }
+
+    // Connect the sectors' tiles' external neighbor states
+    for (i = 0; i < 6; i += 1) {
+      job.sectors[i].initializeExpandedStateExternalTileNeighbors(job.sectors);
+    }
+
+//    dumpSectorInfo.call(job);
+
+    // De-allocate the now-unnecessary two-dimensional sector tile collections
+    for (i = 0; i < 6; i += 1) {
+      job.sectors[i].tilesByIndex = null;
+    }
+
+    // Set up the expanded state for the selected tile (which is a member of no sector)
+    window.hg.Tile.initializeTileExpandedState(job.baseTile, null, Number.NaN, Number.NaN);
+
+    job.grid.sectors = job.sectors;
+
+    // Give the grid a reference to the new complete collection of all tiles
+    allExpandedTiles = [];
+    for (k = 0, i = 0; i < 6; i += 1) {
+      sectorTiles = job.sectors[i].tiles;
+
+      for (j = 0, jCount = sectorTiles.length; j < jCount; j += 1, k += 1) {
+        allExpandedTiles[k] = sectorTiles[j];
+      }
+    }
+    allExpandedTiles[k] = job.baseTile;
+    job.grid.updateAllTilesCollection(allExpandedTiles);
+  }
+
+  /**
+   * Logs the new Sector data.
+   *
+   * @this OpenPostJob
+   */
+  function dumpSectorInfo() {
+    var job, i;
+
+    job = this;
+
+    for (i = 0; i < 6; i += 1) {
+      console.log(job.sectors[i]);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+=======
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Creates a shift status object for each tile to keep track of their individual animation
+   * progress.
+   *
+   * @this ColorShiftJob
+   */
+  function initTileShiftStatuses() {
+    var job, i, count;
+
+    job = this;
+
+    job.shiftStatusesNonContentTiles = [];
+    job.shiftStatusesContentTiles = [];
+
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      job.shiftStatusesNonContentTiles[i] = {
+        timeStart: 0,
+        timeEnd: 0,
+        hueDeltaStart: 0,
+        hueDeltaEnd: 0,
+        saturationDeltaStart: 0,
+        saturationDeltaEnd: 0,
+        lightnessDeltaStart: 0,
+        lightnessDeltaEnd: 0,
+      };
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      job.shiftStatusesContentTiles[i] = {
+        timeStart: 0,
+        timeEnd: 0,
+        opacityDeltaStart: 0,
+        opacityDeltaEnd: 0,
+      };
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  /**
+   * Updates the animation progress of the given non-content tile.
+   *
+   * @param {Number} currentTime
+   * @param {Tile} tile
+   * @param {NonContentTileShiftStatus} shiftStatus
+   */
+  function updateNonContentTile(currentTime, tile, shiftStatus) {
+    if (currentTime > shiftStatus.timeEnd) {
+      assignNewNonContentTileTransition(currentTime, shiftStatus);
+    }
+
+    var progress = (currentTime - shiftStatus.timeStart) /
+        (shiftStatus.timeEnd - shiftStatus.timeStart);
+
+    tile.currentColor.h += progress *
+        (shiftStatus.hueDeltaEnd - shiftStatus.hueDeltaStart) +
+        shiftStatus.hueDeltaStart;
+    tile.currentColor.s += progress *
+        (shiftStatus.saturationDeltaEnd - shiftStatus.saturationDeltaStart) +
+        shiftStatus.saturationDeltaStart;
+    tile.currentColor.l += progress *
+        (shiftStatus.lightnessDeltaEnd - shiftStatus.lightnessDeltaStart) +
+        shiftStatus.lightnessDeltaStart;
+
+    // Also add a gradual hue shift across all tiles.
+    tile.currentColor.h += currentTime / 300;
+    tile.currentColor.h %= 360;
+  }
+
+  /**
+   * Updates the animation progress of the given content tile.
+   *
+   * @param {Number} currentTime
+   * @param {Tile} tile
+   * @param {ContentTileShiftStatus} shiftStatus
+   */
+  function updateContentTile(currentTime, tile, shiftStatus) {
+    if (currentTime > shiftStatus.timeEnd) {
+      assignNewContentTileTransition(currentTime, shiftStatus);
+    }
+
+    var progress = (currentTime - shiftStatus.timeStart) /
+        (shiftStatus.timeEnd - shiftStatus.timeStart);
+
+    tile.imageScreenOpacity += progress *
+        (shiftStatus.opacityDeltaEnd - shiftStatus.opacityDeltaStart) +
+        shiftStatus.opacityDeltaStart;
+    // tile.imageScreenOpacity += -tileProgress * config.opacity *
+    //     config.deltaOpacityImageBackgroundScreen;
+  }
+
+  /**
+   * @param {Number} currentTime
+   * @param {NonContentTileShiftStatus} shiftStatus
+   */
+  function assignNewNonContentTileTransition(currentTime, shiftStatus) {
+    assignNewTransitionDuration(currentTime, shiftStatus);
+
+    shiftStatus.hueDeltaStart = shiftStatus.hueDeltaEnd;
+    shiftStatus.hueDeltaEnd = getNewHueDelta();
+
+    shiftStatus.saturationDeltaStart = shiftStatus.saturationDeltaEnd;
+    shiftStatus.saturationDeltaEnd = getNewSaturationDelta();
+
+    shiftStatus.lightnessDeltaStart = shiftStatus.lightnessDeltaEnd;
+    shiftStatus.lightnessDeltaEnd = getNewLightnessDelta();
+  }
+
+  /**
+   * @param {Number} currentTime
+   * @param {ContentTileShiftStatus} shiftStatus
+   */
+  function assignNewContentTileTransition(currentTime, shiftStatus) {
+    assignNewTransitionDuration(currentTime, shiftStatus);
+
+    shiftStatus.opacityDeltaStart = shiftStatus.opacityDeltaEnd;
+    shiftStatus.opacityDeltaEnd = getNewOpacityDelta();
+  }
+
+  /**
+   * Create a new duration value, and set up the start and end time to account for any time gap
+   * between the end of the last transition and the current time.
+   *
+   * @param {Number} currentTime
+   * @param {ShiftStatus} shiftStatus
+   */
+  function assignNewTransitionDuration(currentTime, shiftStatus) {
+    var elapsedTimeSinceEnd = currentTime - shiftStatus.timeEnd;
+    var newDuration = getNewTransitionDuration();
+    while (newDuration <= elapsedTimeSinceEnd) {
+      elapsedTimeSinceEnd -= newDuration;
+      newDuration = getNewTransitionDuration();
+    }
+
+    shiftStatus.timeStart = currentTime - elapsedTimeSinceEnd;
+    shiftStatus.timeEnd = shiftStatus.timeStart + newDuration;
+  }
+
+  /**
+   * @returns {Number} A random shift transition duration value between the configured min and max.
+   */
+  function getNewTransitionDuration() {
+    return Math.random() * (config.transitionDurationMax - config.transitionDurationMin) +
+        config.transitionDurationMin;
+  }
+
+  /**
+   * @returns {Number} A random hue delta value between the configured min and max.
+   */
+  function getNewHueDelta() {
+    return Math.random() * (config.hueDeltaMax - config.hueDeltaMin) + config.hueDeltaMin;
+  }
+
+  /**
+   * @returns {Number} A random saturation delta value between the configured min and max.
+   */
+  function getNewSaturationDelta() {
+    return Math.random() * (config.saturationDeltaMax - config.saturationDeltaMin) +
+        config.saturationDeltaMin;
+  }
+
+  /**
+   * @returns {Number} A random lightness delta value between the configured min and max.
+   */
+  function getNewLightnessDelta() {
+    return Math.random() * (config.lightnessDeltaMax - config.lightnessDeltaMin) +
+        config.lightnessDeltaMin;
+  }
+
+  /**
+   * @returns {Number} A random opacity delta value between the configured min and max.
+   */
+  function getNewOpacityDelta() {
+    return Math.random() * (config.imageBackgroundScreenOpacityDeltaMax -
+        config.imageBackgroundScreenOpacityDeltaMin) +
+        config.imageBackgroundScreenOpacityDeltaMin;
+  }
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * Sets this OpenPostJob as started.
+   *
+   * @this OpenPostJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var panDisplacement;
+    var job = this;
+=======
+   * Sets this ColorShiftJob as started.
+   *
+   * @this ColorShiftJob
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job, i, count;
+
+    job = this;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+    job.startTime = startTime;
+    job.isComplete = false;
+
+<<<<<<< HEAD
+    if (job.grid.isTransitioning) {
+      job.previousJob.cancel();
+    }
+
+    job.grid.isPostOpen = true;
+    job.grid.isTransitioning = true;
+    job.grid.expandedTile = job.baseTile;
+    job.grid.lastExpansionJob = job;
+
+    // Turn scrolling off while the grid is expanded
+    job.grid.parent.style.overflow = 'hidden';
+
+    createSectors.call(job);
+
+    job.grid.annotations.setExpandedAnnotations(true);
+
+    // Start the sub-jobs
+    window.hg.controller.transientJobs.SpreadJob.create(job.grid, job.baseTile)
+        .duration = config.duration + config.spreadDurationOffset;
+    window.hg.controller.transientJobs.PanJob.create(job.grid, job.baseTile)
+        .duration = config.duration + config.panDurationOffset;
+
+    panDisplacement = {
+      x: job.grid.panCenter.x - job.grid.originalCenter.x,
+      y: job.grid.panCenter.y - job.grid.originalCenter.y
+    };
+
+    window.hg.controller.transientJobs.DilateSectorsJob.create(job.grid, job.baseTile, panDisplacement)
+        .duration = config.duration + config.dilateSectorsDurationOffset;
+    window.hg.controller.transientJobs.FadePostJob.create(job.grid, job.baseTile)
+        .duration = config.duration + config.fadePostDurationOffset;
+
+    // TODO: this should instead fade out the old persistent animations and fade in the new ones
+    window.hg.controller.resetPersistentJobs(job.grid);
+  }
+
+  /**
+   * Updates the animation progress of this OpenPostJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this OpenPostJob
+=======
+    for (i = 0, count = job.shiftStatusesNonContentTiles.length; i < count; i += 1) {
+      job.shiftStatusesNonContentTiles[i].timeStart = startTime;
+      job.shiftStatusesNonContentTiles[i].timeEnd = startTime;
+    }
+
+    for (i = 0, count = job.shiftStatusesContentTiles.length; i < count; i += 1) {
+      job.shiftStatusesContentTiles[i].timeStart = startTime;
+      job.shiftStatusesContentTiles[i].timeEnd = startTime;
+    }
+  }
+
+  /**
+   * Updates the animation progress of this ColorShiftJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorShiftJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+    var job = this;
+
+    // Is the job done?
+    if (currentTime - job.startTime >= config.duration) {
+      handleComplete.call(job, false);
+=======
+    var job, i, count;
+
+    job = this;
+
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      updateNonContentTile(currentTime, job.grid.allNonContentTiles[i],
+          job.shiftStatusesNonContentTiles[i]);
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      updateContentTile(currentTime, job.grid.contentTiles[i],
+          job.shiftStatusesContentTiles[i]);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    }
+  }
+
+  /**
+<<<<<<< HEAD
+   * Draws the current state of this OpenPostJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this OpenPostJob
+=======
+   * Draws the current state of this ColorShiftJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorShiftJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+<<<<<<< HEAD
+   * Stops this OpenPostJob, and returns the element its original form.
+   *
+   * @this OpenPostJob
+=======
+   * Stops this ColorShiftJob.
+   *
+   * @this ColorShiftJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function cancel() {
+    var job = this;
+
+<<<<<<< HEAD
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this OpenPostJob
+=======
+    job.isComplete = true;
+  }
+
+  /**
+   * @this ColorShiftJob
+   */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorShiftJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+<<<<<<< HEAD
+=======
+    initTileShiftStatuses.call(job);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+<<<<<<< HEAD
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function OpenPostJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = tile;
+    job.startTime = 0;
+    job.isComplete = true;
+    job.sectors = [];
+    job.previousJob = grid.lastExpansionJob;
+=======
+   */
+  function ColorShiftJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.shiftStatusesNonContentTiles = null;
+    job.shiftStatusesContentTiles = null;
+    job.startTime = 0;
+    job.isComplete = true;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+<<<<<<< HEAD
+    job.onComplete = onComplete;
+    job.init = init;
+
+    // Update the location hash to reference the current post.
+    var hash = job.baseTile.postData ? '#' + job.baseTile.postData.id : '';
+    history.pushState({}, document.title, hash);
+
+    console.log('OpenPostJob created: tileIndex=' + job.baseTile.originalIndex);
+  }
+
+  OpenPostJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.OpenPostJob = OpenPostJob;
+
+  console.log('OpenPostJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} PanJob
+ */
+
+/**
+ * This module defines a constructor for PanJob objects.
+ *
+ * @module PanJob
+=======
+    job.refresh = refresh;
+    job.init = init;
+
+    job.init();
+
+    console.log('ColorShiftJob created');
+  }
+
+  ColorShiftJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorShiftJob = ColorShiftJob;
+
+  console.log('ColorShiftJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} ColorWaveJob
+ */
+
+/**
+ * This module defines a constructor for ColorWaveJob objects.
+ *
+ * ColorWaveJob objects animate the tiles of a Grid in order to create waves of color.
+ *
+ * @module ColorWaveJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+<<<<<<< HEAD
+  config.duration = 400;
+
+  config.displacementRatio = 0.28;
+
+  config.isRecurring = false;
+  config.avgDelay = 300;
+  config.delayDeviationRange = 0;
+=======
+  config.period = 1000;
+  config.wavelength = 600;
+  config.originX = -100;
+  config.originY = 1400;
+
+  // Amplitude (will range from negative to positive)
+  config.deltaHue = 0;
+  config.deltaSaturation = 0;
+  config.deltaLightness = 5;
+
+  config.deltaOpacityImageBackgroundScreen = 0.18;
+
+  config.opacity = 0.5;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+<<<<<<< HEAD
+=======
+    config.halfPeriod = config.period / 2;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * @this PanJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('PanJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+
+  /**
+   * @this PanJob
+   */
+  function setFinalPositions() {
+    var job, i, count;
+
+    job = this;
+
+    // Displace the tiles
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].originalAnchor.x += job.displacement.x;
+      job.grid.allTiles[i].originalAnchor.y += job.displacement.y;
+    }
+
+    // Update the grid
+    job.grid.panCenter.x += job.displacement.x;
+    job.grid.panCenter.y += job.displacement.y;
+=======
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this ColorWaveJob
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
+
+    job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsetsNonContentTiles = [];
+    job.waveProgressOffsetsContentTiles = [];
+
+    // Calculate offsets for the non-content tiles
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      tile = job.grid.allNonContentTiles[i];
+
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsetsNonContentTiles[i] =
+          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
+    }
+
+    // Calculate offsets for the content tiles
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      tile = job.grid.contentTiles[i];
+
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsetsContentTiles[i] =
+          -(length % config.wavelength - halfWaveProgressWavelength) / halfWaveProgressWavelength;
+    }
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+<<<<<<< HEAD
+=======
+  /**
+   * Updates the animation progress of the given non-content tile.
+   *
+   * @param {Number} progress From -1 to 1
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset From -1 to 1
+   */
+  function updateNonContentTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+
+    tile.currentColor.h += config.deltaHue * tileProgress * config.opacity;
+    tile.currentColor.s += config.deltaSaturation * tileProgress * config.opacity;
+    tile.currentColor.l += config.deltaLightness * tileProgress * config.opacity;
+  }
+
+  /**
+   * Updates the animation progress of the given content tile.
+   *
+   * @param {Number} progress From -1 to 1
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset From -1 to 1
+   */
+  function updateContentTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI) * 0.5 + 0.5;
+
+    tile.imageScreenOpacity += -tileProgress * config.opacity *
+        config.deltaOpacityImageBackgroundScreen;
+  }
+
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * Sets this PanJob as started.
+   *
+   * @this PanJob
+=======
+   * Sets this ColorWaveJob as started.
+   *
+   * @this ColorWaveJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+<<<<<<< HEAD
+    job.reverseDisplacement = {x: job.endPoint.x - job.startPoint.x, y: job.endPoint.y - job.startPoint.y};
+    job.displacement = {x: -job.reverseDisplacement.x, y: -job.reverseDisplacement.y};
+
+    job.startTime = startTime;
+    job.isComplete = false;
+
+    // Set the final positions at the start, and animate everything in "reverse"
+    setFinalPositions.call(job);
+  }
+
+  /**
+   * Updates the animation progress of this PanJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this PanJob
+=======
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+   * Updates the animation progress of this ColorWaveJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorWaveJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+    var job, progress, i, count, displacementX, displacementY;
+
+    job = this;
+
+    // Calculate progress with an easing function
+    // Because the final positions were set at the start, the progress needs to update in "reverse"
+    progress = (currentTime - job.startTime) / job.duration;
+    progress = 1 - window.hg.util.easingFunctions.easeOutQuint(progress);
+    progress = progress < 0 ? 0 : progress;
+
+    displacementX = job.reverseDisplacement.x * progress;
+    displacementY = job.reverseDisplacement.y * progress;
+
+    // Displace the tiles
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].currentAnchor.x += displacementX;
+      job.grid.allTiles[i].currentAnchor.y += displacementY;
+    }
+
+    // Update the grid
+    job.grid.currentCenter.x = job.grid.panCenter.x + displacementX;
+    job.grid.currentCenter.y = job.grid.panCenter.y + displacementY;
+
+    // Is the job done?
+    if (progress === 0) {
+      handleComplete.call(job, false);
+=======
+    var job, progress, i, count;
+
+    job = this;
+
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+
+    for (i = 0, count = job.grid.allNonContentTiles.length; i < count; i += 1) {
+      updateNonContentTile(progress, job.grid.allNonContentTiles[i],
+          job.waveProgressOffsetsNonContentTiles[i]);
+    }
+
+    for (i = 0, count = job.grid.contentTiles.length; i < count; i += 1) {
+      updateContentTile(progress, job.grid.contentTiles[i],
+          job.waveProgressOffsetsContentTiles[i]);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    }
+  }
+
+  /**
+<<<<<<< HEAD
+   * Draws the current state of this PanJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this PanJob
+=======
+   * Draws the current state of this ColorWaveJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this ColorWaveJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+<<<<<<< HEAD
+   * Stops this PanJob, and returns the element its original form.
+   *
+   * @this PanJob
+=======
+   * Stops this ColorWaveJob, and returns the element its original form.
+   *
+   * @this ColorWaveJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function cancel() {
+    var job = this;
+
+<<<<<<< HEAD
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this PanJob
+   */
+  function init() {
+=======
+    job.isComplete = true;
+  }
+
+  /**
+   * @this ColorWaveJob
+   */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this ColorWaveJob
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+    initTileProgressOffsets.call(job);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+<<<<<<< HEAD
+   * @param {?Tile} tile
+   * @param {Function} onComplete
+   * @param {{x:Number,y:Number}} [destinationPoint]
+   */
+  function PanJob(grid, tile, onComplete, destinationPoint) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = tile;
+    job.reverseDisplacement = null;
+    job.displacement = null;
+    job.startTime = 0;
+    job.isComplete = true;
+
+    grid.scrollTop = grid.parent.scrollTop;
+
+    // The current viewport coordinates of the point that we would like to move to the center of the viewport
+    job.endPoint = destinationPoint || {
+      x: tile.originalAnchor.x,
+      y: tile.originalAnchor.y - grid.scrollTop
+    };
+
+    // The center of the viewport
+    job.startPoint = {x: grid.originalCenter.x, y: grid.originalCenter.y};
+
+    job.duration = config.duration;
+
+=======
+   */
+  function ColorWaveJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.waveProgressOffsetsNonContentTiles = null;
+    job.waveProgressOffsetsContentTiles = null;
+    job.startTime = 0;
+    job.isComplete = true;
+
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+<<<<<<< HEAD
+    job.onComplete = onComplete;
+    job.init = init;
+
+    console.log('PanJob created: tileIndex=' + job.baseTile.originalIndex);
+  }
+
+  PanJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.PanJob = PanJob;
+
+  console.log('PanJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} SpreadJob
+ */
+
+/**
+ * This module defines a constructor for SpreadJob objects.
+ *
+ * @module SpreadJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  config.duration = 300;
+
+  config.displacementRatio = 0.2;
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+   * Calculates and stores the maximal displacement values for all tiles.
+   *
+   * @this SpreadJob
+   */
+  function initializeDisplacements() {
+    var job, i, count;
+
+    job = this;
+
+    job.displacements = [];
+
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.displacements[i] = {
+        tile: job.grid.allTiles[i],
+        dx: config.displacementRatio *
+            (job.grid.allTiles[i].originalAnchor.x - job.baseTile.originalAnchor.x),
+        dy: config.displacementRatio *
+            (job.grid.allTiles[i].originalAnchor.y - job.baseTile.originalAnchor.y)
+      };
+    }
+  }
+
+  /**
+   * @this SpreadJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('SpreadJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+  }
+=======
+    job.refresh = refresh;
+    job.init = init;
+
+    job.init();
+
+    console.log('ColorWaveJob created');
+  }
+
+  ColorWaveJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.ColorWaveJob = ColorWaveJob;
+
+  console.log('ColorWaveJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DisplacementResetJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementResetJob objects.
+ *
+ * DisplacementResetJob objects reset tile displacement values during each animation frame.
+ *
+ * @module DisplacementResetJob
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * Sets this SpreadJob as started.
+   *
+   * @this SpreadJob
+=======
+   * Sets this DisplacementResetJob as started.
+   *
+   * @this DisplacementResetJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+<<<<<<< HEAD
+   * Updates the animation progress of this SpreadJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this SpreadJob
+=======
+   * Updates the animation progress of this DisplacementResetJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementResetJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+    var job, progress, i, count;
+
+    job = this;
+
+    if (currentTime > job.startTime + job.duration) {
+      handleComplete.call(job, false);
+    } else {
+      // Ease-out halfway, then ease-in back
+      progress = (currentTime - job.startTime) / job.duration;
+      progress = (progress > 0.5 ? 1 - progress : progress) * 2;
+      progress = window.hg.util.easingFunctions.easeOutQuint(progress);
+
+      // Displace the tiles
+      for (i = 0, count = job.displacements.length; i < count; i += 1) {
+        job.displacements[i].tile.currentAnchor.x += job.displacements[i].dx * progress;
+        job.displacements[i].tile.currentAnchor.y += job.displacements[i].dy * progress;
+      }
+=======
+    var job, i, count;
+
+    job = this;
+
+    // Update the Tiles
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      job.grid.allTiles[i].currentAnchor.x = job.grid.allTiles[i].originalAnchor.x;
+      job.grid.allTiles[i].currentAnchor.y = job.grid.allTiles[i].originalAnchor.y;
+    }
+
+    if (job.grid.isPostOpen) {
+      // Update the Carousel
+      job.grid.pagePost.carousel.currentIndexPositionRatio =
+        job.grid.pagePost.carousel.currentIndex;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    }
+  }
+
+  /**
+<<<<<<< HEAD
+   * Draws the current state of this SpreadJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this SpreadJob
+=======
+   * Draws the current state of this DisplacementResetJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementResetJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+<<<<<<< HEAD
+   * Stops this SpreadJob, and returns the element its original form.
+   *
+   * @this SpreadJob
+=======
+   * Stops this DisplacementResetJob, and returns the element its original form.
+   *
+   * @this DisplacementResetJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function cancel() {
+    var job = this;
+
+<<<<<<< HEAD
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this SpreadJob
+=======
+    job.isComplete = true;
+  }
+
+  /**
+   * @this DisplacementResetJob
+   */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this DisplacementResetJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function init() {
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+<<<<<<< HEAD
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function SpreadJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.baseTile = tile;
+    job.startTime = 0;
+    job.isComplete = true;
+
+    job.displacements = null;
+
+    job.duration = config.duration;
+
+=======
+   */
+  function DisplacementResetJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.startTime = 0;
+    job.isComplete = true;
+
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+<<<<<<< HEAD
+    job.onComplete = onComplete;
+    job.init = init;
+
+    initializeDisplacements.call(job);
+
+    console.log('SpreadJob created: tileIndex=' + job.baseTile.originalIndex);
+  }
+
+  SpreadJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.SpreadJob = SpreadJob;
+
+  console.log('SpreadJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} TileBorderJob
+ */
+
+/**
+ * This module defines a constructor for TileBorderJob objects.
+ *
+ * @module TileBorderJob
+=======
+    job.refresh = refresh;
+    job.init = init;
+
+    job.init();
+
+    console.log('DisplacementResetJob created');
+  }
+
+  DisplacementResetJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementResetJob = DisplacementResetJob;
+
+  console.log('DisplacementResetJob module loaded');
+})();
+
+/**
+ * @typedef {AnimationJob} DisplacementWaveJob
+ */
+
+/**
+ * This module defines a constructor for DisplacementWaveJob objects.
+ *
+ * DisplacementWaveJob objects animate the tiles of a Grid in order to create waves of
+ * motion.
+ *
+ * @module DisplacementWaveJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+ */
+(function () {
+  // ------------------------------------------------------------------------------------------- //
+  // Private static variables
+
+  var config = {};
+
+<<<<<<< HEAD
+  config.duration = 500;
+
+  // TODO:
+
+  config.isRecurring = false;
+  config.avgDelay = 4000;
+  config.delayDeviationRange = 3800;
+=======
+  config.period = 3200;
+  config.wavelength = 1800;
+  config.originX = 0;
+  config.originY = 0;
+
+  // Amplitude (will range from negative to positive)
+  config.tileDeltaX = -15;
+  config.tileDeltaY = -config.tileDeltaX * Math.sqrt(3);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+
+  //  --- Dependent parameters --- //
+
+  config.computeDependentValues = function () {
+<<<<<<< HEAD
+    // TODO:
+=======
+    config.halfPeriod = config.period / 2;
+
+    config.displacementAmplitude =
+        Math.sqrt(config.tileDeltaX * config.tileDeltaX +
+            config.tileDeltaY * config.tileDeltaY);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  };
+
+  config.computeDependentValues();
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * @this TileBorderJob
+   */
+  function handleComplete(wasCancelled) {
+    var job = this;
+
+    console.log('TileBorderJob ' + (wasCancelled ? 'cancelled' : 'completed'));
+
+    job.isComplete = true;
+
+    job.onComplete();
+=======
+   * Calculates a wave offset value for each tile according to their positions in the grid.
+   *
+   * @this DisplacementWaveJob
+   */
+  function initTileProgressOffsets() {
+    var job, i, count, tile, length, deltaX, deltaY, halfWaveProgressWavelength;
+
+    job = this;
+
+    halfWaveProgressWavelength = config.wavelength / 2;
+    job.waveProgressOffsets = [];
+
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      tile = job.grid.allTiles[i];
+
+      deltaX = tile.originalAnchor.x - config.originX;
+      deltaY = tile.originalAnchor.y - config.originY;
+      length = Math.sqrt(deltaX * deltaX + deltaY * deltaY) + config.wavelength;
+
+      job.waveProgressOffsets[i] = -(length % config.wavelength - halfWaveProgressWavelength)
+          / halfWaveProgressWavelength;
+    }
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Private static functions
+
+<<<<<<< HEAD
+=======
+  /**
+   * Updates the animation progress of the given tile.
+   *
+   * @param {Number} progress
+   * @param {Tile} tile
+   * @param {Number} waveProgressOffset
+   */
+  function updateTile(progress, tile, waveProgressOffset) {
+    var tileProgress =
+        Math.sin(((((progress + 1 + waveProgressOffset) % 2) + 2) % 2 - 1) * Math.PI);
+
+    tile.currentAnchor.x += config.tileDeltaX * tileProgress;
+    tile.currentAnchor.y += config.tileDeltaY * tileProgress;
+  }
+
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  // ------------------------------------------------------------------------------------------- //
+  // Public dynamic functions
+
+  /**
+<<<<<<< HEAD
+   * Sets this TileBorderJob as started.
+   *
+   * @this TileBorderJob
+=======
+   * Sets this DisplacementWaveJob as started.
+   *
+   * @this DisplacementWaveJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} startTime
+   */
+  function start(startTime) {
+    var job = this;
+
+    job.startTime = startTime;
+    job.isComplete = false;
+  }
+
+  /**
+<<<<<<< HEAD
+   * Updates the animation progress of this TileBorderJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this TileBorderJob
+=======
+   * Updates the animation progress of this DisplacementWaveJob to match the given time.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementWaveJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   * @param {Number} currentTime
+   * @param {Number} deltaTime
+   */
+  function update(currentTime, deltaTime) {
+<<<<<<< HEAD
+    // TODO:
+//    var job, currentMaxDistance, currentMinDistance, i, count, distance, waveWidthRatio,
+//        oneMinusDurationRatio, animatedSomeTile;
+//
+//    job = this;
+//
+//    if (currentTime > job.startTime + config.duration) {
+//      handleComplete.call(job, false);
+//    } else {
+//      oneMinusDurationRatio = 1 - (currentTime - job.startTime) / config.duration;
+//
+//      currentMaxDistance = config.shimmerSpeed * (currentTime - job.startTime);
+//      currentMinDistance = currentMaxDistance - config.shimmerWaveWidth;
+//
+//      animatedSomeTile = false;
+//
+//      for (i = 0, count = job.grid.originalTiles.length; i < count; i += 1) {
+//        distance = job.tileDistances[i];
+//
+//        if (distance > currentMinDistance && distance < currentMaxDistance) {
+//          waveWidthRatio = (distance - currentMinDistance) / config.shimmerWaveWidth;
+//
+//          updateTile(job.grid.originalTiles[i], waveWidthRatio, oneMinusDurationRatio);
+//
+//          animatedSomeTile = true;
+//        }
+//      }
+//
+//      if (!animatedSomeTile) {
+//        handleComplete.call(job, false);
+//      }
+//    }**;
+  }
+
+  /**
+   * Draws the current state of this TileBorderJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this TileBorderJob
+   */
+  function draw() {
+    var job;
+
+    job = this;
+
+    // TODO:
+  }
+
+  /**
+   * Stops this TileBorderJob, and returns the element its original form.
+   *
+   * @this TileBorderJob
+=======
+    var job, progress, i, count;
+
+    job = this;
+
+    progress = (currentTime + config.halfPeriod) / config.period % 2 - 1;
+
+    for (i = 0, count = job.grid.allTiles.length; i < count; i += 1) {
+      updateTile(progress, job.grid.allTiles[i], job.waveProgressOffsets[i]);
+    }
+  }
+
+  /**
+   * Draws the current state of this DisplacementWaveJob.
+   *
+   * This should be called from the overall animation loop.
+   *
+   * @this DisplacementWaveJob
+   */
+  function draw() {
+    // This animation job updates the state of actual tiles, so it has nothing of its own to draw
+  }
+
+  /**
+   * Stops this DisplacementWaveJob, and returns the element its original form.
+   *
+   * @this DisplacementWaveJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function cancel() {
+    var job = this;
+
+<<<<<<< HEAD
+    handleComplete.call(job, true);
+  }
+
+  /**
+   * @this TileBorderJob
+=======
+    job.isComplete = true;
+  }
+
+  /**
+   * @this DisplacementWaveJob
+   */
+  function refresh() {
+    var job = this;
+
+    init.call(job);
+  }
+
+  /**
+   * @this DisplacementWaveJob
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+   */
+  function init() {
+    var job = this;
+
+    config.computeDependentValues();
+<<<<<<< HEAD
+    // TODO:
+=======
+    initTileProgressOffsets.call(job);
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+  }
+
+  // ------------------------------------------------------------------------------------------- //
+  // Expose this module's constructor
+
+  /**
+   * @constructor
+   * @global
+   * @param {Grid} grid
+<<<<<<< HEAD
+   * @param {Tile} tile
+   * @param {Function} onComplete
+   */
+  function TileBorderJob(grid, tile, onComplete) {
+    var job = this;
+
+    job.grid = grid;
+    job.tile = tile;
+=======
+   */
+  function DisplacementWaveJob(grid) {
+    var job = this;
+
+    job.grid = grid;
+    job.waveProgressOffsets = null;
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
+    job.startTime = 0;
+    job.isComplete = true;
+
+    job.start = start;
+    job.update = update;
+    job.draw = draw;
+    job.cancel = cancel;
+<<<<<<< HEAD
+    job.onComplete = onComplete;
+    job.init = init;
+
+    console.log('TileBorderJob created: tileIndex=' + job.baseTile.originalIndex);
+  }
+
+  TileBorderJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.TileBorderJob = TileBorderJob;
+
+  console.log('TileBorderJob module loaded');
+=======
+    job.refresh = refresh;
+    job.init = init;
+
+    job.init();
+
+    console.log('DisplacementWaveJob created');
+  }
+
+  DisplacementWaveJob.config = config;
+
+  // Expose this module
+  window.hg = window.hg || {};
+  window.hg.DisplacementWaveJob = DisplacementWaveJob;
+
+  console.log('DisplacementWaveJob module loaded');
+>>>>>>> 5c51d84... Migrate gulp tasks to gulp v4+, and add a music post.
 })();
