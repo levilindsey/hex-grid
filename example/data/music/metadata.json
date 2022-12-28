@@ -1,0 +1,25 @@
+{
+  "id": "music",
+  "titleShort": "Music:\nPerformances &\ncompositions",
+  "titleLong": "Music composition and performance",
+  "emphasis": 0.6,
+  "color": "#f774ff",
+  "urls": {
+    "youtube": "https://www.youtube.com/playlist?list=PLIuJN99AFOPRwoYLk6O_j8kPK6UtWQTIk",
+    "soundcloud": "https://soundcloud.com/levilindsey"
+  },
+  "jobTitle": "Singer, arranger, composer",
+  "location": "",
+  "date": {
+    "start": "4/27/1988",
+    "end": "Present",
+    "tieBreaker": 1
+  },
+  "categories": [
+    "music"
+  ],
+  "images": [
+  ],
+  "videos": [],
+  "content": ""
+}
