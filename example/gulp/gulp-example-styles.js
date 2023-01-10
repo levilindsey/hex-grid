@@ -4,7 +4,7 @@ var plugins = require('gulp-load-plugins')();
 
 // ---  --- //
 
-gulp.task('example-styles', ['hg-styles'], function () {
+gulp.task('example-styles', gulp.series('hg-styles', function () {
   return gulp.src(config.exampleStylesSrc)
     .pipe(plugins.plumber())
     .pipe(plugins.autoprefixer('last 2 version'))
@@ -13,4 +13,6 @@ gulp.task('example-styles', ['hg-styles'], function () {
     .pipe(plugins.rename({suffix: '.min'}))
     .pipe(plugins.cleanCss())
     .pipe(gulp.dest(config.exampleDistPath));
-});
+}));
+
+gulp.task('styles', gulp.series('example-styles'));

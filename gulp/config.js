@@ -44,6 +44,4 @@ config.host = '0.0.0.0';
 // config.host = 'localhost';
 config.port = '3000';
 
-config.buildTasks = ['scripts', 'styles', 'data', 'watch'];
-
 module.exports = config;

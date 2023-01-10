@@ -1,7 +1,8 @@
 var config = require('./config');
 var gulp = require('gulp');
 
-gulp.task('watch', function () {
-  gulp.watch(config.allScriptsSrc, ['scripts']);
-  gulp.watch(config.allStylesSrc, ['styles']);
+gulp.task('watch', (done) => {
+  gulp.watch(config.allScriptsSrc, gulp.series('scripts'));
+  gulp.watch(config.allStylesSrc, gulp.series('styles'));
+  done();
 });
