@@ -2,16 +2,18 @@ var gulp = require('gulp');
 var glob = require('glob');
 
 var gulpTasksSrc = [
-  './gulp/**/*.js',
-  '!./gulp/**/config.js',
-  './example/gulp/**/*.js',
-  '!./example/gulp/**/config.js'
+  './gulp/gulp-hg-scripts.js',
+  './gulp/gulp-hg-styles.js',
+  './example/gulp/gulp-data-tasks.js',
+  './example/gulp/gulp-example-scripts.js',
+  './example/gulp/gulp-example-styles.js',
+  './gulp/gulp-clean.js',
+  './gulp/gulp-watch.js',
+  './gulp/gulp-server.js',
+  './gulp/gulp-default.js',
 ];
 
 loadTasks(gulpTasksSrc);
-
-gulp.task('scripts', ['example-scripts']);
-gulp.task('styles', ['example-styles']);
 
 // ---  --- //
 
