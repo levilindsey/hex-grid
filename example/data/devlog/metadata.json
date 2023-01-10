@@ -1,0 +1,31 @@
+{
+  "id": "devlog",
+  "titleShort": "Devlog",
+  "titleLong": "Devlog",
+  "emphasis": 0.9,
+  "color": "#ffe642",
+  "urls": {
+    "devlog": "https://devlog.levi.dev"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": {
+    "start": "1/2021",
+    "end": "Present",
+    "tieBreaker": 18
+  },
+  "categories": [
+    "ai",
+    "art",
+    "animation",
+    "music",
+    "godot",
+    "game",
+    "2D",
+    "solo-work"
+  ],
+  "images": [
+  ],
+  "videos": [],
+  "content": ""
+}

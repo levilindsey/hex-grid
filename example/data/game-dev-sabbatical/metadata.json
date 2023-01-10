@@ -2,7 +2,7 @@
   "id": "game-dev-sabbatical",
   "titleShort": "Sabbatical:\nGame dev\nexploration",
   "titleLong": "Sabbatical: Adventures in game development",
-  "emphasis": 1.0,
+  "emphasis": 0.8,
   "color": "#18ffff",
   "urls": {
     "devlog": "https://devlog.levi.dev",
@@ -22,7 +22,8 @@
     "music",
     "godot",
     "game",
-    "2D"
+    "2D",
+    "solo-work"
   ],
   "images": [
   ],
