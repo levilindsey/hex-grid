@@ -1,0 +1,50 @@
+{
+  "id": "uprooted",
+  "titleShort": "3D first-person\nshooter",
+  "titleLong": "Uprooted: 3D first-person shooter",
+  "emphasis": 0.6,
+  "color": "#4deb8f",
+  "urls": {
+    "demo": "https://voithos.itch.io/uprooted",
+    "global-game-jam": "https://globalgamejam.org/2023/games/uprooted-4-1",
+    "github": "https://github.com/voithos/uprooted"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "2/2023",
+  "categories": [
+    "side-project",
+    "app",
+    "godot",
+    "game",
+    "3D",
+    "game-jam",
+    "teamwork"
+  ],
+  "images": [
+    {
+      "fileName": "wave.png",
+      "description": "Enemies come in waves and you must constantly avoid them."
+    },
+    {
+      "fileName": "pool.gif",
+      "description": "You must root yourself at a pool in order to be able to fire at the enemies."
+    },
+    {
+      "fileName": "level.png",
+      "description": "Our level features interesting terrain and obstacles."
+    },
+    {
+      "fileName": "enemy.png",
+      "description": "A chainsaw robot."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "ja2sXmBZEL4",
+      "description": "A gameplay video for Uprooted."
+    }
+  ],
+  "content": ""
+}
