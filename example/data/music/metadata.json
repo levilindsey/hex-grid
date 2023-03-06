@@ -1,5 +1,5 @@
 {
-  "id": "music",
+  "id": "Music",
   "titleShort": "Music:\nPerformances &\ncompositions",
   "titleLong": "Music composition and performance",
   "emphasis": 0.6,
@@ -16,7 +16,7 @@
     "tieBreaker": 3
   },
   "categories": [
-    "music"
+    "Music"
   ],
   "images": [
   ],

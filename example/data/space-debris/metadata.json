@@ -16,18 +16,18 @@
     "tieBreaker": 1
   },
   "categories": [
-    "side-project",
-    "web",
-    "frontend",
-    "animation",
-    "app",
+    "Side-Project",
+    "Web",
+    "Frontend",
+    "Animation",
+    "App",
     "dat.gui",
     "gulp.js",
-    "webgl",
-    "es2015",
-    "game",
+    "WebGL",
+    "ES2015",
+    "Game",
     "3D",
-    "solo-work"
+    "Solo-Work"
   ],
   "images": [
     {
