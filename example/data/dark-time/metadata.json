@@ -5,18 +5,18 @@
   "emphasis": 0.6,
   "color": "#4b7f9c",
   "urls": {
-    "chrome-web-store": "https://chrome.google.com/webstore/detail/dark-time/ofmngaeacndglijmheklbcnbjfdcohke",
+    "Chrome-Web-Store": "https://chrome.google.com/webstore/detail/dark-time/ofmngaeacndglijmheklbcnbjfdcohke",
     "github": "https://github.com/levilindsey/dark-time"
   },
   "jobTitle": "",
   "location": "",
   "date": "2/2021",
   "categories": [
-    "web",
-    "frontend",
-    "side-project",
-    "solo-work",
-    "chrome-web-store"
+    "Web",
+    "Frontend",
+    "Side-Project",
+    "Solo-Work",
+    "Chrome-Web-Store"
   ],
   "images": [
     {

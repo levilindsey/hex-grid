@@ -14,16 +14,15 @@
     "end": "1/2021"
   },
   "categories": [
-    "work",
-    "web",
-    "frontend",
-    "angularjs",
-    "typescript",
-    "angular-2",
-    "google-closure-tools",
-    "rxjs",
-    "sql",
-    "teamwork"
+    "Work",
+    "Web",
+    "Frontend",
+    "Angular",
+    "Typescript",
+    "Google-Closure-Tools",
+    "RXJS",
+    "SQL",
+    "Teamwork"
   ],
   "images": [
     {

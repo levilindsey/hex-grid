@@ -5,7 +5,7 @@
   "emphasis": 0.6,
   "color": "#d77472",
   "urls": {
-    "npm": "https://npmjs.org/package/generator-meanie",
+    "NPM": "https://npmjs.org/package/generator-meanie",
     "github": "https://github.com/levilindsey/generator-meanie"
   },
   "jobTitle": "",
@@ -15,20 +15,20 @@
     "end": "12/2014"
   },
   "categories": [
-    "side-project",
-    "web",
-    "mean-stack",
-    "frontend",
-    "back-end",
-    "mongodb",
-    "express",
-    "angular",
+    "Side-Project",
+    "Web",
+    "MEAN-Stack",
+    "Frontend",
+    "Back-End",
+    "MongoDB",
+    "Express",
+    "Angular",
     "node.js",
     "gulp.js",
-    "yeoman",
-    "npm",
-    "library",
-    "solo-work"
+    "Yeoman",
+    "NPM",
+    "Library",
+    "Solo-Work"
   ],
   "images": [
     {
