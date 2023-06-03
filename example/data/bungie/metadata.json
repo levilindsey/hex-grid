@@ -7,12 +7,11 @@
   "urls": {
     "homepage": "https://www.bungie.net/"
   },
-  "jobTitle": "Senior Gameplay Engineer",
+  "jobTitle": "Senior AI Engineer",
   "location": "Bellevue, WA",
   "date": {
     "start": "8/2022",
-    "end": "Present",
-    "tieBreaker": 30
+    "end": "4/2023"
   },
   "categories": [
     "Work",
@@ -24,6 +23,30 @@
     "Teamwork"
   ],
   "images": [
+    {
+      "fileName": "destiny-2-lightfall-wallpaper.jpg",
+      "description": "The splash screen for the Destiny 2 Lightfall expansion."
+    },
+    {
+      "fileName": "tormentor-dark-harvest.jpg",
+      "description": "Levi worked on Tormentor features such as the dark-harvest ability."
+    },
+    {
+      "fileName": "thresher.jpg",
+      "description": "Levi worked on various types of path-finding features, such as steering and strafing for the Thresher."
+    },
+    {
+      "fileName": "nezarec.jpg",
+      "description": "Levi worked on features for the Nezarec raid boss."
+    },
+    {
+      "fileName": "jetpack-bombardment.jpg",
+      "description": "Levi worked on many other combatant features, such as the cabal jetpack bombardment ability."
+    },
+    {
+      "fileName": "credits.png",
+      "description": "Levi's name is in the credits!"
+    }
   ],
   "videos": [
   ],
