@@ -1,0 +1,30 @@
+{
+  "id": "manticore",
+  "titleShort": "Manticore\nGames",
+  "titleLong": "Manticore Games",
+  "emphasis": 1.0,
+  "color": "#ffb116",
+  "urls": {
+    "homepage": "https://www.manticoregames.com/"
+  },
+  "jobTitle": "Senior Software Engineer - Gameplay",
+  "location": "Remote",
+  "date": {
+    "start": "4/2023",
+    "end": "Present",
+    "tieBreaker": 30
+  },
+  "categories": [
+    "Work",
+    "C++",
+    "Unreal",
+    "Game",
+    "3D",
+    "Teamwork"
+  ],
+  "images": [
+  ],
+  "videos": [
+  ],
+  "content": ""
+}
