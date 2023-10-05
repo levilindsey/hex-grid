@@ -1,0 +1,50 @@
+{
+  "id": "orbital-meltdown",
+  "titleShort": "3D third-person\nshooter",
+  "titleLong": "Orbital Meltdown: Death by Laser Beneath the Naked Sun",
+  "emphasis": 0.6,
+  "color": "#538fff",
+  "urls": {
+    "demo": "https://levilindsey.itch.io/orbital-meltdown-death-by-laser-beneath-the-naked-sun",
+    "ludum-dare": "https://ldjam.com/events/ludum-dare/54/ludum-dare-54",
+    "github": "https://github.com/voithos/ludum-dare-54"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "10/2023",
+  "categories": [
+    "Side-Project",
+    "App",
+    "Unreal",
+    "Game",
+    "3D",
+    "Game-Jam",
+    "Teamwork"
+  ],
+  "images": [
+    {
+      "fileName": "destroy-platforms.gif",
+      "description": "Featuring a fully-destructible level!"
+    },
+    {
+      "fileName": "enemies.gif",
+      "description": "A host of exciting baddies!"
+    },
+    {
+      "fileName": "destroy-prop.gif",
+      "description": "Even more destruction!"
+    },
+    {
+      "fileName": "cover-full.png",
+      "description": "And a beautiful loading screen."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "CSwQXfaj5zg",
+      "description": "A gameplay video for Orbital Meltdown: Death by Laser Beneath the Naked Sun."
+    }
+  ],
+  "content": ""
+}
