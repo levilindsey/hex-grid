@@ -1,0 +1,54 @@
+{
+  "id": "dicey-demons",
+  "titleShort": "Deck-building\nauto-battler",
+  "titleLong": "Dicey Demons: A deck-building auto-battler",
+  "emphasis": 0.8,
+  "color": "#e685f4",
+  "urls": {
+    "demo": "https://levi.dev/dicey-demons",
+    "ludum-dare": "https://ldjam.com/events/ludum-dare/55/dicey-demons",
+    "github": "https://github.com/DiegoRGonzalez/ludumdare55"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "4/2023",
+  "categories": [
+    "Side-Project",
+    "App",
+    "Godot",
+    "Game",
+    "3D",
+    "Game-Jam",
+    "Teamwork"
+  ],
+  "images": [
+    {
+      "fileName": "roll-dice.gif",
+      "description": "Satisfying dice physics!"
+    },
+    {
+      "fileName": "use-dice.gif",
+      "description": "Use your dice and choose your lineup"
+    },
+    {
+      "fileName": "battle-dice.gif",
+      "description": "Casual auto-battling"
+    },
+    {
+      "fileName": "dice-for-sale.png",
+      "description": "The grumpy shopkeeper cat is full of bad puns"
+    },
+    {
+      "fileName": "boss.png",
+      "description": "We even added a boss!"
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "nRomWI3wxOg",
+      "description": "A trailer for Dicey Demons."
+    }
+  ],
+  "content": ""
+}
