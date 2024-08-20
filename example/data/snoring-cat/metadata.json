@@ -2,17 +2,17 @@
   "id": "snoring-cat",
   "titleShort": "Snoring Cat LLC",
   "titleLong": "Snoring Cat LLC",
-  "emphasis": 0.6,
+  "emphasis": 0.9,
   "color": "#7e664d",
   "urls": {
     "snoring-cat": "https://snoringcat.games"
   },
-  "jobTitle": "Owner and manager",
+  "jobTitle": "Principal Gameplay Engineer",
   "location": "Seattle, WA",
   "date": {
     "start": "2/2021",
     "end": "Present",
-    "tieBreaker": 9
+    "tieBreaker": 19
   },
   "categories": [
     "Work",

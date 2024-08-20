@@ -1,0 +1,50 @@
+{
+  "id": "sticky-ships",
+  "titleShort": "Bullet-hell\ngame",
+  "titleLong": "Sticky Ships: A 2D bullet-hell game",
+  "emphasis": 0.8,
+  "color": "#60ff64",
+  "urls": {
+    "demo": "https://levi.dev/sticky-ships",
+    "gmtk": "https://itch.io/jam/gmtk-2024/rate/2912461",
+    "github": "https://github.com/voithos/ggj2024"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "8/2024",
+  "categories": [
+    "Side-Project",
+    "App",
+    "Godot",
+    "Game",
+    "2D",
+    "Game-Jam",
+    "Teamwork"
+  ],
+  "images": [
+    {
+      "fileName": "attachment-madness.gif",
+      "description": "Eventually, you have many parts attached to your ship!"
+    },
+    {
+      "fileName": "level-up.gif",
+      "description": "When you accumulate enough parts, you upgrade to a larger core size."
+    },
+    {
+      "fileName": "growth_effect_extended.gif",
+      "description": "The ship-upgrade animation turned out well!"
+    },
+    {
+      "fileName": "cover-art.png",
+      "description": "Cover art for Stick Ships."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "g-EjWoMBvPE",
+      "description": "A gameplay video for Sticky Ships."
+    }
+  ],
+  "content": ""
+}
