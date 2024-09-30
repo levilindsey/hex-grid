@@ -2,16 +2,25 @@
 >
 > ☄️🤖 _Build solar stations, connect power, avoid meteors!_
 
-All design, code, images, sound effects, and music were created during the jam.
 
+## 📱 The post-jam experience
 
-## 📱 The mobile app
+I made quite a few post-jam improvements to this game. Unfortunately, I started a job with Bungie and got busy with house projects before I had time to really finish this.
 
-I am currently extending the Ludum Dare version of Meteor Power into a more-polished mobile version.
+Some features of the game:
+-   2D platforming AI and navigation.
+-   High-level commands:
+    -   You click on a station site and choose an action that should be taken.
+    -   That action is then queued, and the next appropriate bot performs it.
+-   Many types of bots, with different abilities and movement mechanics.
+-   Many different types of actions:
+    -   Building new stations
+    -   Running powerlines between stations
+    -   Repairing stations
+    -   Building barriers to block incoming meteors
+-   A polished radial menu for performing actions on target bots or target stations.
 
--   It should be released late June.
--   You can follow my progress at [devlog.levi.dev](https://devlog.levi.dev).
--   This extended version is also [open-source on GitHub](https://github.com/SnoringCatGames/meteor_power).
+This extended version is also [open-source on GitHub](https://github.com/SnoringCatGames/meteor_power).
 
 
 ## ‍💻 The jam
