@@ -1,0 +1,46 @@
+{
+  "id": "business-beetles",
+  "titleShort": "Simulation\ngame",
+  "titleLong": "Business Beetles: A chill simulation game",
+  "emphasis": 0.8,
+  "color": "#ce5c2f",
+  "urls": {
+    "demo": "https://levi.dev/business-beetles",
+    "ludum-dare": "https://ldjam.com/events/ludum-dare/56/business-beetles",
+    "github": "https://github.com/DiegoRGonzalez/ludumdare56"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "10/2024",
+  "categories": [
+    "Side-Project",
+    "App",
+    "Godot",
+    "Game",
+    "2D",
+    "Game-Jam",
+    "Teamwork"
+  ],
+  "images": [
+    {
+      "fileName": "mafia-birds.gif",
+      "description": "Beetles go about their business during the day. Sales-beetles look for customers, make sales, and return with money balls to the office."
+    },
+    {
+      "fileName": "make-a-sale.gif",
+      "description": "You see your stats and allocate new recruits at the end of each day."
+    },
+    {
+      "fileName": "hire-recruits.gif",
+      "description": "Mafia crows want to take your money! Also, you can speed-up time."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "OPPdCdK4F0Y",
+      "description": "A gameplay video for Business Beetles."
+    }
+  ],
+  "content": ""
+}
