@@ -1,4 +1,4 @@
-Levi formed Snoring Cat to publish some of his more substantial games and software projects under.
+Snoring Cat specialize in 2D platformer games, pixel art, and the Godot game engine.
 
 Check out Snoring Cat's site at [snoringcat.games](https://snoringcat.games).
 
