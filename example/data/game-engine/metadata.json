@@ -1,7 +1,7 @@
 {
   "id": "game-engine",
-  "titleShort": "3D WebGL\ngraphics &\nphysics\nengine",
-  "titleLong": "A 3D WebGL graphics framework, physics engine, and game engine",
+  "titleShort": "3D\ngame engine",
+  "titleLong": "A game engine, 3D physics engine, and WebGL graphics framework",
   "emphasis": 1.0,
   "color": "#6f0458",
   "urls": {
