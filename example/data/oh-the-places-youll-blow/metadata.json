@@ -1,0 +1,47 @@
+{
+  "id": "oh-the-places-youll-blow",
+  "titleShort": "Mic-Controlled\nEndless Runner",
+  "titleLong": "Oh, the Places You'll Blow",
+  "emphasis": 0.8,
+  "color": "#ff7aed",
+  "urls": {
+    "demo": "https://levi.dev/blow",
+    "ggj": "https://globalgamejam.org/games/2025/oh-places-youll-blow-7",
+    "github": "https://github.com/levilindsey/ggj25/"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "1/2025",
+  "categories": [
+    "Side-Project",
+    "App",
+    "Art",
+    "Godot",
+    "Game",
+    "2D",
+    "Game-Jam",
+    "Teamwork"
+  ],
+  "images": [
+    {
+      "fileName": "pickups.gif",
+      "description": "Flappy-bird style gameplay, but controlled only with the player's microphone! Also, there are pickups with different types of gum with different abilities."
+    },
+    {
+      "fileName": "intro.gif",
+      "description": "A hand-animated intro helps convey the story."
+    },
+    {
+      "fileName": "cover.png",
+      "description": "Cover image."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "b1Um1A58unw",
+      "description": "A gameplay video for Oh, the Places You'll Blow."
+    }
+  ],
+  "content": ""
+}
