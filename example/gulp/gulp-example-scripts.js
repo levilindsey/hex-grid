@@ -1,7 +1,7 @@
 var config = require('../../gulp/config');
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
-var merge = require('merge-stream');
+var ordered = require('ordered-read-streams');
 
 config.vendorAndHgScriptsNonMinSrc = config.exampleVendorScriptsSrc.slice(0);
 config.vendorAndHgScriptsNonMinSrc.push(config.hgScriptsDistNonMinFilePath);
@@ -34,17 +34,17 @@ gulp.task('example-scripts', gulp.series('hg-scripts', function () {
     .pipe(plugins.plumber())
     .pipe(plugins.concat(config.exampleScriptDistFileName));
 
-  var combinedStreamNonMin = merge(exampleStreamNonMin, vendorStreamNonMin)
+  var combinedStreamNonMin = ordered([exampleStreamNonMin, vendorStreamNonMin])
     .pipe(plugins.concat(config.exampleScriptDistFileName))
     .pipe(plugins.size({title: 'Combined scripts without minification'}))
     .pipe(gulp.dest(config.exampleDistPath));
-  var combinedStreamMin = merge(exampleStreamMin, vendorStreamMin)
+  var combinedStreamMin = ordered([exampleStreamMin, vendorStreamMin])
     .pipe(plugins.concat(config.exampleScriptDistFileName))
     .pipe(plugins.rename({suffix: '.min'}))
     .pipe(plugins.size({title: 'Combined scripts with minification'}))
     .pipe(gulp.dest(config.exampleDistPath));
 
-  return merge(combinedStreamNonMin, combinedStreamMin);
+  return ordered([combinedStreamNonMin, combinedStreamMin]);
 }));
 
 gulp.task('scripts', gulp.series('example-scripts'));

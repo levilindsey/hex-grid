@@ -1,6 +1,6 @@
 {
   "name": "hex-grid",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "A dynamic, expandable, animated grid of hexagonal tiles",
   "repository": {
     "type": "git",
@@ -14,11 +14,11 @@
   ],
   "bugs": {
     "url": "https://github.com/levilindsey/hex-grid/issues",
-    "email": "levisl176@gmail.com"
+    "email": "levilindsey@levi.dev"
   },
   "author": {
     "name": "Levi Lindsey",
-    "email": "levisl176@gmail.com",
+    "email": "levilindsey@levi.dev",
     "url": "http://jackieandlevi.com/levi"
   },
   "scripts": {
@@ -31,26 +31,26 @@
     "showdown-twitter": "^1.1.0"
   },
   "devDependencies": {
-    "bower": "^1.8.12",
-    "glob": "^7.2.0",
+    "bower": "^1.8.14",
+    "glob": "^7.2.3",
     "gulp": "^5.0.0",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-clean": "^0.4.0",
-    "gulp-clean-css": "^3.4.1",
+    "gulp-clean-css": "^3.10.0",
     "gulp-concat": "^2.6.1",
+    "gulp-connect": "^5.7.0",
     "gulp-inject": "^5.0.5",
     "gulp-inject-string": "^1.1.2",
     "gulp-load-plugins": "^2.0.8",
     "gulp-plumber": "^1.2.1",
-    "gulp-rename": "^1.2.2",
+    "gulp-rename": "^1.4.0",
     "gulp-replace": "^0.5.4",
     "gulp-size": "^4.0.1",
-    "gulp-stream": "0.0.2",
+    "gulp-stream": "^0.0.2",
     "gulp-uglify": "^3.0.2",
-    "gulp-webserver": "^0.5.0",
-    "merge-stream": "^0.1.8",
     "natives": "^1.1.6",
-    "q": "^1.5.0"
+    "ordered-read-streams": "^2.0.0",
+    "q": "^1.5.1"
   },
   "overrides": {
     "graceful-fs": "^4.2.10"
