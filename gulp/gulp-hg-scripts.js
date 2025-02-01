@@ -1,7 +1,7 @@
 var config = require('./config');
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
-var merge = require('merge-stream');
+var ordered = require('ordered-read-streams');
 
 gulp.task('hg-scripts', function () {
   // The goal of this function is to generate two versions of the concatenated scripts: one with the minified hex-grid
@@ -28,15 +28,15 @@ gulp.task('hg-scripts', function () {
     .pipe(plugins.plumber())
     .pipe(plugins.concat(config.scriptDistFileName));
 
-  var combinedStreamNonMin = merge(hgStreamNonMin, vendorStream1)
+  var combinedStreamNonMin = ordered([hgStreamNonMin, vendorStream1])
     .pipe(plugins.concat(config.scriptDistFileName))
     .pipe(plugins.size({title: 'Combined scripts without minification'}))
     .pipe(gulp.dest(config.hgDistPath));
-  var combinedStreamMin = merge(hgStreamMin, vendorStream2)
+  var combinedStreamMin = ordered([hgStreamMin, vendorStream2])
     .pipe(plugins.concat(config.scriptDistFileName))
     .pipe(plugins.rename({suffix: '.min'}))
     .pipe(plugins.size({title: 'Combined scripts with minification'}))
     .pipe(gulp.dest(config.hgDistPath));
 
-  return merge(combinedStreamNonMin, combinedStreamMin);
+  return ordered([combinedStreamNonMin, combinedStreamMin]);
 });

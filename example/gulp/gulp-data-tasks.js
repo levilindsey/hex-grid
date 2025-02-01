@@ -14,7 +14,7 @@ config.urlOrigin = 'https://www.levi.dev';
 
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
-var merge = require('merge-stream');
+var ordered = require('ordered-read-streams');
 var glob = require('glob');
 var fs = require('fs');
 var Q = require('q');
@@ -70,7 +70,7 @@ gulp.task('inject-data-descriptions', gulp.series('clean-data', function () {
     var totalStream = streams[0];
 
     for (i = 1, count = streams.length; i < count; i += 1) {
-      totalStream = merge(totalStream, streams[i]);
+      totalStream = ordered([totalStream, streams[i]]);
     }
 
     return totalStream;
