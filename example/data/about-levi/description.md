@@ -8,17 +8,7 @@ Levi is originally from Olympia, WA. He was in California for a bit, and he now 
 
 Outside the realm of computer science, Levi has many hobbies and interests. First and foremost, he is a musician. Levi is a classically trained singer and has led in many operas and musicals; some of his more notable performances include: [Dido and Aeneas][dido-and-aeneas-url] (Aeneas), [Savitri][savitri-url] (Satyavan), and [My Fair Lady][my-fair-lady-url] (Henry Higgins). Levi also [sings with a capella groups][love-like-you-url] and [plays a lot of ukulele][down-today-url]. Check out some of his [recordings on YouTube][youtube-url]!
 
-Some of his other hobbies include: board games/card games, laser-cutting, brewing beer, blacksmithing, scuba diving, gardening, baking, and a never-ending list of home improvements.
-
-## The Cover-Letter Schpiel
-
-Levi is a seasoned technical leader with experience guiding projects through all stages of development and across a wide array of platforms.
-
--   He invents novel interactive experiences.
--   He develops with an emphasis on maintainable and self-documented code.
--   He designs maintainable solutions to high-level problems, in ambiguous problem spaces, with complicated dependencies.
--   He leads teams, designs technical roadmaps, and coordinates timelines and dependencies.
--   He advocates open-source technology. You can fork all of his many side-projects at [github.com/levilindsey](https://github.com/levilindsey)! 
+Some of his other hobbies include: pottery, laser-cutting, brewing beer, blacksmithing, scuba diving, gardening, baking, board games/card games, and a never-ending list of home improvements.
 
 
 [github-url]: https://github.com/levilindsey
