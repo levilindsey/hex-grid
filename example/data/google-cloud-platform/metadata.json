@@ -7,7 +7,7 @@
   "urls": {
     "homepage": "https://cloud.google.com/"
   },
-  "jobTitle": "Senior Software Engineer and Technical Lead",
+  "jobTitle": "Lead Software Engineer",
   "location": "Seattle, WA",
   "date": {
     "start": "1/2017",
@@ -34,7 +34,6 @@
       "description": "This screenshot shows some of the other top-level panels in the app. Essentially every panel and every page are maintained by a different team within Google's massive Cloud organization, and getting them all to work together seamlessly is non-trivial!"
     }
   ],
-  "videos": [
-  ],
+  "videos": [],
   "content": ""
 }
