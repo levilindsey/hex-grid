@@ -3,7 +3,7 @@
   "titleShort": "Sabbatical:\nGame dev\nexploration",
   "titleLong": "Sabbatical: Adventures in game development",
   "emphasis": 0.8,
-  "color": "#18ffff",
+  "color": "#ffe642",
   "urls": {
     "devlog": "https://devlog.levi.dev",
     "snoring-cat": "https://snoringcat.games"
@@ -25,8 +25,7 @@
     "2D",
     "Solo-Work"
   ],
-  "images": [
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }
