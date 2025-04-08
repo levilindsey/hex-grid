@@ -3,7 +3,7 @@
   "titleShort": "Devlog",
   "titleLong": "Devlog",
   "emphasis": 0.9,
-  "color": "#ffe642",
+  "color": "#18ffff",
   "urls": {
     "devlog": "https://devlog.levi.dev"
   },
@@ -24,8 +24,7 @@
     "2D",
     "Solo-Work"
   ],
-  "images": [
-  ],
+  "images": [],
   "videos": [],
   "content": ""
 }

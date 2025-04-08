@@ -2,7 +2,7 @@
   "id": "business-beetles",
   "titleShort": "Simulation\ngame",
   "titleLong": "Business Beetles: A chill simulation game",
-  "emphasis": 0.8,
+  "emphasis": 0.7,
   "color": "#ce5c2f",
   "urls": {
     "demo": "https://levi.dev/business-beetles",

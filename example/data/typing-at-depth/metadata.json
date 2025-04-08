@@ -1,0 +1,34 @@
+{
+  "id": "typing-at-depth",
+  "titleShort": "Action typing\ngame",
+  "titleLong": "Typing at Depth",
+  "emphasis": 0.8,
+  "color": "#00dedb",
+  "urls": {
+    "demo": "https://levi.dev/typing-at-depth",
+    "ludum-dare": "https://ldjam.com/events/ludum-dare/57/ld57-2",
+    "github": "https://github.com/levilindsey/ld57"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "4/2025",
+  "categories": [
+    "Side-Project",
+    "App",
+    "Art",
+    "Godot",
+    "Game",
+    "2D",
+    "Game-Jam",
+    "Teamwork",
+    "Animation"
+  ],
+  "images": [
+    {
+      "fileName": "cover_youtube.png",
+      "description": "Cover image."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}
