@@ -25,15 +25,15 @@
   ],
   "images": [
     {
-      "fileName": "typing_at_depth-intro.png",
+      "fileName": "typing_at_depth-intro.gif",
       "description": "Includes lots of animations and transitions."
     },
     {
-      "fileName": "typing_at_depth-mid.png",
+      "fileName": "typing_at_depth-mid.gif",
       "description": "You collect ability words, avoid enemy words, and type collected ability words to trigger abilities."
     },
     {
-      "fileName": "typing_at_depth-late.png",
+      "fileName": "typing_at_depth-late.gif",
       "description": "The colors grow darker as you descend deeper."
     },
     {
