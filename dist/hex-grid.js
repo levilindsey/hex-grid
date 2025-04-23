@@ -6187,7 +6187,7 @@
   config.velocitySuppressionLowerThreshold = 0.0005;
   // TODO: add similar, upper thresholds
 
-  config.innerRadiusDiff = 2.0;
+  config.innerRadiusDiff = 4.0;
 
   config.nonContentTileRadiusMultiplier = 1.0;
 
@@ -6226,8 +6226,8 @@
    * @param {Number} mass
    */
   function Tile(svg, grid, anchorX, anchorY, outerRadius, isVertical, hue, saturation, lightness,
-                postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
-                isCornerTile, isInLargerRow, mass) {
+    postData, tileIndex, rowIndex, columnIndex, isMarginTile, isBorderTile,
+    isCornerTile, isInLargerRow, mass) {
     var tile = this;
 
     tile.svg = svg;
@@ -6235,14 +6235,14 @@
     tile.element = null;
     tile.outerPolygonElement = null;
     tile.innerPolygonElement = null;
-    tile.currentAnchor = {x: anchorX, y: anchorY};
-    tile.originalAnchor = {x: anchorX, y: anchorY};
-    tile.sectorAnchorOffset = {x: Number.NaN, y: Number.NaN};
+    tile.currentAnchor = { x: anchorX, y: anchorY };
+    tile.originalAnchor = { x: anchorX, y: anchorY };
+    tile.sectorAnchorOffset = { x: Number.NaN, y: Number.NaN };
     tile.outerRadius = outerRadius;
     tile.isVertical = isVertical;
 
-    tile.originalColor = {h: hue, s: saturation, l: lightness};
-    tile.currentColor = {h: hue, s: saturation, l: lightness};
+    tile.originalColor = { h: hue, s: saturation, l: lightness };
+    tile.currentColor = { h: hue, s: saturation, l: lightness };
 
     tile.postData = postData;
     tile.holdsContent = !!postData;
@@ -6337,7 +6337,7 @@
 
     tile.originalVertexOuterDeltas = computeVertexOuterDeltas(radius, tile.isVertical);
     tile.currentVertexOuterDeltas = tile.originalVertexOuterDeltas.slice(0);
-    tile.originalVertexInnerDeltas = computeVertexInnerDeltas(radius, tile.isVertical);
+    tile.originalVertexInnerDeltas = computeVertexInnerDeltas(radius, tile.isVertical, radiusMultiplier);
     tile.currentVertexInnerDeltas = tile.originalVertexInnerDeltas.slice(0);
     tile.outerVertices = [];
     tile.innerVertices = tile.holdsContent ? [] : null;
@@ -6576,7 +6576,7 @@
     tile.originalColor.h = hue;
     tile.originalColor.s = saturation;
     tile.originalColor.l = lightness;
-    
+
     tile.currentColor.h = hue;
     tile.currentColor.s = saturation;
     tile.currentColor.l = lightness;
@@ -6639,7 +6639,7 @@
    */
   function update(currentTime, deltaTime) {
     var tile, i, count, neighborStates, isBorderTile, neighborState, lx, ly, lDotX, lDotY,
-        dotProd, length, temp, springForceX, springForceY;
+      dotProd, length, temp, springForceX, springForceY;
 
     tile = this;
 
@@ -6677,7 +6677,7 @@
             length = Math.sqrt(lx * lx + ly * ly);
 
             temp = (config.neighborSpringCoeff * (length - neighborState.restLength) +
-                config.neighborDampingCoeff * dotProd / length) / length;
+              config.neighborDampingCoeff * dotProd / length) / length;
             springForceX = lx * temp;
             springForceY = ly * temp;
 
@@ -6703,10 +6703,10 @@
 
         if (isBorderTile) {
           temp = (config.borderAnchorSpringCoeff * length + config.borderAnchorDampingCoeff *
-              dotProd / length) / length;
+            dotProd / length) / length;
         } else {
           temp = (config.innerAnchorSpringCoeff * length + config.innerAnchorDampingCoeff *
-              dotProd / length) / length;
+            dotProd / length) / length;
         }
 
         springForceX = lx * temp;
@@ -6727,17 +6727,17 @@
 
       // Kill all velocities and forces below a threshold
       tile.particle.fx = tile.particle.fx < config.forceSuppressionLowerThreshold &&
-          tile.particle.fx > config.forceSuppressionThresholdNegative ?
-          0 : tile.particle.fx;
+        tile.particle.fx > config.forceSuppressionThresholdNegative ?
+        0 : tile.particle.fx;
       tile.particle.fy = tile.particle.fy < config.forceSuppressionLowerThreshold &&
-          tile.particle.fy > config.forceSuppressionThresholdNegative ?
-          0 : tile.particle.fy;
+        tile.particle.fy > config.forceSuppressionThresholdNegative ?
+        0 : tile.particle.fy;
       tile.particle.vx = tile.particle.vx < config.velocitySuppressionLowerThreshold &&
-          tile.particle.vx > config.velocitySuppressionThresholdNegative ?
-          0 : tile.particle.vx;
+        tile.particle.vx > config.velocitySuppressionThresholdNegative ?
+        0 : tile.particle.vx;
       tile.particle.vy = tile.particle.vy < config.velocitySuppressionLowerThreshold &&
-          tile.particle.vy > config.velocitySuppressionThresholdNegative ?
-          0 : tile.particle.vy;
+        tile.particle.vy > config.velocitySuppressionThresholdNegative ?
+        0 : tile.particle.vy;
 
       // Reset force accumulator for next time step
       tile.particle.forceAccumulatorX = 0;
@@ -6775,9 +6775,9 @@
     if (!tile.holdsContent) {
       // Set the color
       colorString = 'hsl(' +
-          tile.currentColor.h + ',' +
-          tile.currentColor.s + '%,' +
-          tile.currentColor.l + '%)';
+        tile.currentColor.h + ',' +
+        tile.currentColor.s + '%,' +
+        tile.currentColor.l + '%)';
       tile.outerPolygonElement.setAttribute('fill', colorString);
     } else if (tile.tilePost) {
       var h, s, l;
@@ -6889,8 +6889,8 @@
     }
 
     for (trigIndex = 0, coordIndex = 0, currentVertexDeltas = [];
-         trigIndex < 6;
-         trigIndex += 1) {
+      trigIndex < 6;
+      trigIndex += 1) {
       currentVertexDeltas[coordIndex++] = radius * cosines[trigIndex];
       currentVertexDeltas[coordIndex++] = radius * sines[trigIndex];
     }
@@ -6903,12 +6903,15 @@
    *
    * @param {Number} radius
    * @param {Boolean} isVertical
+   * @param {Number} borderThicknessMultiplier
    * @returns {Array.<Number>}
    */
-  function computeVertexInnerDeltas(radius, isVertical) {
+  function computeVertexInnerDeltas(radius, isVertical, borderThicknessMultiplier) {
     var trigIndex, coordIndex, sines, cosines, currentVertexDeltas;
 
-    radius -= config.innerRadiusDiff;
+    var radiusDiff = config.innerRadiusDiff * borderThicknessMultiplier
+
+    radius -= radiusDiff;
 
     // Grab the pre-computed sine and cosine values
     if (isVertical) {
@@ -6920,8 +6923,8 @@
     }
 
     for (trigIndex = 0, coordIndex = 0, currentVertexDeltas = [];
-         trigIndex < 6;
-         trigIndex += 1) {
+      trigIndex < 6;
+      trigIndex += 1) {
       currentVertexDeltas[coordIndex++] = radius * cosines[trigIndex];
       currentVertexDeltas[coordIndex++] = radius * sines[trigIndex];
     }
@@ -6939,7 +6942,7 @@
    */
   function setTileNeighborState(tile, neighborRelationIndex, neighborTile) {
     var neighborStates, neighborNeighborStates,
-        neighborNeighborRelationIndex;
+      neighborNeighborRelationIndex;
 
     neighborStates = tile.getNeighborStates();
 
@@ -6955,13 +6958,13 @@
 
       // Initialize the neighbor relation data from the neighbor to this tile
       initializeTileNeighborRelationData(neighborNeighborStates, neighborNeighborRelationIndex,
-          tile);
+        tile);
 
       // Share references to each other's neighbor relation objects
       neighborStates[neighborRelationIndex].neighborsRelationshipObj =
-          neighborNeighborStates[neighborNeighborRelationIndex];
+        neighborNeighborStates[neighborNeighborRelationIndex];
       neighborNeighborStates[neighborNeighborRelationIndex].neighborsRelationshipObj =
-          neighborStates[neighborRelationIndex];
+        neighborStates[neighborRelationIndex];
     } else {
       neighborStates[neighborRelationIndex] = null;
     }
@@ -6969,7 +6972,7 @@
     // ---  --- //
 
     function initializeTileNeighborRelationData(neighborStates, neighborRelationIndex,
-                                                neighborTile) {
+      neighborTile) {
       neighborStates[neighborRelationIndex] = neighborStates[neighborRelationIndex] || {
         tile: neighborTile,
         restLength: window.hg.Grid.config.tileShortLengthWithGap,
