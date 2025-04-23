@@ -1,6 +1,6 @@
 _"I write code. I sing songs. I create things."_
 
-Levi is a Software Engineer. He sometimes makes exciting games. He sometimes makes complicated websites. He's constantly tinkering on game-dev side projects&mdash;which are all highlighted in this portfolio.
+Levi is a Software Engineer. He sometimes makes exciting games. He sometimes makes complicated websites. He's constantly tinkering on side-projects&mdash;which are all highlighted in this portfolio.
 
 Levi is originally from Olympia, WA. He was in California for a bit, and he now lives in Seattle, WA with his wife Jackie and their daughter.
 

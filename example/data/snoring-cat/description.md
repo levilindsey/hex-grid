@@ -1,4 +1,4 @@
--   Formed Snoring Cat LLC to publish games that Levi and some teammates independently develop.
+-   Levi formed Snoring Cat LLC to publish games that Levi and some teammates independently develop.
 -   They continue to release side-projects under Snoring Cat.
 -   Created robust frameworks for **platformer pathfinding and AI** (https://snoringcat.games/surfacer) and **UI/app scaffolding** (https://snoringcat.games/scaffolder).
 -   Created **over 20 games** (spanning a variety of engines and languages: Godot/GDscript, Unreal/C++, Unity/C#).
