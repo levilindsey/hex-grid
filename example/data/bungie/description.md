@@ -2,7 +2,10 @@ _[Bungie](https://www.bungie.net/) is a video game company based in Bellevue, Wa
 
 Levi was a Senior AI Engineer working on combatants and bosses in Destiny 2.
 
--   Mentored teammates.
--   Worked on AI behavior trees, temperaments, path-following, physics, abilities, and tools.
--   Helped create new combatants, bosses, and abilities for 2 Destiny expansions.
--   Worked closely with designers to create runtime, import-time, and tooling features.
+-   Improved AI behavior trees, temperaments, path-following, physics, abilities, and tools.
+    -   Implemented AI jump movement along arbitrary navigation paths.
+    -   Created AI omnidirectional vehicle strafing—with aim direction being independent of facing direction.
+    -   Added calculating, merging, and deduping of firing points—AI navigation targets—between adjacent chunks.
+-   Implemented new features for combatants, bosses, and abilities for 2 Destiny expansions.
+    -   Created pathfinding and behavior-tree temperament systems for the tormentor mob’s unique lunge attack.
+
