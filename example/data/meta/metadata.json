@@ -1,0 +1,33 @@
+{
+  "id": "meta",
+  "titleShort": "Meta:\nHorizon\nWorlds",
+  "titleLong": "Meta: Horizon Worlds",
+  "emphasis": 1.0,
+  "color": "#3399ff",
+  "urls": {
+    "homepage": "https://developers.meta.com/horizon-worlds"
+  },
+  "jobTitle": "Software Engineer, Product",
+  "location": "Seattle, WA",
+  "date": {
+    "start": "8/2025",
+    "end": "Present",
+    "tieBreaker": 30
+  },
+  "categories": [
+    "Work",
+    "C++",
+    "TypeScript",
+    "Game",
+    "3D",
+    "Teamwork"
+  ],
+  "images": [
+    {
+      "fileName": "meta-horizon-worlds.jpg",
+      "description": "Horizon Worlds is a platform for players to create and share games."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}
