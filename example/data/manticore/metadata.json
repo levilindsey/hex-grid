@@ -11,18 +11,23 @@
   "location": "Remote",
   "date": {
     "start": "4/2023",
-    "end": "Present",
-    "tieBreaker": 30
+    "end": "7/2025"
   },
   "categories": [
     "Work",
     "C++",
     "Unreal",
+    "Lua",
     "Game",
     "3D",
     "Teamwork"
   ],
-  "images": [],
+  "images": [
+    {
+      "fileName": "core-games.jpg",
+      "description": "Core is a platform for players to create and share games."
+    }
+  ],
   "videos": [],
   "content": ""
 }
