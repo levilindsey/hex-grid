@@ -24,10 +24,36 @@
   ],
   "images": [
     {
+      "fileName": "infinitopia.jpg",
+      "description": "Infinitopia is a safe-haven between time, and where you spend time between runs."
+    },
+    {
+      "fileName": "ice-golem.jpg",
+      "description": "There are many possible abilities for use during a run."
+    },
+    {
+      "fileName": "tether.jpg",
+      "description": "Out of time features a unique tether mechanic to share buffs between players."
+    },
+    {
+      "fileName": "world-map.jpg",
+      "description": "There are many distinct levels in Out of Time."
+    },
+    {
+      "fileName": "cover.png",
+      "description": "Cover art for Out of Time."
+    },
+    {
       "fileName": "core-games.jpg",
       "description": "Core is a platform for players to create and share games."
     }
   ],
-  "videos": [],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "epUf3v8GnUk",
+      "description": "Trailer for Out of Time."
+    }
+  ],
   "content": ""
 }
