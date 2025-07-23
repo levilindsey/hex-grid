@@ -1,5 +1,13 @@
 _[Manticore Games](https://www.manticoregames.com/) is a video game company based in San Mateo, California._
 
+I worked on Manticore's [Core Editor](https://www.coregames.com/create) and the game [Out of Time](https://gamesbeat.com/manticore-games-unveils-out-of-time-multiplayer-roguelike/).
+
+[Core](https://www.coregames.com/create) is a platform for players to create, publish, and play games.
+
+[Out of Time](https://gamesbeat.com/manticore-games-unveils-out-of-time-multiplayer-roguelike/) is an MMO roguelite. I was the lead engineer on most of the core systems—things like matchmaking, game loading, map and location management, friends management, squad management, inventory systems, a ton of UI architecture, a lot of features to coordinate with our Lua systems for content created in the Core Editor (Core is an established platform that Manticore Games made for players to create, publish, and play games), and so very many features that got abandoned along the way!
+
+### Notable contributions
+
 -   Massive impact on our codebase: **Created 25% of the CLs** (of 20 devs), while accounting for only 5% of the bugs.
 -   Extensive work on: networking, engine, UI architecture (both UMG and Slate), Blueprints, matchmaking, game-loading, inventory systems, UGC systems (authoring / dynamic-loading / in-game-usage), editor tooling, C++/Lua script-binding, telemetry and performance optimization.
 -   Specific impact:
