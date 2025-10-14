@@ -2,7 +2,7 @@
   "id": "sticky-ships",
   "titleShort": "Bullet-hell\ngame",
   "titleLong": "Sticky Ships: A 2D bullet-hell game",
-  "emphasis": 0.8,
+  "emphasis": 0.6,
   "color": "#60ff64",
   "urls": {
     "demo": "https://levi.dev/sticky-ships",

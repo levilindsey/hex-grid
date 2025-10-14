@@ -1,0 +1,56 @@
+{
+  "id": "if-i-ran-the-alien-zoo",
+  "titleShort": "Action\nAlien Abduction\nGame",
+  "titleLong": "If I Ran the (Alien) Zoo",
+  "emphasis": 0.6,
+  "color": "#99e550",
+  "urls": {
+    "demo": "https://levi.dev/if-i-ran-the-alien-zoo",
+    "ludum-dare": "https://ldjam.com/events/ludum-dare/58/if-i-ran-the-alien-zoo",
+    "github": "https://github.com/levilindsey/ld58"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "10/2025",
+  "categories": [
+    "Side-Project",
+    "App",
+    "Art",
+    "Godot",
+    "Game",
+    "2D",
+    "Game-Jam",
+    "Teamwork",
+    "Animation"
+  ],
+  "images": [
+    {
+      "fileName": "entity_demo.gif",
+      "description": "There are lots of interesting Earthlings out there. Gotta catch 'em all!"
+    },
+    {
+      "fileName": "abduct.gif",
+      "description": "Your goal is to collect specific Earthlings as requested by the alien zookeeper."
+    },
+    {
+      "fileName": "splat.gif",
+      "description": "Don't drop the fragile Earthlings!"
+    },
+    {
+      "fileName": "zookeeper-screen.png",
+      "description": "You earn spacebucks for collecting the right Earthlings, which you can then use to upgrade your ship."
+    },
+    {
+      "fileName": "youtube_cover.png",
+      "description": "Cover image."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "8iptih5O6BY",
+      "description": "A gameplay video for If I Ran the (Alien) Zoo."
+    }
+  ],
+  "content": ""
+}
