@@ -3,7 +3,7 @@
 
 > Type to trigger abilities and maneuver down into marine depths.
 
-⏰ This was made in 72 hours for [Ludum Dare 57 game jam](https://ldjam.com/events/ludum-dare/57/ld57-2).
+⏰ This was made in 72 hours for the [Ludum Dare 57 game jam](https://ldjam.com/events/ludum-dare/57/ld57-2).
 
 ⭐ The theme for the jam was "Depth".
 
