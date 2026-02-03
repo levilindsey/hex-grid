@@ -1,0 +1,55 @@
+{
+  "id": "mask-of-imaginations",
+  "titleShort": "Multiple\nPersonality\nPlatformer",
+  "titleLong": "The Mask of Imaginations",
+  "emphasis": 0.6,
+  "color": "#735d96",
+  "urls": {
+    "demo": "https://levi.dev/mask-of-imaginations",
+    "global-game-jam": "https://globalgamejam.org/games/2026/mask-imaginations-3",
+    "github": "https://github.com/levilindsey/ggj26/"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "1/2026",
+  "categories": [
+    "Side-Project",
+    "App",
+    "Art",
+    "Godot",
+    "Game",
+    "2D",
+    "Game-Jam",
+    "Teamwork"
+  ],
+  "images": [
+    {
+      "fileName": "pirate.gif",
+      "description": "Avast! With the pirate mask, you swing a sword, and get a lift from your parrot!"
+    },
+    {
+      "fileName": "cowboy.gif",
+      "description": "Stick 'em up! With the cowboy mask, you can shoot enemies from afar!"
+    },
+    {
+      "fileName": "wizard.gif",
+      "description": "Abracadabra! With the wizard mask, you drop ice spikes--great for crushing foes and well as climbing on!"
+    },
+    {
+      "fileName": "dinosaur.gif",
+      "description": "Rawr! With the dinosaur mask, you can eat anything in your way!"
+    },
+    {
+      "fileName": "gif_demo.gif",
+      "description": "This game is packed with hand-crafted animations."
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "mluo7g-K_Ro",
+      "description": "A gameplay video for The Mask of Imaginations."
+    }
+  ],
+  "content": ""
+}
