@@ -22,7 +22,7 @@ var Q = require('q');
 // ---  --- //
 
 gulp.task('clean-data', function () {
-  return gulp.src([config.exampleDistPath], {read: false})
+  return gulp.src([config.exampleDistPath], {read: false, allowEmpty: true})
       .pipe(plugins.clean());
 });
 
