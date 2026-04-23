@@ -1,0 +1,56 @@
+{
+  "id": "kittenbaticorn",
+  "titleShort": "Immersive\nEcholocation\nPlatformer",
+  "titleLong": "Kittenbaticorn",
+  "emphasis": 0.6,
+  "color": "#f5d74c",
+  "urls": {
+    "demo": "https://levi.dev/kittenbaticorn",
+    "ludum-dare": "https://ldjam.com/events/ludum-dare/59/kittenbaticorn",
+    "github": "https://github.com/levilindsey/ld59/"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "4/2026",
+  "categories": [
+    "Side-Project",
+    "App",
+    "Art",
+    "Godot",
+    "Game",
+    "2D",
+    "Game-Jam",
+    "Animation",
+    "Music"
+  ],
+  "images": [
+    {
+      "fileName": "echolocation.gif",
+      "description": "Echolocate to see your surroundings and navigate in this dark environment."
+    },
+    {
+      "fileName": "frequencies.gif",
+      "description": "Tune your horn to different frequencies to resonate with the right blocks and enemies."
+    },
+    {
+      "fileName": "coins.gif",
+      "description": "Collect all the coins for something magical! I wonder what they spell..."
+    },
+    {
+      "fileName": "fluid-simulations.gif",
+      "description": "Collapsing the wrong blocks can cause water or sand to flow!"
+    },
+    {
+      "fileName": "kittenbaticorn_128.gif",
+      "description": "🐈🦇🦄"
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "iGTgsIkmHQQ",
+      "description": "A gameplay video for Kittenbaticorn."
+    }
+  ],
+  "content": ""
+}
