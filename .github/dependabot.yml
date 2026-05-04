@@ -1,0 +1,6 @@
+# Disabled: this repo is an unmaintained portfolio demo. The build
+# pipeline is a legacy gulp.js setup that can't satisfy modern dep
+# bumps without a major rewrite, and the demo runs fine on the
+# pinned versions. Empty `updates` array disables all updates.
+version: 2
+updates: []
