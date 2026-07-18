@@ -1,0 +1,38 @@
+{
+  "id": "knots",
+  "titleShort": "Procedural\nKnot\nMaze Game",
+  "titleLong": "Knots",
+  "emphasis": 0.6,
+  "color": "#f5d74c",
+  "urls": {
+    "demo": "https://levi.dev/knots",
+    "github": "https://github.com/snoringcatgames/knots/"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "2026",
+  "categories": [
+    "Side-Project",
+    "App",
+    "Art",
+    "Game",
+    "2D",
+    "Animation",
+    "Solo-Work",
+    "Web"
+  ],
+  "images": [
+    {
+      "fileName": "TODO.gif",
+      "description": "TODO"
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "TODO",
+      "description": "TODO"
+    }
+  ],
+  "content": ""
+}

@@ -1,0 +1,42 @@
+{
+  "id": "hopnbop",
+  "titleShort": "Online\nCompetitive\nArena Brawler",
+  "titleLong": "Hop 'n Bop",
+  "emphasis": 0.8,
+  "color": "#f5d74c",
+  "urls": {
+    "demo": "https://hopnbop.net",
+    "github": "https://github.com/snoringcatgames/hopnbop/"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "2026",
+  "categories": [
+    "Side-Project",
+    "App",
+    "Art",
+    "Godot",
+    "Game",
+    "2D",
+    "Animation",
+    "Networking",
+    "Competitive",
+    "Platformer",
+    "Music",
+    "Solo-Work"
+  ],
+  "images": [
+    {
+      "fileName": "TODO.gif",
+      "description": "TODO"
+    }
+  ],
+  "videos": [
+    {
+      "videoHost": "youtube",
+      "id": "TODO",
+      "description": "TODO"
+    }
+  ],
+  "content": ""
+}
