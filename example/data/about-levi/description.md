@@ -11,7 +11,6 @@ Some of his other hobbies include: pottery, laser-cutting, brewing beer, gardeni
 
 [github]: https://github.com/levilindsey
 [google]: https://google.com/about
-[gcp]: https://cloud.google.com
 [jackie]: http://www.jackieandlevi.com/jackie
 [dido-and-aeneas]: https://en.wikipedia.org/wiki/Dido_and_Aeneas
 [savitri]: https://en.wikipedia.org/wiki/Savitri_(opera)
@@ -20,4 +19,3 @@ Some of his other hobbies include: pottery, laser-cutting, brewing beer, gardeni
 [love-like-you]: https://www.youtube.com/watch?v=yH7L_bZSwbM&list=PLIuJN99AFOPSF3p4f0siFo22XiMXqijQU
 [down-today]: https://youtu.be/HmALRuBoDno
 [compositions-playlist]: https://www.youtube.com/watch?v=OWfm-UYpQRI&list=PLIuJN99AFOPSbii44b6MQksJD4cdW_nDJ
-[camp-hahobas]: https://web.archive.org/web/20160807121041/http://www.hahobas.org/

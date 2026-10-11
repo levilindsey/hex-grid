@@ -61,19 +61,13 @@ See the [project roadmap][roadmap-url] for Levi's future plans for this generato
 
 [npm-url]: https://npmjs.org/package/generator-meanie
 [npm-image]: http://img.shields.io/npm/v/generator-meanie.svg?style=flat-square
-[npm-image-old]: https://badge.fury.io/js/generator-meanie.png
 
 [travis-url]: https://travis-ci.org/levisl176/generator-meanie
 [travis-image]: http://img.shields.io/travis/levisl176/generator-meanie/master.svg?style=flat-square
-[travis-image-old]: https://secure.travis-ci.org/levisl176/generator-meanie.png?branch=master
 
-[coveralls-url]: https://coveralls.io/r/levisl176/generator-meanie
-[coveralls-image]: http://img.shields.io/coveralls/levisl176/generator-meanie/master.svg?style=flat-square
-[coveralls-image-old]: https://img.shields.io/coveralls/levisl176/generator-meanie.svg?style=flat
 
 [depstat-url]: https://david-dm.org/levisl176/generator-meanie
 [depstat-image]: http://img.shields.io/david/levisl176/generator-meanie.svg?style=flat-square
-[depstat-image-old]: https://david-dm.org/levisl176/generator-meanie.svg
 
 [license-url]: https://github.com/levilindsey/generator-meanie/blob/master/LICENSE
 [license-image]: http://img.shields.io/npm/l/generator-meanie.svg?style=flat-square
@@ -84,7 +78,6 @@ See the [project roadmap][roadmap-url] for Levi's future plans for this generato
 [getting-set-up-url]: https://github.com/levilindsey/generator-meanie/blob/master/docs/getting-set-up.md
 [roadmap-url]: https://github.com/levilindsey/generator-meanie/blob/master/docs/roadmap.md
 [package.json-url]: https://github.com/levilindsey/generator-meanie/blob/master/package.json
-[bower.json-url]: https://github.com/levilindsey/generator-meanie/blob/master/bower.json
 
 [angular-best-practices-url]: https://docs.google.com/document/d/1XXMvReO8-Awi1EZXAXS4PzDzdNvV6pGcuaF4Q9821Es/pub
 [mean-url]: http://en.wikipedia.org/wiki/MEAN
@@ -96,17 +89,10 @@ See the [project roadmap][roadmap-url] for Levi's future plans for this generato
 [sass-url]: http://sass-lang.com/
 [git-url]: http://git-scm.com/
 [npm-url]: http://npmjs.org/
-[bower-url]: http://bower.io/
-[traceur-url]: https://github.com/google/traceur-compiler
 
 [karma-url]: http://karma-runner.github.io/0.12/index.html
 [jasmine-url]: http://jasmine.github.io/2.0/introduction.html
-[protractor-url]: http://angular.github.io/protractor/#/
-[mocha-url]: http://mochajs.org/
-[chai-url]: http://chaijs.com/
-[sinon-url]: http://sinonjs.org/
 
 [ui-router-url]: https://github.com/angular-ui/ui-router
-[passport-url]: http://passportjs.org/
 
 [addy-osmani-url]: http://addyosmani.com/blog/full-stack-javascript-with-mean-and-yeoman/

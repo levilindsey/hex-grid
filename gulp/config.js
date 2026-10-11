@@ -16,8 +16,7 @@ config.exampleStylesSrc = [config.examplePath + '/styles/**/*.css'];
 
 config.hgVendorScriptsSrc = [
   config.nodeModulesPath + '/showdown/dist/showdown.js',
-  config.nodeModulesPath + '/showdown-twitter/dist/showdown-twitter.js',
-  config.nodeModulesPath + '/showdown-prettify/dist/showdown-prettify.js'
+  config.nodeModulesPath + '/showdown-twitter/dist/showdown-twitter.js'
 ];
 
 config.exampleVendorScriptsSrc = [

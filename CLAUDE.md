@@ -66,6 +66,13 @@ hook` blockquote, a few paragraphs, a `### 🛠️ Tools` list with
 bold links, optionally an `_All art ... made without the use of AI._`
 line, and an emoji sign-off.
 
+It is rendered in the browser by showdown 2.x (bundled into
+`dist/hex-grid.js`, `github` flavor, no extensions). **Delete unused
+`[id]: url` reference definitions**: showdown 2.x only strips a
+definition whose id appears at least twice in the text, so an unused
+one renders as a visible `[id]: url` paragraph (1.x hid them; 32 such
+lines were removed from 15 old posts in the 2026-10 upgrade).
+
 `collection-metadata.json`: `baseUrl` is `https://levi.dev/media`,
 the R2 bucket `levi-portfolio-media` behind levi.dev's media Function
 (S3 until 2026-10-10); plus `logoName`, `thumbnailName`,

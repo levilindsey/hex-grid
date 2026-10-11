@@ -23,6 +23,3 @@ Additional optional gameplay features include:
 - A mode where blocks fall from the center outward.
 - A special block type that "settles" all of the blocks that have landed.
 - A special block type that destroys any nearby block that has landed.
-
-
-[main-url]: https://levi.dev/squared-away
