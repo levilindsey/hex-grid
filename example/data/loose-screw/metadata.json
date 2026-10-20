@@ -1,0 +1,49 @@
+{
+  "id": "loose-screw",
+  "titleShort": "Retro\nRepair-Shop\nMicrogames",
+  "titleLong": "Loose Screw",
+  "emphasis": 0.6,
+  "color": "#f5d74c",
+  "urls": {
+    "itchio": "https://levilindsey.itch.io/loose-screw",
+    "github": "https://github.com/levilindsey/ld60/"
+  },
+  "jobTitle": "",
+  "location": "",
+  "date": "10/2026",
+  "categories": [
+    "Side-Project",
+    "Game",
+    "2D",
+    "Godot",
+    "Game-Jam",
+    "Teamwork",
+    "Web",
+    "Art",
+    "Music"
+  ],
+  "images": [
+    {
+      "fileName": "shrink-ray-blast.gif",
+      "description": "Careful with that hammer around the shrink ray. It fires back."
+    },
+    {
+      "fileName": "glue-repair.gif",
+      "description": "Squeeze glue onto the break, then hold the piece steady until it sticks."
+    },
+    {
+      "fileName": "yank-and-fit.gif",
+      "description": "Wiggle the busted key out, then fetch a fresh one from the parts drawers."
+    },
+    {
+      "fileName": "atari-screw.png",
+      "description": "Every tool is its own little microgame, screws included."
+    },
+    {
+      "fileName": "receipt-card.png",
+      "description": "Ship it out and get rated: three stars if the desk stays tidy."
+    }
+  ],
+  "videos": [],
+  "content": ""
+}
