@@ -1,6 +1,6 @@
 {
   "id": "loose-screw",
-  "titleShort": "Retro\nRepair-Shop\nMicrogames",
+  "titleShort": "Cozy\nRepair Shop\nGame",
   "titleLong": "Loose Screw",
   "emphasis": 0.6,
   "color": "#f5d74c",
@@ -19,7 +19,6 @@
     "Game-Jam",
     "Teamwork",
     "Web",
-    "Art",
     "Music"
   ],
   "images": [
