@@ -23,12 +23,20 @@
   ],
   "images": [
     {
-      "fileName": "atari-screw.png",
-      "description": "Every tool is its own little microgame, screws included."
+      "fileName": "philips.gif",
+      "description": "Every screw is a tiny timing game. Keep the needle in the green!"
     },
     {
-      "fileName": "receipt-card.png",
-      "description": "Ship it out and get rated: three stars if the desk stays tidy."
+      "fileName": "glue.gif",
+      "description": "Glue it, then hold it steady until it sticks."
+    },
+    {
+      "fileName": "hammer.gif",
+      "description": "Some gadgets just need a good whack."
+    },
+    {
+      "fileName": "replace_part.gif",
+      "description": "Busted parts come out. Fresh ones live in the drawers."
     }
   ],
   "videos": [
