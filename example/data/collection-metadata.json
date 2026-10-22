@@ -1,9 +1,9 @@
 {
   "baseUrl": "https://levi.dev/media",
-  "thumbnailName": "thumbnail.png",
+  "thumbnailName": "thumbnail-v2.png",
   "thumbnailDimensions": {
     "width": 128,
     "height": 128
   },
-  "logoName": "logo.png"
+  "logoName": "logo-v2.png"
 }
