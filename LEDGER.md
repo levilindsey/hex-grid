@@ -19,8 +19,6 @@ states its facts, so it stands on its own after the transcript is gone.
 
 ## In progress
 
-## Next
-
 - **HG1** · Drop the 9 runtime dependencies left over from an old
   Express server that nothing uses (express, express-session,
   @sendgrid/mail, body-parser, morgan, and others). They cause most of
@@ -29,6 +27,13 @@ states its facts, so it stands on its own after the transcript is gone.
   mentions sendgrid or axios. Muse can take it: hex-grid joined
   `~/.config/muse/trust.json` on 2026-10-29. (Session 530145bc,
   2026-10-11; dependency-vulnerability-roundup 2026-10-21.)
+  - owner: muse ac65d867-4eaa-4b20-9fd2-f899131fd9a2 (Paseo; launched by claude 0cfd9cf1)
+  - branch: mainline; last commit: `dd02e63`
+  - evidence: `.claude/probes/HG1/`
+  - next: Muse works the brief; then Claude reviews its commit
+  - brief: `docs/design/HG1_drop_express_deps.md`
+
+## Next
 
 ## Residuals (known, not fixed)
 
