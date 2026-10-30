@@ -26,15 +26,6 @@
     "postinstall": "bower install"
   },
   "dependencies": {
-    "@sendgrid/mail": "^8.1.4",
-    "body-parser": "^2.3.0",
-    "cookie-parser": "^1.4.7",
-    "dotenv": "^16.4.7",
-    "express": "^5.2.1",
-    "express-session": "^1.18.1",
-    "morgan": "^1.12.1",
-    "serve-favicon": "^2.5.0",
-    "serve-static": "^1.16.2",
     "showdown": "^2.1.0",
     "showdown-twitter": "^1.1.0"
   },

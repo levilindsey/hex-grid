@@ -52,3 +52,7 @@ name them, and their advisories are HG2.
   check showed, anything odd. Append the same as a dated entry below.
 
 ## Handoff log
+
+- 2026-10-29 (Muse, this run): HG1 done. All nine proved unused (grep: manifests only, zero require/import). Vendor build byte-identical before/after (80/80 SHA-256). 
+pm uninstall --ignore-scripts removed 88 packages; 
+pm ls --omit=dev clean (showdown, showdown-twitter only); no retained-package version changed. One after-build flipped two equal-date tie pairs (pre-existing racy sort in gulp-data-tasks.js; other builds matched before exactly; semantically identical). Full detail in LEDGER.md Done / HG1 and .claude/probes/HG1/steps.txt. Commit follows below.

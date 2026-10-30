@@ -19,20 +19,6 @@ states its facts, so it stands on its own after the transcript is gone.
 
 ## In progress
 
-- **HG1** · Drop the 9 runtime dependencies left over from an old
-  Express server that nothing uses (express, express-session,
-  @sendgrid/mail, body-parser, morgan, and others). They cause most of
-  the Dependabot churn: @sendgrid/mail brought in follow-redirects (the
-  two highs PR #57 fixed), and no tracked file but the manifests
-  mentions sendgrid or axios. Muse can take it: hex-grid joined
-  `~/.config/muse/trust.json` on 2026-10-29. (Session 530145bc,
-  2026-10-11; dependency-vulnerability-roundup 2026-10-21.)
-  - owner: muse ac65d867-4eaa-4b20-9fd2-f899131fd9a2 (Paseo; launched by claude 0cfd9cf1)
-  - branch: mainline; last commit: `dd02e63`
-  - evidence: `.claude/probes/HG1/`
-  - next: Muse works the brief; then Claude reviews its commit
-  - brief: `docs/design/HG1_drop_express_deps.md`
-
 ## Next
 
 ## Residuals (known, not fixed)
@@ -48,3 +34,28 @@ states its facts, so it stands on its own after the transcript is gone.
 ## Ideas (not scheduled)
 
 ## Done
+
+- **HG1** · Dropped the 9 unused Express-era runtime dependencies
+  (`@sendgrid/mail`, `body-parser`, `cookie-parser`, `dotenv`,
+  `express`, `express-session`, `morgan`, `serve-favicon`,
+  `serve-static`); `dependencies` now holds only `showdown` and
+  `showdown-twitter`. Proof: no `require`/`import` of any of the nine
+  in any tracked file — each appeared only in `package.json` /
+  `package-lock.json` (the `Express` strings elsewhere are post
+  categories and doc prose). `npm ls --omit=dev` clean; lockfile lost
+  88 packages with zero version changes to retained packages (the one
+  remaining `serve-static` lock entry is `dev: true`, via
+  `gulp-connect`). Vendor build
+  (`npx gulp --series clean data scripts styles`) byte-identical
+  before/after: 80/80 files SHA-256 equal in `dist/` +
+  `example/dist`. Known wrinkle, pre-existing and unrelated: one of
+  four after-builds flipped two equal-date tie pairs
+  (`before-times`/`dandelions`, `4/2021`;
+  `photo-viewer`/`progress-circle`, `2/2014`) in
+  `data.min.json`/`index.html`/`sitemap.xml` — semantically identical
+  (posts equal sorted by id). Cause: `gulp-data-tasks.js` pushes in
+  async `fs.readFile` completion order and its date comparator
+  returns 0 for equal dates with no `tieBreaker`. Evidence:
+  `.claude/probes/HG1/` (untracked; left uncommitted per brief). Brief:
+  `docs/design/HG1_drop_express_deps.md`. Resolved in this commit
+  (Muse, 2026-10-29; launched by claude 0cfd9cf1).
