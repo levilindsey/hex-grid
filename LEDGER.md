@@ -21,6 +21,15 @@ states its facts, so it stands on its own after the transcript is gone.
 
 ## Next
 
+- **HG4** · The data build orders equal-date posts at random:
+  `readInjectedDescription` (`example/gulp/gulp-data-tasks.js:111`)
+  pushes metadata in `fs.readFile` completion order and
+  `timeStringComparator` (`:148`) returns 0 for equal dates, so tied
+  posts (`before-times`/`dandelions`, `photo-viewer`/`progress-circle`)
+  can swap between builds in `data.min.json`, `index.html` and
+  `sitemap.xml`. Fix: break ties by id. Found by HG1's byte-compare
+  (`docs/ledger_notes.md`, HG1). A small Muse task.
+
 ## Residuals (known, not fixed)
 
 - **HG2** · showdown 2.1.0 ships three advisories dismissed as
@@ -35,27 +44,5 @@ states its facts, so it stands on its own after the transcript is gone.
 
 ## Done
 
-- **HG1** · Dropped the 9 unused Express-era runtime dependencies
-  (`@sendgrid/mail`, `body-parser`, `cookie-parser`, `dotenv`,
-  `express`, `express-session`, `morgan`, `serve-favicon`,
-  `serve-static`); `dependencies` now holds only `showdown` and
-  `showdown-twitter`. Proof: no `require`/`import` of any of the nine
-  in any tracked file — each appeared only in `package.json` /
-  `package-lock.json` (the `Express` strings elsewhere are post
-  categories and doc prose). `npm ls --omit=dev` clean; lockfile lost
-  88 packages with zero version changes to retained packages (the one
-  remaining `serve-static` lock entry is `dev: true`, via
-  `gulp-connect`). Vendor build
-  (`npx gulp --series clean data scripts styles`) byte-identical
-  before/after: 80/80 files SHA-256 equal in `dist/` +
-  `example/dist`. Known wrinkle, pre-existing and unrelated: one of
-  four after-builds flipped two equal-date tie pairs
-  (`before-times`/`dandelions`, `4/2021`;
-  `photo-viewer`/`progress-circle`, `2/2014`) in
-  `data.min.json`/`index.html`/`sitemap.xml` — semantically identical
-  (posts equal sorted by id). Cause: `gulp-data-tasks.js` pushes in
-  async `fs.readFile` completion order and its date comparator
-  returns 0 for equal dates with no `tieBreaker`. Evidence:
-  `.claude/probes/HG1/` (untracked; left uncommitted per brief). Brief:
-  `docs/design/HG1_drop_express_deps.md`. Resolved in this commit
-  (Muse, 2026-10-29; launched by claude 0cfd9cf1).
+- **HG5** · Dependabot alert #136 (`qs` 6.16.0, dev via gulp-connect → tiny-lr, GHSA-6pq8-jhm2-2vcw): merged Dependabot PR #58 (`qs` 6.17.1, lockfile only). Done in 7c5afaa (2026-10-29).
+- **HG1** · Dropped the 9 unused Express-era runtime dependencies (Muse; full text in `docs/ledger_notes.md`). Done in 0895d39 (2026-10-29).

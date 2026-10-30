@@ -53,6 +53,14 @@ name them, and their advisories are HG2.
 
 ## Handoff log
 
-- 2026-10-29 (Muse, this run): HG1 done. All nine proved unused (grep: manifests only, zero require/import). Vendor build byte-identical before/after (80/80 SHA-256). 
-pm uninstall --ignore-scripts removed 88 packages; 
-pm ls --omit=dev clean (showdown, showdown-twitter only); no retained-package version changed. One after-build flipped two equal-date tie pairs (pre-existing racy sort in gulp-data-tasks.js; other builds matched before exactly; semantically identical). Full detail in LEDGER.md Done / HG1 and .claude/probes/HG1/steps.txt. Commit follows below.
+- 2026-10-29 (Muse, this run): HG1 done. All nine proved unused (grep:
+  manifests only, zero require/import). Vendor build byte-identical
+  before/after (80/80 SHA-256). `npm uninstall --ignore-scripts`
+  removed 88 packages; `npm ls --omit=dev` clean (showdown,
+  showdown-twitter only); no retained-package version changed. One
+  after-build flipped two equal-date tie pairs (pre-existing racy sort
+  in gulp-data-tasks.js, now HG4; other builds matched before exactly;
+  semantically identical). Full detail in `docs/ledger_notes.md` (HG1)
+  and `.claude/probes/HG1/steps.txt`. Commit 0895d39. (Rewrapped by
+  Claude: PowerShell had turned the backtick before each `npm` into a
+  newline.)

@@ -19,3 +19,8 @@ npm-debug.log
 aws_config.json
 
 example/dist
+
+# Claude Code: track only the path-scoped rules (.claude/rules/); agent
+# worktrees, probes and everything else under .claude/ stay untracked.
+.claude/*
+!.claude/rules/
